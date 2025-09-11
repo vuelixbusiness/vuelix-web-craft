@@ -1,13 +1,15 @@
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
-import Features from "@/components/Features";
+import { HowItWorks, ForArtists, ForCreators } from "@/components/Sections";
 
 const Index = () => {
   return (
     <div className="min-h-screen">
       <Navigation />
       <Hero />
-      <Features />
+      <HowItWorks />
+      <ForArtists />
+      <ForCreators />
     </div>
   );
 };
