@@ -45,6 +45,7 @@ interface CampaignData {
   payoutType?: string;
   payoutRate?: number;
   vipBonus?: number;
+  maxPayout?: number;
   instructions?: string;
   referenceLinks?: string;
   approvalRequired?: boolean;
@@ -385,6 +386,21 @@ const ArtistCampaignFlow = () => {
                         onChange={(e) => updateCampaignData('vipBonus', parseFloat(e.target.value))}
                       />
                     </div>
+                  </div>
+                </div>
+
+                {/* MAX Payout Total */}
+                <div className="space-y-2">
+                  <Label className="text-base font-medium">MAX Payout Total ($)</Label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input 
+                      type="number"
+                      placeholder="0.00"
+                      className="pl-10"
+                      value={campaignData.maxPayout || ''}
+                      onChange={(e) => updateCampaignData('maxPayout', parseFloat(e.target.value))}
+                    />
                   </div>
                 </div>
 
