@@ -555,6 +555,26 @@ const ArtistCampaignFlow = () => {
                         </div>
                       </div>
                       
+                      {/* Campaign Budget Progress */}
+                      {campaignData.budget && (
+                        <div className="mb-6">
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="text-sm text-muted-foreground">Campaign Budget Remaining</span>
+                            <span className="text-sm font-bold text-primary">72% remaining</span>
+                          </div>
+                          <div className="w-full bg-muted/30 rounded-full h-3 overflow-hidden">
+                            <div 
+                              className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 transition-all duration-300 ease-out"
+                              style={{ width: '72%' }}
+                            />
+                          </div>
+                          <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                            <span>${(campaignData.budget * 0.28).toFixed(0)} spent</span>
+                            <span>${(campaignData.budget * 0.72).toFixed(0)} remaining</span>
+                          </div>
+                        </div>
+                      )}
+                      
                       <Button variant="outline" className="w-full" disabled>
                         Apply to Campaign
                       </Button>
