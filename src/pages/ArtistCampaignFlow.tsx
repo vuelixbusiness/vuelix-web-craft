@@ -494,7 +494,7 @@ const ArtistCampaignFlow = () => {
                 <CardContent>
                   <Card className="bg-secondary">
                     <CardContent className="p-6">
-                      <div className="flex items-center space-x-4 mb-4">
+                      <div className="flex items-center space-x-4 mb-6">
                         <div className="w-16 h-16 bg-gradient-primary rounded-lg flex items-center justify-center">
                           <Music className="w-8 h-8 text-white" />
                         </div>
@@ -506,22 +506,52 @@ const ArtistCampaignFlow = () => {
                         </div>
                       </div>
                       
-                      <div className="grid grid-cols-2 gap-4 mb-4">
-                        <div>
-                          <div className="text-sm text-muted-foreground">Payout Rate</div>
-                          <div className="text-lg font-bold text-primary">
-                            ${campaignData.payoutRate}/{campaignData.payoutType?.replace('-', ' ')}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div className="space-y-4">
+                          <div>
+                            <div className="text-sm text-muted-foreground mb-1">Payout Rate</div>
+                            <div className="text-lg font-bold text-primary">
+                              ${campaignData.payoutRate}/{campaignData.payoutType?.replace('-', ' ')}
+                            </div>
                           </div>
+                          {campaignData.vipBonus && (
+                            <div>
+                              <div className="text-sm text-muted-foreground mb-1">VIP Payout Rate</div>
+                              <div className="text-lg font-bold text-primary">
+                                ${campaignData.vipBonus}
+                              </div>
+                            </div>
+                          )}
                         </div>
-                        <div>
-                          <div className="text-sm text-muted-foreground">Platforms</div>
-                          <div className="flex gap-1">
-                            {campaignData.platforms.map((platform) => (
-                              <Badge key={platform} variant="outline" className="text-xs">
-                                {platform}
-                              </Badge>
-                            ))}
-                          </div>
+                        
+                        <div className="space-y-4">
+                          {campaignData.maxPayout && (
+                            <div>
+                              <div className="text-sm text-muted-foreground mb-1">Max Payout Total</div>
+                              <div className="text-lg font-bold text-primary">
+                                ${campaignData.maxPayout}
+                              </div>
+                            </div>
+                          )}
+                          {campaignData.vipMaxPayout && (
+                            <div>
+                              <div className="text-sm text-muted-foreground mb-1">VIP Max Payout Total</div>
+                              <div className="text-lg font-bold text-primary">
+                                ${campaignData.vipMaxPayout}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      <div className="mb-4">
+                        <div className="text-sm text-muted-foreground mb-2">Target Platforms</div>
+                        <div className="flex gap-2">
+                          {campaignData.platforms.map((platform) => (
+                            <Badge key={platform} variant="outline" className="text-xs capitalize">
+                              {platform}
+                            </Badge>
+                          ))}
                         </div>
                       </div>
                       
