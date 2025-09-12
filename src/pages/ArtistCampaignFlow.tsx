@@ -106,7 +106,17 @@ const ArtistCampaignFlow = () => {
           {/* Progress Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-4">
-              <h1 className="text-3xl font-bold text-foreground">Launch Your Campaign</h1>
+              <div className="flex items-center space-x-3">
+                <Button 
+                  variant="ghost" 
+                  size="icon"
+                  onClick={() => window.history.back()}
+                  className="hover:bg-secondary"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                </Button>
+                <h1 className="text-3xl font-bold text-foreground">Launch Your Campaign</h1>
+              </div>
               <div className="text-sm text-muted-foreground">
                 Step {currentStep} of 3
               </div>
