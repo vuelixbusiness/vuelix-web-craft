@@ -46,6 +46,7 @@ interface CampaignData {
   payoutRate?: number;
   vipBonus?: number;
   maxPayout?: number;
+  vipMaxPayout?: number;
   instructions?: string;
   referenceLinks?: string;
   approvalRequired?: boolean;
@@ -389,18 +390,34 @@ const ArtistCampaignFlow = () => {
                   </div>
                 </div>
 
-                {/* MAX Payout Total */}
-                <div className="space-y-2">
-                  <Label className="text-base font-medium">MAX Payout Total ($)</Label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input 
-                      type="number"
-                      placeholder="0.00"
-                      className="pl-10"
-                      value={campaignData.maxPayout || ''}
-                      onChange={(e) => updateCampaignData('maxPayout', parseFloat(e.target.value))}
-                    />
+                {/* MAX Payout Totals */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-base font-medium">MAX Payout Total ($)</Label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input 
+                        type="number"
+                        placeholder="0.00"
+                        className="pl-10"
+                        value={campaignData.maxPayout || ''}
+                        onChange={(e) => updateCampaignData('maxPayout', parseFloat(e.target.value))}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label className="text-base font-medium">VIP MAX Payout Total ($)</Label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input 
+                        type="number"
+                        placeholder="0.00"
+                        className="pl-10"
+                        value={campaignData.vipMaxPayout || ''}
+                        onChange={(e) => updateCampaignData('vipMaxPayout', parseFloat(e.target.value))}
+                      />
+                    </div>
                   </div>
                 </div>
 
