@@ -24,16 +24,21 @@ import {
   TrendingUp,
   ArrowLeft,
   ArrowRight,
-  Rocket
+  Rocket,
+  ImageIcon
 } from "lucide-react";
+import { FaTiktok, FaInstagram, FaYoutube } from "react-icons/fa";
 import Navigation from "@/components/Navigation";
 
 interface CampaignData {
   // Step 1
   songFile?: File;
   songLink?: string;
+  coverArtFile?: File;
+  coverArtLink?: string;
   campaignType?: string;
   genre?: string;
+  customGenre?: string;
   platforms: string[];
   
   // Step 2
@@ -57,13 +62,13 @@ const ArtistCampaignFlow = () => {
 
   const genres = [
     "Hip Hop", "Pop", "R&B", "Rock", "Electronic", "Country", 
-    "Jazz", "Reggae", "Latin", "Indie", "Folk", "Classical"
+    "Jazz", "Reggae", "Latin", "Indie", "Folk", "Classical", "Custom"
   ];
 
   const platforms = [
-    { id: "tiktok", name: "TikTok", icon: "🎵" },
-    { id: "instagram", name: "Instagram", icon: "📸" },
-    { id: "youtube", name: "YouTube", icon: "▶️" }
+    { id: "tiktok", name: "TikTok", icon: <FaTiktok className="w-6 h-6" /> },
+    { id: "instagram", name: "Instagram", icon: <FaInstagram className="w-6 h-6" /> },
+    { id: "youtube", name: "YouTube", icon: <FaYoutube className="w-6 h-6" /> }
   ];
 
   const updateCampaignData = (field: keyof CampaignData, value: any) => {
@@ -188,6 +193,39 @@ const ArtistCampaignFlow = () => {
                   </div>
                 </div>
 
+                {/* Cover Art Upload */}
+                <div className="space-y-4">
+                  <Label className="text-base font-medium">Upload Cover Art</Label>
+                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                    <ImageIcon className="w-10 h-10 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-base font-medium mb-2">Upload Cover Art</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Add album artwork or campaign image
+                    </p>
+                    <Button variant="outline" size="sm" className="mb-4">
+                      Choose Image
+                    </Button>
+                    <div className="text-xs text-muted-foreground mb-4">
+                      Supported: JPG, PNG, WEBP (Max 10MB)
+                    </div>
+                    
+                    <div className="relative my-4">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-border"></div>
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">Or</span>
+                      </div>
+                    </div>
+                    
+                    <Input 
+                      placeholder="Paste image link"
+                      value={campaignData.coverArtLink || ''}
+                      onChange={(e) => updateCampaignData('coverArtLink', e.target.value)}
+                    />
+                  </div>
+                </div>
+
                 {/* Campaign Type */}
                 <div className="space-y-2">
                   <Label className="text-base font-medium">Campaign Type</Label>
@@ -224,6 +262,16 @@ const ArtistCampaignFlow = () => {
                       ))}
                     </SelectContent>
                   </Select>
+                  
+                  {/* Custom Genre Input */}
+                  {campaignData.genre === 'custom' && (
+                    <Input 
+                      placeholder="Enter custom genre"
+                      value={campaignData.customGenre || ''}
+                      onChange={(e) => updateCampaignData('customGenre', e.target.value)}
+                      className="mt-2"
+                    />
+                  )}
                 </div>
 
                 {/* Platform Toggles */}
@@ -241,7 +289,7 @@ const ArtistCampaignFlow = () => {
                         onClick={() => togglePlatform(platform.id)}
                       >
                         <CardContent className="p-4 text-center">
-                          <div className="text-2xl mb-2">{platform.icon}</div>
+                          <div className="mb-2 flex justify-center text-primary">{platform.icon}</div>
                           <div className="font-medium">{platform.name}</div>
                         </CardContent>
                       </Card>
@@ -311,7 +359,7 @@ const ArtistCampaignFlow = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-base font-medium">
-                      {campaignData.payoutType === 'flat-rate' ? 'Flat Rate ($)' : 'Rate per 1K'}
+                      {campaignData.payoutType === 'flat-rate' ? 'Flat Rate ($)' : 'Payout Rate per 1k Views'}
                     </Label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -326,9 +374,9 @@ const ArtistCampaignFlow = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label className="text-base font-medium">VIP Creator Bonus ($)</Label>
+                    <Label className="text-base font-medium">VIP Creator Payout Rate ($)</Label>
                     <div className="relative">
-                      <TrendingUp className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input 
                         type="number"
                         placeholder="0.00"
