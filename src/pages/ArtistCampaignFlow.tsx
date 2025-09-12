@@ -1,0 +1,551 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
+import { 
+  Upload, 
+  Music, 
+  Target, 
+  DollarSign, 
+  Eye, 
+  Heart, 
+  Calendar as CalendarIcon,
+  PlayCircle,
+  Users,
+  TrendingUp,
+  ArrowLeft,
+  ArrowRight,
+  Rocket
+} from "lucide-react";
+import Navigation from "@/components/Navigation";
+
+interface CampaignData {
+  // Step 1
+  songFile?: File;
+  songLink?: string;
+  campaignType?: string;
+  genre?: string;
+  platforms: string[];
+  
+  // Step 2
+  payoutType?: string;
+  payoutRate?: number;
+  vipBonus?: number;
+  instructions?: string;
+  referenceLinks?: string;
+  approvalRequired?: boolean;
+  
+  // Step 3
+  endDate?: Date;
+  budget?: number;
+}
+
+const ArtistCampaignFlow = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+  const [campaignData, setCampaignData] = useState<CampaignData>({
+    platforms: []
+  });
+
+  const genres = [
+    "Hip Hop", "Pop", "R&B", "Rock", "Electronic", "Country", 
+    "Jazz", "Reggae", "Latin", "Indie", "Folk", "Classical"
+  ];
+
+  const platforms = [
+    { id: "tiktok", name: "TikTok", icon: "🎵" },
+    { id: "instagram", name: "Instagram", icon: "📸" },
+    { id: "youtube", name: "YouTube", icon: "▶️" }
+  ];
+
+  const updateCampaignData = (field: keyof CampaignData, value: any) => {
+    setCampaignData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const togglePlatform = (platformId: string) => {
+    setCampaignData(prev => ({
+      ...prev,
+      platforms: prev.platforms.includes(platformId) 
+        ? prev.platforms.filter(p => p !== platformId)
+        : [...prev.platforms, platformId]
+    }));
+  };
+
+  const canContinue = (step: number) => {
+    switch (step) {
+      case 1:
+        return (campaignData.songFile || campaignData.songLink) && 
+               campaignData.campaignType && 
+               campaignData.genre && 
+               campaignData.platforms.length > 0;
+      case 2:
+        return campaignData.payoutType && 
+               campaignData.payoutRate && 
+               campaignData.instructions;
+      case 3:
+        return campaignData.endDate && campaignData.budget;
+      default:
+        return false;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      
+      <div className="pt-20 pb-12">
+        <div className="container mx-auto px-4 max-w-4xl">
+          {/* Progress Header */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-3xl font-bold text-foreground">Launch Your Campaign</h1>
+              <div className="text-sm text-muted-foreground">
+                Step {currentStep} of 3
+              </div>
+            </div>
+            
+            {/* Progress Bar */}
+            <div className="flex space-x-2">
+              {[1, 2, 3].map((step) => (
+                <div
+                  key={step}
+                  className={`flex-1 h-2 rounded-full transition-smooth ${
+                    step <= currentStep ? 'bg-primary' : 'bg-secondary'
+                  }`}
+                />
+              ))}
+            </div>
+            
+            {/* Step Labels */}
+            <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+              <span>Choose Song</span>
+              <span>Set Rewards</span>
+              <span>Launch</span>
+            </div>
+          </div>
+
+          {/* Step 1: Choose a Song */}
+          {currentStep === 1 && (
+            <Card className="border-2">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Music className="w-5 h-5 text-primary" />
+                  <span>Choose Your Song</span>
+                </CardTitle>
+                <CardDescription>
+                  Upload your track and set the campaign parameters
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Song Upload */}
+                <div className="space-y-4">
+                  <Label className="text-base font-medium">Upload Song</Label>
+                  <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
+                    <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+                    <h3 className="text-lg font-medium mb-2">Upload Music File</h3>
+                    <p className="text-muted-foreground mb-4">
+                      Drag & drop your audio file or browse to upload
+                    </p>
+                    <Button variant="outline" className="mb-4">
+                      Choose File
+                    </Button>
+                    <div className="text-xs text-muted-foreground mb-4">
+                      Supported: MP3, WAV, FLAC (Max 50MB)
+                    </div>
+                    
+                    <div className="relative my-4">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-border"></div>
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-background px-2 text-muted-foreground">Or</span>
+                      </div>
+                    </div>
+                    
+                    <Input 
+                      placeholder="Paste SoundCloud or Spotify link"
+                      value={campaignData.songLink || ''}
+                      onChange={(e) => updateCampaignData('songLink', e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {/* Campaign Type */}
+                <div className="space-y-2">
+                  <Label className="text-base font-medium">Campaign Type</Label>
+                  <Select 
+                    value={campaignData.campaignType} 
+                    onValueChange={(value) => updateCampaignData('campaignType', value)}
+                  >
+                    <SelectTrigger className="bg-background border-border">
+                      <SelectValue placeholder="Select campaign type" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border-border z-50">
+                      <SelectItem value="clipping">Clipping - Use song in content</SelectItem>
+                      <SelectItem value="duet">Duet - Create response videos</SelectItem>
+                      <SelectItem value="reaction">Reaction - React to your content</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Genre Selector */}
+                <div className="space-y-2">
+                  <Label className="text-base font-medium">Genre</Label>
+                  <Select 
+                    value={campaignData.genre} 
+                    onValueChange={(value) => updateCampaignData('genre', value)}
+                  >
+                    <SelectTrigger className="bg-background border-border">
+                      <SelectValue placeholder="Select genre" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border-border z-50 max-h-60">
+                      {genres.map((genre) => (
+                        <SelectItem key={genre} value={genre.toLowerCase()}>
+                          {genre}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Platform Toggles */}
+                <div className="space-y-4">
+                  <Label className="text-base font-medium">Target Platforms</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {platforms.map((platform) => (
+                      <Card 
+                        key={platform.id}
+                        className={`cursor-pointer transition-smooth border-2 ${
+                          campaignData.platforms.includes(platform.id) 
+                            ? 'border-primary bg-primary/5' 
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        onClick={() => togglePlatform(platform.id)}
+                      >
+                        <CardContent className="p-4 text-center">
+                          <div className="text-2xl mb-2">{platform.icon}</div>
+                          <div className="font-medium">{platform.name}</div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+
+                <Button 
+                  className="w-full" 
+                  disabled={!canContinue(1)}
+                  onClick={() => setCurrentStep(2)}
+                >
+                  Continue to Rewards
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Step 2: Set Rewards & Guidelines */}
+          {currentStep === 2 && (
+            <Card className="border-2">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Target className="w-5 h-5 text-primary" />
+                  <span>Set Rewards & Creator Guidelines</span>
+                </CardTitle>
+                <CardDescription>
+                  Define how creators will be compensated and what you expect from them
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Payout Type */}
+                <div className="space-y-2">
+                  <Label className="text-base font-medium">Payout Type</Label>
+                  <Select 
+                    value={campaignData.payoutType} 
+                    onValueChange={(value) => updateCampaignData('payoutType', value)}
+                  >
+                    <SelectTrigger className="bg-background border-border">
+                      <SelectValue placeholder="Choose payout method" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background border-border z-50">
+                      <SelectItem value="per-view">
+                        <div className="flex items-center space-x-2">
+                          <Eye className="w-4 h-4" />
+                          <span>Per View - Pay based on video views</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="per-like">
+                        <div className="flex items-center space-x-2">
+                          <Heart className="w-4 h-4" />
+                          <span>Per Like - Pay based on likes received</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="flat-rate">
+                        <div className="flex items-center space-x-2">
+                          <DollarSign className="w-4 h-4" />
+                          <span>Flat Rate - Fixed payment per submission</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Payout Rate */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label className="text-base font-medium">
+                      {campaignData.payoutType === 'flat-rate' ? 'Flat Rate ($)' : 'Rate per 1K'}
+                    </Label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input 
+                        type="number"
+                        placeholder="0.00"
+                        className="pl-10"
+                        value={campaignData.payoutRate || ''}
+                        onChange={(e) => updateCampaignData('payoutRate', parseFloat(e.target.value))}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label className="text-base font-medium">VIP Creator Bonus ($)</Label>
+                    <div className="relative">
+                      <TrendingUp className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input 
+                        type="number"
+                        placeholder="0.00"
+                        className="pl-10"
+                        value={campaignData.vipBonus || ''}
+                        onChange={(e) => updateCampaignData('vipBonus', parseFloat(e.target.value))}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Creator Instructions */}
+                <div className="space-y-2">
+                  <Label className="text-base font-medium">Creator Instructions</Label>
+                  <Textarea 
+                    placeholder="Provide clear instructions for creators. Include any specific requirements, hashtags to use, or creative direction..."
+                    className="min-h-[120px]"
+                    value={campaignData.instructions || ''}
+                    onChange={(e) => updateCampaignData('instructions', e.target.value)}
+                  />
+                </div>
+
+                {/* Reference Links */}
+                <div className="space-y-2">
+                  <Label className="text-base font-medium">Reference Links (Optional)</Label>
+                  <Textarea 
+                    placeholder="Add links to example videos, mood boards, or other reference materials..."
+                    className="min-h-[80px]"
+                    value={campaignData.referenceLinks || ''}
+                    onChange={(e) => updateCampaignData('referenceLinks', e.target.value)}
+                  />
+                </div>
+
+                {/* Approval Required */}
+                <div className="flex items-center space-x-2">
+                  <Switch 
+                    id="approval"
+                    checked={campaignData.approvalRequired || false}
+                    onCheckedChange={(checked) => updateCampaignData('approvalRequired', checked)}
+                  />
+                  <Label htmlFor="approval" className="text-base font-medium">
+                    Require approval before content goes live
+                  </Label>
+                </div>
+
+                <div className="flex space-x-4">
+                  <Button 
+                    variant="outline" 
+                    className="flex-1"
+                    onClick={() => setCurrentStep(1)}
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back
+                  </Button>
+                  <Button 
+                    className="flex-1" 
+                    disabled={!canContinue(2)}
+                    onClick={() => setCurrentStep(3)}
+                  >
+                    Continue to Preview
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Step 3: Preview & Launch */}
+          {currentStep === 3 && (
+            <div className="space-y-6">
+              {/* Campaign Preview */}
+              <Card className="border-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <PlayCircle className="w-5 h-5 text-primary" />
+                    <span>Campaign Preview</span>
+                  </CardTitle>
+                  <CardDescription>
+                    This is how your campaign will appear to creators
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <Card className="bg-secondary">
+                    <CardContent className="p-6">
+                      <div className="flex items-center space-x-4 mb-4">
+                        <div className="w-16 h-16 bg-gradient-primary rounded-lg flex items-center justify-center">
+                          <Music className="w-8 h-8 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-xl font-bold">Your Artist Name</h3>
+                          <p className="text-muted-foreground">
+                            {campaignData.genre} • {campaignData.campaignType}
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                          <div className="text-sm text-muted-foreground">Payout Rate</div>
+                          <div className="text-lg font-bold text-primary">
+                            ${campaignData.payoutRate}/{campaignData.payoutType?.replace('-', ' ')}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-sm text-muted-foreground">Platforms</div>
+                          <div className="flex gap-1">
+                            {campaignData.platforms.map((platform) => (
+                              <Badge key={platform} variant="outline" className="text-xs">
+                                {platform}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <Button variant="outline" className="w-full" disabled>
+                        Apply to Campaign
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </CardContent>
+              </Card>
+
+              {/* Campaign Settings */}
+              <Card className="border-2">
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <Rocket className="w-5 h-5 text-primary" />
+                    <span>Final Campaign Settings</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* End Date */}
+                  <div className="space-y-2">
+                    <Label className="text-base font-medium">Campaign End Date</Label>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !campaignData.endDate && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {campaignData.endDate ? format(campaignData.endDate, "PPP") : "Pick end date"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 bg-background border-border z-50" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={campaignData.endDate}
+                          onSelect={(date) => updateCampaignData('endDate', date)}
+                          disabled={(date) => date < new Date()}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  </div>
+
+                  {/* Budget */}
+                  <div className="space-y-2">
+                    <Label className="text-base font-medium">Campaign Budget ($)</Label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input 
+                        type="number"
+                        placeholder="0.00"
+                        className="pl-10"
+                        value={campaignData.budget || ''}
+                        onChange={(e) => updateCampaignData('budget', parseFloat(e.target.value))}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Budget Summary */}
+                  {campaignData.budget && campaignData.payoutRate && (
+                    <Card className="bg-primary/5 border-primary/20">
+                      <CardContent className="p-4">
+                        <h4 className="font-medium mb-2">Budget Summary</h4>
+                        <div className="text-sm space-y-1 text-muted-foreground">
+                          <div className="flex justify-between">
+                            <span>Total Budget:</span>
+                            <span className="font-medium">${campaignData.budget}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span>Rate per 1K:</span>
+                            <span className="font-medium">${campaignData.payoutRate}</span>
+                          </div>
+                          <div className="flex justify-between border-t pt-1 mt-1">
+                            <span>Estimated Reach:</span>
+                            <span className="font-medium text-primary">
+                              ~{Math.floor((campaignData.budget / campaignData.payoutRate) * 1000).toLocaleString()} views
+                            </span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  <div className="flex space-x-4">
+                    <Button 
+                      variant="outline" 
+                      className="flex-1"
+                      onClick={() => setCurrentStep(2)}
+                    >
+                      <ArrowLeft className="w-4 h-4 mr-2" />
+                      Back
+                    </Button>
+                    <Button 
+                      variant="hero" 
+                      className="flex-1" 
+                      disabled={!canContinue(3)}
+                    >
+                      <Rocket className="w-4 h-4 mr-2" />
+                      Launch Campaign
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ArtistCampaignFlow;

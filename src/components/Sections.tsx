@@ -131,8 +131,8 @@ const ForArtists = () => {
         </div>
         
         <div className="text-center">
-          <Button variant="hero" size="lg">
-            Start Your Campaign
+          <Button variant="hero" size="lg" asChild>
+            <a href="/artist-campaign">Start Your Campaign</a>
           </Button>
         </div>
       </div>
