@@ -506,7 +506,7 @@ const ArtistCampaignFlow = () => {
                   <Card className="bg-secondary relative">
                     <CardContent className="p-6">
                       {/* Highlighted Payout Rate Box - Top Right */}
-                      <div className="absolute top-4 right-4 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg shadow-lg border-2 border-white/20">
+                      <div className="absolute top-4 right-4 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-white px-3.5 py-1.5 rounded-lg shadow-lg border-2 border-white/20">
                          <div className="text-lg font-bold">
                            Earn ${campaignData.payoutRate} /1k views
                          </div>
