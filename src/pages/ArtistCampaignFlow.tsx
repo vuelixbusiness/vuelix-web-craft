@@ -59,6 +59,7 @@ interface CampaignData {
 
 const ArtistCampaignFlow = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [campaignData, setCampaignData] = useState<CampaignData>({
     platforms: []
   });
@@ -566,9 +567,22 @@ const ArtistCampaignFlow = () => {
                         {/* Campaign Description */}
                         {campaignData.instructions && (
                           <div className="mb-6 p-4 bg-secondary/20 rounded-lg border border-border/40">
-                            <div className="text-sm font-medium text-foreground mb-2">Campaign Description</div>
+                            <div className="flex justify-between items-center mb-2">
+                              <div className="text-sm font-medium text-foreground">Campaign Description</div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                                className="text-xs h-6 px-2 text-primary hover:text-primary-foreground"
+                              >
+                                {isDescriptionExpanded ? "See Less" : "See More"}
+                              </Button>
+                            </div>
                             <div className="text-sm text-muted-foreground leading-relaxed">
-                              {campaignData.instructions}
+                              {isDescriptionExpanded 
+                                ? campaignData.instructions 
+                                : `${campaignData.instructions.slice(0, 120)}${campaignData.instructions.length > 120 ? "..." : ""}`
+                              }
                             </div>
                           </div>
                         )}
