@@ -505,86 +505,90 @@ const ArtistCampaignFlow = () => {
                 <CardContent>
                   <Card className="bg-secondary relative">
                     <CardContent className="p-6">
-                      {/* Highlighted Payout Rate Box - Top Right */}
-                      <div className="absolute top-4 right-4 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-white px-3.5 py-1.5 rounded-lg shadow-lg border-2 border-white/20">
-                         <div className="text-lg font-bold">
-                           Earn ${campaignData.payoutRate} /1k views
-                         </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-4 mb-6">
-                        <div className="w-16 h-16 bg-gradient-primary rounded-lg flex items-center justify-center">
-                          <Music className="w-8 h-8 text-white" />
-                        </div>
-                        <div>
-                          <h3 className="text-xl font-bold">Your Artist Name - {campaignData.songTitle || 'Song Title'}</h3>
-                          <p className="text-muted-foreground">
-                            {campaignData.genre} • {campaignData.campaignType}
-                          </p>
-                        </div>
-                      </div>
-                      
-                      {/* Campaign Budget Progress Bar */}
-                      {campaignData.budget && (
-                        <div className="mb-6 p-4 bg-secondary/30 rounded-lg">
-                           <div className="flex justify-between items-center mb-3">
-                             <span className="text-sm font-medium">Campaign Budget Remaining</span>
-                             <span className="text-sm font-bold text-primary">100% remaining</span>
-                           </div>
-                           <div className="relative w-full bg-muted/40 rounded-full h-4 overflow-hidden">
-                             <div 
-                               className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 transition-all duration-500 ease-out animate-scale-in relative"
-                               style={{ width: '100%' }}
-                             >
-                               <div className="absolute inset-0 bg-gradient-to-r from-cyan-300/20 to-purple-500/20 animate-pulse"></div>
-                             </div>
-                             <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white mix-blend-difference">
-                               100%
-                             </div>
-                           </div>
-                           <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                             <span>Used: $0</span>
-                             <span>Available: ${campaignData.budget.toFixed(0)}</span>
-                           </div>
-                        </div>
-                      )}
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div className="space-y-3">
-                          <div>
-                            <div className="text-xs text-muted-foreground mb-1">Payout Rate</div>
-                            <div className="text-sm font-bold text-primary">
-                              ${campaignData.payoutRate}/{campaignData.payoutType?.replace('-', ' ')}
-                            </div>
+                       {/* Highlighted Payout Rate Box - Top Right */}
+                       <div className="absolute top-4 right-4 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-white px-3.5 py-1.5 rounded-lg shadow-lg border-2 border-white/20">
+                          <div className="text-lg font-bold">
+                            Earn ${campaignData.payoutRate} /1k views
                           </div>
-                          {campaignData.vipBonus && (
-                            <div>
-                              <div className="text-xs text-muted-foreground mb-1">VIP Payout Rate</div>
-                              <div className="text-sm font-bold text-primary">
-                                ${campaignData.vipBonus}
+                       </div>
+                       
+                       {/* Max Payout Info - Below Earn Button */}
+                       <div className="absolute top-16 right-4 mt-2">
+                         {campaignData.maxPayout && (
+                           <div className="bg-black/80 backdrop-blur-sm border border-cyan-400/30 rounded-lg px-3 py-2 shadow-lg">
+                             <div className="text-xs text-cyan-400 font-medium mb-1 tracking-wider uppercase">Max Total</div>
+                             <div className="text-lg font-bold text-white bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+                               ${campaignData.maxPayout}
+                             </div>
+                           </div>
+                         )}
+                       </div>
+                       
+                       <div className="flex items-center space-x-4 mb-6">
+                         <div className="w-16 h-16 bg-gradient-primary rounded-lg flex items-center justify-center">
+                           <Music className="w-8 h-8 text-white" />
+                         </div>
+                         <div>
+                           <h3 className="text-xl font-bold">Your Artist Name - {campaignData.songTitle || 'Song Title'}</h3>
+                           <p className="text-muted-foreground">
+                             {campaignData.genre} • {campaignData.campaignType}
+                           </p>
+                         </div>
+                       </div>
+                       
+                       {/* Campaign Budget Progress Bar */}
+                       {campaignData.budget && (
+                         <div className="mb-6 p-4 bg-secondary/30 rounded-lg">
+                            <div className="flex justify-between items-center mb-3">
+                              <span className="text-sm font-medium">Campaign Budget Remaining</span>
+                              <span className="text-sm font-bold text-primary">100% remaining</span>
+                            </div>
+                            <div className="relative w-full bg-muted/40 rounded-full h-4 overflow-hidden">
+                              <div 
+                                className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 transition-all duration-500 ease-out animate-scale-in relative"
+                                style={{ width: '100%' }}
+                              >
+                                <div className="absolute inset-0 bg-gradient-to-r from-cyan-300/20 to-purple-500/20 animate-pulse"></div>
+                              </div>
+                              <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white mix-blend-difference">
+                                100%
                               </div>
                             </div>
-                          )}
-                        </div>
-                        
-                        <div className="space-y-3">
-                          {campaignData.maxPayout && (
-                            <div>
-                              <div className="text-xs text-muted-foreground mb-1">Max Payout Total</div>
-                              <div className="text-sm font-bold text-primary">
-                                ${campaignData.maxPayout}
-                              </div>
+                            <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                              <span>Used: $0</span>
+                              <span>Available: ${campaignData.budget.toFixed(0)}</span>
                             </div>
-                          )}
-                          {campaignData.vipMaxPayout && (
-                            <div>
-                              <div className="text-xs text-muted-foreground mb-1">VIP Max Payout Total</div>
-                              <div className="text-sm font-bold text-primary">
-                                ${campaignData.vipMaxPayout}
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                         </div>
+                       )}
+
+                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                         <div className="space-y-3">
+                           <div>
+                             <div className="text-xs text-muted-foreground mb-1">Payout Rate</div>
+                             <div className="text-sm font-bold text-primary">
+                               ${campaignData.payoutRate}/{campaignData.payoutType?.replace('-', ' ')}
+                             </div>
+                           </div>
+                           {campaignData.vipBonus && (
+                             <div>
+                               <div className="text-xs text-muted-foreground mb-1">VIP Payout Rate</div>
+                               <div className="text-sm font-bold text-primary">
+                                 ${campaignData.vipBonus}
+                               </div>
+                             </div>
+                           )}
+                         </div>
+                         
+                         <div className="space-y-3">
+                           {campaignData.vipMaxPayout && (
+                             <div>
+                               <div className="text-xs text-muted-foreground mb-1">VIP Max Payout Total</div>
+                               <div className="text-sm font-bold text-primary">
+                                 ${campaignData.vipMaxPayout}
+                               </div>
+                             </div>
+                           )}
+                         </div>
                       </div>
                       
                       <div className="mb-4">
