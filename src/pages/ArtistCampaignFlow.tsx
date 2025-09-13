@@ -34,6 +34,7 @@ interface CampaignData {
   // Step 1
   songFile?: File;
   songLink?: string;
+  songTitle?: string;
   coverArtFile?: File;
   coverArtLink?: string;
   campaignType?: string;
@@ -163,22 +164,22 @@ const ArtistCampaignFlow = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Song Upload */}
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <Label className="text-base font-medium">Upload Song</Label>
-                  <div className="border-2 border-dashed border-border rounded-lg p-8 text-center">
-                    <Upload className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-lg font-medium mb-2">Upload Music File</h3>
-                    <p className="text-muted-foreground mb-4">
+                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                    <Upload className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
+                    <h3 className="text-base font-medium mb-2">Upload Music File</h3>
+                    <p className="text-muted-foreground mb-3 text-sm">
                       Drag & drop your audio file or browse to upload
                     </p>
-                    <Button variant="outline" className="mb-4">
+                    <Button variant="outline" size="sm" className="mb-3">
                       Choose File
                     </Button>
-                    <div className="text-xs text-muted-foreground mb-4">
+                    <div className="text-xs text-muted-foreground mb-3">
                       Supported: MP3, WAV, FLAC (Max 50MB)
                     </div>
                     
-                    <div className="relative my-4">
+                    <div className="relative my-3">
                       <div className="absolute inset-0 flex items-center">
                         <div className="w-full border-t border-border"></div>
                       </div>
@@ -193,6 +194,16 @@ const ArtistCampaignFlow = () => {
                       onChange={(e) => updateCampaignData('songLink', e.target.value)}
                     />
                   </div>
+                </div>
+
+                {/* Song Title */}
+                <div className="space-y-2">
+                  <Label className="text-base font-medium">Song Title</Label>
+                  <Input 
+                    placeholder="Enter your song title"
+                    value={campaignData.songTitle || ''}
+                    onChange={(e) => updateCampaignData('songTitle', e.target.value)}
+                  />
                 </div>
 
                 {/* Cover Art Upload */}
