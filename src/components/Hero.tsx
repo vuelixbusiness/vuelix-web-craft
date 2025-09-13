@@ -46,9 +46,11 @@ const Hero = () => {
               <p className="text-muted-foreground mb-6">
                 Launch campaigns with your tracks and pay creators per 1k views to promote your music organically.
               </p>
-              <Button variant="hero" className="w-full">
-                Start Campaign
-                <ArrowRight className="ml-2 h-5 w-5" />
+              <Button variant="hero" className="w-full" asChild>
+                <a href="/artist-campaign">
+                  Start Campaign
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </a>
               </Button>
             </div>
             
