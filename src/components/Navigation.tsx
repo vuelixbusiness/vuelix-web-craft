@@ -13,7 +13,7 @@ const Navigation = () => {
             <a href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-smooth">
               How It Works
             </a>
-            <a href="#for-artists" className="text-muted-foreground hover:text-foreground transition-smooth">
+            <a href="#how-it-works-artists" className="text-muted-foreground hover:text-foreground transition-smooth">
               For Artists
             </a>
             <a href="#for-creators" className="text-muted-foreground hover:text-foreground transition-smooth">For Creators</a>
