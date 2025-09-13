@@ -514,6 +514,31 @@ const ArtistCampaignFlow = () => {
                         </div>
                       </div>
                       
+                      {/* Campaign Budget Progress Bar */}
+                      {campaignData.budget && (
+                        <div className="mb-6 p-4 bg-secondary/30 rounded-lg">
+                          <div className="flex justify-between items-center mb-3">
+                            <span className="text-sm font-medium">Campaign Budget Remaining</span>
+                            <span className="text-sm font-bold text-primary">75% remaining</span>
+                          </div>
+                          <div className="relative w-full bg-muted/40 rounded-full h-4 overflow-hidden">
+                            <div 
+                              className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 transition-all duration-500 ease-out animate-scale-in relative"
+                              style={{ width: '75%' }}
+                            >
+                              <div className="absolute inset-0 bg-gradient-to-r from-cyan-300/20 to-purple-500/20 animate-pulse"></div>
+                            </div>
+                            <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white mix-blend-difference">
+                              75%
+                            </div>
+                          </div>
+                          <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                            <span>Used: ${(campaignData.budget * 0.25).toFixed(0)}</span>
+                            <span>Available: ${(campaignData.budget * 0.75).toFixed(0)}</span>
+                          </div>
+                        </div>
+                      )}
+
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         <div className="space-y-4">
                           <div>
@@ -551,31 +576,6 @@ const ArtistCampaignFlow = () => {
                           )}
                         </div>
                       </div>
-                      
-                      {/* Campaign Budget Progress Bar */}
-                      {campaignData.budget && (
-                        <div className="mb-6 p-4 bg-secondary/30 rounded-lg">
-                          <div className="flex justify-between items-center mb-3">
-                            <span className="text-sm font-medium">Campaign Budget Remaining</span>
-                            <span className="text-sm font-bold text-primary">75% remaining</span>
-                          </div>
-                          <div className="relative w-full bg-muted/40 rounded-full h-4 overflow-hidden">
-                            <div 
-                              className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 transition-all duration-500 ease-out animate-scale-in relative"
-                              style={{ width: '75%' }}
-                            >
-                              <div className="absolute inset-0 bg-gradient-to-r from-cyan-300/20 to-purple-500/20 animate-pulse"></div>
-                            </div>
-                            <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white mix-blend-difference">
-                              75%
-                            </div>
-                          </div>
-                          <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                            <span>Used: ${(campaignData.budget * 0.25).toFixed(0)}</span>
-                            <span>Available: ${(campaignData.budget * 0.75).toFixed(0)}</span>
-                          </div>
-                        </div>
-                      )}
                       
                       <div className="mb-4">
                         <div className="text-sm text-muted-foreground mb-2">Target Platforms</div>
