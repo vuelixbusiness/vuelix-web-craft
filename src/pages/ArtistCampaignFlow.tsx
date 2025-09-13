@@ -561,8 +561,17 @@ const ArtistCampaignFlow = () => {
                               <span>Available: ${campaignData.budget.toFixed(0)}</span>
                             </div>
                          </div>
-                       )}
+                        )}
 
+                        {/* Campaign Description */}
+                        {campaignData.instructions && (
+                          <div className="mb-6 p-4 bg-secondary/20 rounded-lg border border-border/40">
+                            <div className="text-sm font-medium text-foreground mb-2">Campaign Description</div>
+                            <div className="text-sm text-muted-foreground leading-relaxed">
+                              {campaignData.instructions}
+                            </div>
+                          </div>
+                        )}
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                          <div className="space-y-3">
                            <div>
