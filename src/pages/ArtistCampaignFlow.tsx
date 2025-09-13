@@ -696,12 +696,6 @@ const ArtistCampaignFlow = () => {
                             <span>Rate per 1K:</span>
                             <span className="font-medium">${campaignData.payoutRate}</span>
                           </div>
-                          <div className="flex justify-between border-t pt-1 mt-1">
-                            <span>Estimated Reach:</span>
-                            <span className="font-medium text-primary">
-                              ~{Math.floor((campaignData.budget / campaignData.payoutRate) * 1000).toLocaleString()} views
-                            </span>
-                          </div>
                         </div>
                       </CardContent>
                     </Card>
