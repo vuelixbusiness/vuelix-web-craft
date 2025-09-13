@@ -492,8 +492,16 @@ const ArtistCampaignFlow = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Card className="bg-secondary">
+                  <Card className="bg-secondary relative">
                     <CardContent className="p-6">
+                      {/* Highlighted Payout Rate Box - Top Right */}
+                      <div className="absolute top-4 right-4 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-white px-4 py-2 rounded-lg shadow-lg border-2 border-white/20">
+                        <div className="text-xs font-medium opacity-90">Earn</div>
+                        <div className="text-lg font-bold">
+                          ${campaignData.payoutRate}/{campaignData.payoutType?.replace('-', ' ').split(' ')[1] || 'action'}
+                        </div>
+                      </div>
+                      
                       <div className="flex items-center space-x-4 mb-6">
                         <div className="w-16 h-16 bg-gradient-primary rounded-lg flex items-center justify-center">
                           <Music className="w-8 h-8 text-white" />
