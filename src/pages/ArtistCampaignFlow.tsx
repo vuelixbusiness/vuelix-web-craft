@@ -513,11 +513,11 @@ const ArtistCampaignFlow = () => {
                        </div>
                        
                        {/* Max Payout Info - Below Earn Button */}
-                       <div className="absolute top-16 right-4 mt-2">
+                       <div className="absolute top-20 right-4 mt-1">
                          {campaignData.maxPayout && (
-                           <div className="bg-black/80 backdrop-blur-sm border border-cyan-400/30 rounded-lg px-3 py-2 shadow-lg">
-                             <div className="text-xs text-cyan-400 font-medium mb-1 tracking-wider uppercase">Max Total</div>
-                             <div className="text-lg font-bold text-white bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+                           <div className="bg-black/80 backdrop-blur-sm border border-cyan-400/30 rounded-md px-2 py-1 shadow-lg">
+                             <div className="text-[10px] text-cyan-400 font-medium mb-0.5 tracking-wider uppercase">Max Total</div>
+                             <div className="text-sm font-bold text-white bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
                                ${campaignData.maxPayout}
                              </div>
                            </div>
