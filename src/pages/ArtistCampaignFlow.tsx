@@ -588,12 +588,6 @@ const ArtistCampaignFlow = () => {
                         )}
                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                          <div className="space-y-3">
-                           <div>
-                             <div className="text-xs text-muted-foreground mb-1">Payout Rate</div>
-                             <div className="text-sm font-bold text-primary">
-                               ${campaignData.payoutRate}/{campaignData.payoutType?.replace('-', ' ')}
-                             </div>
-                           </div>
                            {campaignData.vipBonus && (
                              <div>
                                <div className="text-xs text-muted-foreground mb-1">VIP Payout Rate</div>
