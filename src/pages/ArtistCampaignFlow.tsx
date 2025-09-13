@@ -692,10 +692,10 @@ const ArtistCampaignFlow = () => {
                             <span>Total Budget:</span>
                             <span className="font-medium">${campaignData.budget}</span>
                           </div>
-                          <div className="flex justify-between">
-                            <span>Rate per 1K:</span>
-                            <span className="font-medium">${campaignData.payoutRate}</span>
-                          </div>
+                           <div className="flex justify-between">
+                             <span>Vuelix 5% Operations Fee:</span>
+                             <span className="font-medium">${(campaignData.budget * 0.05).toFixed(2)}</span>
+                           </div>
                         </div>
                       </CardContent>
                     </Card>
