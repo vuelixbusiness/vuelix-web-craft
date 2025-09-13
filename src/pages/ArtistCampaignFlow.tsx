@@ -516,9 +516,11 @@ const ArtistCampaignFlow = () => {
                        <div className="absolute top-20 right-4 mt-1">
                          {campaignData.maxPayout && (
                            <div className="bg-black/80 backdrop-blur-sm border border-cyan-400/30 rounded-md px-2 py-1 shadow-lg">
-                             <div className="text-[10px] text-cyan-400 font-medium mb-0.5 tracking-wider uppercase">Max Total</div>
-                             <div className="text-sm font-bold text-white bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-                               ${campaignData.maxPayout}
+                             <div className="flex items-center space-x-1">
+                               <span className="text-[10px] text-cyan-400 font-medium tracking-wider uppercase">Max Payout Total:</span>
+                               <span className="text-sm font-bold text-white bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
+                                 ${campaignData.maxPayout}
+                               </span>
                              </div>
                            </div>
                          )}
