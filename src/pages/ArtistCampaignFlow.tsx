@@ -518,7 +518,7 @@ const ArtistCampaignFlow = () => {
                           <Music className="w-8 h-8 text-white" />
                         </div>
                         <div>
-                          <h3 className="text-xl font-bold">Your Artist Name</h3>
+                          <h3 className="text-xl font-bold">Your Artist Name - {campaignData.songTitle || 'Song Title'}</h3>
                           <p className="text-muted-foreground">
                             {campaignData.genre} • {campaignData.campaignType}
                           </p>
