@@ -550,37 +550,37 @@ const ArtistCampaignFlow = () => {
                         </div>
                       )}
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                        <div className="space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div className="space-y-3">
                           <div>
-                            <div className="text-sm text-muted-foreground mb-1">Payout Rate</div>
-                            <div className="text-lg font-bold text-primary">
+                            <div className="text-xs text-muted-foreground mb-1">Payout Rate</div>
+                            <div className="text-sm font-bold text-primary">
                               ${campaignData.payoutRate}/{campaignData.payoutType?.replace('-', ' ')}
                             </div>
                           </div>
                           {campaignData.vipBonus && (
                             <div>
-                              <div className="text-sm text-muted-foreground mb-1">VIP Payout Rate</div>
-                              <div className="text-lg font-bold text-primary">
+                              <div className="text-xs text-muted-foreground mb-1">VIP Payout Rate</div>
+                              <div className="text-sm font-bold text-primary">
                                 ${campaignData.vipBonus}
                               </div>
                             </div>
                           )}
                         </div>
                         
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                           {campaignData.maxPayout && (
                             <div>
-                              <div className="text-sm text-muted-foreground mb-1">Max Payout Total</div>
-                              <div className="text-lg font-bold text-primary">
+                              <div className="text-xs text-muted-foreground mb-1">Max Payout Total</div>
+                              <div className="text-sm font-bold text-primary">
                                 ${campaignData.maxPayout}
                               </div>
                             </div>
                           )}
                           {campaignData.vipMaxPayout && (
                             <div>
-                              <div className="text-sm text-muted-foreground mb-1">VIP Max Payout Total</div>
-                              <div className="text-lg font-bold text-primary">
+                              <div className="text-xs text-muted-foreground mb-1">VIP Max Payout Total</div>
+                              <div className="text-sm font-bold text-primary">
                                 ${campaignData.vipMaxPayout}
                               </div>
                             </div>
