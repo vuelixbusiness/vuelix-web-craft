@@ -171,6 +171,10 @@ const ArtistCampaignFlow = () => {
   };
 
   const canContinue = (step: number) => {
+    // Temporarily disabled validation - allows progression through all steps
+    return true;
+    
+    /* Original validation logic - commented out for now
     switch (step) {
       case 1:
         return (campaignData.songFile || campaignData.songLink) && 
@@ -186,6 +190,7 @@ const ArtistCampaignFlow = () => {
       default:
         return false;
     }
+    */
   };
 
   return (
