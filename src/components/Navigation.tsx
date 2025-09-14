@@ -31,7 +31,7 @@ const Navigation = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-gradient-primary rounded-lg"></div>
-            <span className="text-xl font-bold text-foreground">Vuelix Clips</span>
+            <span className="text-xl font-bold text-foreground">Vuelix</span>
           </div>
           
           <div className="hidden md:flex items-center space-x-4">
