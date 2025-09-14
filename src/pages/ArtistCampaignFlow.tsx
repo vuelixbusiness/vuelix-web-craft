@@ -63,6 +63,7 @@ const ArtistCampaignFlow = () => {
   const [campaignData, setCampaignData] = useState<CampaignData>({
     platforms: []
   });
+  const [isConnectingSong, setIsConnectingSong] = useState(false);
 
   const handleSongFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -76,6 +77,41 @@ const ArtistCampaignFlow = () => {
     const file = event.target.files?.[0];
     if (file) {
       updateCampaignData('coverArtFile', file);
+    }
+  };
+
+  const handleConnectSongLink = async () => {
+    if (!campaignData.songLink) return;
+    
+    setIsConnectingSong(true);
+    
+    try {
+      // Simulate connecting to the song service
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Extract song title from URL if possible
+      const url = new URL(campaignData.songLink);
+      const pathSegments = url.pathname.split('/');
+      const songTitle = pathSegments[pathSegments.length - 1] || 'Unknown Song';
+      
+      updateCampaignData('songTitle', songTitle.replace(/-/g, ' '));
+      
+    } catch (error) {
+      console.error('Failed to connect song:', error);
+    } finally {
+      setIsConnectingSong(false);
+    }
+  };
+
+  const isValidSongLink = (link: string) => {
+    if (!link) return false;
+    try {
+      const url = new URL(link);
+      return url.hostname.includes('soundcloud.com') || 
+             url.hostname.includes('spotify.com') ||
+             url.hostname.includes('youtube.com');
+    } catch {
+      return false;
     }
   };
 
@@ -229,11 +265,41 @@ const ArtistCampaignFlow = () => {
                       </div>
                     </div>
                     
-                    <Input 
-                      placeholder="Paste SoundCloud or Spotify link"
-                      value={campaignData.songLink || ''}
-                      onChange={(e) => updateCampaignData('songLink', e.target.value)}
-                    />
+                    <div className="space-y-3">
+                      <Input 
+                        placeholder="Paste SoundCloud or Spotify link"
+                        value={campaignData.songLink || ''}
+                        onChange={(e) => updateCampaignData('songLink', e.target.value)}
+                      />
+                      
+                      {campaignData.songLink && isValidSongLink(campaignData.songLink) && (
+                        <Button 
+                          variant="default"
+                          size="sm"
+                          onClick={handleConnectSongLink}
+                          disabled={isConnectingSong}
+                          className="w-full"
+                        >
+                          {isConnectingSong ? (
+                            <>
+                              <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2" />
+                              Connecting Song...
+                            </>
+                          ) : (
+                            <>
+                              <PlayCircle className="w-4 h-4 mr-2" />
+                              Connect Song to Campaign
+                            </>
+                          )}
+                        </Button>
+                      )}
+                      
+                      {campaignData.songLink && !isValidSongLink(campaignData.songLink) && (
+                        <div className="text-xs text-destructive text-center">
+                          Please enter a valid SoundCloud, Spotify, or YouTube link
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
 
