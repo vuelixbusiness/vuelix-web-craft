@@ -192,8 +192,8 @@ const Terms = () => {
               <div className="text-muted-foreground leading-relaxed space-y-2">
                 <p>For questions about these Terms and Conditions, please contact us:</p>
                 <div className="bg-secondary/20 p-4 rounded-lg">
-                  <p><strong>Email:</strong> legal@vuelixclips.com</p>
-                  <p><strong>Support:</strong> support@vuelixclips.com</p>
+                  <p><strong>Email:</strong> vuelixbusiness@gmail.com</p>
+                  <p><strong>Support:</strong> vuelixbusiness@gmail.com</p>
                   <p><strong>Address:</strong> [Company Address]</p>
                 </div>
               </div>
