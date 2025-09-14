@@ -40,7 +40,8 @@ const Login = () => {
         description: "You have been logged in successfully",
       });
       
-      // Will redirect automatically based on user type in auth context
+      // Redirect to dashboard after successful login
+      navigate('/dashboard');
     } else {
       toast({
         title: "Login failed",
