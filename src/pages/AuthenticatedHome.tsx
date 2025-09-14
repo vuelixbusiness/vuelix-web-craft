@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
-import Navigation from "@/components/Navigation";
+import DashboardNav from "@/components/DashboardNav";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -157,7 +157,7 @@ const AuthenticatedHome = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
+      <DashboardNav dashboardType={user.type} />
       
       <div className="pt-20 pb-12">
         <div className="container mx-auto px-4">
