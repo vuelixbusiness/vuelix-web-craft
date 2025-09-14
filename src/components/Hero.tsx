@@ -114,7 +114,7 @@ const Hero = () => {
               <p className="text-muted-foreground mb-6">
                 Submit your short-form content to music campaigns and earn money based on your video performance.
               </p>
-              <Button variant="outline-hero" className="w-full" asChild>
+              <Button variant="hero" className="w-full" asChild>
                 <a href="/creator-flow">
                   Browse Campaigns
                   <DollarSign className="ml-2 h-5 w-5" />
