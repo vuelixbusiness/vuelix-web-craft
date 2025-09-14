@@ -89,7 +89,7 @@ const Hero = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 max-w-4xl mx-auto">
             {/* For Artists */}
-            <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-8 border border-border shadow-soft">
+            <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-8 border border-border shadow-soft flex flex-col">
               <div className="flex items-center mb-4">
                 <Music className="h-8 w-8 text-primary mr-3" />
                 <h3 className="text-2xl font-bold">For Artists</h3>
@@ -97,7 +97,7 @@ const Hero = () => {
               <p className="text-muted-foreground mb-6">
                 Launch campaigns with your tracks and pay creators per 1k views to promote your music organically.
               </p>
-              <Button variant="hero" className="w-full" asChild>
+              <Button variant="hero" className="w-full mt-auto" asChild>
                 <a href="/artist-campaign">
                   Start Campaign
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -106,7 +106,7 @@ const Hero = () => {
             </div>
             
             {/* For Creators */}
-            <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-8 border border-border shadow-soft">
+            <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-8 border border-border shadow-soft flex flex-col">
               <div className="flex items-center mb-4">
                 <Video className="h-8 w-8 text-primary mr-3" />
                 <h3 className="text-2xl font-bold">For Creators</h3>
@@ -114,7 +114,7 @@ const Hero = () => {
               <p className="text-muted-foreground mb-6">
                 Submit your short-form content to music campaigns and earn money based on your video performance.
               </p>
-              <Button variant="hero" className="w-full" asChild>
+              <Button variant="hero" className="w-full mt-auto" asChild>
                 <a href="/creator-flow">
                   Browse Campaigns
                   <DollarSign className="ml-2 h-5 w-5" />
