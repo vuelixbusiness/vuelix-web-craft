@@ -11,6 +11,7 @@ import ArtistCampaignFlow from "./pages/ArtistCampaignFlow";
 import VuelixPlus from "./pages/VuelixPlus";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Terms from "./pages/Terms";
 import CreatorDashboard from "./pages/CreatorDashboard";
 import ArtistDashboard from "./pages/ArtistDashboard";
 import NotFound from "./pages/NotFound";
@@ -30,10 +31,11 @@ const App = () => (
               <Route path="/creator-flow" element={<CreatorFlow />} />
               <Route path="/artist-campaign" element={<ArtistCampaignFlow />} />
               <Route path="/vuelix-plus" element={<VuelixPlus />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/creator-dashboard" element={<CreatorDashboard />} />
-              <Route path="/artist-dashboard" element={<ArtistDashboard />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/creator-dashboard" element={<CreatorDashboard />} />
+            <Route path="/artist-dashboard" element={<ArtistDashboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
