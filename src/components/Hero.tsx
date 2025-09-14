@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play, Music, Video, DollarSign } from "lucide-react";
-import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 import heroImage from "@/assets/hero-bg.jpg";
 
 const mockCampaigns = [
@@ -140,38 +141,47 @@ const Hero = () => {
           {/* Active Campaigns Carousel */}
           <div className="mt-20">
             <h3 className="text-2xl md:text-3xl font-bold mb-8 text-center">Active Campaigns</h3>
-            <Carousel
-              opts={{
-                align: "start",
-                loop: true,
-              }}
-              className="w-full"
-            >
-              <CarouselContent className="animate-fade-in">
-                {mockCampaigns.map((campaign) => (
-                  <CarouselItem key={campaign.id} className="md:basis-1/2 lg:basis-1/3">
-                    <div className="bg-card/30 backdrop-blur-sm rounded-xl p-6 border border-border/50 hover:bg-card/50 transition-all duration-300 hover-scale">
-                      <div className="flex items-start space-x-4">
-                        <img 
-                          src={campaign.image} 
-                          alt={campaign.title}
-                          className="w-16 h-16 rounded-lg object-cover bg-muted"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-lg leading-tight mb-1 truncate">{campaign.title}</h4>
-                          <p className="text-muted-foreground text-sm mb-2">{campaign.artist}</p>
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="px-2 py-1 bg-primary/10 text-primary rounded-md">{campaign.genre}</span>
-                            <span className="text-muted-foreground">{campaign.views} views</span>
+            <div className="relative">
+              <Carousel
+                opts={{
+                  align: "start",
+                  loop: true,
+                }}
+                plugins={[
+                  Autoplay({
+                    delay: 3000,
+                  })
+                ]}
+                className="w-full"
+              >
+                <CarouselContent className="animate-fade-in">
+                  {mockCampaigns.map((campaign) => (
+                    <CarouselItem key={campaign.id} className="md:basis-1/2 lg:basis-1/3">
+                      <div className="bg-card/30 backdrop-blur-sm rounded-xl p-6 border border-border/50 hover:bg-card/50 transition-all duration-300 hover-scale">
+                        <div className="flex items-start space-x-4">
+                          <img 
+                            src={campaign.image} 
+                            alt={campaign.title}
+                            className="w-16 h-16 rounded-lg object-cover bg-muted"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-lg leading-tight mb-1 truncate">{campaign.title}</h4>
+                            <p className="text-muted-foreground text-sm mb-2">{campaign.artist}</p>
+                            <div className="flex items-center justify-between text-sm">
+                              <span className="px-2 py-1 bg-primary/10 text-primary rounded-md">{campaign.genre}</span>
+                              <span className="text-muted-foreground">{campaign.views} views</span>
+                            </div>
+                            <div className="mt-3 text-lg font-bold text-primary">{campaign.rate}</div>
                           </div>
-                          <div className="mt-3 text-lg font-bold text-primary">{campaign.rate}</div>
                         </div>
                       </div>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-            </Carousel>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="absolute -left-12 top-1/2 -translate-y-1/2" />
+                <CarouselNext className="absolute -right-12 top-1/2 -translate-y-1/2" />
+              </Carousel>
+            </div>
           </div>
         </div>
       </div>
