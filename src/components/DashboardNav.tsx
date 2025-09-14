@@ -77,10 +77,10 @@ const DashboardNav = ({ dashboardType }: DashboardNavProps) => {
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link to="/#how-it-works" className="text-muted-foreground hover:text-foreground transition-smooth">
+            <Link to="/" className="text-muted-foreground hover:text-foreground transition-smooth">
               How It Works
             </Link>
-            <Link to="/artist-landing" className="text-muted-foreground hover:text-foreground transition-smooth">
+            <Link to="/#for-artists" className="text-muted-foreground hover:text-foreground transition-smooth">
               For Artists
             </Link>
             <Link to="/#for-creators" className="text-muted-foreground hover:text-foreground transition-smooth">
