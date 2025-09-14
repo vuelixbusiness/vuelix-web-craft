@@ -1,8 +1,21 @@
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/ThemeToggle";
+import { useLocation, useNavigate } from "react-router-dom";
+
 const Navigation = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
   const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
+    
+    // If we're not on the home page, navigate there first
+    if (location.pathname !== '/') {
+      navigate(`/#${targetId}`);
+      return;
+    }
+    
+    // If we're on the home page, smooth scroll to the section
     const targetElement = document.getElementById(targetId);
     if (targetElement) {
       const offsetTop = targetElement.offsetTop - 80; // Account for fixed nav height
