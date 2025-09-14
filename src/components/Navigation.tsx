@@ -17,9 +17,7 @@ const Navigation = () => {
               For Artists
             </a>
             <a href="#for-creators" className="text-muted-foreground hover:text-foreground transition-smooth">For Creators</a>
-            <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-smooth">
-              Pricing
-            </a>
+            <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-smooth">Vuelix+</a>
           </div>
           
           <div className="flex items-center space-x-4">
