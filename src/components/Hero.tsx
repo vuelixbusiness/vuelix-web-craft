@@ -1,6 +1,64 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play, Music, Video, DollarSign } from "lucide-react";
+import { Carousel, CarouselContent, CarouselItem } from "@/components/ui/carousel";
 import heroImage from "@/assets/hero-bg.jpg";
+
+const mockCampaigns = [
+  {
+    id: 1,
+    title: "Summer Vibes EP",
+    artist: "Luna Beach",
+    genre: "Pop",
+    views: "2.1M",
+    rate: "$15/1k views",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 2,
+    title: "Midnight Drive",
+    artist: "Neon Highway",
+    genre: "Synthwave",
+    views: "1.8M",
+    rate: "$12/1k views",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 3,
+    title: "Urban Stories",
+    artist: "Street Poets",
+    genre: "Hip-Hop",
+    views: "3.2M",
+    rate: "$20/1k views",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 4,
+    title: "Acoustic Sessions",
+    artist: "River Valley",
+    genre: "Folk",
+    views: "950K",
+    rate: "$10/1k views",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 5,
+    title: "Electric Nights",
+    artist: "Voltage",
+    genre: "Electronic",
+    views: "2.7M",
+    rate: "$18/1k views",
+    image: "/placeholder.svg"
+  },
+  {
+    id: 6,
+    title: "Heartbreak Ballads",
+    artist: "Emma Grace",
+    genre: "R&B",
+    views: "1.4M",
+    rate: "$14/1k views",
+    image: "/placeholder.svg"
+  }
+];
 
 const Hero = () => {
   return (
@@ -77,6 +135,43 @@ const Hero = () => {
               <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
               Real-time tracking
             </div>
+          </div>
+          
+          {/* Active Campaigns Carousel */}
+          <div className="mt-20">
+            <h3 className="text-2xl md:text-3xl font-bold mb-8 text-center">Active Campaigns</h3>
+            <Carousel
+              opts={{
+                align: "start",
+                loop: true,
+              }}
+              className="w-full"
+            >
+              <CarouselContent className="animate-fade-in">
+                {mockCampaigns.map((campaign) => (
+                  <CarouselItem key={campaign.id} className="md:basis-1/2 lg:basis-1/3">
+                    <div className="bg-card/30 backdrop-blur-sm rounded-xl p-6 border border-border/50 hover:bg-card/50 transition-all duration-300 hover-scale">
+                      <div className="flex items-start space-x-4">
+                        <img 
+                          src={campaign.image} 
+                          alt={campaign.title}
+                          className="w-16 h-16 rounded-lg object-cover bg-muted"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-lg leading-tight mb-1 truncate">{campaign.title}</h4>
+                          <p className="text-muted-foreground text-sm mb-2">{campaign.artist}</p>
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="px-2 py-1 bg-primary/10 text-primary rounded-md">{campaign.genre}</span>
+                            <span className="text-muted-foreground">{campaign.views} views</span>
+                          </div>
+                          <div className="mt-3 text-lg font-bold text-primary">{campaign.rate}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+            </Carousel>
           </div>
         </div>
       </div>
