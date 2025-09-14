@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,7 +25,8 @@ import {
   ArrowLeft,
   ArrowRight,
   Rocket,
-  ImageIcon
+  ImageIcon,
+  Play
 } from "lucide-react";
 import { FaTiktok, FaInstagram, FaYoutube } from "react-icons/fa";
 import Navigation from "@/components/Navigation";
@@ -64,6 +65,8 @@ const ArtistCampaignFlow = () => {
     platforms: []
   });
   const [isConnectingSong, setIsConnectingSong] = useState(false);
+  const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const handleSongFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -77,6 +80,34 @@ const ArtistCampaignFlow = () => {
     const file = event.target.files?.[0];
     if (file) {
       updateCampaignData('coverArtFile', file);
+    }
+  };
+
+  const toggleAudioPreview = () => {
+    if (!audioRef.current) {
+      // Create audio element for uploaded file or link
+      if (campaignData.songFile) {
+        const audio = new Audio(URL.createObjectURL(campaignData.songFile));
+        audioRef.current = audio;
+      } else if (campaignData.songLink) {
+        // For demo purposes - in real app you'd need proper audio URLs
+        const audio = new Audio(campaignData.songLink);
+        audioRef.current = audio;
+      } else {
+        return;
+      }
+
+      audioRef.current.addEventListener('ended', () => {
+        setIsPlayingPreview(false);
+      });
+    }
+
+    if (isPlayingPreview) {
+      audioRef.current.pause();
+      setIsPlayingPreview(false);
+    } else {
+      audioRef.current.play();
+      setIsPlayingPreview(true);
     }
   };
 
@@ -665,17 +696,76 @@ const ArtistCampaignFlow = () => {
                          )}
                        </div>
                        
-                       <div className="flex items-center space-x-4 mb-6">
-                         <div className="w-16 h-16 bg-gradient-primary rounded-lg flex items-center justify-center">
-                           <Music className="w-8 h-8 text-white" />
-                         </div>
-                         <div>
-                           <h3 className="text-xl font-bold">Your Artist Name - {campaignData.songTitle || 'Song Title'}</h3>
-                           <p className="text-muted-foreground">
-                             {campaignData.genre} • {campaignData.campaignType}
-                           </p>
-                         </div>
-                       </div>
+                        <div className="flex items-center space-x-4 mb-6">
+                          <div 
+                            className={`relative w-16 h-16 rounded-lg flex items-center justify-center cursor-pointer transition-smooth group ${
+                              campaignData.coverArtFile || campaignData.coverArtLink 
+                                ? 'bg-transparent' 
+                                : 'bg-gradient-primary'
+                            }`}
+                            onClick={toggleAudioPreview}
+                          >
+                            {campaignData.coverArtFile ? (
+                              <>
+                                <img 
+                                  src={URL.createObjectURL(campaignData.coverArtFile)} 
+                                  alt="Song cover" 
+                                  className="w-full h-full object-cover rounded-lg"
+                                />
+                                <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-smooth">
+                                  {isPlayingPreview ? (
+                                    <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
+                                      <div className="w-1 h-4 bg-primary mr-0.5"></div>
+                                      <div className="w-1 h-4 bg-primary"></div>
+                                    </div>
+                                  ) : (
+                                    <Play className="w-6 h-6 text-white ml-1" />
+                                  )}
+                                </div>
+                              </>
+                            ) : campaignData.coverArtLink ? (
+                              <>
+                                <img 
+                                  src={campaignData.coverArtLink} 
+                                  alt="Song cover" 
+                                  className="w-full h-full object-cover rounded-lg"
+                                />
+                                <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-smooth">
+                                  {isPlayingPreview ? (
+                                    <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
+                                      <div className="w-1 h-4 bg-primary mr-0.5"></div>
+                                      <div className="w-1 h-4 bg-primary"></div>
+                                    </div>
+                                  ) : (
+                                    <Play className="w-6 h-6 text-white ml-1" />
+                                  )}
+                                </div>
+                              </>
+                            ) : (
+                              <div className="flex items-center justify-center">
+                                {isPlayingPreview ? (
+                                  <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
+                                    <div className="w-1 h-4 bg-primary mr-0.5"></div>
+                                    <div className="w-1 h-4 bg-primary"></div>
+                                  </div>
+                                ) : (
+                                  <Music className="w-8 h-8 text-white" />
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold">Your Artist Name - {campaignData.songTitle || 'Song Title'}</h3>
+                            <p className="text-muted-foreground">
+                              {campaignData.genre} • {campaignData.campaignType}
+                              {(campaignData.songFile || campaignData.songLink) && (
+                                <span className="ml-2 text-primary text-sm">
+                                  {isPlayingPreview ? '▶ Playing...' : '⏸ Click to preview'}
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                        </div>
                        
                        {/* Campaign Budget Progress Bar */}
                        {campaignData.budget && (
