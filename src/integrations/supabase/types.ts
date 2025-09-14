@@ -14,6 +14,149 @@ export type Database = {
   }
   public: {
     Tables: {
+      campaign_participations: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          creator_id: string
+          current_likes: number | null
+          current_views: number | null
+          id: string
+          initial_likes: number | null
+          initial_views: number | null
+          last_tracked_at: string | null
+          payout_amount: number | null
+          payout_claimed: boolean | null
+          payout_claimed_at: string | null
+          platform: string
+          status: string | null
+          updated_at: string
+          video_id: string | null
+          video_url: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          creator_id: string
+          current_likes?: number | null
+          current_views?: number | null
+          id?: string
+          initial_likes?: number | null
+          initial_views?: number | null
+          last_tracked_at?: string | null
+          payout_amount?: number | null
+          payout_claimed?: boolean | null
+          payout_claimed_at?: string | null
+          platform: string
+          status?: string | null
+          updated_at?: string
+          video_id?: string | null
+          video_url: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          creator_id?: string
+          current_likes?: number | null
+          current_views?: number | null
+          id?: string
+          initial_likes?: number | null
+          initial_views?: number | null
+          last_tracked_at?: string | null
+          payout_amount?: number | null
+          payout_claimed?: boolean | null
+          payout_claimed_at?: string | null
+          platform?: string
+          status?: string | null
+          updated_at?: string
+          video_id?: string | null
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_participations_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      campaigns: {
+        Row: {
+          approval_required: boolean | null
+          artist_id: string
+          budget: number
+          campaign_type: string
+          cover_art_url: string | null
+          created_at: string
+          end_date: string | null
+          genre: string
+          id: string
+          instructions: string | null
+          max_payout: number | null
+          payout_rate: number
+          payout_type: string
+          platforms: string[]
+          reference_links: string | null
+          song_title: string
+          song_url: string | null
+          status: string | null
+          title: string
+          updated_at: string
+          vip_bonus: number | null
+          vip_max_payout: number | null
+        }
+        Insert: {
+          approval_required?: boolean | null
+          artist_id: string
+          budget: number
+          campaign_type: string
+          cover_art_url?: string | null
+          created_at?: string
+          end_date?: string | null
+          genre: string
+          id?: string
+          instructions?: string | null
+          max_payout?: number | null
+          payout_rate: number
+          payout_type: string
+          platforms: string[]
+          reference_links?: string | null
+          song_title: string
+          song_url?: string | null
+          status?: string | null
+          title: string
+          updated_at?: string
+          vip_bonus?: number | null
+          vip_max_payout?: number | null
+        }
+        Update: {
+          approval_required?: boolean | null
+          artist_id?: string
+          budget?: number
+          campaign_type?: string
+          cover_art_url?: string | null
+          created_at?: string
+          end_date?: string | null
+          genre?: string
+          id?: string
+          instructions?: string | null
+          max_payout?: number | null
+          payout_rate?: number
+          payout_type?: string
+          platforms?: string[]
+          reference_links?: string | null
+          song_title?: string
+          song_url?: string | null
+          status?: string | null
+          title?: string
+          updated_at?: string
+          vip_bonus?: number | null
+          vip_max_payout?: number | null
+        }
+        Relationships: []
+      }
       chat_room_members: {
         Row: {
           id: string
@@ -173,6 +316,38 @@ export type Database = {
           username?: string
         }
         Relationships: []
+      }
+      view_tracking_logs: {
+        Row: {
+          id: string
+          likes: number
+          participation_id: string
+          tracked_at: string
+          views: number
+        }
+        Insert: {
+          id?: string
+          likes: number
+          participation_id: string
+          tracked_at?: string
+          views: number
+        }
+        Update: {
+          id?: string
+          likes?: number
+          participation_id?: string
+          tracked_at?: string
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "view_tracking_logs_participation_id_fkey"
+            columns: ["participation_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_participations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
