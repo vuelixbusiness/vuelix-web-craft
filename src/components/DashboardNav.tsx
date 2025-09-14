@@ -2,8 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, MessageCircle } from "lucide-react";
-import { useNavigate, Link } from "react-router-dom";
+import { LogOut, MessageCircle, ArrowLeftRight, Home, Settings } from "lucide-react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
 
 interface DashboardNavProps {
@@ -13,11 +13,22 @@ interface DashboardNavProps {
 const DashboardNav = ({ dashboardType }: DashboardNavProps) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     await logout();
     navigate('/');
   };
+
+  const handleDashboardSwitch = () => {
+    if (location.pathname === '/home') {
+      navigate('/artist-dashboard');
+    } else {
+      navigate('/home');
+    }
+  };
+
+  const isOnSpecializedDashboard = location.pathname.includes('dashboard');
 
   const getMembershipColor = (membershipType: 'regular' | 'premium') => {
     return membershipType === 'premium' ? 'text-yellow-400' : 'text-gray-400';
@@ -32,9 +43,36 @@ const DashboardNav = ({ dashboardType }: DashboardNavProps) => {
               <div className="w-8 h-8 bg-gradient-primary rounded-lg"></div>
               <span className="text-xl font-bold">Vuelix Clips</span>
             </Link>
-            <Badge variant="secondary" className="hidden md:inline-flex">
-              {dashboardType === 'creator' ? 'Creator Dashboard' : 'Artist Dashboard'}
-            </Badge>
+            <div className="flex items-center space-x-2">
+              <Badge variant="secondary" className="hidden md:inline-flex">
+                {isOnSpecializedDashboard 
+                  ? (dashboardType === 'creator' ? 'Creator Dashboard' : 'Artist Dashboard')
+                  : 'Home Dashboard'
+                }
+              </Badge>
+              {user?.type === 'artist' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleDashboardSwitch}
+                  className="flex items-center space-x-1 text-xs h-6 px-2"
+                  title={isOnSpecializedDashboard ? 'Switch to Home Dashboard' : 'Switch to Artist Dashboard'}
+                >
+                  {isOnSpecializedDashboard ? (
+                    <>
+                      <Home className="w-3 h-3" />
+                      <span className="hidden lg:inline">Home</span>
+                    </>
+                  ) : (
+                    <>
+                      <Settings className="w-3 h-3" />
+                      <span className="hidden lg:inline">Artist</span>
+                    </>
+                  )}
+                  <ArrowLeftRight className="w-3 h-3" />
+                </Button>
+              )}
+            </div>
           </div>
 
           {/* Navigation Links */}
