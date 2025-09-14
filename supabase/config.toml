@@ -1,1 +1,14 @@
 project_id = "ztrseijpesnmztuugmsi"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[functions.track-video-views]
+verify_jwt = false
+
+[functions.process-payout]
+verify_jwt = false
