@@ -18,17 +18,9 @@ const Hero = () => {
       {/* Content */}
       <div className="container mx-auto px-4 py-32 relative z-10">
         <div className="text-center max-w-5xl mx-auto">
-          <div className="mb-6">
-            <span className="inline-flex items-center px-4 py-2 rounded-full bg-secondary text-secondary-foreground text-sm font-medium">
-              🎵 Connect. Create. Earn.
-            </span>
-          </div>
           
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            Where Music Meets
-            <span className="bg-gradient-primary bg-clip-text text-transparent"> Viral</span>
-            <br />
-            Content
+            Connect. Create. Earn.
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
