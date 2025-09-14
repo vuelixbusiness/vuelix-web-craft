@@ -83,6 +83,32 @@ const ArtistCampaignFlow = () => {
     }
   };
 
+  const handleApplyCoverArtLink = async () => {
+    if (!campaignData.coverArtLink) return;
+    
+    try {
+      // Validate if it's a valid image URL
+      const response = await fetch(campaignData.coverArtLink, { method: 'HEAD' });
+      const contentType = response.headers.get('content-type');
+      
+      if (!contentType || !contentType.startsWith('image/')) {
+        alert('Please provide a valid image URL');
+        return;
+      }
+      
+      // Create a temporary image file from the URL for preview
+      const imageResponse = await fetch(campaignData.coverArtLink);
+      const blob = await imageResponse.blob();
+      const file = new File([blob], 'cover-art.jpg', { type: blob.type });
+      
+      updateCampaignData('coverArtFile', file);
+      
+    } catch (error) {
+      console.error('Failed to load image:', error);
+      alert('Failed to load image. Please check the URL and try again.');
+    }
+  };
+
   const toggleAudioPreview = () => {
     if (!audioRef.current) {
       // Create audio element for uploaded file or link
@@ -406,11 +432,24 @@ const ArtistCampaignFlow = () => {
                       </div>
                     </div>
                     
-                    <Input 
-                      placeholder="Paste image link"
-                      value={campaignData.coverArtLink || ''}
-                      onChange={(e) => updateCampaignData('coverArtLink', e.target.value)}
-                    />
+                    <div className="flex gap-2">
+                      <Input 
+                        placeholder="Paste image link"
+                        value={campaignData.coverArtLink || ''}
+                        onChange={(e) => updateCampaignData('coverArtLink', e.target.value)}
+                        className="flex-1"
+                      />
+                      {campaignData.coverArtLink && (
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={handleApplyCoverArtLink}
+                          className="px-4"
+                        >
+                          Apply
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
 
