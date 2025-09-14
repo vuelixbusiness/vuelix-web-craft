@@ -32,16 +32,15 @@ const Login = () => {
       return;
     }
 
-    const success = await login(email, password, userType, rememberMe);
+    const success = await login(email, password);
     
     if (success) {
       toast({
         title: "Welcome back!",
-        description: `Logged in as ${userType}`,
+        description: "You have been logged in successfully",
       });
       
-      // Redirect based on user type
-      navigate(userType === 'creator' ? '/creator-dashboard' : '/artist-dashboard');
+      // Will redirect automatically based on user type in auth context
     } else {
       toast({
         title: "Login failed",

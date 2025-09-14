@@ -13,12 +13,12 @@ import { useToast } from "@/hooks/use-toast";
 const Signup = () => {
   const [userType, setUserType] = useState<'creator' | 'artist'>('creator');
   const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const { signup, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -27,10 +27,28 @@ const Signup = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name || !email || !password || !confirmPassword) {
+    if (!name || !username || !email || !password || !confirmPassword) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (username.length < 3 || username.length > 20) {
+      toast({
+        title: "Error",
+        description: "Username must be between 3 and 20 characters",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      toast({
+        title: "Error",
+        description: "Username can only contain letters, numbers, and underscores",
         variant: "destructive",
       });
       return;
@@ -54,7 +72,7 @@ const Signup = () => {
       return;
     }
 
-    const success = await signup(email, password, name, userType, rememberMe);
+    const success = await signup(email, password, name, username, userType);
     
     if (success) {
       toast({
@@ -139,6 +157,21 @@ const Signup = () => {
               </div>
 
               <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="Choose a unique username"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                />
+                <p className="text-xs text-muted-foreground">
+                  3-20 characters, letters, numbers, and underscores only
+                </p>
+              </div>
+
+              <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
                   id="email"
@@ -197,17 +230,6 @@ const Signup = () => {
               </div>
 
               <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="remember"
-                    checked={rememberMe}
-                    onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                  />
-                  <Label htmlFor="remember" className="text-sm">
-                    Remember me
-                  </Label>
-                </div>
-
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="terms"

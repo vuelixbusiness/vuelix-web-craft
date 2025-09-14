@@ -2,20 +2,15 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/contexts/AuthContext";
-import { LogOut, Plus, Music, Users, TrendingUp, Play, Eye, Heart } from "lucide-react";
+import { Plus, Music, Users, TrendingUp, Play, Eye, Heart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import DashboardNav from "@/components/DashboardNav";
 
 const ArtistDashboard = () => {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/');
-  };
 
   const campaigns = [
     {
@@ -65,36 +60,7 @@ const ArtistDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-primary rounded-lg"></div>
-                <span className="text-xl font-bold">Vuelix Clips</span>
-              </div>
-              <Badge variant="secondary" className="hidden md:inline-flex">
-                Artist Dashboard
-              </Badge>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <Avatar>
-                <AvatarImage src={user?.avatar} alt={user?.name} />
-                <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
-              </Avatar>
-              <div className="hidden md:block">
-                <p className="text-sm font-medium">{user?.name}</p>
-                <p className="text-xs text-muted-foreground">{user?.email}</p>
-              </div>
-              <Button variant="ghost" size="icon" onClick={handleLogout}>
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </header>
+      <DashboardNav dashboardType="artist" />
 
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section */}

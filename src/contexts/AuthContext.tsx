@@ -1,17 +1,21 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 interface User {
   id: string;
   email: string;
   name: string;
+  username: string;
   type: 'creator' | 'artist';
+  membershipType: 'regular' | 'premium';
   avatar?: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string, userType: 'creator' | 'artist', rememberMe: boolean) => Promise<boolean>;
-  signup: (email: string, password: string, name: string, userType: 'creator' | 'artist', rememberMe: boolean) => Promise<boolean>;
+  login: (email: string, password: string) => Promise<boolean>;
+  signup: (email: string, password: string, name: string, username: string, userType: 'creator' | 'artist') => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -31,78 +35,111 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check for stored user session on app load
-    const storedUser = localStorage.getItem('vuelix_user');
-    const sessionUser = sessionStorage.getItem('vuelix_user');
-    
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else if (sessionUser) {
-      setUser(JSON.parse(sessionUser));
-    }
-    
-    setIsLoading(false);
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        fetchUserProfile(session.user);
+      }
+      setIsLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        await fetchUserProfile(session.user);
+      } else {
+        setUser(null);
+      }
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string, userType: 'creator' | 'artist', rememberMe: boolean): Promise<boolean> => {
-    setIsLoading(true);
-    
-    // Mock login - simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Mock successful login
-    const mockUser: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      email,
-      name: email.split('@')[0],
-      type: userType,
-      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${email}`
-    };
+  const fetchUserProfile = async (authUser: SupabaseUser) => {
+    try {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', authUser.id)
+        .single();
 
-    setUser(mockUser);
-    
-    // Store based on remember me preference
-    if (rememberMe) {
-      localStorage.setItem('vuelix_user', JSON.stringify(mockUser));
-    } else {
-      sessionStorage.setItem('vuelix_user', JSON.stringify(mockUser));
+      if (profile) {
+        setUser({
+          id: authUser.id,
+          email: authUser.email!,
+          name: profile.display_name || authUser.email!,
+          username: profile.username,
+          type: profile.user_type as 'creator' | 'artist',
+          membershipType: profile.membership_type as 'regular' | 'premium',
+          avatar: profile.avatar_url
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
     }
-    
-    setIsLoading(false);
-    return true;
   };
 
-  const signup = async (email: string, password: string, name: string, userType: 'creator' | 'artist', rememberMe: boolean): Promise<boolean> => {
+  const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     
-    // Mock signup - simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const mockUser: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      email,
-      name,
-      type: userType,
-      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${name}`
-    };
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    setUser(mockUser);
-    
-    // Store based on remember me preference
-    if (rememberMe) {
-      localStorage.setItem('vuelix_user', JSON.stringify(mockUser));
-    } else {
-      sessionStorage.setItem('vuelix_user', JSON.stringify(mockUser));
+      if (error) {
+        console.error('Login error:', error);
+        setIsLoading(false);
+        return false;
+      }
+
+      setIsLoading(false);
+      return true;
+    } catch (error) {
+      console.error('Login error:', error);
+      setIsLoading(false);
+      return false;
     }
-    
-    setIsLoading(false);
-    return true;
   };
 
-  const logout = () => {
+  const signup = async (email: string, password: string, name: string, username: string, userType: 'creator' | 'artist'): Promise<boolean> => {
+    setIsLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            full_name: name,
+            display_name: name,
+            username: username,
+            user_type: userType
+          }
+        }
+      });
+
+      if (error) {
+        console.error('Signup error:', error);
+        setIsLoading(false);
+        return false;
+      }
+
+      setIsLoading(false);
+      return true;
+    } catch (error) {
+      console.error('Signup error:', error);
+      setIsLoading(false);
+      return false;
+    }
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
-    localStorage.removeItem('vuelix_user');
-    sessionStorage.removeItem('vuelix_user');
   };
 
   return (

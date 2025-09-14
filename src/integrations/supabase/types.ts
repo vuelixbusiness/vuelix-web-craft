@@ -14,7 +14,166 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      chat_room_members: {
+        Row: {
+          id: string
+          joined_at: string
+          room_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          room_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          room_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_room_members_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_rooms: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string | null
+          room_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string | null
+          room_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string | null
+          room_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      friendships: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          message_type: string
+          room_id: string
+          sender_id: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          message_type?: string
+          room_id: string
+          sender_id: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          message_type?: string
+          room_id?: string
+          sender_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "chat_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          membership_type: Database["public"]["Enums"]["membership_type"]
+          updated_at: string
+          user_id: string
+          user_type: string
+          username: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          membership_type?: Database["public"]["Enums"]["membership_type"]
+          updated_at?: string
+          user_id: string
+          user_type: string
+          username: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          membership_type?: Database["public"]["Enums"]["membership_type"]
+          updated_at?: string
+          user_id?: string
+          user_type?: string
+          username?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +182,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      membership_type: "regular" | "premium"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +309,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      membership_type: ["regular", "premium"],
+    },
   },
 } as const
