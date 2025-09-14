@@ -64,6 +64,21 @@ const ArtistCampaignFlow = () => {
     platforms: []
   });
 
+  const handleSongFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      updateCampaignData('songFile', file);
+      updateCampaignData('songTitle', file.name.replace(/\.[^/.]+$/, ""));
+    }
+  };
+
+  const handleCoverArtUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      updateCampaignData('coverArtFile', file);
+    }
+  };
+
   const genres = [
     "Hip Hop", "Pop", "R&B", "Rock", "Electronic", "Country", 
     "Jazz", "Reggae", "Latin", "Indie", "Folk", "Classical", "Custom"
@@ -167,14 +182,39 @@ const ArtistCampaignFlow = () => {
                 {/* Song Upload */}
                 <div className="space-y-3">
                   <Label className="text-base font-medium">Upload Song</Label>
-                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
+                  <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-smooth ${
+                    campaignData.songFile ? 'border-primary bg-primary/5' : 'border-border'
+                  }`}>
                     <Upload className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
                     <h3 className="text-base font-medium mb-2">Upload Music File</h3>
-                    <p className="text-muted-foreground mb-3 text-sm">
-                      Drag & drop your audio file or browse to upload
-                    </p>
-                    <Button variant="outline" size="sm" className="mb-3">
-                      Choose File
+                    {campaignData.songFile ? (
+                      <div className="mb-3">
+                        <p className="text-primary font-medium text-sm mb-1">
+                          Selected: {campaignData.songFile.name}
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          {(campaignData.songFile.size / (1024 * 1024)).toFixed(2)} MB
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-muted-foreground mb-3 text-sm">
+                        Drag & drop your audio file or browse to upload
+                      </p>
+                    )}
+                    <input
+                      type="file"
+                      accept="audio/*,.mp3,.wav,.flac"
+                      onChange={handleSongFileUpload}
+                      className="hidden"
+                      id="song-upload"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="mb-3"
+                      onClick={() => document.getElementById('song-upload')?.click()}
+                    >
+                      {campaignData.songFile ? 'Change File' : 'Choose File'}
                     </Button>
                     <div className="text-xs text-muted-foreground mb-3">
                       Supported: MP3, WAV, FLAC (Max 50MB)
@@ -210,14 +250,46 @@ const ArtistCampaignFlow = () => {
                 {/* Cover Art Upload */}
                 <div className="space-y-4">
                   <Label className="text-base font-medium">Upload Cover Art</Label>
-                  <div className="border-2 border-dashed border-border rounded-lg p-6 text-center">
-                    <ImageIcon className="w-10 h-10 mx-auto mb-4 text-muted-foreground" />
-                    <h3 className="text-base font-medium mb-2">Upload Cover Art</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Add album artwork or campaign image
-                    </p>
-                    <Button variant="outline" size="sm" className="mb-4">
-                      Choose Image
+                  <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-smooth ${
+                    campaignData.coverArtFile ? 'border-primary bg-primary/5' : 'border-border'
+                  }`}>
+                    {campaignData.coverArtFile ? (
+                      <div className="mb-4">
+                        <img 
+                          src={URL.createObjectURL(campaignData.coverArtFile)} 
+                          alt="Cover preview" 
+                          className="w-20 h-20 object-cover rounded-lg mx-auto mb-2"
+                        />
+                        <p className="text-primary font-medium text-sm">
+                          {campaignData.coverArtFile.name}
+                        </p>
+                        <p className="text-muted-foreground text-xs">
+                          {(campaignData.coverArtFile.size / (1024 * 1024)).toFixed(2)} MB
+                        </p>
+                      </div>
+                    ) : (
+                      <>
+                        <ImageIcon className="w-10 h-10 mx-auto mb-4 text-muted-foreground" />
+                        <h3 className="text-base font-medium mb-2">Upload Cover Art</h3>
+                        <p className="text-muted-foreground mb-4">
+                          Add album artwork or campaign image
+                        </p>
+                      </>
+                    )}
+                    <input
+                      type="file"
+                      accept="image/*,.jpg,.jpeg,.png,.webp"
+                      onChange={handleCoverArtUpload}
+                      className="hidden"
+                      id="cover-art-upload"
+                    />
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="mb-4"
+                      onClick={() => document.getElementById('cover-art-upload')?.click()}
+                    >
+                      {campaignData.coverArtFile ? 'Change Image' : 'Choose Image'}
                     </Button>
                     <div className="text-xs text-muted-foreground mb-4">
                       Supported: JPG, PNG, WEBP (Max 10MB)
