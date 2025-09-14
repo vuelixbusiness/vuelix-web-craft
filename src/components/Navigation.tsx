@@ -61,11 +61,11 @@ const Navigation = () => {
           
           <div className="flex items-center space-x-4">
             <ThemeToggle />
-            <Button variant="ghost" size="sm">
-              Sign In
+            <Button variant="ghost" size="sm" asChild>
+              <a href="/login">Log In</a>
             </Button>
-            <Button variant="hero" size="sm">
-              Join Now
+            <Button variant="hero" size="sm" asChild>
+              <a href="/signup">Join Now</a>
             </Button>
           </div>
         </div>
