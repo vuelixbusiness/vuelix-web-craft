@@ -112,6 +112,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     
     try {
+      // Test basic connectivity first
+      console.log('Testing Supabase connection...');
+      
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -127,11 +130,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
-        console.error('Signup error:', error);
+        console.error('Signup error details:', {
+          message: error.message,
+          status: error.status || 'unknown'
+        });
         setIsLoading(false);
         return false;
       }
 
+      console.log('Signup successful');
       setIsLoading(false);
       return true;
     } catch (error) {
