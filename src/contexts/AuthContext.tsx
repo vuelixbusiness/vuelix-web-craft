@@ -112,10 +112,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     
     try {
-      // Test basic connectivity first
-      console.log('Testing Supabase connection...');
+      console.log('Starting signup with:', { email, userType, name, username });
       
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -129,6 +128,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       });
 
+      console.log('Signup response:', { data, error });
+
       if (error) {
         console.error('Signup error details:', {
           message: error.message,
@@ -138,11 +139,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false;
       }
 
-      console.log('Signup successful');
+      console.log('Signup successful, user:', data.user);
       setIsLoading(false);
       return true;
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error('Signup catch block error:', error);
       setIsLoading(false);
       return false;
     }

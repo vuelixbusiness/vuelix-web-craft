@@ -9,7 +9,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { Music, Video, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import AuthTest from "@/components/AuthTest";
 
 const Signup = () => {
   const [userType, setUserType] = useState<'creator' | 'artist'>('creator');
@@ -104,10 +103,6 @@ const Signup = () => {
             <span className="text-xl font-bold">Vuelix Clips</span>
           </div>
         </div>
-
-        
-        {/* Temporary debug component */}
-        <AuthTest />
 
         <Card>
           <CardHeader className="text-center">
