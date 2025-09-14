@@ -194,7 +194,6 @@ const Terms = () => {
                 <div className="bg-secondary/20 p-4 rounded-lg">
                   <p><strong>Email:</strong> vuelixbusiness@gmail.com</p>
                   <p><strong>Support:</strong> vuelixbusiness@gmail.com</p>
-                  <p><strong>Address:</strong> [Company Address]</p>
                 </div>
               </div>
             </section>
