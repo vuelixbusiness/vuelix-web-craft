@@ -17,6 +17,7 @@ import Signup from "./pages/Signup";
 import Terms from "./pages/Terms";
 import CreatorDashboard from "./pages/CreatorDashboard";
 import ArtistDashboard from "./pages/ArtistDashboard";
+import ArtistLanding from "./pages/ArtistLanding";
 import Chat from "./pages/Chat";
 import NotFound from "./pages/NotFound";
 
@@ -37,6 +38,7 @@ const App = () => (
               <Route path="/creator-campaigns" element={<CreatorCampaigns />} />
               <Route path="/creator-flow" element={<CreatorFlow />} />
               <Route path="/artist-campaign" element={<ArtistCampaignFlow />} />
+              <Route path="/artist-landing" element={<ArtistLanding />} />
               <Route path="/vuelix-plus" element={<VuelixPlus />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
