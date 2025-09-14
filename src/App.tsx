@@ -7,6 +7,7 @@ import { ThemeProvider } from "next-themes";
 import Index from "./pages/Index";
 import CreatorFlow from "./pages/CreatorFlow";
 import ArtistCampaignFlow from "./pages/ArtistCampaignFlow";
+import VuelixPlus from "./pages/VuelixPlus";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/creator-flow" element={<CreatorFlow />} />
             <Route path="/artist-campaign" element={<ArtistCampaignFlow />} />
+            <Route path="/vuelix-plus" element={<VuelixPlus />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
