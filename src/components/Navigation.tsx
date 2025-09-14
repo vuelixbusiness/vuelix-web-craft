@@ -34,29 +34,29 @@ const Navigation = () => {
             <span className="text-xl font-bold text-foreground">Vuelix Clips</span>
           </div>
           
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-4">
             <a 
               href="#how-it-works" 
               onClick={(e) => handleSmoothScroll(e, 'how-it-works')}
-              className="text-muted-foreground hover:text-foreground transition-smooth"
+              className="px-4 py-2 rounded-md bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground transition-smooth"
             >
               How It Works
             </a>
             <a 
               href="#for-artists" 
               onClick={(e) => handleSmoothScroll(e, 'for-artists')}
-              className="text-muted-foreground hover:text-foreground transition-smooth"
+              className="px-4 py-2 rounded-md bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground transition-smooth"
             >
               For Artists
             </a>
             <a 
               href="#for-creators" 
               onClick={(e) => handleSmoothScroll(e, 'for-creators')}
-              className="text-muted-foreground hover:text-foreground transition-smooth"
+              className="px-4 py-2 rounded-md bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground transition-smooth"
             >
               For Creators
             </a>
-            <a href="/vuelix-plus" className="text-muted-foreground hover:text-foreground transition-smooth">Vuelix+</a>
+            <a href="/vuelix-plus" className="px-4 py-2 rounded-md bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground transition-smooth">Vuelix+</a>
           </div>
           
           <div className="flex items-center space-x-4">
