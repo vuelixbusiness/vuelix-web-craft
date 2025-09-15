@@ -81,6 +81,7 @@ const Navigation = () => {
             >
               For Creators
             </a>
+            <a href="/campaigns" className="px-4 py-2 rounded-md bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground transition-smooth">Campaigns</a>
             <a href="/leaderboard" className="px-4 py-2 rounded-md bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground transition-smooth">Leaderboard</a>
             <a href="/vuelix-plus" className="px-4 py-2 rounded-md bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground transition-smooth">Vuelix+</a>
           </div>
