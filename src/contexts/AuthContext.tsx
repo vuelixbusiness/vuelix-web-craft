@@ -17,6 +17,8 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
   signup: (email: string, password: string, name: string, username: string, userType: 'creator' | 'artist') => Promise<boolean>;
+  signInWithGoogle: (userType: 'creator' | 'artist') => Promise<boolean>;
+  signInWithMicrosoft: (userType: 'creator' | 'artist') => Promise<boolean>;
   logout: () => void;
   isLoading: boolean;
 }
@@ -149,6 +151,63 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const signInWithGoogle = async (userType: 'creator' | 'artist'): Promise<boolean> => {
+    setIsLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        },
+      });
+
+      if (error) {
+        console.error('Google sign in error:', error);
+        setIsLoading(false);
+        return false;
+      }
+
+      // OAuth redirects, so we don't need to handle success here
+      return true;
+    } catch (error) {
+      console.error('Google sign in error:', error);
+      setIsLoading(false);
+      return false;
+    }
+  };
+
+  const signInWithMicrosoft = async (userType: 'creator' | 'artist'): Promise<boolean> => {
+    setIsLoading(true);
+    
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'azure',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+          scopes: 'email',
+        },
+      });
+
+      if (error) {
+        console.error('Microsoft sign in error:', error);
+        setIsLoading(false);
+        return false;
+      }
+
+      // OAuth redirects, so we don't need to handle success here
+      return true;
+    } catch (error) {
+      console.error('Microsoft sign in error:', error);
+      setIsLoading(false);
+      return false;
+    }
+  };
+
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -156,7 +215,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, signup, signInWithGoogle, signInWithMicrosoft, logout, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
