@@ -79,8 +79,7 @@ const Hero = () => {
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-            Artists promote their music organically through short-form content. 
-            Creators earn money for views on TikTok, Instagram, and YouTube Shorts.
+            Artists promote their brand. Creators earn off clipping.
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 max-w-4xl mx-auto">
