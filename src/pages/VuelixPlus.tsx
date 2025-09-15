@@ -7,7 +7,7 @@ import { CheckCircle, Star, Crown } from "lucide-react";
 const VuelixPlus = () => {
   const features = {
     gold: [
-      "Everything in Free AND:",
+      "Everything in Free PLUS:",
       "5% higher payout rate across all campaigns",
       "Earn up to $99.99 per video (vs $49.99 free)",
       "Priority customer support",
@@ -15,7 +15,7 @@ const VuelixPlus = () => {
       "Early access to new features",
     ],
     platinum: [
-      "Everything in Gold AND:",
+      "Everything in Gold PLUS:",
       "15% higher payout rate across all campaigns", 
       "Unlimited earnings per video",
       "Dedicated account manager",
