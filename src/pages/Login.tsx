@@ -41,7 +41,7 @@ const Login = () => {
       });
       
       // Redirect to dashboard after successful login
-      navigate('/dashboard');
+      navigate('/home');
     } else {
       toast({
         title: "Login failed",

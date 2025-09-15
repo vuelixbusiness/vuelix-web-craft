@@ -81,7 +81,7 @@ const Signup = () => {
       });
       
       // Redirect based on user type
-      navigate(userType === 'creator' ? '/creator-dashboard' : '/artist-dashboard');
+      navigate('/home');
     } else {
       toast({
         title: "Signup failed",
