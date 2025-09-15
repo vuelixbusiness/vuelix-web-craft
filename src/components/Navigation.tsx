@@ -26,13 +26,38 @@ const Navigation = () => {
     }
   };
 
+  const handleLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    
+    // If we're on the home page with a hash (section), scroll to top
+    if (location.pathname === '/' && location.hash) {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    } else if (location.pathname !== '/') {
+      // If we're on a foreign page, navigate to how-it-works section
+      navigate('/#how-it-works');
+    } else {
+      // If we're on home page without hash, just scroll to top
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   return <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2 hover:opacity-80 transition-smooth">
+          <a 
+            href="/" 
+            onClick={handleLogoClick}
+            className="flex items-center space-x-2 hover:opacity-80 transition-smooth"
+          >
             <div className="w-8 h-8 bg-gradient-primary rounded-lg"></div>
             <span className="text-xl font-bold text-foreground">Vuelix</span>
-          </Link>
+          </a>
           
           <div className="hidden md:flex items-center space-x-4">
             <a 
