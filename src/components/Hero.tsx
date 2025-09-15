@@ -4,59 +4,65 @@ import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious
 import Autoplay from "embla-carousel-autoplay";
 import heroImage from "@/assets/hero-bg.jpg";
 
-const mockCampaigns = [
+const trendingCampaigns = [
   {
     id: 1,
-    title: "Summer Vibes EP",
-    artist: "Luna Beach",
-    genre: "Pop",
-    views: "2.1M",
-    rate: "$15/1k views",
+    title: "Midnight Dreams",
+    artist: "Aria Moon",
+    genre: "Indie Pop",
+    views: "4.8M",
+    rate: "$25/1k views",
+    trending: true,
     image: "/placeholder.svg"
   },
   {
     id: 2,
-    title: "Midnight Drive",
-    artist: "Neon Highway",
-    genre: "Synthwave",
-    views: "1.8M",
-    rate: "$12/1k views",
+    title: "Electric Soul",
+    artist: "DJ Phoenix",
+    genre: "Electronic",
+    views: "3.2M",
+    rate: "$22/1k views",
+    trending: true,
     image: "/placeholder.svg"
   },
   {
     id: 3,
-    title: "Urban Stories",
-    artist: "Street Poets",
-    genre: "Hip-Hop",
-    views: "3.2M",
-    rate: "$20/1k views",
+    title: "Golden Hour",
+    artist: "Sunset Valley",
+    genre: "Acoustic",
+    views: "5.1M",
+    rate: "$28/1k views",
+    trending: true,
     image: "/placeholder.svg"
   },
   {
     id: 4,
-    title: "Acoustic Sessions",
-    artist: "River Valley",
-    genre: "Folk",
-    views: "950K",
-    rate: "$10/1k views",
+    title: "City Lights",
+    artist: "Urban Echo",
+    genre: "Hip-Hop",
+    views: "6.7M",
+    rate: "$30/1k views",
+    trending: true,
     image: "/placeholder.svg"
   },
   {
     id: 5,
-    title: "Electric Nights",
-    artist: "Voltage",
-    genre: "Electronic",
-    views: "2.7M",
-    rate: "$18/1k views",
+    title: "Ocean Waves",
+    artist: "Blue Horizon",
+    genre: "Chill",
+    views: "2.9M",
+    rate: "$20/1k views",
+    trending: true,
     image: "/placeholder.svg"
   },
   {
     id: 6,
-    title: "Heartbreak Ballads",
-    artist: "Emma Grace",
-    genre: "R&B",
-    views: "1.4M",
-    rate: "$14/1k views",
+    title: "Fire & Ice",
+    artist: "Storm Riders",
+    genre: "Rock",
+    views: "4.3M",
+    rate: "$26/1k views",
+    trending: true,
     image: "/placeholder.svg"
   }
 ];
@@ -138,9 +144,9 @@ const Hero = () => {
             </div>
           </div>
           
-          {/* Active Campaigns Carousel */}
+          {/* Trending Artist Campaigns Carousel */}
           <div className="mt-20">
-            <h3 className="text-2xl md:text-3xl font-bold mb-8 text-center">Active Campaigns</h3>
+            <h3 className="text-2xl md:text-3xl font-bold mb-8 text-center">🔥 Trending Artist Campaigns</h3>
             <div className="relative">
               <Carousel
                 opts={{
@@ -155,9 +161,13 @@ const Hero = () => {
                 className="w-full"
               >
                 <CarouselContent className="animate-fade-in">
-                  {mockCampaigns.map((campaign) => (
+                  {trendingCampaigns.map((campaign) => (
                     <CarouselItem key={campaign.id} className="md:basis-1/2 lg:basis-1/3">
-                      <div className="bg-card/30 backdrop-blur-sm rounded-xl p-6 border border-border/50 hover:bg-card/50 transition-all duration-300 hover-scale">
+                      <div className="bg-card/30 backdrop-blur-sm rounded-xl p-6 border border-border/50 hover:bg-card/50 transition-all duration-300 hover-scale relative overflow-hidden">
+                        {/* Trending Badge */}
+                        <div className="absolute top-2 right-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                          TRENDING
+                        </div>
                         <div className="flex items-start space-x-4">
                           <img 
                             src={campaign.image} 
@@ -166,10 +176,10 @@ const Hero = () => {
                           />
                           <div className="flex-1 min-w-0">
                             <h4 className="font-semibold text-lg leading-tight mb-1 truncate">{campaign.title}</h4>
-                            <p className="text-muted-foreground text-sm mb-2">{campaign.artist}</p>
+                            <p className="text-muted-foreground text-sm mb-2 font-medium">by {campaign.artist}</p>
                             <div className="flex items-center justify-between text-sm">
                               <span className="px-2 py-1 bg-primary/10 text-primary rounded-md">{campaign.genre}</span>
-                              <span className="text-muted-foreground">{campaign.views} views</span>
+                              <span className="text-muted-foreground font-semibold">{campaign.views} views</span>
                             </div>
                             <div className="mt-3 text-lg font-bold text-primary">{campaign.rate}</div>
                           </div>
