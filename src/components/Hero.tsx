@@ -153,7 +153,7 @@ const Hero = () => {
                 <CarouselContent className="animate-fade-in">
                   {trendingCampaigns.map((campaign) => (
                     <CarouselItem key={campaign.id} className="md:basis-1/2 lg:basis-1/3">
-                      <div className="bg-card rounded-xl p-6 border border-border hover:shadow-soft transition-all duration-300 hover-scale">
+                      <div className="bg-card rounded-xl p-6 border border-border hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 hover:scale-105 hover:-translate-y-2 hover:border-primary/30 cursor-pointer group">
                         {/* Trending Badge */}
                         <div className="absolute top-2 right-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
                           TRENDING
