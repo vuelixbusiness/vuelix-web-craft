@@ -3,6 +3,8 @@ import { ArrowRight, Play, Music, Video, DollarSign } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import heroImage from "@/assets/hero-bg.jpg";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const trendingCampaigns = [
   {
@@ -68,6 +70,17 @@ const trendingCampaigns = [
 ];
 
 const Hero = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleStartCampaign = () => {
+    if (user) {
+      navigate('/artist-campaign');
+    } else {
+      navigate('/login');
+    }
+  };
+
   return (
     <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5">
       {/* Content */}
@@ -92,11 +105,9 @@ const Hero = () => {
               <p className="text-muted-foreground mb-6">
                 Launch campaigns with your tracks and pay creators per 1k views to promote your music organically.
               </p>
-              <Button variant="default" className="w-full mt-auto" asChild>
-                <a href="/artist-campaign">
-                  Start Campaign
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </a>
+              <Button variant="default" className="w-full mt-auto" onClick={handleStartCampaign}>
+                Start Campaign
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </div>
             
