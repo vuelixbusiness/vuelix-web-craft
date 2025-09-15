@@ -49,7 +49,7 @@ const VuelixPlus = () => {
           <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             
             {/* Gold Tier */}
-            <Card className="relative border-2 border-primary/20 shadow-elegant hover:shadow-xl transition-smooth">
+            <Card className="relative border-2 border-primary/20 shadow-elegant hover:shadow-xl transition-smooth flex flex-col">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                 <Badge className="bg-gradient-primary text-primary-foreground px-4 py-2 flex items-center gap-1">
                   <Star className="w-4 h-4" />
@@ -71,8 +71,8 @@ const VuelixPlus = () => {
                 </div>
               </CardHeader>
               
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
+              <CardContent className="flex flex-col flex-1 space-y-4">
+                <div className="space-y-3 flex-1">
                   {features.gold.map((feature, index) => (
                     <div key={index} className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
@@ -88,7 +88,7 @@ const VuelixPlus = () => {
             </Card>
 
             {/* Platinum Tier */}
-            <Card className="relative border-2 border-accent shadow-soft hover:shadow-elegant transition-smooth">
+            <Card className="relative border-2 border-accent shadow-soft hover:shadow-elegant transition-smooth flex flex-col">
               <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                 <Badge className="bg-accent text-accent-foreground px-4 py-2 flex items-center gap-1">
                   <Crown className="w-4 h-4" />
@@ -110,8 +110,8 @@ const VuelixPlus = () => {
                 </div>
               </CardHeader>
               
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
+              <CardContent className="flex flex-col flex-1 space-y-4">
+                <div className="space-y-3 flex-1">
                   {features.platinum.map((feature, index) => (
                     <div key={index} className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-accent-foreground flex-shrink-0" />
@@ -120,7 +120,7 @@ const VuelixPlus = () => {
                   ))}
                 </div>
                 
-                <Button variant="outline" className="w-full mt-6 border-accent text-accent-foreground hover:bg-accent hover:text-accent-foreground transition-smooth">
+                <Button className="w-full mt-6 bg-accent text-accent-foreground hover:opacity-90 transition-smooth">
                   Upgrade to Platinum
                 </Button>
               </CardContent>
