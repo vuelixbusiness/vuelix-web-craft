@@ -90,7 +90,7 @@ const Hero = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5">
+    <section className="relative min-h-screen flex items-center justify-center bg-gradient-background">
       {/* Content */}
       <div className="container mx-auto px-4 py-32">
         <div className="text-center max-w-5xl mx-auto">
