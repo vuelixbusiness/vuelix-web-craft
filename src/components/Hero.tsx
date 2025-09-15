@@ -69,19 +69,9 @@ const trendingCampaigns = [
 
 const Hero = () => {
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 z-0">
-        <img 
-          src={heroImage} 
-          alt="Abstract gradient background" 
-          className="w-full h-full object-cover opacity-10"
-        />
-        <div className="absolute inset-0 bg-gradient-hero opacity-5"></div>
-      </div>
-      
+    <section className="relative min-h-screen flex items-center justify-center">
       {/* Content */}
-      <div className="container mx-auto px-4 py-32 relative z-10">
+      <div className="container mx-auto px-4 py-32">
         <div className="text-center max-w-5xl mx-auto">
           
           <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
@@ -95,7 +85,7 @@ const Hero = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 max-w-4xl mx-auto">
             {/* For Artists */}
-            <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-8 border border-border shadow-soft flex flex-col">
+            <div className="bg-card rounded-2xl p-8 border border-border shadow-soft flex flex-col">
               <div className="flex items-center mb-4">
                 <Music className="h-8 w-8 text-primary mr-3" />
                 <h3 className="text-2xl font-bold">For Artists</h3>
@@ -103,7 +93,7 @@ const Hero = () => {
               <p className="text-muted-foreground mb-6">
                 Launch campaigns with your tracks and pay creators per 1k views to promote your music organically.
               </p>
-              <Button variant="hero" className="w-full mt-auto" asChild>
+              <Button variant="default" className="w-full mt-auto" asChild>
                 <a href="/artist-campaign">
                   Start Campaign
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -112,7 +102,7 @@ const Hero = () => {
             </div>
             
             {/* For Creators */}
-            <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-8 border border-border shadow-soft flex flex-col">
+            <div className="bg-card rounded-2xl p-8 border border-border shadow-soft flex flex-col">
               <div className="flex items-center mb-4">
                 <Video className="h-8 w-8 text-primary mr-3" />
                 <h3 className="text-2xl font-bold">For Creators</h3>
@@ -120,7 +110,7 @@ const Hero = () => {
               <p className="text-muted-foreground mb-6">
                 Submit your short-form content to music campaigns and earn money based on your video performance.
               </p>
-              <Button variant="hero" className="w-full mt-auto" asChild>
+              <Button variant="default" className="w-full mt-auto" asChild>
                 <a href="/creator-flow">
                   Browse Campaigns
                   <DollarSign className="ml-2 h-5 w-5" />
@@ -163,7 +153,7 @@ const Hero = () => {
                 <CarouselContent className="animate-fade-in">
                   {trendingCampaigns.map((campaign) => (
                     <CarouselItem key={campaign.id} className="md:basis-1/2 lg:basis-1/3">
-                      <div className="bg-card/30 backdrop-blur-sm rounded-xl p-6 border border-border/50 hover:bg-card/50 transition-all duration-300 hover-scale relative overflow-hidden">
+                      <div className="bg-card rounded-xl p-6 border border-border hover:shadow-soft transition-all duration-300 hover-scale">
                         {/* Trending Badge */}
                         <div className="absolute top-2 right-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
                           TRENDING
@@ -195,11 +185,6 @@ const Hero = () => {
           </div>
         </div>
       </div>
-      
-      {/* Floating elements */}
-      <div className="absolute top-20 left-10 w-16 h-16 bg-gradient-primary rounded-full opacity-20 animate-pulse"></div>
-      <div className="absolute bottom-20 right-10 w-24 h-24 bg-gradient-secondary rounded-full opacity-30 animate-pulse delay-1000"></div>
-      <div className="absolute top-1/2 left-20 w-8 h-8 bg-accent rounded-full opacity-40 animate-pulse delay-500"></div>
     </section>
   );
 };
