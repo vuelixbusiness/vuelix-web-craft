@@ -3,80 +3,68 @@ import { ArrowRight, Play, Music, Video, DollarSign } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import heroImage from "@/assets/hero-bg.jpg";
-
-const trendingCampaigns = [
-  {
-    id: 1,
-    title: "Midnight Dreams",
-    artist: "Aria Moon",
-    genre: "Indie Pop",
-    views: "4.8M",
-    rate: "$25/1k views",
-    trending: true,
-    image: "/placeholder.svg"
-  },
-  {
-    id: 2,
-    title: "Electric Soul",
-    artist: "DJ Phoenix",
-    genre: "Electronic",
-    views: "3.2M",
-    rate: "$22/1k views",
-    trending: true,
-    image: "/placeholder.svg"
-  },
-  {
-    id: 3,
-    title: "Golden Hour",
-    artist: "Sunset Valley",
-    genre: "Acoustic",
-    views: "5.1M",
-    rate: "$28/1k views",
-    trending: true,
-    image: "/placeholder.svg"
-  },
-  {
-    id: 4,
-    title: "City Lights",
-    artist: "Urban Echo",
-    genre: "Hip-Hop",
-    views: "6.7M",
-    rate: "$30/1k views",
-    trending: true,
-    image: "/placeholder.svg"
-  },
-  {
-    id: 5,
-    title: "Ocean Waves",
-    artist: "Blue Horizon",
-    genre: "Chill",
-    views: "2.9M",
-    rate: "$20/1k views",
-    trending: true,
-    image: "/placeholder.svg"
-  },
-  {
-    id: 6,
-    title: "Fire & Ice",
-    artist: "Storm Riders",
-    genre: "Rock",
-    views: "4.3M",
-    rate: "$26/1k views",
-    trending: true,
-    image: "/placeholder.svg"
-  }
-];
-
+const mockCampaigns = [{
+  id: 1,
+  title: "Summer Vibes EP",
+  artist: "Luna Beach",
+  genre: "Pop",
+  views: "2.1M",
+  rate: "$15/1k views",
+  image: "/placeholder.svg"
+}, {
+  id: 2,
+  title: "Midnight Drive",
+  artist: "Neon Highway",
+  genre: "Synthwave",
+  views: "1.8M",
+  rate: "$12/1k views",
+  image: "/placeholder.svg"
+}, {
+  id: 3,
+  title: "Urban Stories",
+  artist: "Street Poets",
+  genre: "Hip-Hop",
+  views: "3.2M",
+  rate: "$20/1k views",
+  image: "/placeholder.svg"
+}, {
+  id: 4,
+  title: "Acoustic Sessions",
+  artist: "River Valley",
+  genre: "Folk",
+  views: "950K",
+  rate: "$10/1k views",
+  image: "/placeholder.svg"
+}, {
+  id: 5,
+  title: "Electric Nights",
+  artist: "Voltage",
+  genre: "Electronic",
+  views: "2.7M",
+  rate: "$18/1k views",
+  image: "/placeholder.svg"
+}, {
+  id: 6,
+  title: "Heartbreak Ballads",
+  artist: "Emma Grace",
+  genre: "R&B",
+  views: "1.4M",
+  rate: "$14/1k views",
+  image: "/placeholder.svg"
+}];
 const Hero = () => {
-  return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5">
+  return <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 z-0">
+        <img src={heroImage} alt="Abstract gradient background" className="w-full h-full object-cover opacity-10" />
+        <div className="absolute inset-0 bg-gradient-hero opacity-5"></div>
+      </div>
+      
       {/* Content */}
-      <div className="container mx-auto px-4 py-32">
+      <div className="container mx-auto px-4 py-32 relative z-10">
         <div className="text-center max-w-5xl mx-auto">
           
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-            Connect. Create. Earn.
-          </h1>
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">Artists promote their brand. Creators earn off of clipping.</h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
             Artists promote their music organically through short-form content. 
@@ -85,7 +73,7 @@ const Hero = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 max-w-4xl mx-auto">
             {/* For Artists */}
-            <div className="bg-card rounded-2xl p-8 border border-border shadow-soft flex flex-col">
+            <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-8 border border-border shadow-soft flex flex-col">
               <div className="flex items-center mb-4">
                 <Music className="h-8 w-8 text-primary mr-3" />
                 <h3 className="text-2xl font-bold">For Artists</h3>
@@ -93,7 +81,7 @@ const Hero = () => {
               <p className="text-muted-foreground mb-6">
                 Launch campaigns with your tracks and pay creators per 1k views to promote your music organically.
               </p>
-              <Button variant="default" className="w-full mt-auto" asChild>
+              <Button variant="hero" className="w-full mt-auto" asChild>
                 <a href="/artist-campaign">
                   Start Campaign
                   <ArrowRight className="ml-2 h-5 w-5" />
@@ -102,7 +90,7 @@ const Hero = () => {
             </div>
             
             {/* For Creators */}
-            <div className="bg-card rounded-2xl p-8 border border-border shadow-soft flex flex-col">
+            <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-8 border border-border shadow-soft flex flex-col">
               <div className="flex items-center mb-4">
                 <Video className="h-8 w-8 text-primary mr-3" />
                 <h3 className="text-2xl font-bold">For Creators</h3>
@@ -110,7 +98,7 @@ const Hero = () => {
               <p className="text-muted-foreground mb-6">
                 Submit your short-form content to music campaigns and earn money based on your video performance.
               </p>
-              <Button variant="default" className="w-full mt-auto" asChild>
+              <Button variant="hero" className="w-full mt-auto" asChild>
                 <a href="/creator-flow">
                   Browse Campaigns
                   <DollarSign className="ml-2 h-5 w-5" />
@@ -134,49 +122,33 @@ const Hero = () => {
             </div>
           </div>
           
-          {/* Trending Artist Campaigns Carousel */}
+          {/* Active Campaigns Carousel */}
           <div className="mt-20">
-            <h3 className="text-2xl md:text-3xl font-bold mb-8 text-center">🔥 Trending Artist Campaigns</h3>
+            <h3 className="text-2xl md:text-3xl font-bold mb-8 text-center">Active Campaigns</h3>
             <div className="relative">
-              <Carousel
-                opts={{
-                  align: "start",
-                  loop: true,
-                }}
-                plugins={[
-                  Autoplay({
-                    delay: 3000,
-                  })
-                ]}
-                className="w-full"
-              >
+              <Carousel opts={{
+              align: "start",
+              loop: true
+            }} plugins={[Autoplay({
+              delay: 3000
+            })]} className="w-full">
                 <CarouselContent className="animate-fade-in">
-                  {trendingCampaigns.map((campaign) => (
-                    <CarouselItem key={campaign.id} className="md:basis-1/2 lg:basis-1/3">
-                      <div className="bg-card rounded-xl p-6 border border-border hover:shadow-soft transition-all duration-300 hover-scale">
-                        {/* Trending Badge */}
-                        <div className="absolute top-2 right-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                          TRENDING
-                        </div>
+                  {mockCampaigns.map(campaign => <CarouselItem key={campaign.id} className="md:basis-1/2 lg:basis-1/3">
+                      <div className="bg-card/30 backdrop-blur-sm rounded-xl p-6 border border-border/50 hover:bg-card/50 transition-all duration-300 hover-scale">
                         <div className="flex items-start space-x-4">
-                          <img 
-                            src={campaign.image} 
-                            alt={campaign.title}
-                            className="w-16 h-16 rounded-lg object-cover bg-muted"
-                          />
+                          <img src={campaign.image} alt={campaign.title} className="w-16 h-16 rounded-lg object-cover bg-muted" />
                           <div className="flex-1 min-w-0">
                             <h4 className="font-semibold text-lg leading-tight mb-1 truncate">{campaign.title}</h4>
-                            <p className="text-muted-foreground text-sm mb-2 font-medium">by {campaign.artist}</p>
+                            <p className="text-muted-foreground text-sm mb-2">{campaign.artist}</p>
                             <div className="flex items-center justify-between text-sm">
                               <span className="px-2 py-1 bg-primary/10 text-primary rounded-md">{campaign.genre}</span>
-                              <span className="text-muted-foreground font-semibold">{campaign.views} views</span>
+                              <span className="text-muted-foreground">{campaign.views} views</span>
                             </div>
                             <div className="mt-3 text-lg font-bold text-primary">{campaign.rate}</div>
                           </div>
                         </div>
                       </div>
-                    </CarouselItem>
-                  ))}
+                    </CarouselItem>)}
                 </CarouselContent>
                 <CarouselPrevious className="absolute -left-12 top-1/2 -translate-y-1/2" />
                 <CarouselNext className="absolute -right-12 top-1/2 -translate-y-1/2" />
@@ -185,8 +157,11 @@ const Hero = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+      
+      {/* Floating elements */}
+      <div className="absolute top-20 left-10 w-16 h-16 bg-gradient-primary rounded-full opacity-20 animate-pulse"></div>
+      <div className="absolute bottom-20 right-10 w-24 h-24 bg-gradient-secondary rounded-full opacity-30 animate-pulse delay-1000"></div>
+      <div className="absolute top-1/2 left-20 w-8 h-8 bg-accent rounded-full opacity-40 animate-pulse delay-500"></div>
+    </section>;
 };
-
 export default Hero;
