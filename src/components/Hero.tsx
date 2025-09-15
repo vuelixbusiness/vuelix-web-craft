@@ -152,7 +152,7 @@ const Hero = () => {
           
           {/* Trending Artist Campaigns Carousel */}
           <div className="mt-20">
-            <h3 className="text-2xl md:text-3xl font-bold mb-8 text-center">🔥 Trending Artist Campaigns</h3>
+            <h3 className="text-2xl md:text-3xl font-bold mb-8 text-center">Trending Artist Campaigns</h3>
             <div className="relative">
               <Carousel
                 opts={{
