@@ -154,6 +154,13 @@ const ForArtists = () => {
 };
 
 const ForCreators = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleBrowseCampaigns = () => {
+    navigate('/campaigns');
+  };
+
   const benefits = [
     {
       icon: DollarSign,
@@ -200,7 +207,7 @@ const ForCreators = () => {
         </div>
         
         <div className="text-center">
-          <Button variant="outline-hero" size="lg">
+          <Button variant="outline-hero" size="lg" onClick={handleBrowseCampaigns}>
             Browse Campaigns
           </Button>
         </div>
