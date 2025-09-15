@@ -1,6 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Music, Users, DollarSign, TrendingUp, Target, Zap } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const HowItWorks = () => {
   return (
@@ -85,6 +87,17 @@ const HowItWorks = () => {
 };
 
 const ForArtists = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleStartCampaign = () => {
+    if (user) {
+      navigate('/artist-campaign');
+    } else {
+      navigate('/login');
+    }
+  };
+
   const benefits = [
     {
       icon: Target,
@@ -131,8 +144,8 @@ const ForArtists = () => {
         </div>
         
         <div className="text-center">
-          <Button variant="hero" size="lg" asChild>
-            <a href="/artist-campaign">Start Your Campaign</a>
+          <Button variant="hero" size="lg" onClick={handleStartCampaign}>
+            Start Your Campaign
           </Button>
         </div>
       </div>
