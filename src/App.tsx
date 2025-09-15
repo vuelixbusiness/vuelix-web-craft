@@ -19,6 +19,7 @@ import CreatorDashboard from "./pages/CreatorDashboard";
 import ArtistDashboard from "./pages/ArtistDashboard";
 import ArtistLanding from "./pages/ArtistLanding";
 import Chat from "./pages/Chat";
+import Leaderboard from "./pages/Leaderboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +47,7 @@ const App = () => (
             <Route path="/creator-dashboard" element={<CreatorDashboard />} />
             <Route path="/artist-dashboard" element={<ArtistDashboard />} />
             <Route path="/chat" element={<Chat />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
