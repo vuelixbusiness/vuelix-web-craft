@@ -24,8 +24,44 @@ const Leaderboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchLeaderboards();
+    // Use mock data for now
+    setMockData();
+    // fetchLeaderboards();
   }, []);
+
+  const setMockData = () => {
+    const mockUsers = [
+      { user_id: '1', display_name: 'Alex Rodriguez', username: 'alexr_music', avatar_url: null, total_earnings: 2850.50, total_views: 1250000 },
+      { user_id: '2', display_name: 'Sarah Chen', username: 'sarahbeats', avatar_url: null, total_earnings: 2420.75, total_views: 980000 },
+      { user_id: '3', display_name: 'Marcus Johnson', username: 'mjvibes', avatar_url: null, total_earnings: 1995.25, total_views: 875000 },
+      { user_id: '4', display_name: 'Emma Williams', username: 'emmawave', avatar_url: null, total_earnings: 1750.00, total_views: 750000 },
+      { user_id: '5', display_name: 'Diego Martinez', username: 'diegomix', avatar_url: null, total_earnings: 1580.30, total_views: 690000 },
+      { user_id: '6', display_name: 'Taylor Swift', username: 'taylorswift13', avatar_url: null, total_earnings: 1425.80, total_views: 620000 },
+      { user_id: '7', display_name: 'Kevin Park', username: 'kevinp_creator', avatar_url: null, total_earnings: 1320.45, total_views: 580000 },
+      { user_id: '8', display_name: 'Zoe Anderson', username: 'zoecreates', avatar_url: null, total_earnings: 1195.60, total_views: 520000 },
+      { user_id: '9', display_name: 'Ryan Thompson', username: 'ryanthomps', avatar_url: null, total_earnings: 1050.25, total_views: 465000 },
+      { user_id: '10', display_name: 'Maya Patel', username: 'mayamusic', avatar_url: null, total_earnings: 925.90, total_views: 420000 }
+    ];
+
+    const weeklyMockUsers = [
+      { user_id: '3', display_name: 'Marcus Johnson', username: 'mjvibes', avatar_url: null, total_earnings: 485.50, total_views: 125000 },
+      { user_id: '1', display_name: 'Alex Rodriguez', username: 'alexr_music', avatar_url: null, total_earnings: 420.25, total_views: 98000 },
+      { user_id: '7', display_name: 'Kevin Park', username: 'kevinp_creator', avatar_url: null, total_earnings: 385.75, total_views: 87000 },
+      { user_id: '2', display_name: 'Sarah Chen', username: 'sarahbeats', avatar_url: null, total_earnings: 340.80, total_views: 75000 },
+      { user_id: '5', display_name: 'Diego Martinez', username: 'diegomix', avatar_url: null, total_earnings: 295.60, total_views: 69000 },
+      { user_id: '8', display_name: 'Zoe Anderson', username: 'zoecreates', avatar_url: null, total_earnings: 265.40, total_views: 58000 },
+      { user_id: '4', display_name: 'Emma Williams', username: 'emmawave', avatar_url: null, total_earnings: 230.25, total_views: 52000 },
+      { user_id: '10', display_name: 'Maya Patel', username: 'mayamusic', avatar_url: null, total_earnings: 195.90, total_views: 45000 },
+      { user_id: '9', display_name: 'Ryan Thompson', username: 'ryanthomps', avatar_url: null, total_earnings: 175.80, total_views: 38000 },
+      { user_id: '6', display_name: 'Taylor Swift', username: 'taylorswift13', avatar_url: null, total_earnings: 145.50, total_views: 32000 }
+    ];
+
+    setEarningsLeaderboard([...mockUsers].sort((a, b) => b.total_earnings - a.total_earnings));
+    setViewsLeaderboard([...mockUsers].sort((a, b) => b.total_views - a.total_views));
+    setWeeklyEarningsLeaderboard([...weeklyMockUsers].sort((a, b) => b.total_earnings - a.total_earnings));
+    setWeeklyViewsLeaderboard([...weeklyMockUsers].sort((a, b) => b.total_views - a.total_views));
+    setLoading(false);
+  };
 
   const fetchLeaderboards = async () => {
     try {
