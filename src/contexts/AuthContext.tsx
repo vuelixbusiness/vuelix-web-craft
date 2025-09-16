@@ -36,6 +36,7 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Get initial session
@@ -49,10 +50,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        // Defer async operations to prevent auth callback issues
-        setTimeout(() => {
-          fetchUserProfile(session.user);
-        }, 0);
+        fetchUserProfile(session.user);
+        // Navigate to home if not already there and not on login/signup pages
+        const currentPath = window.location.pathname;
+        if (currentPath === '/' || currentPath === '/login' || currentPath === '/signup') {
+          navigate('/home');
+        }
       } else {
         setUser(null);
         setIsLoading(false);
@@ -101,6 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false;
       }
 
+      // Navigation will be handled by onAuthStateChange
       setIsLoading(false);
       return true;
     } catch (error) {
@@ -142,6 +146,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       console.log('Signup successful, user:', data.user);
+      // Navigation will be handled by onAuthStateChange after email confirmation
       setIsLoading(false);
       return true;
     } catch (error) {
