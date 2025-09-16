@@ -36,7 +36,6 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     // Get initial session
@@ -54,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Navigate to home if not already there and not on login/signup pages
         const currentPath = window.location.pathname;
         if (currentPath === '/' || currentPath === '/login' || currentPath === '/signup') {
-          navigate('/home');
+          window.location.href = '/home';
         }
       } else {
         setUser(null);
