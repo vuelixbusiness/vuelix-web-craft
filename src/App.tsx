@@ -8,7 +8,6 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import AuthenticatedHome from "./pages/AuthenticatedHome";
-import Home from "./pages/Home";
 import CreatorCampaigns from "./pages/CreatorCampaigns";
 import CreatorFlow from "./pages/CreatorFlow";
 import ArtistCampaignFlow from "./pages/ArtistCampaignFlow";
@@ -22,7 +21,6 @@ import ArtistLanding from "./pages/ArtistLanding";
 import Chat from "./pages/Chat";
 import Leaderboard from "./pages/Leaderboard";
 import Campaigns from "./pages/Campaigns";
-import MyProfile from "./pages/MyProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,8 +35,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
-            <Route path="/profile" element={<MyProfile />} />
-            <Route path="/home" element={<Home />} />
+              <Route path="/home" element={<AuthenticatedHome />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/creator-campaigns" element={<CreatorCampaigns />} />
               <Route path="/creator-flow" element={<CreatorFlow />} />

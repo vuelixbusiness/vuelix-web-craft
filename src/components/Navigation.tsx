@@ -1,12 +1,10 @@
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 
 const Navigation = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
@@ -62,23 +60,13 @@ const Navigation = () => {
           </a>
           
           <div className="hidden md:flex items-center space-x-4">
-            {user ? (
-              <a 
-                href="/home" 
-                onClick={(e) => { e.preventDefault(); navigate('/home'); }}
-                className="px-4 py-2 rounded-md bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground transition-smooth"
-              >
-                Home
-              </a>
-            ) : (
-              <a 
-                href="#how-it-works" 
-                onClick={(e) => handleSmoothScroll(e, 'how-it-works')}
-                className="px-4 py-2 rounded-md bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground transition-smooth"
-              >
-                How It Works
-              </a>
-            )}
+            <a 
+              href="#how-it-works" 
+              onClick={(e) => handleSmoothScroll(e, 'how-it-works')}
+              className="px-4 py-2 rounded-md bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground transition-smooth"
+            >
+              How It Works
+            </a>
             <a 
               href="#for-artists" 
               onClick={(e) => handleSmoothScroll(e, 'for-artists')}

@@ -49,12 +49,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        fetchUserProfile(session.user);
-        // Navigate to profile if not already there and not on login/signup pages
-        const currentPath = window.location.pathname;
-        if (currentPath === '/' || currentPath === '/login' || currentPath === '/signup') {
-          window.location.href = '/profile';
-        }
+        // Defer async operations to prevent auth callback issues
+        setTimeout(() => {
+          fetchUserProfile(session.user);
+        }, 0);
       } else {
         setUser(null);
         setIsLoading(false);
@@ -103,7 +101,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return false;
       }
 
-      // Navigation will be handled by onAuthStateChange
       setIsLoading(false);
       return true;
     } catch (error) {
@@ -123,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         email,
         password,
         options: {
-          emailRedirectTo: `${window.location.origin}/home`,
+          emailRedirectTo: `${window.location.origin}/`,
           data: {
             full_name: name,
             display_name: name,
@@ -145,7 +142,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       console.log('Signup successful, user:', data.user);
-      // Navigation will be handled by onAuthStateChange after email confirmation
       setIsLoading(false);
       return true;
     } catch (error) {
@@ -162,7 +158,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-        redirectTo: `${window.location.origin}/home`,
+        redirectTo: `${window.location.origin}/`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -192,7 +188,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'azure',
         options: {
-          redirectTo: `${window.location.origin}/home`,
+          redirectTo: `${window.location.origin}/dashboard`,
           scopes: 'email',
         },
       });
