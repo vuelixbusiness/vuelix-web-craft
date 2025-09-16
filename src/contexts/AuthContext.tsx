@@ -50,10 +50,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
         fetchUserProfile(session.user);
-        // Navigate to home if not already there and not on login/signup pages
+        // Navigate to profile if not already there and not on login/signup pages
         const currentPath = window.location.pathname;
         if (currentPath === '/' || currentPath === '/login' || currentPath === '/signup') {
-          window.location.href = '/home';
+          window.location.href = '/profile';
         }
       } else {
         setUser(null);
