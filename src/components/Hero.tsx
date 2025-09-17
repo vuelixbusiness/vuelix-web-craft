@@ -3,7 +3,6 @@ import { ArrowRight, Play, Music, Video, DollarSign } from "lucide-react";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import heroImage from "@/assets/hero-bg.jpg";
-import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 const trendingCampaigns = [
@@ -70,23 +69,14 @@ const trendingCampaigns = [
 ];
 
 const Hero = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
 
   const handleStartCampaign = () => {
-    if (user) {
-      navigate('/artist-campaign');
-    } else {
-      navigate('/login');
-    }
+    navigate('/login');
   };
 
   const handleBrowseCampaigns = () => {
-    if (user) {
-      navigate('/creator-flow');
-    } else {
-      navigate('/login');
-    }
+    navigate('/login');
   };
 
   return (
