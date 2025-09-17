@@ -38,24 +38,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+
       if (session) {
-        fetchUserProfile(session.user);
+        await fetchUserProfile(session.user);
+        if (window.location.pathname === '/' || window.location.pathname === '/login' || window.location.pathname === '/signup') {
+          window.location.href = "/homepage";
+        }
+      } else {
+        if (window.location.pathname === '/homepage' || window.location.pathname.includes('dashboard') || window.location.pathname.includes('campaigns')) {
+          window.location.href = "/";
+        }
       }
       setIsLoading(false);
-    });
+    };
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (session) {
-        // Defer async operations to prevent auth callback issues
-        setTimeout(() => {
-          fetchUserProfile(session.user);
-        }, 0);
+        await fetchUserProfile(session.user);
+        window.location.href = "/homepage";
       } else {
         setUser(null);
-        setIsLoading(false);
+        window.location.href = "/";
       }
     });
 
@@ -158,7 +165,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-        redirectTo: `${window.location.origin}/`,
+          redirectTo: `${window.location.origin}/`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -188,7 +195,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'azure',
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${window.location.origin}/`,
           scopes: 'email',
         },
       });
@@ -216,7 +223,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   return (
     <AuthContext.Provider value={{ user, login, signup, signInWithGoogle, signInWithMicrosoft, logout, isLoading }}>
-      {children}
+      {isLoading ? (
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-xl font-medium text-foreground">Loading Vuelix...</p>
+          </div>
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 };

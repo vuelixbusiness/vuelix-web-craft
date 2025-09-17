@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import AuthenticatedHome from "./pages/AuthenticatedHome";
+import Homepage from "./pages/Homepage";
 import CreatorCampaigns from "./pages/CreatorCampaigns";
 import CreatorFlow from "./pages/CreatorFlow";
 import ArtistCampaignFlow from "./pages/ArtistCampaignFlow";
@@ -35,6 +36,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/homepage" element={<Homepage />} />
               <Route path="/home" element={<AuthenticatedHome />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/creator-campaigns" element={<CreatorCampaigns />} />
