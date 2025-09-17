@@ -40,6 +40,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log('Auth state change:', event, session?.user?.email);
+      
       if (session) {
         // Defer Supabase calls with setTimeout to prevent deadlocks
         setTimeout(() => {
@@ -51,6 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } else {
         setUser(null);
+        setIsLoading(false); // Set loading false when no session
         if (window.location.pathname === '/homepage' || window.location.pathname.includes('dashboard') || window.location.pathname.includes('campaigns')) {
           window.location.href = "/";
         }
@@ -60,21 +63,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // THEN check for existing session
     const checkInitialAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        console.log('Checking initial auth state...');
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          setIsLoading(false);
+          return;
+        }
         
         if (session) {
+          console.log('Found existing session:', session.user?.email);
           await fetchUserProfile(session.user);
           if (window.location.pathname === '/' || window.location.pathname === '/login' || window.location.pathname === '/signup') {
             window.location.href = "/homepage";
           }
         } else {
+          console.log('No existing session found');
+          setIsLoading(false);
           if (window.location.pathname === '/homepage' || window.location.pathname.includes('dashboard') || window.location.pathname.includes('campaigns')) {
             window.location.href = "/";
           }
         }
       } catch (error) {
         console.error('Error checking initial auth:', error);
-      } finally {
         setIsLoading(false);
       }
     };
@@ -86,13 +98,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchUserProfile = async (authUser: SupabaseUser) => {
     try {
-      const { data: profile } = await supabase
+      const { data: profile, error: fetchError } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', authUser.id)
         .single();
 
-      if (profile) {
+      if (fetchError) {
+        console.error('Profile fetch error:', fetchError);
+        
+        // If profile doesn't exist, create a basic one
+        if (fetchError.code === 'PGRST116') {
+          console.log('No profile found, creating basic profile...');
+          const { data: newProfile, error: createError } = await supabase
+            .from('profiles')
+            .insert({
+              user_id: authUser.id,
+              display_name: authUser.email!.split('@')[0],
+              username: authUser.email!.split('@')[0],
+              user_type: 'creator', // default type
+              membership_type: 'regular'
+            })
+            .select()
+            .single();
+
+          if (createError) {
+            console.error('Error creating profile:', createError);
+            // Set basic user data even if profile creation fails
+            setUser({
+              id: authUser.id,
+              email: authUser.email!,
+              name: authUser.email!.split('@')[0],
+              username: authUser.email!.split('@')[0],
+              type: 'creator',
+              membershipType: 'regular'
+            });
+          } else if (newProfile) {
+            setUser({
+              id: authUser.id,
+              email: authUser.email!,
+              name: newProfile.display_name || authUser.email!,
+              username: newProfile.username,
+              type: newProfile.user_type as 'creator' | 'artist',
+              membershipType: newProfile.membership_type as 'regular' | 'premium',
+              avatar: newProfile.avatar_url
+            });
+          }
+        } else {
+          // For other errors, set basic user data
+          setUser({
+            id: authUser.id,
+            email: authUser.email!,
+            name: authUser.email!.split('@')[0],
+            username: authUser.email!.split('@')[0],
+            type: 'creator',
+            membershipType: 'regular'
+          });
+        }
+      } else if (profile) {
         setUser({
           id: authUser.id,
           email: authUser.email!,
@@ -105,6 +168,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
+      // Always set user data even if profile fetch fails completely
+      setUser({
+        id: authUser.id,
+        email: authUser.email!,
+        name: authUser.email!.split('@')[0],
+        username: authUser.email!.split('@')[0],
+        type: 'creator',
+        membershipType: 'regular'
+      });
+    } finally {
+      // Always set loading to false after profile fetch attempt
+      setIsLoading(false);
     }
   };
 
