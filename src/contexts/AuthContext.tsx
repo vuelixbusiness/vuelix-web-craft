@@ -38,33 +38,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-
+    // Set up auth state listener FIRST
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session) {
-        await fetchUserProfile(session.user);
+        // Defer Supabase calls with setTimeout to prevent deadlocks
+        setTimeout(() => {
+          fetchUserProfile(session.user);
+        }, 0);
+        
         if (window.location.pathname === '/' || window.location.pathname === '/login' || window.location.pathname === '/signup') {
           window.location.href = "/homepage";
         }
       } else {
+        setUser(null);
         if (window.location.pathname === '/homepage' || window.location.pathname.includes('dashboard') || window.location.pathname.includes('campaigns')) {
           window.location.href = "/";
         }
       }
-      setIsLoading(false);
+    });
+
+    // THEN check for existing session
+    const checkInitialAuth = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        
+        if (session) {
+          await fetchUserProfile(session.user);
+          if (window.location.pathname === '/' || window.location.pathname === '/login' || window.location.pathname === '/signup') {
+            window.location.href = "/homepage";
+          }
+        } else {
+          if (window.location.pathname === '/homepage' || window.location.pathname.includes('dashboard') || window.location.pathname.includes('campaigns')) {
+            window.location.href = "/";
+          }
+        }
+      } catch (error) {
+        console.error('Error checking initial auth:', error);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (session) {
-        await fetchUserProfile(session.user);
-        window.location.href = "/homepage";
-      } else {
-        setUser(null);
-        window.location.href = "/";
-      }
-    });
+    checkInitialAuth();
 
     return () => subscription.unsubscribe();
   }, []);
