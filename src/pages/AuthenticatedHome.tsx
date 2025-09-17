@@ -146,7 +146,7 @@ const AuthenticatedHome = () => {
   return (
     <AuthenticatedRoute>
       <div className="min-h-screen bg-background">
-        <DashboardNav dashboardType={user!.type} />
+        <DashboardNav dashboardType={user?.type || 'creator'} />
         
         <div className="pt-20 pb-12">
           <div className="container mx-auto px-4">
@@ -155,16 +155,16 @@ const AuthenticatedHome = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-4xl font-bold text-foreground mb-2">
-                    Welcome back, {user!.name}!
+                    Welcome back, {user?.name || 'User'}!
                   </h1>
                   <p className="text-xl text-muted-foreground">
-                    {user!.type === 'creator' ? 'Ready to create and earn?' : 'Ready to launch your next campaign?'}
+                    {user?.type === 'creator' ? 'Ready to create and earn?' : 'Ready to launch your next campaign?'}
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Badge variant={user!.membershipType === 'premium' ? 'default' : 'outline'} className="flex items-center space-x-1">
-                    {user!.membershipType === 'premium' && <Star className="w-3 h-3" />}
-                    <span>{user!.membershipType === 'premium' ? 'VIP Member' : 'Regular Member'}</span>
+                  <Badge variant={user?.membershipType === 'premium' ? 'default' : 'outline'} className="flex items-center space-x-1">
+                    {user?.membershipType === 'premium' && <Star className="w-3 h-3" />}
+                    <span>{user?.membershipType === 'premium' ? 'VIP Member' : 'Regular Member'}</span>
                   </Badge>
                 </div>
               </div>
@@ -175,14 +175,14 @@ const AuthenticatedHome = () => {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-sm font-medium">
-                    {user!.type === 'creator' ? 'Total Campaigns' : 'Active Campaigns'}
+                    {user?.type === 'creator' ? 'Total Campaigns' : 'Active Campaigns'}
                   </CardTitle>
                   <Target className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{stats.totalCampaigns}</div>
                   <p className="text-xs text-muted-foreground">
-                    {user!.type === 'creator' ? 'campaigns joined' : 'campaigns running'}
+                    {user?.type === 'creator' ? 'campaigns joined' : 'campaigns running'}
                   </p>
                 </CardContent>
               </Card>
@@ -233,7 +233,7 @@ const AuthenticatedHome = () => {
                       <span>Quick Actions</span>
                     </CardTitle>
                     <CardDescription>
-                      {user!.type === 'creator' 
+                      {user?.type === 'creator' 
                         ? 'Jump into campaigns and start earning' 
                         : 'Manage your campaigns and track performance'
                       }
@@ -241,7 +241,7 @@ const AuthenticatedHome = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {user!.type === 'creator' ? (
+                      {user?.type === 'creator' ? (
                         <>
                           <Link to="/creator-campaigns">
                             <Button className="w-full h-20 flex flex-col items-center justify-center space-y-2">
@@ -301,7 +301,7 @@ const AuthenticatedHome = () => {
                 </Card>
 
                 {/* Featured Campaigns */}
-                {user!.type === 'creator' && (
+                {user?.type === 'creator' && (
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center space-x-2">
@@ -410,22 +410,22 @@ const AuthenticatedHome = () => {
                   <CardContent>
                     <div className="text-center">
                       <div className="w-16 h-16 mx-auto mb-4 bg-gradient-primary rounded-full flex items-center justify-center">
-                        {user!.membershipType === 'premium' ? (
+                        {user?.membershipType === 'premium' ? (
                           <Star className="w-8 h-8 text-white" />
                         ) : (
                           <Users className="w-8 h-8 text-white" />
                         )}
                       </div>
                       <h3 className="font-medium mb-2">
-                        {user!.membershipType === 'premium' ? 'VIP Member' : 'Regular Member'}
+                        {user?.membershipType === 'premium' ? 'VIP Member' : 'Regular Member'}
                       </h3>
                       <p className="text-sm text-muted-foreground mb-4">
-                        {user!.membershipType === 'premium' 
+                        {user?.membershipType === 'premium' 
                           ? 'Enjoying premium benefits' 
                           : 'Upgrade for exclusive features'
                         }
                       </p>
-                      {user!.membershipType !== 'premium' && (
+                      {user?.membershipType !== 'premium' && (
                         <Link to="/vuelix-plus">
                           <Button size="sm" className="w-full">
                             Upgrade to VIP
