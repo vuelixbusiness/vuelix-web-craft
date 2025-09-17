@@ -40,21 +40,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Auth state change:', event, session?.user?.email);
+      console.log('🔄 Auth state change:', event, session?.user?.email);
       
       if (session) {
+        console.log('✅ Session exists, fetching profile...');
         // Defer Supabase calls with setTimeout to prevent deadlocks
         setTimeout(() => {
           fetchUserProfile(session.user);
         }, 0);
         
+        // Handle redirects for authenticated users
         if (window.location.pathname === '/' || window.location.pathname === '/login' || window.location.pathname === '/signup') {
+          console.log('🔄 Redirecting authenticated user to homepage');
           window.location.href = "/homepage";
         }
       } else {
+        console.log('❌ No session, clearing user state');
         setUser(null);
         setIsLoading(false); // Set loading false when no session
+        
+        // Handle redirects for unauthenticated users
         if (window.location.pathname === '/homepage' || window.location.pathname.includes('dashboard') || window.location.pathname.includes('campaigns')) {
+          console.log('🔄 Redirecting unauthenticated user to home');
           window.location.href = "/";
         }
       }
@@ -63,30 +70,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // THEN check for existing session
     const checkInitialAuth = async () => {
       try {
-        console.log('Checking initial auth state...');
+        console.log('🔍 Checking initial auth state...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Error getting session:', error);
+          console.error('❌ Error getting session:', error);
           setIsLoading(false);
           return;
         }
         
-        if (session) {
-          console.log('Found existing session:', session.user?.email);
-          await fetchUserProfile(session.user);
-          if (window.location.pathname === '/' || window.location.pathname === '/login' || window.location.pathname === '/signup') {
-            window.location.href = "/homepage";
-          }
-        } else {
-          console.log('No existing session found');
+        console.log('📋 Initial session check:', session ? 'Session found' : 'No session');
+        
+        // Don't fetch profile here - let onAuthStateChange handle it
+        // This prevents race conditions between initial check and auth state changes
+        if (!session?.user) {
+          console.log('🚫 No user in session');
+          setUser(null);
           setIsLoading(false);
-          if (window.location.pathname === '/homepage' || window.location.pathname.includes('dashboard') || window.location.pathname.includes('campaigns')) {
-            window.location.href = "/";
-          }
         }
+        // If session exists, onAuthStateChange will handle the profile fetch and redirects
       } catch (error) {
-        console.error('Error checking initial auth:', error);
+        console.error('❌ Error in checkInitialAuth:', error);
         setIsLoading(false);
       }
     };
