@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import vuelixLogo from "@/assets/vuelix-logo-new.png";
+import vuelixLogo from "@/assets/vuelix-logo-official.png";
 
 const Navigation = () => {
   const location = useLocation();
