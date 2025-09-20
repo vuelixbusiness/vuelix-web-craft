@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useLocation, useNavigate, Link } from "react-router-dom";
+import vuelixLogo from "@/assets/vuelix-logo.png";
 
 const Navigation = () => {
   const location = useLocation();
@@ -55,7 +56,7 @@ const Navigation = () => {
             onClick={handleLogoClick}
             className="flex items-center space-x-2 hover:opacity-80 transition-smooth"
           >
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg"></div>
+            <img src={vuelixLogo} alt="Vuelix" className="w-8 h-8" />
             <span className="text-xl font-bold text-foreground">Vuelix</span>
           </a>
           
