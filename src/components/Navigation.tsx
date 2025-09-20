@@ -48,7 +48,7 @@ const Navigation = () => {
     }
   };
 
-  return <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-sm border-b border-border">
+  return <nav className="fixed top-0 left-0 right-0 z-50 bg-primary/90 backdrop-blur-sm border-b border-primary/20">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <a 
@@ -57,34 +57,34 @@ const Navigation = () => {
             className="flex items-center space-x-2 hover:opacity-80 transition-smooth"
           >
             <img src={vuelixLogo} alt="Vuelix" className="w-12 h-12" />
-            <span className="text-xl font-bold text-foreground">Vuelix</span>
+            <span className="text-xl font-bold text-primary-foreground">Vuelix</span>
           </a>
           
           <div className="hidden md:flex items-center space-x-4">
             <a 
               href="#how-it-works" 
               onClick={(e) => handleSmoothScroll(e, 'how-it-works')}
-              className="px-4 py-2 rounded-md bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground transition-smooth"
+              className="px-4 py-2 rounded-md bg-white/10 text-primary-foreground hover:bg-white/20 hover:text-primary-foreground transition-smooth"
             >
               How It Works
             </a>
             <a 
               href="#for-artists" 
               onClick={(e) => handleSmoothScroll(e, 'for-artists')}
-              className="px-4 py-2 rounded-md bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground transition-smooth"
+              className="px-4 py-2 rounded-md bg-white/10 text-primary-foreground hover:bg-white/20 hover:text-primary-foreground transition-smooth"
             >
               For Artists
             </a>
             <a 
               href="#for-creators" 
               onClick={(e) => handleSmoothScroll(e, 'for-creators')}
-              className="px-4 py-2 rounded-md bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground transition-smooth"
+              className="px-4 py-2 rounded-md bg-white/10 text-primary-foreground hover:bg-white/20 hover:text-primary-foreground transition-smooth"
             >
               For Creators
             </a>
-            <a href="/campaigns" className="px-4 py-2 rounded-md bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground transition-smooth">Campaigns</a>
-            <a href="/leaderboard" className="px-4 py-2 rounded-md bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground transition-smooth">Leaderboard</a>
-            <a href="/vuelix-plus" className="px-4 py-2 rounded-md bg-secondary/50 text-secondary-foreground hover:bg-secondary hover:text-secondary-foreground transition-smooth">Vuelix+</a>
+            <a href="/campaigns" className="px-4 py-2 rounded-md bg-white/10 text-primary-foreground hover:bg-white/20 hover:text-primary-foreground transition-smooth">Campaigns</a>
+            <a href="/leaderboard" className="px-4 py-2 rounded-md bg-white/10 text-primary-foreground hover:bg-white/20 hover:text-primary-foreground transition-smooth">Leaderboard</a>
+            <a href="/vuelix-plus" className="px-4 py-2 rounded-md bg-white/10 text-primary-foreground hover:bg-white/20 hover:text-primary-foreground transition-smooth">Vuelix+</a>
           </div>
           
           <div className="flex items-center space-x-4">
