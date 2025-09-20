@@ -18,18 +18,18 @@ const ThemeToggle = () => {
   return (
     <Button
       variant="ghost"
-      size="sm"
+      size="default"
       onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      className="flex items-center gap-2"
+      className="flex items-center gap-3 px-4 py-2"
     >
       {theme === "light" ? (
         <>
-          <Sun className="h-4 w-4" />
+          <Sun className="h-5 w-5" />
           <span>Light</span>
         </>
       ) : (
         <>
-          <Moon className="h-4 w-4" />
+          <Moon className="h-5 w-5" />
           <span>Dark</span>
         </>
       )}

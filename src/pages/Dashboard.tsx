@@ -27,19 +27,19 @@ const Dashboard = () => {
     <DashboardLayout>
       <div className="container mx-auto px-6 py-8">
         {/* Welcome Section */}
-        <div className="mb-8">
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center shadow-elegant">
-              <User className="w-8 h-8 text-primary-foreground" />
+        <div className="mb-12">
+          <div className="flex items-center space-x-6 mb-6">
+            <div className="w-24 h-24 bg-gradient-primary rounded-full flex items-center justify-center shadow-elegant">
+              <User className="w-12 h-12 text-primary-foreground" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold">
+              <h1 className="text-4xl font-bold">
                 Welcome back, {user?.name || user?.username}!
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-lg text-muted-foreground mt-2">
                 Ready to discover amazing music and earn rewards?
               </p>
-              <Badge variant={user?.membershipType === 'premium' ? 'default' : 'secondary'} className="mt-2">
+              <Badge variant={user?.membershipType === 'premium' ? 'default' : 'secondary'} className="mt-3 text-base px-4 py-2">
                 {user?.membershipType} Member
               </Badge>
             </div>
@@ -47,19 +47,19 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
           {quickStats.map((stat, index) => {
             const IconComponent = stat.icon;
             return (
-              <Card key={index} className="shadow-soft hover:shadow-elegant transition-smooth">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
+              <Card key={index} className="shadow-soft hover:shadow-elegant transition-smooth p-2">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+                  <CardTitle className="text-base font-medium text-muted-foreground">
                     {stat.label}
                   </CardTitle>
-                  <IconComponent className={`w-5 h-5 ${stat.color}`} />
+                  <IconComponent className={`w-8 h-8 ${stat.color}`} />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stat.value}</div>
+                  <div className="text-3xl font-bold">{stat.value}</div>
                 </CardContent>
               </Card>
             );
@@ -67,22 +67,22 @@ const Dashboard = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-6">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="mb-12">
+          <h2 className="text-3xl font-semibold mb-8">Quick Actions</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {quickActions.map((action, index) => (
-              <Card key={index} className="shadow-soft hover:shadow-elegant transition-smooth cursor-pointer group">
+              <Card key={index} className="shadow-soft hover:shadow-elegant transition-smooth cursor-pointer group p-2">
                 <Link to={action.path}>
-                  <CardHeader>
-                    <CardTitle className="text-lg group-hover:text-primary transition-smooth">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-xl group-hover:text-primary transition-smooth">
                       {action.label}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground mb-4">
+                    <p className="text-base text-muted-foreground mb-6">
                       {action.description}
                     </p>
-                    <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-smooth">
+                    <Button variant="outline" size="lg" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-smooth">
                       Get Started
                     </Button>
                   </CardContent>
@@ -93,20 +93,20 @@ const Dashboard = () => {
         </div>
 
         {/* Recent Activity */}
-        <Card className="shadow-soft">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <TrendingUp className="w-5 h-5 text-primary" />
+        <Card className="shadow-soft p-2">
+          <CardHeader className="pb-6">
+            <CardTitle className="flex items-center space-x-3 text-2xl">
+              <TrendingUp className="w-7 h-7 text-primary" />
               <span>Recent Activity</span>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-8">
-              <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-muted-foreground mb-4">
+            <div className="text-center py-12">
+              <Users className="w-16 h-16 text-muted-foreground mx-auto mb-6" />
+              <p className="text-lg text-muted-foreground mb-6">
                 No recent activity yet. Start participating in campaigns to see your progress here!
               </p>
-              <Button asChild>
+              <Button asChild size="lg">
                 <Link to="/campaigns">Browse Campaigns</Link>
               </Button>
             </div>
