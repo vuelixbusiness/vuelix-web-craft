@@ -1,369 +1,235 @@
-import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Trophy, DollarSign, Eye, Crown, Medal, Award } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import Navigation from "@/components/Navigation";
-
-interface LeaderboardEntry {
-  user_id: string;
-  display_name: string;
-  username: string;
-  avatar_url?: string;
-  total_earnings: number;
-  total_views: number;
-}
+import DashboardLayout from "@/components/DashboardLayout";
+import { Trophy, Crown, Medal, TrendingUp, Users, DollarSign } from "lucide-react";
 
 const Leaderboard = () => {
-  const [earningsLeaderboard, setEarningsLeaderboard] = useState<LeaderboardEntry[]>([]);
-  const [viewsLeaderboard, setViewsLeaderboard] = useState<LeaderboardEntry[]>([]);
-  const [weeklyEarningsLeaderboard, setWeeklyEarningsLeaderboard] = useState<LeaderboardEntry[]>([]);
-  const [weeklyViewsLeaderboard, setWeeklyViewsLeaderboard] = useState<LeaderboardEntry[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Use mock data for now
-    setMockData();
-    // fetchLeaderboards();
-  }, []);
-
-  const setMockData = () => {
-    const mockUsers = [
-      { user_id: '1', display_name: 'Alex Rodriguez', username: 'alexr_music', avatar_url: null, total_earnings: 2850.50, total_views: 1250000 },
-      { user_id: '2', display_name: 'Sarah Chen', username: 'sarahbeats', avatar_url: null, total_earnings: 2420.75, total_views: 980000 },
-      { user_id: '3', display_name: 'Marcus Johnson', username: 'mjvibes', avatar_url: null, total_earnings: 1995.25, total_views: 875000 },
-      { user_id: '4', display_name: 'Emma Williams', username: 'emmawave', avatar_url: null, total_earnings: 1750.00, total_views: 750000 },
-      { user_id: '5', display_name: 'Diego Martinez', username: 'diegomix', avatar_url: null, total_earnings: 1580.30, total_views: 690000 },
-      { user_id: '6', display_name: 'Taylor Swift', username: 'taylorswift13', avatar_url: null, total_earnings: 1425.80, total_views: 620000 },
-      { user_id: '7', display_name: 'Kevin Park', username: 'kevinp_creator', avatar_url: null, total_earnings: 1320.45, total_views: 580000 },
-      { user_id: '8', display_name: 'Zoe Anderson', username: 'zoecreates', avatar_url: null, total_earnings: 1195.60, total_views: 520000 },
-      { user_id: '9', display_name: 'Ryan Thompson', username: 'ryanthomps', avatar_url: null, total_earnings: 1050.25, total_views: 465000 },
-      { user_id: '10', display_name: 'Maya Patel', username: 'mayamusic', avatar_url: null, total_earnings: 925.90, total_views: 420000 }
-    ];
-
-    const weeklyMockUsers = [
-      { user_id: '3', display_name: 'Marcus Johnson', username: 'mjvibes', avatar_url: null, total_earnings: 485.50, total_views: 125000 },
-      { user_id: '1', display_name: 'Alex Rodriguez', username: 'alexr_music', avatar_url: null, total_earnings: 420.25, total_views: 98000 },
-      { user_id: '7', display_name: 'Kevin Park', username: 'kevinp_creator', avatar_url: null, total_earnings: 385.75, total_views: 87000 },
-      { user_id: '2', display_name: 'Sarah Chen', username: 'sarahbeats', avatar_url: null, total_earnings: 340.80, total_views: 75000 },
-      { user_id: '5', display_name: 'Diego Martinez', username: 'diegomix', avatar_url: null, total_earnings: 295.60, total_views: 69000 },
-      { user_id: '8', display_name: 'Zoe Anderson', username: 'zoecreates', avatar_url: null, total_earnings: 265.40, total_views: 58000 },
-      { user_id: '4', display_name: 'Emma Williams', username: 'emmawave', avatar_url: null, total_earnings: 230.25, total_views: 52000 },
-      { user_id: '10', display_name: 'Maya Patel', username: 'mayamusic', avatar_url: null, total_earnings: 195.90, total_views: 45000 },
-      { user_id: '9', display_name: 'Ryan Thompson', username: 'ryanthomps', avatar_url: null, total_earnings: 175.80, total_views: 38000 },
-      { user_id: '6', display_name: 'Taylor Swift', username: 'taylorswift13', avatar_url: null, total_earnings: 145.50, total_views: 32000 }
-    ];
-
-    setEarningsLeaderboard([...mockUsers].sort((a, b) => b.total_earnings - a.total_earnings));
-    setViewsLeaderboard([...mockUsers].sort((a, b) => b.total_views - a.total_views));
-    setWeeklyEarningsLeaderboard([...weeklyMockUsers].sort((a, b) => b.total_earnings - a.total_earnings));
-    setWeeklyViewsLeaderboard([...weeklyMockUsers].sort((a, b) => b.total_views - a.total_views));
-    setLoading(false);
-  };
-
-  const fetchLeaderboards = async () => {
-    try {
-      setLoading(true);
-      
-      // Get all-time earnings leaderboard
-      const { data: allTimeEarnings } = await supabase
-        .from('campaign_participations')
-        .select(`
-          creator_id,
-          payout_amount,
-          current_views,
-          profiles:creator_id (
-            display_name,
-            username,
-            avatar_url
-          )
-        `)
-        .not('payout_amount', 'is', null);
-
-      // Get weekly earnings leaderboard (past 7 days)
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      
-      const { data: weeklyEarnings } = await supabase
-        .from('campaign_participations')
-        .select(`
-          creator_id,
-          payout_amount,
-          current_views,
-          profiles:creator_id (
-            display_name,
-            username,
-            avatar_url
-          )
-        `)
-        .gte('updated_at', weekAgo.toISOString())
-        .not('payout_amount', 'is', null);
-
-      // Process all-time data
-      if (allTimeEarnings) {
-        const earningsMap = new Map<string, LeaderboardEntry>();
-        const viewsMap = new Map<string, LeaderboardEntry>();
-
-        allTimeEarnings.forEach(participation => {
-          const userId = participation.creator_id;
-          const profile = participation.profiles as any;
-          
-          if (!earningsMap.has(userId)) {
-            earningsMap.set(userId, {
-              user_id: userId,
-              display_name: profile?.display_name || 'Anonymous',
-              username: profile?.username || 'user',
-              avatar_url: profile?.avatar_url,
-              total_earnings: 0,
-              total_views: 0
-            });
-          }
-          
-          if (!viewsMap.has(userId)) {
-            viewsMap.set(userId, {
-              user_id: userId,
-              display_name: profile?.display_name || 'Anonymous', 
-              username: profile?.username || 'user',
-              avatar_url: profile?.avatar_url,
-              total_earnings: 0,
-              total_views: 0
-            });
-          }
-
-          const earningsEntry = earningsMap.get(userId)!;
-          const viewsEntry = viewsMap.get(userId)!;
-          
-          earningsEntry.total_earnings += Number(participation.payout_amount || 0);
-          viewsEntry.total_views += participation.current_views || 0;
-        });
-
-        setEarningsLeaderboard(Array.from(earningsMap.values())
-          .sort((a, b) => b.total_earnings - a.total_earnings)
-          .slice(0, 50));
-          
-        setViewsLeaderboard(Array.from(viewsMap.values())
-          .sort((a, b) => b.total_views - a.total_views)
-          .slice(0, 50));
-      }
-
-      // Process weekly data
-      if (weeklyEarnings) {
-        const weeklyEarningsMap = new Map<string, LeaderboardEntry>();
-        const weeklyViewsMap = new Map<string, LeaderboardEntry>();
-
-        weeklyEarnings.forEach(participation => {
-          const userId = participation.creator_id;
-          const profile = participation.profiles as any;
-          
-          if (!weeklyEarningsMap.has(userId)) {
-            weeklyEarningsMap.set(userId, {
-              user_id: userId,
-              display_name: profile?.display_name || 'Anonymous',
-              username: profile?.username || 'user',
-              avatar_url: profile?.avatar_url,
-              total_earnings: 0,
-              total_views: 0
-            });
-          }
-          
-          if (!weeklyViewsMap.has(userId)) {
-            weeklyViewsMap.set(userId, {
-              user_id: userId,
-              display_name: profile?.display_name || 'Anonymous',
-              username: profile?.username || 'user', 
-              avatar_url: profile?.avatar_url,
-              total_earnings: 0,
-              total_views: 0
-            });
-          }
-
-          const earningsEntry = weeklyEarningsMap.get(userId)!;
-          const viewsEntry = weeklyViewsMap.get(userId)!;
-          
-          earningsEntry.total_earnings += Number(participation.payout_amount || 0);
-          viewsEntry.total_views += participation.current_views || 0;
-        });
-
-        setWeeklyEarningsLeaderboard(Array.from(weeklyEarningsMap.values())
-          .sort((a, b) => b.total_earnings - a.total_earnings)
-          .slice(0, 50));
-          
-        setWeeklyViewsLeaderboard(Array.from(weeklyViewsMap.values())
-          .sort((a, b) => b.total_views - a.total_views)
-          .slice(0, 50));
-      }
-    } catch (error) {
-      console.error('Error fetching leaderboards:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Mock leaderboard data - replace with actual data
+  const topCreators = [
+    {
+      id: '1',
+      username: 'creator1',
+      name: 'Top Creator',
+      avatar: null,
+      total_earnings: 1250.00,
+      total_views: 50000,
+      campaigns_completed: 15,
+      rank: 1,
+    },
+    {
+      id: '2',
+      username: 'creator2',
+      name: 'Second Place',
+      avatar: null,
+      total_earnings: 980.50,
+      total_views: 38000,
+      campaigns_completed: 12,
+      rank: 2,
+    },
+    {
+      id: '3',
+      username: 'creator3',
+      name: 'Third Place',
+      avatar: null,
+      total_earnings: 750.25,
+      total_views: 25000,
+      campaigns_completed: 10,
+      rank: 3,
+    },
+  ];
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
-      case 1: return <Crown className="h-5 w-5 text-yellow-500" />;
-      case 2: return <Medal className="h-5 w-5 text-gray-400" />;
-      case 3: return <Award className="h-5 w-5 text-amber-600" />;
-      default: return <span className="text-muted-foreground font-bold">#{rank}</span>;
+      case 1:
+        return <Crown className="w-6 h-6 text-yellow-500" />;
+      case 2:
+        return <Medal className="w-6 h-6 text-gray-400" />;
+      case 3:
+        return <Medal className="w-6 h-6 text-amber-600" />;
+      default:
+        return <Trophy className="w-6 h-6 text-muted-foreground" />;
     }
   };
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount);
-  };
-
-  const formatViews = (views: number) => {
-    if (views >= 1000000) {
-      return `${(views / 1000000).toFixed(1)}M`;
-    } else if (views >= 1000) {
-      return `${(views / 1000).toFixed(1)}K`;
+  const getRankColor = (rank: number) => {
+    switch (rank) {
+      case 1:
+        return 'bg-gradient-to-r from-yellow-400 to-yellow-600';
+      case 2:
+        return 'bg-gradient-to-r from-gray-300 to-gray-500';
+      case 3:
+        return 'bg-gradient-to-r from-amber-500 to-amber-700';
+      default:
+        return 'bg-gradient-primary';
     }
-    return views.toLocaleString();
   };
 
-  const LeaderboardList = ({ data, type }: { data: LeaderboardEntry[], type: 'earnings' | 'views' }) => (
-    <div className="space-y-4">
-      {data.map((entry, index) => (
-        <div key={entry.user_id} className="flex items-center gap-4 p-4 bg-card rounded-lg border">
-          <div className="flex-shrink-0">
-            {getRankIcon(index + 1)}
-          </div>
-          
-          <Avatar className="h-10 w-10">
-            <AvatarImage src={entry.avatar_url} alt={entry.display_name} />
-            <AvatarFallback>{entry.display_name?.charAt(0) || 'U'}</AvatarFallback>
-          </Avatar>
-          
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-foreground truncate">@{entry.username}</p>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            {type === 'earnings' ? (
-              <>
-                <DollarSign className="h-4 w-4 text-green-500" />
-                <span className="font-bold text-green-500">{formatCurrency(entry.total_earnings)}</span>
-              </>
-            ) : (
-              <>
-                <Eye className="h-4 w-4 text-blue-500" />
-                <span className="font-bold text-blue-500">{formatViews(entry.total_views)}</span>
-              </>
-            )}
-          </div>
-        </div>
-      ))}
-    </div>
-  );
+  const leaderboardStats = [
+    {
+      title: 'Total Creators',
+      value: '156',
+      description: 'Active this month',
+      icon: Users,
+      color: 'text-blue-500',
+    },
+    {
+      title: 'Total Earnings',
+      value: '$45,230',
+      description: 'Paid out this month',
+      icon: DollarSign,
+      color: 'text-green-500',
+    },
+    {
+      title: 'Top Views',
+      value: '2.1M',
+      description: 'Highest this month',
+      icon: TrendingUp,
+      color: 'text-purple-500',
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      <main className="container mx-auto px-4 pt-24 pb-16">
-        <div className="text-center mb-12">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <Trophy className="h-8 w-8 text-primary" />
-            <h1 className="text-4xl font-bold text-foreground">Leaderboard</h1>
+    <DashboardLayout>
+      <div className="container mx-auto px-6 py-8">
+        <div className="max-w-6xl mx-auto">
+          {/* Header */}
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">Leaderboard</h1>
+            <p className="text-muted-foreground">
+              See how you rank against other creators and compete for rewards
+            </p>
           </div>
-          <p className="text-lg text-muted-foreground">
-            See who's leading the pack in earnings and views
-          </p>
+
+          {/* Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {leaderboardStats.map((stat, index) => {
+              const IconComponent = stat.icon;
+              return (
+                <Card key={index} className="shadow-soft">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium text-muted-foreground">
+                      {stat.title}
+                    </CardTitle>
+                    <IconComponent className={`w-5 h-5 ${stat.color}`} />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">{stat.value}</div>
+                    <p className="text-xs text-muted-foreground">{stat.description}</p>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Top 3 Podium */}
+          <Card className="mb-8 shadow-soft">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <Trophy className="w-5 h-5 text-primary" />
+                <span>Top Performers</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {topCreators.slice(0, 3).map((creator) => (
+                  <div 
+                    key={creator.id} 
+                    className={`relative p-6 rounded-lg text-center ${getRankColor(creator.rank)} text-white shadow-elegant`}
+                  >
+                    <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                      <div className="bg-background rounded-full p-2 shadow-soft">
+                        {getRankIcon(creator.rank)}
+                      </div>
+                    </div>
+                    
+                    <Avatar className="w-16 h-16 mx-auto mb-4 border-4 border-white/20">
+                      <AvatarImage src={creator.avatar} alt={creator.name} />
+                      <AvatarFallback className="bg-white/20 text-white text-lg font-bold">
+                        {creator.name.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    <h3 className="text-lg font-bold mb-1">{creator.name}</h3>
+                    <p className="text-white/80 text-sm mb-3">@{creator.username}</p>
+                    
+                    <div className="space-y-1 text-sm">
+                      <div className="font-semibold">${creator.total_earnings.toLocaleString()}</div>
+                      <div className="text-white/80">{creator.total_views.toLocaleString()} views</div>
+                      <div className="text-white/80">{creator.campaigns_completed} campaigns</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Full Leaderboard */}
+          <Card className="shadow-soft">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <TrendingUp className="w-5 h-5 text-primary" />
+                <span>Full Rankings</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {topCreators.length === 0 ? (
+                <div className="text-center py-12">
+                  <Trophy className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">No rankings yet</h3>
+                  <p className="text-muted-foreground">
+                    Start participating in campaigns to appear on the leaderboard!
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {topCreators.map((creator, index) => (
+                    <div 
+                      key={creator.id} 
+                      className={`flex items-center justify-between p-4 rounded-lg border transition-smooth hover:shadow-soft ${
+                        index < 3 ? 'bg-gradient-to-r from-primary/5 to-transparent border-primary/20' : 'border-border'
+                      }`}
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center justify-center w-8 h-8">
+                          {index < 3 ? getRankIcon(creator.rank) : (
+                            <span className="font-bold text-lg">#{creator.rank}</span>
+                          )}
+                        </div>
+                        
+                        <Avatar>
+                          <AvatarImage src={creator.avatar} alt={creator.name} />
+                          <AvatarFallback>
+                            {creator.name.slice(0, 2).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        
+                        <div>
+                          <h4 className="font-medium">{creator.name}</h4>
+                          <p className="text-sm text-muted-foreground">@{creator.username}</p>
+                        </div>
+                      </div>
+                      
+                      <div className="text-right space-y-1">
+                        <div className="font-bold text-green-500">
+                          ${creator.total_earnings.toLocaleString()}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {creator.total_views.toLocaleString()} views
+                        </div>
+                        <Badge variant="secondary" className="text-xs">
+                          {creator.campaigns_completed} campaigns
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
-
-        <Tabs defaultValue="all-time" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 mb-8">
-            <TabsTrigger value="all-time">All Time</TabsTrigger>
-            <TabsTrigger value="weekly">Past Week</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="all-time">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="h-5 w-5 text-green-500" />
-                    Top Earners
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {loading ? (
-                    <div className="flex items-center justify-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    </div>
-                  ) : (
-                    <LeaderboardList data={earningsLeaderboard} type="earnings" />
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Eye className="h-5 w-5 text-blue-500" />
-                    Most Views
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {loading ? (
-                    <div className="flex items-center justify-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    </div>
-                  ) : (
-                    <LeaderboardList data={viewsLeaderboard} type="views" />
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="weekly">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <DollarSign className="h-5 w-5 text-green-500" />
-                    Top Earners (Past Week)
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {loading ? (
-                    <div className="flex items-center justify-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    </div>
-                  ) : (
-                    <LeaderboardList data={weeklyEarningsLeaderboard} type="earnings" />
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Eye className="h-5 w-5 text-blue-500" />
-                    Most Views (Past Week)
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {loading ? (
-                    <div className="flex items-center justify-center py-8">
-                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    </div>
-                  ) : (
-                    <LeaderboardList data={weeklyViewsLeaderboard} type="views" />
-                  )}
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
-      </main>
-    </div>
+      </div>
+    </DashboardLayout>
   );
 };
 

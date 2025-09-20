@@ -7,6 +7,11 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
+import Dashboard from "./pages/Dashboard";
+import Profile from "./pages/Profile";
+import Wallet from "./pages/Wallet";
+import Campaigns from "./pages/Campaigns";
+import Leaderboard from "./pages/Leaderboard";
 import CreatorCampaigns from "./pages/CreatorCampaigns";
 import CreatorFlow from "./pages/CreatorFlow";
 import ArtistCampaignFlow from "./pages/ArtistCampaignFlow";
@@ -18,8 +23,6 @@ import CreatorDashboard from "./pages/CreatorDashboard";
 import ArtistDashboard from "./pages/ArtistDashboard";
 import ArtistLanding from "./pages/ArtistLanding";
 import Chat from "./pages/Chat";
-import Leaderboard from "./pages/Leaderboard";
-import Campaigns from "./pages/Campaigns";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,21 +38,69 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               
-              {/* Main authenticated dashboard will be implemented here */}
+              {/* Main Dashboard System */}
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/profile" element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } />
+              <Route path="/wallet" element={
+                <ProtectedRoute>
+                  <Wallet />
+                </ProtectedRoute>
+              } />
+              <Route path="/campaigns" element={
+                <ProtectedRoute>
+                  <Campaigns />
+                </ProtectedRoute>
+              } />
+              <Route path="/leaderboard" element={
+                <ProtectedRoute>
+                  <Leaderboard />
+                </ProtectedRoute>
+              } />
+              
+              {/* Legacy/Specialized Routes */}
+              <Route path="/artist" element={
+                <ProtectedRoute>
+                  <ArtistDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/creator" element={
+                <ProtectedRoute>
+                  <CreatorDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/artist-dashboard" element={
+                <ProtectedRoute>
+                  <ArtistDashboard />
+                </ProtectedRoute>
+              } />
+              <Route path="/home" element={
+                <ProtectedRoute>
+                  <CreatorDashboard />
+                </ProtectedRoute>
+              } />
+              
+              {/* Other Routes */}
               <Route path="/creator-campaigns" element={<CreatorCampaigns />} />
               <Route path="/creator-flow" element={<CreatorFlow />} />
               <Route path="/artist-campaign" element={<ArtistCampaignFlow />} />
               <Route path="/artist-landing" element={<ArtistLanding />} />
               <Route path="/vuelix-plus" element={<VuelixPlus />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route path="/creator-dashboard" element={<CreatorDashboard />} />
-            <Route path="/artist-dashboard" element={<ArtistDashboard />} />
-            <Route path="/chat" element={<Chat />} />
-            <Route path="/leaderboard" element={<Leaderboard />} />
-            <Route path="/campaigns" element={<Campaigns />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/chat" element={
+                <ProtectedRoute>
+                  <Chat />
+                </ProtectedRoute>
+              } />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

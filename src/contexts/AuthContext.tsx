@@ -51,8 +51,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Handle redirects for authenticated users
         if (window.location.pathname === '/' || window.location.pathname === '/login' || window.location.pathname === '/signup') {
-          console.log('🔄 Redirecting authenticated user to artist dashboard');
-          window.location.href = "/artist-dashboard";
+          console.log('🔄 Redirecting authenticated user to main dashboard');
+          window.location.href = "/dashboard";
         }
       } else {
         console.log('❌ No session, clearing user state');
