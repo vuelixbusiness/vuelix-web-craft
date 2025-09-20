@@ -56,7 +56,7 @@ const Navigation = () => {
             onClick={handleLogoClick}
             className="flex items-center space-x-2 hover:opacity-80 transition-smooth"
           >
-            <img src={vuelixLogo} alt="Vuelix" className="w-8 h-8" />
+            <img src={vuelixLogo} alt="Vuelix" className="w-12 h-12" />
             <span className="text-xl font-bold text-foreground">Vuelix</span>
           </a>
           
