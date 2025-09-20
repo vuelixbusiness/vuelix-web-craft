@@ -7,9 +7,6 @@ import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
-
-import Homepage from "./pages/Homepage";
 import CreatorCampaigns from "./pages/CreatorCampaigns";
 import CreatorFlow from "./pages/CreatorFlow";
 import ArtistCampaignFlow from "./pages/ArtistCampaignFlow";
@@ -37,13 +34,8 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/homepage" element={
-                <ProtectedRoute>
-                  <Homepage />
-                </ProtectedRoute>
-              } />
               
-              <Route path="/dashboard" element={<Dashboard />} />
+              {/* Main authenticated dashboard will be implemented here */}
               <Route path="/creator-campaigns" element={<CreatorCampaigns />} />
               <Route path="/creator-flow" element={<CreatorFlow />} />
               <Route path="/artist-campaign" element={<ArtistCampaignFlow />} />

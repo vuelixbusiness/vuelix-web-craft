@@ -51,8 +51,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Handle redirects for authenticated users
         if (window.location.pathname === '/' || window.location.pathname === '/login' || window.location.pathname === '/signup') {
-          console.log('🔄 Redirecting authenticated user to homepage');
-          window.location.href = "/homepage";
+          console.log('🔄 Redirecting authenticated user to artist dashboard');
+          window.location.href = "/artist-dashboard";
         }
       } else {
         console.log('❌ No session, clearing user state');
@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(false); // Set loading false when no session
         
         // Handle redirects for unauthenticated users
-        if (window.location.pathname === '/homepage' || window.location.pathname.includes('dashboard') || window.location.pathname.includes('campaigns')) {
+        if (window.location.pathname.includes('dashboard') || window.location.pathname.includes('campaigns')) {
           console.log('🔄 Redirecting unauthenticated user to home');
           window.location.href = "/";
         }
