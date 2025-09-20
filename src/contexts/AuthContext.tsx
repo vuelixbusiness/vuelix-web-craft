@@ -49,10 +49,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           fetchUserProfile(session.user);
         }, 0);
         
-        // Handle redirects for authenticated users
-        if (window.location.pathname === '/' || window.location.pathname === '/login' || window.location.pathname === '/signup') {
-          console.log('🔄 Redirecting authenticated user to main dashboard');
-          window.location.href = "/dashboard";
+        // Handle redirects for authenticated users - check if we're coming from OAuth
+        const currentPath = window.location.pathname;
+        const isOAuthCallback = event === 'SIGNED_IN' && (currentPath === '/' || currentPath === '/login' || currentPath === '/signup');
+        
+        if (isOAuthCallback) {
+          console.log('🔄 OAuth callback detected, redirecting to dashboard');
+          setTimeout(() => {
+            window.location.href = "/dashboard";
+          }, 100);
+        } else if (currentPath === '/' || currentPath === '/login' || currentPath === '/signup') {
+          console.log('🔄 Redirecting authenticated user to dashboard');
+          setTimeout(() => {
+            window.location.href = "/dashboard";
+          }, 100);
         }
       } else {
         console.log('❌ No session, clearing user state');
@@ -62,7 +72,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         // Handle redirects for unauthenticated users
         if (window.location.pathname.includes('dashboard') || window.location.pathname.includes('campaigns')) {
           console.log('🔄 Redirecting unauthenticated user to home');
-          window.location.href = "/";
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 100);
         }
       }
     });
@@ -256,27 +268,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      console.log('🔄 Starting Google OAuth sign-in...');
+      const redirectTo = `${window.location.origin}/dashboard`;
+      console.log('📍 Redirect URL:', redirectTo);
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
-          },
+          }
         },
       });
 
       if (error) {
-        console.error('Google sign in error:', error);
+        console.error('❌ Google sign in error:', error);
         setIsLoading(false);
         return false;
       }
 
+      console.log('✅ Google OAuth initiated successfully');
       // OAuth redirects, so we don't need to handle success here
+      // setIsLoading remains true as the page will redirect
       return true;
     } catch (error) {
-      console.error('Google sign in error:', error);
+      console.error('❌ Google sign in catch error:', error);
       setIsLoading(false);
       return false;
     }
@@ -286,24 +304,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      console.log('🔄 Starting Microsoft OAuth sign-in...');
+      const redirectTo = `${window.location.origin}/dashboard`;
+      console.log('📍 Redirect URL:', redirectTo);
+      
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'azure',
         options: {
-          redirectTo: `${window.location.origin}/`,
-          scopes: 'email',
+          redirectTo,
+          scopes: 'email'
         },
       });
 
       if (error) {
-        console.error('Microsoft sign in error:', error);
+        console.error('❌ Microsoft sign in error:', error);
         setIsLoading(false);
         return false;
       }
 
+      console.log('✅ Microsoft OAuth initiated successfully');
       // OAuth redirects, so we don't need to handle success here
+      // setIsLoading remains true as the page will redirect
       return true;
     } catch (error) {
-      console.error('Microsoft sign in error:', error);
+      console.error('❌ Microsoft sign in catch error:', error);
       setIsLoading(false);
       return false;
     }
