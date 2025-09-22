@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import UserTypeRoute from "@/components/UserTypeRoute";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
@@ -85,31 +86,60 @@ const App = () => (
               {/* Legacy/Specialized Routes */}
               <Route path="/artist" element={
                 <ProtectedRoute>
-                  <ArtistDashboard />
+                  <UserTypeRoute requiredUserType="artist">
+                    <ArtistDashboard />
+                  </UserTypeRoute>
                 </ProtectedRoute>
               } />
               <Route path="/creator" element={
                 <ProtectedRoute>
-                  <CreatorDashboard />
+                  <UserTypeRoute requiredUserType="creator">
+                    <CreatorDashboard />
+                  </UserTypeRoute>
                 </ProtectedRoute>
               } />
               <Route path="/artist-dashboard" element={
                 <ProtectedRoute>
-                  <ArtistDashboard />
+                  <UserTypeRoute requiredUserType="artist">
+                    <ArtistDashboard />
+                  </UserTypeRoute>
                 </ProtectedRoute>
               } />
               <Route path="/home" element={
                 <ProtectedRoute>
-                  <CreatorDashboard />
+                  <UserTypeRoute requiredUserType="creator">
+                    <CreatorDashboard />
+                  </UserTypeRoute>
                 </ProtectedRoute>
               } />
               
               {/* Other Routes */}
-              <Route path="/creator-campaigns" element={<CreatorCampaigns />} />
-              <Route path="/creator-flow" element={<CreatorFlow />} />
+              <Route path="/creator-campaigns" element={
+                <ProtectedRoute>
+                  <UserTypeRoute requiredUserType="creator">
+                    <CreatorCampaigns />
+                  </UserTypeRoute>
+                </ProtectedRoute>
+              } />
+              <Route path="/creator-flow" element={
+                <ProtectedRoute>
+                  <UserTypeRoute requiredUserType="creator">
+                    <CreatorFlow />
+                  </UserTypeRoute>
+                </ProtectedRoute>
+              } />
               <Route path="/artist-campaign" element={
                 <ProtectedRoute>
-                  <ArtistCampaignFlow />
+                  <UserTypeRoute requiredUserType="artist">
+                    <ArtistCampaignFlow />
+                  </UserTypeRoute>
+                </ProtectedRoute>
+              } />
+              <Route path="/artist-campaign-flow" element={
+                <ProtectedRoute>
+                  <UserTypeRoute requiredUserType="artist">
+                    <ArtistCampaignFlow />
+                  </UserTypeRoute>
                 </ProtectedRoute>
               } />
               <Route path="/vuelix-plus" element={<VuelixPlus />} />
