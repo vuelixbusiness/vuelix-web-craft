@@ -49,7 +49,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           fetchUserProfile(session.user);
         }, 0);
         
-        // Don't redirect here - let fetchUserProfile handle redirects after user type is known
+        // Handle redirects for authenticated users - check if we're coming from OAuth
+        const currentPath = window.location.pathname;
+        const isOAuthCallback = event === 'SIGNED_IN' && (currentPath === '/' || currentPath === '/login' || currentPath === '/signup');
+        
+        if (isOAuthCallback) {
+          console.log('🔄 OAuth callback detected, redirecting to dashboard');
+          setTimeout(() => {
+            window.location.href = "/dashboard";
+          }, 100);
+        } else if (currentPath === '/' || currentPath === '/login' || currentPath === '/signup') {
+          console.log('🔄 Redirecting authenticated user to dashboard');
+          setTimeout(() => {
+            window.location.href = "/dashboard";
+          }, 100);
+        }
       } else {
         console.log('❌ No session, clearing user state');
         setUser(null);
@@ -127,18 +141,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           if (createError) {
             console.error('Error creating profile:', createError);
             // Set basic user data even if profile creation fails
-            const fallbackUser = {
+            setUser({
               id: authUser.id,
               email: authUser.email!,
               name: authUser.email!.split('@')[0],
               username: authUser.email!.split('@')[0],
-              type: 'creator' as const,
-              membershipType: 'regular' as const
-            };
-            setUser(fallbackUser);
-            handleUserTypeRedirect(fallbackUser.type);
+              type: 'creator',
+              membershipType: 'regular'
+            });
           } else if (newProfile) {
-            const newUser = {
+            setUser({
               id: authUser.id,
               email: authUser.email!,
               name: newProfile.display_name || authUser.email!,
@@ -146,25 +158,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               type: newProfile.user_type as 'creator' | 'artist',
               membershipType: newProfile.membership_type as 'regular' | 'premium',
               avatar: newProfile.avatar_url
-            };
-            setUser(newUser);
-            handleUserTypeRedirect(newUser.type);
+            });
           }
         } else {
           // For other errors, set basic user data
-          const fallbackUser = {
+          setUser({
             id: authUser.id,
             email: authUser.email!,
             name: authUser.email!.split('@')[0],
             username: authUser.email!.split('@')[0],
-            type: 'creator' as const,
-            membershipType: 'regular' as const
-          };
-          setUser(fallbackUser);
-          handleUserTypeRedirect(fallbackUser.type);
+            type: 'creator',
+            membershipType: 'regular'
+          });
         }
       } else if (profile) {
-        const userData = {
+        setUser({
           id: authUser.id,
           email: authUser.email!,
           name: profile.display_name || authUser.email!,
@@ -172,40 +180,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           type: profile.user_type as 'creator' | 'artist',
           membershipType: profile.membership_type as 'regular' | 'premium',
           avatar: profile.avatar_url
-        };
-        setUser(userData);
-        handleUserTypeRedirect(userData.type);
+        });
       }
     } catch (error) {
       console.error('Error fetching user profile:', error);
       // Always set user data even if profile fetch fails completely
-      const fallbackUser = {
+      setUser({
         id: authUser.id,
         email: authUser.email!,
         name: authUser.email!.split('@')[0],
         username: authUser.email!.split('@')[0],
-        type: 'creator' as const,
-        membershipType: 'regular' as const
-      };
-      setUser(fallbackUser);
-      handleUserTypeRedirect(fallbackUser.type);
+        type: 'creator',
+        membershipType: 'regular'
+      });
     } finally {
       // Always set loading to false after profile fetch attempt
       setIsLoading(false);
-    }
-  };
-
-  const handleUserTypeRedirect = (userType: 'creator' | 'artist') => {
-    const currentPath = window.location.pathname;
-    
-    // Only redirect if user is on login/signup/root pages or generic dashboard
-    if (currentPath === '/' || currentPath === '/login' || currentPath === '/signup' || currentPath === '/dashboard') {
-      const targetRoute = userType === 'artist' ? '/artist-dashboard' : '/home';
-      console.log(`🔄 Redirecting ${userType} to ${targetRoute}`);
-      
-      setTimeout(() => {
-        window.location.href = targetRoute;
-      }, 100);
     }
   };
 
