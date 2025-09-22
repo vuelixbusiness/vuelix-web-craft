@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
 import { Plus, Music, Users, TrendingUp, Play, Eye, Heart, BarChart3, MessageCircle, Settings, Star, DollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import DashboardNav from "@/components/DashboardNav";
+import DashboardLayout from "@/components/DashboardLayout";
 
 type DashboardProfile = 'campaigns' | 'analytics' | 'creators' | 'settings';
 
@@ -99,9 +99,7 @@ const ArtistDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardNav dashboardType="artist" />
-
+    <DashboardLayout>
       <div className="container mx-auto px-4 py-8">
         {/* Profile Switcher Header */}
         <div className="mb-8">
@@ -474,7 +472,7 @@ const ArtistDashboard = () => {
           </Tabs>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
