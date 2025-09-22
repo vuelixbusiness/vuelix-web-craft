@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Search, Music, DollarSign, Users, Filter, Play } from "lucide-react";
+import vuelixLogo from "@/assets/vuelix-logo-v.png";
 
 const Campaigns = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -133,8 +134,8 @@ const Campaigns = () => {
                     <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
                       {/* Campaign Info */}
                       <div className="flex items-start space-x-4 flex-1">
-                        <div className="w-16 h-16 bg-gradient-primary rounded-lg flex items-center justify-center shadow-soft">
-                          <Play className="w-8 h-8 text-primary-foreground" />
+                        <div className="w-16 h-16 rounded-lg flex items-center justify-center shadow-soft">
+                          <img src={vuelixLogo} alt="Vuelix" className="w-16 h-16" />
                         </div>
                         
                         <div className="flex-1 min-w-0">

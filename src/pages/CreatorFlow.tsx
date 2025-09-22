@@ -7,6 +7,7 @@ import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Upload, Search, Filter, PlayCircle, DollarSign, TrendingUp, Eye } from "lucide-react";
 import Navigation from "@/components/Navigation";
+import vuelixLogo from "@/assets/vuelix-logo-v.png";
 
 const CreatorFlow = () => {
   const [activeStep, setActiveStep] = useState(1);
@@ -126,8 +127,8 @@ const CreatorFlow = () => {
                     <Card key={campaign.id} className="group hover:shadow-lg transition-smooth cursor-pointer">
                       <CardHeader className="pb-3">
                         <div className="flex items-center space-x-3">
-                          <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center">
-                            <PlayCircle className="w-6 h-6 text-white" />
+                          <div className="w-12 h-12 rounded-lg flex items-center justify-center">
+                            <img src={vuelixLogo} alt="Vuelix" className="w-12 h-12" />
                           </div>
                           <div>
                             <CardTitle className="text-lg">{campaign.artist}</CardTitle>

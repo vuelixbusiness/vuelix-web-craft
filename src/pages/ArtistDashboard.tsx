@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Plus, Music, Users, TrendingUp, Play, Eye, Heart, BarChart3, MessageCircle, Settings, Star, DollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import DashboardLayout from "@/components/DashboardLayout";
+import vuelixLogo from "@/assets/vuelix-logo-v.png";
 
 type DashboardProfile = 'campaigns' | 'analytics' | 'creators' | 'settings';
 
@@ -213,8 +214,8 @@ const ArtistDashboard = () => {
                       <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-gradient-primary rounded-lg flex items-center justify-center">
-                              <Music className="w-5 h-5 text-white" />
+                            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+                              <img src={vuelixLogo} alt="Vuelix" className="w-10 h-10" />
                             </div>
                             <div>
                               <CardTitle className="text-lg">{campaign.songTitle}</CardTitle>
@@ -402,8 +403,8 @@ const ArtistDashboard = () => {
                     {creatorStats.map((creator) => (
                       <div key={creator.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-secondary/20 transition-smooth">
                         <div className="flex items-center space-x-4">
-                          <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center">
-                            <span className="text-white font-semibold">{creator.name.split(' ').map(n => n[0]).join('')}</span>
+                          <div className="w-12 h-12 rounded-full flex items-center justify-center">
+                            <img src={vuelixLogo} alt="Vuelix" className="w-12 h-12 rounded-full" />
                           </div>
                           <div>
                             <p className="font-semibold">{creator.name}</p>

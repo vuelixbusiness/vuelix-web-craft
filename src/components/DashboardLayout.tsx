@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { LogOut, User, Wallet, Music, Users, Trophy, BarChart3, Home } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
+import vuelixLogo from "@/assets/vuelix-logo-v.png";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -40,7 +41,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <Link to="/dashboard" className="flex items-center space-x-4">
-              <div className="w-14 h-14 bg-gradient-primary rounded-lg shadow-elegant"></div>
+              <img src={vuelixLogo} alt="Vuelix" className="w-14 h-14" />
               <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                 Vuelix
               </span>
