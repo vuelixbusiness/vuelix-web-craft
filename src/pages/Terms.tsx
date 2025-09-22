@@ -17,7 +17,7 @@ const Terms = () => {
             </Button>
             <div className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-primary rounded-lg"></div>
-              <span className="text-xl font-bold">Vuelix Clips</span>
+              <span className="text-xl font-bold">Vuelix</span>
             </div>
           </div>
         </div>
@@ -37,7 +37,7 @@ const Terms = () => {
             <section>
               <h2 className="text-2xl font-semibold mb-4">1. Acceptance of Terms</h2>
               <p className="text-muted-foreground leading-relaxed">
-                By accessing and using Vuelix Clips ("the Platform", "we", "us", "our"), you accept and agree to be bound by the terms and provision of this agreement. These Terms and Conditions ("Terms") govern your use of our platform that connects music artists with content creators for promotional campaigns.
+                By accessing and using Vuelix ("the Platform", "we", "us", "our"), you accept and agree to be bound by the terms and provision of this agreement. These Terms and Conditions ("Terms") govern your use of our platform that connects music artists with content creators for promotional campaigns.
               </p>
             </section>
 
@@ -62,7 +62,7 @@ const Terms = () => {
               <h2 className="text-2xl font-semibold mb-4">3. Platform Usage</h2>
               <div className="space-y-3 text-muted-foreground leading-relaxed">
                 <p>
-                  <strong>3.1 Service Description:</strong> Vuelix Clips facilitates connections between artists seeking promotion and creators willing to create content featuring artist's music.
+                  <strong>3.1 Service Description:</strong> Vuelix facilitates connections between artists seeking promotion and creators willing to create content featuring artist's music.
                 </p>
                 <p>
                   <strong>3.2 User Conduct:</strong> You agree to use the Platform in compliance with all applicable laws and regulations. You will not engage in any activity that disrupts or interferes with the Platform.
@@ -103,7 +103,7 @@ const Terms = () => {
                   <strong>5.2 Content Ownership:</strong> Creators retain ownership of their original content while granting artists and the Platform limited rights for promotional purposes.
                 </p>
                 <p>
-                  <strong>5.3 Platform Rights:</strong> Vuelix Clips retains rights to its platform, technology, and proprietary systems.
+                  <strong>5.3 Platform Rights:</strong> Vuelix retains rights to its platform, technology, and proprietary systems.
                 </p>
               </div>
             </section>
@@ -203,7 +203,7 @@ const Terms = () => {
               <div className="bg-primary/5 p-6 rounded-lg">
                 <h3 className="text-lg font-semibold mb-3">Agreement Acknowledgment</h3>
                 <p className="text-muted-foreground mb-4">
-                  By creating an account or using Vuelix Clips, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.
+                  By creating an account or using Vuelix, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.
                 </p>
                 <div className="flex space-x-4">
                   <Button onClick={() => navigate('/signup')}>

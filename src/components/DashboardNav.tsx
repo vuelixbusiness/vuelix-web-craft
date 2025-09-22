@@ -41,7 +41,7 @@ const DashboardNav = ({ dashboardType }: DashboardNavProps) => {
           <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center space-x-2">
               <div className="w-8 h-8 bg-gradient-primary rounded-lg"></div>
-              <span className="text-xl font-bold">Vuelix Clips</span>
+              <span className="text-xl font-bold">Vuelix</span>
             </Link>
             <div className="flex items-center space-x-2">
               <Badge variant="secondary" className="hidden md:inline-flex">
