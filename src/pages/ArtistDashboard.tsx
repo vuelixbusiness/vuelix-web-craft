@@ -383,7 +383,7 @@ const ArtistDashboard = () => {
                             variant="outline" 
                             size="sm" 
                             className="flex-1"
-                            onClick={() => navigate('/campaigns')}
+                            onClick={() => navigate(`/campaign/${campaign.id}`)}
                           >
                             View Details
                           </Button>

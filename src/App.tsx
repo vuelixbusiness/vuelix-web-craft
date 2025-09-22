@@ -21,6 +21,7 @@ import Signup from "./pages/Signup";
 import Terms from "./pages/Terms";
 import CreatorDashboard from "./pages/CreatorDashboard";
 import ArtistDashboard from "./pages/ArtistDashboard";
+import CampaignDetails from "./pages/CampaignDetails";
 import Chat from "./pages/Chat";
 import Notifications from "./pages/Notifications";
 import Support from "./pages/Support";
@@ -59,6 +60,11 @@ const App = () => (
               <Route path="/campaigns" element={
                 <ProtectedRoute>
                   <Campaigns />
+                </ProtectedRoute>
+              } />
+              <Route path="/campaign/:id" element={
+                <ProtectedRoute>
+                  <CampaignDetails />
                 </ProtectedRoute>
               } />
               <Route path="/leaderboard" element={
