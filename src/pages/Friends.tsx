@@ -53,27 +53,48 @@ const Friends = () => {
     if (!user?.id) return;
 
     try {
-      const { data, error } = await supabase
-        .from('friendships')
-        .select(`
-          *,
-          requester_profile:profiles!friendships_requester_id_fkey(
-            user_id, username, display_name, user_type, membership_type, avatar_url
-          ),
-          addressee_profile:profiles!friendships_addressee_id_fkey(
-            user_id, username, display_name, user_type, membership_type, avatar_url
-          )
-        `)
+      // Fetch friendships and then get profile data separately to avoid foreign key issues
+      const { data: friendshipsData, error } = await supabase
+        .from('friendships' as any)
+        .select('*')
         .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      const accepted = data?.filter(f => f.status === 'accepted') || [];
-      const pending = data?.filter(f => f.status === 'pending') || [];
+      // Get profile data for each friendship
+      const friendshipsWithProfiles = await Promise.all(
+        (friendshipsData || []).map(async (friendship: any) => {
+          const requesterProfileQuery = supabase
+            .from('profiles')
+            .select('user_id, username, display_name, user_type, membership_type, avatar_url')
+            .eq('user_id', friendship.requester_id)
+            .single();
 
-      setFriends(accepted);
-      setPendingRequests(pending);
+          const addresseeProfileQuery = supabase
+            .from('profiles')
+            .select('user_id, username, display_name, user_type, membership_type, avatar_url')
+            .eq('user_id', friendship.addressee_id)
+            .single();
+
+          const [requesterResult, addresseeResult] = await Promise.all([
+            requesterProfileQuery,
+            addresseeProfileQuery
+          ]);
+
+          return {
+            ...friendship,
+            requester_profile: requesterResult.data,
+            addressee_profile: addresseeResult.data
+          };
+        })
+      );
+
+      const accepted = friendshipsWithProfiles.filter(f => f.status === 'accepted') || [];
+      const pending = friendshipsWithProfiles.filter(f => f.status === 'pending') || [];
+
+      setFriends(accepted as any);
+      setPendingRequests(pending as any);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -118,7 +139,7 @@ const Friends = () => {
 
     try {
       const { error } = await supabase
-        .from('friendships')
+        .from('friendships' as any)
         .insert({
           requester_id: user.id,
           addressee_id: targetUserId,
@@ -146,7 +167,7 @@ const Friends = () => {
   const respondToRequest = async (friendshipId: string, action: 'accepted' | 'rejected') => {
     try {
       const { error } = await supabase
-        .from('friendships')
+        .from('friendships' as any)
         .update({ status: action })
         .eq('id', friendshipId);
 
@@ -170,7 +191,7 @@ const Friends = () => {
   const removeFriend = async (friendshipId: string) => {
     try {
       const { error } = await supabase
-        .from('friendships')
+        .from('friendships' as any)
         .delete()
         .eq('id', friendshipId);
 

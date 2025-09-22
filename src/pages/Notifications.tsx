@@ -50,7 +50,7 @@ const Notifications = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setNotifications(data || []);
+      setNotifications(data as any || []);
     } catch (error: any) {
       toast({
         title: "Error",

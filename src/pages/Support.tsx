@@ -63,13 +63,13 @@ const Support = () => {
 
     try {
       const { data, error } = await supabase
-        .from('support_tickets')
+        .from('support_tickets' as any)
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setTickets(data || []);
+      setTickets(data as any || []);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -98,7 +98,7 @@ const Support = () => {
 
     try {
       const { data, error } = await supabase
-        .from('support_tickets')
+        .from('support_tickets' as any)
         .insert({
           user_id: user.id,
           subject: formData.subject.trim(),
@@ -110,7 +110,7 @@ const Support = () => {
 
       if (error) throw error;
 
-      setTickets(prev => [data, ...prev]);
+      setTickets(prev => [data, ...prev] as any);
       setFormData({ subject: '', message: '', priority: 'medium' });
       setShowNewTicket(false);
       

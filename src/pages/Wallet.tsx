@@ -47,24 +47,148 @@ const Wallet = () => {
   const [payoutMethod, setPayoutMethod] = useState("");
   const [isSubmittingPayout, setIsSubmittingPayout] = useState(false);
 
+  const fetchData = async () => {
+    if (!user?.id) return;
+
+    try {
+      // Fetch wallet data
+      const { data: walletData, error: walletError } = await supabase
+        .from('wallets' as any)
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (walletError && walletError.code !== 'PGRST116') {
+        console.error('Wallet fetch error:', walletError);
+      } else if (walletData) {
+        setWallet(walletData as any);
+      }
+
+      // Fetch transactions
+      const { data: transactionsData, error: transactionsError } = await supabase
+        .from('transactions' as any)
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (transactionsError) {
+        console.error('Transactions fetch error:', transactionsError);
+      } else {
+        setTransactions(transactionsData as any || []);
+      }
+
+      // Fetch payout requests
+      const { data: payoutData, error: payoutError } = await supabase
+        .from('payout_requests' as any)
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (payoutError) {
+        console.error('Payout requests fetch error:', payoutError);
+      } else {
+        setPayoutRequests(payoutData as any || []);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch wallet data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePayoutRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user?.id || isSubmittingPayout) return;
+
+    const amount = parseFloat(payoutAmount);
+    if (isNaN(amount) || amount <= 0) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid amount",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!payoutMethod) {
+      toast({
+        title: "Error",
+        description: "Please select a payout method",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmittingPayout(true);
+
+    try {
+      const { data, error } = await supabase
+        .from('payout_requests' as any)
+        .insert({
+          user_id: user.id,
+          amount: amount,
+          method: payoutMethod,
+          status: 'requested'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setPayoutRequests(prev => [data, ...prev] as any);
+      setPayoutAmount("");
+      setPayoutMethod("");
+      setShowPayoutForm(false);
+      
+      toast({
+        title: "Success",
+        description: "Payout request submitted successfully!",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to submit payout request",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmittingPayout(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [user?.id]);
+
+  const availableBalance = wallet?.balance || 0;
+  const pendingEarnings = payoutRequests
+    .filter(req => req.status === 'requested')
+    .reduce((sum, req) => sum + req.amount, 0);
+  const totalEarned = transactions
+    .filter(t => t.type === 'reward')
+    .reduce((sum, t) => sum + t.amount, 0);
+
   const balanceCards = [
     {
       title: 'Available Balance',
-      amount: '$0.00',
+      amount: `$${availableBalance.toFixed(2)}`,
       description: 'Ready to withdraw',
       icon: WalletIcon,
       color: 'text-green-500',
     },
     {
       title: 'Pending Earnings',
-      amount: '$0.00',
+      amount: `$${pendingEarnings.toFixed(2)}`,
       description: 'Processing payments',
       icon: Clock,
       color: 'text-yellow-500',
     },
     {
       title: 'Total Earned',
-      amount: '$0.00',
+      amount: `$${totalEarned.toFixed(2)}`,
       description: 'All-time earnings',
       icon: TrendingUp,
       color: 'text-blue-500',
@@ -104,25 +228,124 @@ const Wallet = () => {
             })}
           </div>
 
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <Button className="h-12 bg-gradient-primary hover:opacity-90 transition-smooth">
-              <Download className="w-4 h-4 mr-2" />
-              Withdraw Funds
-            </Button>
-            <Button variant="outline" className="h-12">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Payment Method
-            </Button>
-            <Button variant="outline" className="h-12">
-              <CreditCard className="w-4 h-4 mr-2" />
-              Payment History
-            </Button>
-            <Button variant="outline" className="h-12">
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Earnings Report
-            </Button>
-          </div>
+            {/* Quick Actions */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <Button 
+                className="h-12 bg-gradient-primary hover:opacity-90 transition-smooth"
+                onClick={() => setShowPayoutForm(true)}
+                disabled={availableBalance <= 0}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                Request Payout
+              </Button>
+              <Button variant="outline" className="h-12">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Payment Method
+              </Button>
+              <Button variant="outline" className="h-12">
+                <CreditCard className="w-4 h-4 mr-2" />
+                Payment History
+              </Button>
+              <Button variant="outline" className="h-12">
+                <TrendingUp className="w-4 h-4 mr-2" />
+                Earnings Report
+              </Button>
+            </div>
+
+            {/* Payout Request Form */}
+            {showPayoutForm && (
+              <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle>Request Payout</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <form onSubmit={handlePayoutRequest} className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="amount">Amount</Label>
+                        <Input
+                          id="amount"
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max={availableBalance}
+                          value={payoutAmount}
+                          onChange={(e) => setPayoutAmount(e.target.value)}
+                          placeholder="0.00"
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="method">Payment Method</Label>
+                        <Select value={payoutMethod} onValueChange={setPayoutMethod} required>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select method" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="paypal">PayPal</SelectItem>
+                            <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                            <SelectItem value="crypto">Cryptocurrency</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                      <Button type="submit" disabled={isSubmittingPayout}>
+                        {isSubmittingPayout ? (
+                          <>
+                            <Clock className="w-4 h-4 mr-2 animate-spin" />
+                            Submitting...
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-4 h-4 mr-2" />
+                            Submit Request
+                          </>
+                        )}
+                      </Button>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => setShowPayoutForm(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Payout Requests */}
+            {payoutRequests.length > 0 && (
+              <Card className="mb-8">
+                <CardHeader>
+                  <CardTitle>Recent Payout Requests</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {payoutRequests.slice(0, 3).map((request) => (
+                      <div key={request.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center">
+                            <Download className="w-5 h-5 text-primary-foreground" />
+                          </div>
+                          <div>
+                            <p className="font-medium">${request.amount.toFixed(2)} via {request.method}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(request.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                        <Badge variant={request.status === 'completed' ? 'default' : 'secondary'}>
+                          {request.status}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
           {/* Transaction History */}
           <Card className="shadow-soft">

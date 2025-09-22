@@ -86,8 +86,14 @@ const DashboardNav = ({ dashboardType }: DashboardNavProps) => {
             <Link to="/#for-creators" className="text-muted-foreground hover:text-foreground transition-smooth">
               For Creators
             </Link>
-            <Link to="/vuelix-plus" className="text-muted-foreground hover:text-foreground transition-smooth">
-              Vuelix+
+            <Link to="/notifications" className="text-muted-foreground hover:text-foreground transition-smooth">
+              Notifications
+            </Link>
+            <Link to="/support" className="text-muted-foreground hover:text-foreground transition-smooth">
+              Support
+            </Link>
+            <Link to="/friends" className="text-muted-foreground hover:text-foreground transition-smooth">
+              Friends
             </Link>
             <Button variant="ghost" size="sm" asChild>
               <Link to="/chat">
