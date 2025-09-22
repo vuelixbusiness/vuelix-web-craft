@@ -40,7 +40,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="container mx-auto px-6 py-6">
           <div className="flex items-center">
             {/* Logo Section - Fixed width for dedicated left space */}
-            <div className="flex-shrink-0 w-48">
+            <div className="flex-shrink-0 w-64 pl-4">
               <Link to="/dashboard" className="flex items-center space-x-3">
                 <img src={vuelixLogo} alt="Vuelix" className="w-10 h-10" />
                 <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
