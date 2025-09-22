@@ -29,7 +29,7 @@ import {
   Play
 } from "lucide-react";
 import { FaTiktok, FaInstagram, FaYoutube } from "react-icons/fa";
-import Navigation from "@/components/Navigation";
+import DashboardLayout from "@/components/DashboardLayout";
 
 interface CampaignData {
   // Step 1
@@ -220,10 +220,8 @@ const ArtistCampaignFlow = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      
-      <div className="pt-20 pb-12">
+    <DashboardLayout>
+      <div className="py-12">
         <div className="container mx-auto px-4 max-w-4xl">
           {/* Progress Header */}
           <div className="mb-8">
@@ -997,7 +995,7 @@ const ArtistCampaignFlow = () => {
           )}
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
