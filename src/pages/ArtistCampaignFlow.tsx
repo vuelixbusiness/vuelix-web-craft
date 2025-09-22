@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,6 +12,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { 
   Upload, 
   Music, 
@@ -59,6 +63,9 @@ interface CampaignData {
 }
 
 const ArtistCampaignFlow = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [campaignData, setCampaignData] = useState<CampaignData>({
@@ -66,6 +73,7 @@ const ArtistCampaignFlow = () => {
   });
   const [isConnectingSong, setIsConnectingSong] = useState(false);
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+  const [isLaunching, setIsLaunching] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const handleSongFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -217,6 +225,88 @@ const ArtistCampaignFlow = () => {
         return false;
     }
     */
+  };
+
+  const handleLaunchCampaign = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to create a campaign",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Basic validation
+    if (!campaignData.songTitle || !campaignData.platforms.length || !campaignData.payoutType || !campaignData.budget) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in all required fields before launching",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLaunching(true);
+
+    try {
+      // Prepare campaign data for database
+      const campaignToInsert = {
+        title: campaignData.songTitle,
+        song_title: campaignData.songTitle,
+        song_url: campaignData.songLink || null,
+        cover_art_url: campaignData.coverArtLink || null,
+        genre: campaignData.genre === 'Custom' ? campaignData.customGenre : campaignData.genre,
+        campaign_type: campaignData.campaignType,
+        platforms: campaignData.platforms,
+        payout_type: campaignData.payoutType,
+        payout_rate: campaignData.payoutRate,
+        max_payout: campaignData.maxPayout || null,
+        vip_bonus: campaignData.vipBonus || 0,
+        vip_max_payout: campaignData.vipMaxPayout || null,
+        instructions: campaignData.instructions || null,
+        reference_links: campaignData.referenceLinks || null,
+        approval_required: campaignData.approvalRequired || false,
+        budget: campaignData.budget,
+        end_date: campaignData.endDate?.toISOString() || null,
+        artist_id: user.id,
+        status: 'active'
+      };
+
+      const { data, error } = await supabase
+        .from('campaigns')
+        .insert(campaignToInsert)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Campaign creation error:', error);
+        toast({
+          title: "Campaign Creation Failed",
+          description: error.message || "There was an error creating your campaign",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Campaign Launched Successfully!",
+        description: "Your campaign is now live and creators can start participating"
+      });
+
+      // Navigate to artist dashboard
+      navigate('/artist-dashboard');
+
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLaunching(false);
+    }
   };
 
   return (
@@ -983,10 +1073,20 @@ const ArtistCampaignFlow = () => {
                     <Button 
                       variant="hero" 
                       className="flex-1" 
-                      disabled={!canContinue(3)}
+                      disabled={!canContinue(3) || isLaunching}
+                      onClick={handleLaunchCampaign}
                     >
-                      <Rocket className="w-4 h-4 mr-2" />
-                      Launch Campaign
+                      {isLaunching ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2" />
+                          Launching Campaign...
+                        </>
+                      ) : (
+                        <>
+                          <Rocket className="w-4 h-4 mr-2" />
+                          Launch Campaign
+                        </>
+                      )}
                     </Button>
                   </div>
                 </CardContent>
