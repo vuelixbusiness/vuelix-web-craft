@@ -228,9 +228,12 @@ const ArtistCampaignFlow = () => {
   };
 
   const handleLaunchCampaign = async () => {
+    console.log('🚀 Launch Campaign button clicked!', { user, campaignData });
+    
     if (!user) {
+      console.log('❌ No user found');
       toast({
-        title: "Error",
+        title: "Authentication Required",
         description: "You must be logged in to create a campaign",
         variant: "destructive"
       });
@@ -239,6 +242,12 @@ const ArtistCampaignFlow = () => {
 
     // Basic validation
     if (!campaignData.songTitle || !campaignData.platforms.length || !campaignData.payoutType || !campaignData.budget) {
+      console.log('❌ Validation failed - missing fields:', {
+        songTitle: campaignData.songTitle,
+        platforms: campaignData.platforms,
+        payoutType: campaignData.payoutType,
+        budget: campaignData.budget
+      });
       toast({
         title: "Missing Information",
         description: "Please fill in all required fields before launching",
@@ -247,6 +256,7 @@ const ArtistCampaignFlow = () => {
       return;
     }
 
+    console.log('✅ Starting campaign launch process...');
     setIsLaunching(true);
 
     try {
@@ -273,6 +283,8 @@ const ArtistCampaignFlow = () => {
         status: 'active'
       };
 
+      console.log('📤 Inserting campaign data:', campaignToInsert);
+
       const { data, error } = await supabase
         .from('campaigns')
         .insert(campaignToInsert)
@@ -280,7 +292,7 @@ const ArtistCampaignFlow = () => {
         .single();
 
       if (error) {
-        console.error('Campaign creation error:', error);
+        console.error('❌ Campaign creation error:', error);
         toast({
           title: "Campaign Creation Failed",
           description: error.message || "There was an error creating your campaign",
@@ -289,22 +301,28 @@ const ArtistCampaignFlow = () => {
         return;
       }
 
+      console.log('✅ Campaign created successfully!', data);
+      
       toast({
-        title: "Campaign Launched Successfully!",
+        title: "🎉 Campaign Launched Successfully!",
         description: "Your campaign is now live and creators can start participating"
       });
 
-      // Navigate to artist dashboard
-      navigate('/artist-dashboard');
+      // Navigate to artist dashboard after a brief delay
+      setTimeout(() => {
+        console.log('📍 Navigating to artist dashboard...');
+        navigate('/artist-dashboard');
+      }, 1500);
 
     } catch (error) {
-      console.error('Unexpected error:', error);
+      console.error('❌ Unexpected error during campaign creation:', error);
       toast({
-        title: "Error",
+        title: "Campaign Launch Failed",
         description: "An unexpected error occurred. Please try again.",
         variant: "destructive"
       });
     } finally {
+      console.log('🔄 Setting isLaunching to false');
       setIsLaunching(false);
     }
   };
