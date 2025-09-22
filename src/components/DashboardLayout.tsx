@@ -42,7 +42,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <Link to="/dashboard" className="flex items-center space-x-4">
               <div className="w-14 h-14 bg-gradient-primary rounded-lg shadow-elegant"></div>
               <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                Vuelix Clips
+                Vuelix
               </span>
             </Link>
 
