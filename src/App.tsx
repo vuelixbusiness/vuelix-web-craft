@@ -100,16 +100,12 @@ const App = () => (
               } />
               <Route path="/artist-dashboard" element={
                 <ProtectedRoute>
-                  <UserTypeRoute requiredUserType="artist">
-                    <ArtistDashboard />
-                  </UserTypeRoute>
+                  <ArtistDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/home" element={
                 <ProtectedRoute>
-                  <UserTypeRoute requiredUserType="creator">
-                    <CreatorDashboard />
-                  </UserTypeRoute>
+                  <CreatorDashboard />
                 </ProtectedRoute>
               } />
               
