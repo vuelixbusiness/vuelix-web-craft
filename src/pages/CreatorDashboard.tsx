@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { Search, TrendingUp, DollarSign, Video, Music, Eye, Heart, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import DashboardNav from "@/components/DashboardNav";
+import DashboardLayout from "@/components/DashboardLayout";
 
 const CreatorDashboard = () => {
   const { user } = useAuth();
@@ -57,9 +57,7 @@ const CreatorDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <DashboardNav dashboardType="creator" />
-
+    <DashboardLayout>
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
@@ -198,7 +196,7 @@ const CreatorDashboard = () => {
           </div>
         </div>
       </div>
-    </div>
+    </DashboardLayout>
   );
 };
 
