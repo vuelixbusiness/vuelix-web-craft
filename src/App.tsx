@@ -107,7 +107,11 @@ const App = () => (
               {/* Other Routes */}
               <Route path="/creator-campaigns" element={<CreatorCampaigns />} />
               <Route path="/creator-flow" element={<CreatorFlow />} />
-              <Route path="/artist-campaign" element={<ArtistCampaignFlow />} />
+              <Route path="/artist-campaign" element={
+                <ProtectedRoute>
+                  <ArtistCampaignFlow />
+                </ProtectedRoute>
+              } />
               <Route path="/vuelix-plus" element={<VuelixPlus />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
