@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { LogOut, MessageCircle, ArrowLeftRight, Home, Settings } from "lucide-react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
+import vuelixLogo from "@/assets/vuelix-logo-v.png";
 
 interface DashboardNavProps {
   dashboardType: 'creator' | 'artist';
@@ -40,7 +41,7 @@ const DashboardNav = ({ dashboardType }: DashboardNavProps) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Link to="/" className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-primary rounded-lg"></div>
+              <img src={vuelixLogo} alt="Vuelix" className="w-8 h-8" />
               <span className="text-xl font-bold">Vuelix</span>
             </Link>
             <div className="flex items-center space-x-2">
