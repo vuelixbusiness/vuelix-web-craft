@@ -1,16 +1,51 @@
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { Wallet as WalletIcon, TrendingUp, Download, Plus, CreditCard, Clock } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Wallet as WalletIcon, TrendingUp, Download, Plus, CreditCard, Clock, Send, AlertCircle } from "lucide-react";
+
+interface Transaction {
+  id: string;
+  type: string;
+  amount: number;
+  status: string;
+  created_at: string;
+  campaign_id?: string;
+}
+
+interface WalletData {
+  id: string;
+  balance: number;
+  currency: string;
+  updated_at: string;
+}
+
+interface PayoutRequest {
+  id: string;
+  amount: number;
+  method: string;
+  status: string;
+  created_at: string;
+}
 
 const Wallet = () => {
   const { user } = useAuth();
-
-  const transactions = [
-    // Mock data - replace with actual transaction data
-  ];
+  const { toast } = useToast();
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [wallet, setWallet] = useState<WalletData | null>(null);
+  const [payoutRequests, setPayoutRequests] = useState<PayoutRequest[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showPayoutForm, setShowPayoutForm] = useState(false);
+  const [payoutAmount, setPayoutAmount] = useState("");
+  const [payoutMethod, setPayoutMethod] = useState("");
+  const [isSubmittingPayout, setIsSubmittingPayout] = useState(false);
 
   const balanceCards = [
     {
