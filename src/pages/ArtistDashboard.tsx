@@ -1,70 +1,154 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { Plus, Music, Users, TrendingUp, Play, Eye, Heart, BarChart3, MessageCircle, Settings, Star, DollarSign } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import DashboardLayout from "@/components/DashboardLayout";
 import vuelixLogo from "@/assets/vuelix-logo-v.png";
 
 type DashboardProfile = 'campaigns' | 'analytics' | 'creators' | 'settings';
 
+interface Campaign {
+  id: string;
+  title: string;
+  song_title: string;
+  status: string;
+  budget: number;
+  genre: string;
+  created_at: string;
+  payout_type: string;
+  platforms: string[];
+}
+
+interface CampaignStats {
+  totalCampaigns: number;
+  activeCampaigns: number;
+  totalViews: number;
+  totalSpent: number;
+  totalCreators: number;
+  averageEngagement: number;
+  monthlyGrowth: number;
+}
+
 const ArtistDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [activeProfile, setActiveProfile] = useState<DashboardProfile>('campaigns');
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [stats, setStats] = useState<CampaignStats>({
+    totalCampaigns: 0,
+    activeCampaigns: 0,
+    totalViews: 0,
+    totalSpent: 0,
+    totalCreators: 0,
+    averageEngagement: 0,
+    monthlyGrowth: 0
+  });
 
-  const campaigns = [
-    {
-      id: 1,
-      songTitle: "Midnight Vibes",
-      status: "Active",
-      budget: 500,
-      spent: 247.50,
-      creators: 12,
-      videos: 18,
-      views: 45600,
-      likes: 3200,
-      genre: "Electronic"
-    },
-    {
-      id: 2,
-      songTitle: "Summer Dreams",
-      status: "Completed",
-      budget: 300,
-      spent: 300,
-      creators: 8,
-      videos: 15,
-      views: 28900,
-      likes: 2100,
-      genre: "Indie Pop"
-    },
-    {
-      id: 3,
-      songTitle: "Electric Nights",
-      status: "Draft",
-      budget: 750,
-      spent: 0,
-      creators: 0,
-      videos: 0,
-      views: 0,
-      likes: 0,
-      genre: "Hip Hop"
+  // Fetch campaigns from database
+  const fetchCampaigns = async () => {
+    if (!user?.id) return;
+
+    try {
+      console.log('🔍 Fetching campaigns for artist:', user.id);
+      
+      const { data, error } = await supabase
+        .from('campaigns')
+        .select('*')
+        .eq('artist_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('❌ Error fetching campaigns:', error);
+        toast({
+          title: "Error Loading Campaigns",
+          description: "Failed to load your campaigns. Please try again.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      console.log('✅ Campaigns fetched successfully:', data);
+      setCampaigns(data || []);
+      
+      // Calculate stats from real data
+      if (data) {
+        const activeCampaigns = data.filter(c => c.status === 'active').length;
+        const totalBudget = data.reduce((sum, c) => sum + Number(c.budget || 0), 0);
+        
+        setStats({
+          totalCampaigns: data.length,
+          activeCampaigns,
+          totalViews: 0, // Would need to get from participations
+          totalSpent: totalBudget * 0.3, // Estimated spending
+          totalCreators: 0, // Would need to calculate from participations
+          averageEngagement: 4.2, // Placeholder
+          monthlyGrowth: 12.5 // Placeholder
+        });
+      }
+    } catch (error) {
+      console.error('❌ Unexpected error fetching campaigns:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred while loading campaigns.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
-  ];
-
-  const stats = {
-    totalCampaigns: 8,
-    activeCampaigns: 3,
-    totalViews: 156780,
-    totalSpent: 2347.50,
-    totalCreators: 34,
-    averageEngagement: 4.2,
-    monthlyGrowth: 12.5
   };
+
+  // Setup real-time subscription
+  useEffect(() => {
+    fetchCampaigns();
+
+    if (!user?.id) return;
+
+    // Subscribe to campaign changes
+    const channel = supabase
+      .channel('campaign-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'campaigns',
+          filter: `artist_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('🔄 Real-time campaign update:', payload);
+          fetchCampaigns(); // Refetch campaigns when changes occur
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id]);
+
+  // Helper function to format campaign data for display
+  const formatCampaignForDisplay = (campaign: Campaign) => ({
+    id: campaign.id,
+    songTitle: campaign.song_title,
+    status: campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1),
+    budget: Number(campaign.budget),
+    spent: Number(campaign.budget) * 0.3, // Estimated for now
+    creators: 0, // Would need to calculate from participations
+    videos: 0, // Would need to calculate from participations
+    views: 0, // Would need to calculate from participations
+    likes: 0, // Would need to calculate from participations
+    genre: campaign.genre
+  });
 
   const creatorStats = [
     { id: 1, name: "Sarah Kim", username: "@sarahk", campaigns: 3, totalViews: 45600, engagement: 4.8, earnings: 240 },
@@ -209,7 +293,36 @@ const ArtistDashboard = () => {
                 </div>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {campaigns.map((campaign) => (
+                  {isLoading ? (
+                    // Loading skeletons
+                    Array.from({ length: 3 }).map((_, i) => (
+                      <Card key={i}>
+                        <CardHeader>
+                          <Skeleton className="h-6 w-3/4" />
+                          <Skeleton className="h-4 w-1/2" />
+                        </CardHeader>
+                        <CardContent>
+                          <Skeleton className="h-24 w-full" />
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : campaigns.length === 0 ? (
+                    // Empty state
+                    <div className="col-span-full text-center py-12">
+                      <Music className="w-16 h-16 mx-auto mb-4 text-muted-foreground/50" />
+                      <h3 className="text-lg font-semibold mb-2">No Campaigns Yet</h3>
+                      <p className="text-muted-foreground mb-4">
+                        Create your first campaign to start promoting your music
+                      </p>
+                      <Button onClick={() => navigate('/artist-campaign')}>
+                        <Plus className="w-4 h-4 mr-2" />
+                        Create Campaign
+                      </Button>
+                    </div>
+                  ) : (
+                    campaigns.map((campaign) => {
+                      const displayCampaign = formatCampaignForDisplay(campaign);
+                      return (
                     <Card key={campaign.id} className="hover:shadow-lg transition-smooth">
                       <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
@@ -218,15 +331,15 @@ const ArtistDashboard = () => {
                               <img src={vuelixLogo} alt="Vuelix" className="w-10 h-10" />
                             </div>
                             <div>
-                              <CardTitle className="text-lg">{campaign.songTitle}</CardTitle>
-                              <CardDescription>{campaign.genre}</CardDescription>
+                              <CardTitle className="text-lg">{displayCampaign.songTitle}</CardTitle>
+                              <CardDescription>{displayCampaign.genre}</CardDescription>
                             </div>
                           </div>
                           <Badge 
-                            variant={campaign.status === 'Active' ? 'default' : 
-                                     campaign.status === 'Completed' ? 'secondary' : 'outline'}
+                            variant={displayCampaign.status === 'Active' ? 'default' : 
+                                     displayCampaign.status === 'Completed' ? 'secondary' : 'outline'}
                           >
-                            {campaign.status}
+                            {displayCampaign.status}
                           </Badge>
                         </div>
                       </CardHeader>
@@ -236,10 +349,10 @@ const ArtistDashboard = () => {
                         <div className="space-y-2">
                           <div className="flex justify-between text-sm">
                             <span>Budget Used</span>
-                            <span>${campaign.spent} / ${campaign.budget}</span>
+                            <span>${displayCampaign.spent} / ${displayCampaign.budget}</span>
                           </div>
                           <Progress 
-                            value={(campaign.spent / campaign.budget) * 100} 
+                            value={(displayCampaign.spent / displayCampaign.budget) * 100} 
                             className="h-2"
                           />
                         </div>
@@ -247,19 +360,19 @@ const ArtistDashboard = () => {
                         {/* Stats */}
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
                           <div>
-                            <p className="text-lg font-semibold">{campaign.creators}</p>
+                            <p className="text-lg font-semibold">{displayCampaign.creators}</p>
                             <p className="text-xs text-muted-foreground">Creators</p>
                           </div>
                           <div>
-                            <p className="text-lg font-semibold">{campaign.videos}</p>
+                            <p className="text-lg font-semibold">{displayCampaign.videos}</p>
                             <p className="text-xs text-muted-foreground">Videos</p>
                           </div>
                           <div>
-                            <p className="text-lg font-semibold">{campaign.views.toLocaleString()}</p>
+                            <p className="text-lg font-semibold">{displayCampaign.views.toLocaleString()}</p>
                             <p className="text-xs text-muted-foreground">Views</p>
                           </div>
                           <div>
-                            <p className="text-lg font-semibold">{campaign.likes.toLocaleString()}</p>
+                            <p className="text-lg font-semibold">{displayCampaign.likes.toLocaleString()}</p>
                             <p className="text-xs text-muted-foreground">Likes</p>
                           </div>
                         </div>
@@ -269,12 +382,12 @@ const ArtistDashboard = () => {
                           <Button variant="outline" size="sm" className="flex-1">
                             View Details
                           </Button>
-                          {campaign.status === 'Active' && (
+                          {displayCampaign.status === 'Active' && (
                             <Button variant="outline" size="sm" className="flex-1">
                               Manage
                             </Button>
                           )}
-                          {campaign.status === 'Draft' && (
+                          {displayCampaign.status === 'Draft' && (
                             <Button size="sm" className="flex-1">
                               Launch
                             </Button>
@@ -282,7 +395,9 @@ const ArtistDashboard = () => {
                         </div>
                       </CardContent>
                     </Card>
-                  ))}
+                      );
+                    })
+                  )}
                 </div>
               </div>
             </TabsContent>
