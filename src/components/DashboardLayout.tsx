@@ -38,38 +38,40 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       {/* Header */}
       <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="container mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <Link to="/dashboard" className="flex items-center space-x-3">
-              <img src={vuelixLogo} alt="Vuelix" className="w-10 h-10" />
-              <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                Vuelix
-              </span>
-            </Link>
+          <div className="flex items-center">
+            {/* Logo Section - Fixed width for dedicated left space */}
+            <div className="flex-shrink-0 w-48">
+              <Link to="/dashboard" className="flex items-center space-x-3">
+                <img src={vuelixLogo} alt="Vuelix" className="w-10 h-10" />
+                <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                  Vuelix
+                </span>
+              </Link>
+            </div>
 
-            {/* Horizontal Navigation */}
-            <nav className="hidden md:flex items-center space-x-3">
+            {/* Horizontal Navigation - Centered with controlled spacing */}
+            <nav className="hidden md:flex items-center justify-center flex-1 space-x-2">
               {navigationItems.map((item) => {
                 const IconComponent = item.icon;
                 return (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`px-6 py-3 rounded-full text-base font-medium transition-smooth flex items-center space-x-2 ${
+                    className={`px-4 py-3 rounded-full text-sm font-medium transition-smooth flex items-center space-x-2 ${
                       isActivePath(item.path)
                         ? 'bg-gradient-primary text-primary-foreground shadow-elegant'
                         : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                     }`}
                   >
-                    <IconComponent className="w-5 h-5" />
+                    <IconComponent className="w-4 h-4" />
                     <span>{item.label}</span>
                   </Link>
                 );
               })}
             </nav>
 
-            {/* User Menu */}
-            <div className="flex items-center space-x-6">
+            {/* User Menu - Fixed right position */}
+            <div className="flex items-center space-x-6 flex-shrink-0">
               <ThemeToggle />
               <Avatar className="w-12 h-12">
             <AvatarImage src={user?.avatar} alt={user?.name} />
