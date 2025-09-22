@@ -40,9 +40,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="container mx-auto px-6 py-6">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link to="/dashboard" className="flex items-center space-x-4">
-              <img src={vuelixLogo} alt="Vuelix" className="w-14 h-14" />
-              <span className="text-3xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <Link to="/dashboard" className="flex items-center space-x-3">
+              <img src={vuelixLogo} alt="Vuelix" className="w-10 h-10" />
+              <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                 Vuelix
               </span>
             </Link>

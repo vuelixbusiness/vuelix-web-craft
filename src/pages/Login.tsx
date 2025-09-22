@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { Music, Video, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import vuelixLogo from "@/assets/vuelix-logo-v.png";
 const Login = () => {
   const [userType, setUserType] = useState<'creator' | 'artist'>('creator');
   const [email, setEmail] = useState('');
@@ -79,9 +80,8 @@ const Login = () => {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg"></div>
-            <span className="text-xl font-bold">Vuelix 
-          </span>
+            <img src={vuelixLogo} alt="Vuelix" className="w-8 h-8" />
+            <span className="text-xl font-bold">Vuelix</span>
           </div>
         </div>
 
