@@ -63,7 +63,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                         : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                     }`}
                   >
-                     <IconComponent className="w-6 h-6" />
+                     <IconComponent className="w-7 h-7" />
                     <span>{item.label}</span>
                   </Link>
                 );
@@ -103,7 +103,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                       : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                   }`}
                 >
-                  <IconComponent className="w-6 h-6" />
+                  <IconComponent className="w-7 h-7" />
                   <span>{item.label}</span>
                 </Link>
               );
