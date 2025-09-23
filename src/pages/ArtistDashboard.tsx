@@ -29,6 +29,13 @@ interface Campaign {
   platforms: string[];
   cover_art_url?: string;
   artist_id: string;
+  // Additional fields from spending calculation
+  actualSpent?: number;
+  estimatedPending?: number;
+  totalViews?: number;
+  totalLikes?: number;
+  creatorCount?: number;
+  availableBudget?: number;
 }
 
 // Platform icon mapping
@@ -73,14 +80,15 @@ const ArtistDashboard = () => {
     try {
       console.log('🔍 Fetching campaigns for artist:', user.id);
       
-      const { data, error } = await supabase
+      // Fetch campaigns with spending data
+      const { data: campaignData, error: campaignError } = await supabase
         .from('campaigns')
         .select('*')
         .eq('artist_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) {
-        console.error('❌ Error fetching campaigns:', error);
+      if (campaignError) {
+        console.error('❌ Error fetching campaigns:', campaignError);
         toast({
           title: "Error Loading Campaigns",
           description: "Failed to load your campaigns. Please try again.",
@@ -89,22 +97,67 @@ const ArtistDashboard = () => {
         return;
       }
 
-      console.log('✅ Campaigns fetched successfully:', data);
-      setCampaigns(data || []);
+      // Fetch spending data for all campaigns
+      const { data: spendingData, error: spendingError } = await supabase
+        .from('campaign_participations')
+        .select(`
+          campaign_id,
+          payout_amount,
+          payout_claimed,
+          current_views,
+          current_likes,
+          creator_id
+        `)
+        .in('campaign_id', campaignData?.map(c => c.id) || []);
+
+      if (spendingError) {
+        console.error('❌ Error fetching spending data:', spendingError);
+      }
+
+      console.log('✅ Campaigns and spending data fetched successfully');
+
+      // Process campaigns with actual spending data
+      const campaignsWithSpending = campaignData?.map(campaign => {
+        const participations = spendingData?.filter(p => p.campaign_id === campaign.id) || [];
+        const totalSpent = participations
+          .filter(p => p.payout_claimed)
+          .reduce((sum, p) => sum + (Number(p.payout_amount) || 0), 0);
+        const estimatedPending = participations
+          .filter(p => !p.payout_claimed && p.payout_amount > 0)
+          .reduce((sum, p) => sum + (Number(p.payout_amount) || 0), 0);
+        const totalViews = participations.reduce((sum, p) => sum + (Number(p.current_views) || 0), 0);
+        const totalLikes = participations.reduce((sum, p) => sum + (Number(p.current_likes) || 0), 0);
+        const creatorCount = new Set(participations.map(p => p.creator_id)).size;
+
+        return {
+          ...campaign,
+          actualSpent: totalSpent,
+          estimatedPending: estimatedPending,
+          totalViews: totalViews,
+          totalLikes: totalLikes,
+          creatorCount: creatorCount,
+          availableBudget: Number(campaign.budget) - totalSpent - estimatedPending
+        };
+      }) || [];
+
+      setCampaigns(campaignsWithSpending);
       
       // Calculate stats from real data
-      if (data) {
-        const activeCampaigns = data.filter(c => c.status === 'active').length;
-        const totalBudget = data.reduce((sum, c) => sum + Number(c.budget || 0), 0);
+      if (campaignsWithSpending) {
+        const activeCampaigns = campaignsWithSpending.filter(c => c.status === 'active').length;
+        const totalBudget = campaignsWithSpending.reduce((sum, c) => sum + Number(c.budget || 0), 0);
+        const totalActualSpent = campaignsWithSpending.reduce((sum, c) => sum + (c.actualSpent || 0), 0);
+        const totalViews = campaignsWithSpending.reduce((sum, c) => sum + (c.totalViews || 0), 0);
+        const totalCreators = campaignsWithSpending.reduce((sum, c) => sum + (c.creatorCount || 0), 0);
         
         setStats({
-          totalCampaigns: data.length,
+          totalCampaigns: campaignsWithSpending.length,
           activeCampaigns,
-          totalViews: 0, // Would need to get from participations
-          totalSpent: totalBudget * 0.3, // Estimated spending
-          totalCreators: 0, // Would need to calculate from participations
-          averageEngagement: 4.2, // Placeholder
-          monthlyGrowth: 12.5 // Placeholder
+          totalViews: totalViews,
+          totalSpent: totalActualSpent,
+          totalCreators: totalCreators,
+          averageEngagement: totalViews > 0 ? ((totalViews * 0.05) / totalViews) * 100 : 0,
+          monthlyGrowth: 12.5 // Would need historical data
         });
       }
     } catch (error) {
@@ -154,11 +207,13 @@ const ArtistDashboard = () => {
     songTitle: campaign.song_title,
     status: campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1),
     budget: Number(campaign.budget),
-    spent: Number(campaign.budget) * 0.3, // Estimated for now
-    creators: 0, // Would need to calculate from participations
-    videos: 0, // Would need to calculate from participations
-    views: 0, // Would need to calculate from participations
-    likes: 0, // Would need to calculate from participations
+    spent: campaign.actualSpent || 0,
+    estimatedPending: campaign.estimatedPending || 0,
+    available: campaign.availableBudget || Number(campaign.budget),
+    creators: campaign.creatorCount || 0,
+    videos: campaign.creatorCount || 0, // Each creator typically creates one video
+    views: campaign.totalViews || 0,
+    likes: campaign.totalLikes || 0,
     genre: campaign.genre
   });
 
@@ -338,8 +393,9 @@ const ArtistDashboard = () => {
                   ) : (
                     campaigns.map((campaign) => {
                       const displayCampaign = formatCampaignForDisplay(campaign);
-                      const availableBudget = displayCampaign.budget - displayCampaign.spent;
-                      const progressPercentage = (displayCampaign.spent / displayCampaign.budget) * 100;
+                      const totalCommitted = displayCampaign.spent + displayCampaign.estimatedPending;
+                      const availableBudget = displayCampaign.available;
+                      const progressPercentage = displayCampaign.budget > 0 ? (totalCommitted / displayCampaign.budget) * 100 : 0;
                       
                       return (
                         <Card key={campaign.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-[1.02] min-h-[400px]">
@@ -413,98 +469,110 @@ const ArtistDashboard = () => {
                                     Available
                                   </span>
                                 </div>
-                                <div className="flex justify-between items-baseline text-sm">
-                                  <span className="text-muted-foreground">
-                                    {formatCurrency(displayCampaign.spent)} redeemed
-                                  </span>
-                                  <span className="text-muted-foreground">
-                                    of {formatCurrency(displayCampaign.budget)} total
-                                  </span>
-                                </div>
-                                
-                                {/* Enhanced Progress Bar */}
-                                <div className="relative">
-                                  <Progress 
-                                    value={progressPercentage} 
-                                    className="h-3 bg-secondary"
-                                  />
-                                  <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-xs font-medium text-primary-foreground">
-                                      {progressPercentage > 15 ? `${progressPercentage.toFixed(0)}%` : ''}
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            </div>
-                            
-                            {/* Performance Stats */}
-                            <div className="grid grid-cols-4 gap-4">
-                              <div className="text-center p-3 bg-secondary/20 rounded-lg">
-                                <div className="flex items-center justify-center mb-1">
-                                  <Users className="w-4 h-4 text-muted-foreground" />
-                                </div>
-                                <p className="text-xl font-bold">{displayCampaign.creators}</p>
-                                <p className="text-xs text-muted-foreground">Creators</p>
-                              </div>
-                              <div className="text-center p-3 bg-secondary/20 rounded-lg">
-                                <div className="flex items-center justify-center mb-1">
-                                  <Play className="w-4 h-4 text-muted-foreground" />
-                                </div>
-                                <p className="text-xl font-bold">{displayCampaign.videos}</p>
-                                <p className="text-xs text-muted-foreground">Videos</p>
-                              </div>
-                              <div className="text-center p-3 bg-secondary/20 rounded-lg">
-                                <div className="flex items-center justify-center mb-1">
-                                  <Eye className="w-4 h-4 text-muted-foreground" />
-                                </div>
-                                <p className="text-xl font-bold">{displayCampaign.views.toLocaleString()}</p>
-                                <p className="text-xs text-muted-foreground">Views</p>
-                              </div>
-                              <div className="text-center p-3 bg-secondary/20 rounded-lg">
-                                <div className="flex items-center justify-center mb-1">
-                                  <Heart className="w-4 h-4 text-muted-foreground" />
-                                </div>
-                                <p className="text-xl font-bold">{displayCampaign.likes.toLocaleString()}</p>
-                                <p className="text-xs text-muted-foreground">Likes</p>
-                              </div>
-                            </div>
-                            
-                            {/* Action Buttons */}
-                            <div className="flex space-x-3 pt-2">
-                              <Button 
-                                variant="outline" 
-                                size="default" 
-                                className="flex-1"
-                                onClick={() => navigate(`/campaign/${campaign.id}`)}
-                              >
-                                <BarChart3 className="w-4 h-4 mr-2" />
-                                View Analytics
-                              </Button>
-                              {(displayCampaign.status === 'Active' || displayCampaign.status === 'Paused') && (
-                                <Button 
-                                  size="default" 
-                                  className="flex-1"
-                                  onClick={() => navigate(`/campaign/${campaign.id}/manage`)}
-                                >
-                                  <Settings className="w-4 h-4 mr-2" />
-                                  Manage
-                                </Button>
-                              )}
-                              {displayCampaign.status === 'Draft' && (
-                                <Button size="default" className="flex-1">
-                                  <Play className="w-4 h-4 mr-2" />
-                                  Launch
-                                </Button>
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    })
-                  )}
-                </div>
-              </div>
-            </TabsContent>
+                                 
+                                 {displayCampaign.estimatedPending > 0 && (
+                                   <div className="flex justify-between items-baseline text-sm">
+                                     <span className="text-orange-600">
+                                       {formatCurrency(displayCampaign.estimatedPending)}
+                                     </span>
+                                     <span className="text-muted-foreground">
+                                       Pending Payout
+                                     </span>
+                                   </div>
+                                 )}
+                                 
+                                 <div className="flex justify-between items-baseline text-sm">
+                                   <span className="text-muted-foreground">
+                                     {formatCurrency(displayCampaign.spent)} redeemed
+                                   </span>
+                                   <span className="text-muted-foreground">
+                                     of {formatCurrency(displayCampaign.budget)} total
+                                   </span>
+                                 </div>
+                               </div>
+                                 
+                                 {/* Enhanced Progress Bar */}
+                                 <div className="relative">
+                                   <Progress 
+                                     value={progressPercentage} 
+                                     className="h-3 bg-secondary"
+                                   />
+                                   <div className="absolute inset-0 flex items-center justify-center">
+                                     <span className="text-xs font-medium text-primary-foreground">
+                                       {progressPercentage > 15 ? `${progressPercentage.toFixed(0)}%` : ''}
+                                     </span>
+                                   </div>
+                                 </div>
+                               </div>
+                             
+                             {/* Performance Stats */}
+                             <div className="grid grid-cols-4 gap-4">
+                               <div className="text-center p-3 bg-secondary/20 rounded-lg">
+                                 <div className="flex items-center justify-center mb-1">
+                                   <Users className="w-4 h-4 text-muted-foreground" />
+                                 </div>
+                                 <p className="text-xl font-bold">{displayCampaign.creators}</p>
+                                 <p className="text-xs text-muted-foreground">Creators</p>
+                               </div>
+                               <div className="text-center p-3 bg-secondary/20 rounded-lg">
+                                 <div className="flex items-center justify-center mb-1">
+                                   <Play className="w-4 h-4 text-muted-foreground" />
+                                 </div>
+                                 <p className="text-xl font-bold">{displayCampaign.videos}</p>
+                                 <p className="text-xs text-muted-foreground">Videos</p>
+                               </div>
+                               <div className="text-center p-3 bg-secondary/20 rounded-lg">
+                                 <div className="flex items-center justify-center mb-1">
+                                   <Eye className="w-4 h-4 text-muted-foreground" />
+                                 </div>
+                                 <p className="text-xl font-bold">{displayCampaign.views.toLocaleString()}</p>
+                                 <p className="text-xs text-muted-foreground">Views</p>
+                               </div>
+                               <div className="text-center p-3 bg-secondary/20 rounded-lg">
+                                 <div className="flex items-center justify-center mb-1">
+                                   <Heart className="w-4 h-4 text-muted-foreground" />
+                                 </div>
+                                 <p className="text-xl font-bold">{displayCampaign.likes.toLocaleString()}</p>
+                                 <p className="text-xs text-muted-foreground">Likes</p>
+                               </div>
+                             </div>
+                             
+                             {/* Action Buttons */}
+                             <div className="flex space-x-3 pt-2">
+                               <Button 
+                                 variant="outline" 
+                                 size="default" 
+                                 className="flex-1"
+                                 onClick={() => navigate(`/campaign/${campaign.id}`)}
+                               >
+                                 <BarChart3 className="w-4 h-4 mr-2" />
+                                 View Analytics
+                               </Button>
+                               {(displayCampaign.status === 'Active' || displayCampaign.status === 'Paused') && (
+                                 <Button 
+                                   size="default" 
+                                   className="flex-1"
+                                   onClick={() => navigate(`/campaign/${campaign.id}/manage`)}
+                                 >
+                                   <Settings className="w-4 h-4 mr-2" />
+                                   Manage
+                                 </Button>
+                               )}
+                               {displayCampaign.status === 'Draft' && (
+                                 <Button size="default" className="flex-1">
+                                   <Play className="w-4 h-4 mr-2" />
+                                   Launch
+                                 </Button>
+                               )}
+                             </div>
+                           </CardContent>
+                         </Card>
+                       );
+                     })
+                   )}
+                 </div>
+               </div>
+             </TabsContent>
 
             {/* Analytics Profile */}
             <TabsContent value="analytics" className="space-y-6">
@@ -514,7 +582,7 @@ const ArtistDashboard = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-muted-foreground">Avg. Engagement</p>
-                        <p className="text-2xl font-bold">{stats.averageEngagement}</p>
+                        <p className="text-2xl font-bold">{stats.averageEngagement.toFixed(1)}%</p>
                       </div>
                       <Star className="w-8 h-8 text-yellow-500" />
                     </div>
