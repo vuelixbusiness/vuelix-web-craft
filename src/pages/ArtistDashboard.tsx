@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
-import { Plus, Music, Users, TrendingUp, Play, Eye, Heart, BarChart3, MessageCircle, Settings, Star, DollarSign } from "lucide-react";
+import { Plus, Music, Users, TrendingUp, Play, Pause, Eye, Heart, BarChart3, MessageCircle, Settings, Star, DollarSign } from "lucide-react";
 import { FaTiktok, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,6 +21,7 @@ interface Campaign {
   id: string;
   title: string;
   song_title: string;
+  song_url?: string;
   status: string;
   budget: number;
   genre: string;
@@ -63,6 +64,8 @@ const ArtistDashboard = () => {
   const [activeProfile, setActiveProfile] = useState<DashboardProfile>('campaigns');
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [stats, setStats] = useState<CampaignStats>({
     totalCampaigns: 0,
     activeCampaigns: 0,
@@ -201,10 +204,40 @@ const ArtistDashboard = () => {
     };
   }, [user?.id]);
 
+  // Audio control functions
+  const toggleAudio = (campaignId: string, songUrl: string) => {
+    if (!audioRef.current) return;
+
+    if (currentlyPlaying === campaignId) {
+      // Pause current audio
+      audioRef.current.pause();
+      setCurrentlyPlaying(null);
+    } else {
+      // Play new audio
+      if (currentlyPlaying) {
+        audioRef.current.pause();
+      }
+      audioRef.current.src = songUrl;
+      audioRef.current.play();
+      setCurrentlyPlaying(campaignId);
+    }
+  };
+
+  // Cleanup audio when component unmounts
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+    };
+  }, []);
+
   // Helper function to format campaign data for display
   const formatCampaignForDisplay = (campaign: Campaign) => ({
     id: campaign.id,
     songTitle: campaign.song_title,
+    songUrl: campaign.song_url,
     status: campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1),
     budget: Number(campaign.budget),
     spent: Number(campaign.actualSpent) || 0,
@@ -415,9 +448,25 @@ const ArtistDashboard = () => {
                             <div className="flex-1 min-w-0">
                               <div className="flex items-start justify-between">
                                 <div>
-                                  <h3 className="text-2xl font-bold text-foreground truncate mb-1">
-                                    {displayCampaign.songTitle}
-                                  </h3>
+                                  <div className="flex items-center space-x-2 mb-1">
+                                    <h3 className="text-2xl font-bold text-foreground truncate">
+                                      {displayCampaign.songTitle}
+                                    </h3>
+                                    {displayCampaign.songUrl && (
+                                      <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={() => toggleAudio(campaign.id, displayCampaign.songUrl!)}
+                                        className="w-8 h-8 p-0 flex-shrink-0"
+                                      >
+                                        {currentlyPlaying === campaign.id ? (
+                                          <Pause className="w-4 h-4" />
+                                        ) : (
+                                          <Play className="w-4 h-4" />
+                                        )}
+                                      </Button>
+                                    )}
+                                  </div>
                                   <p className="text-muted-foreground text-sm mb-2">
                                     by {campaign.title || "Artist"}
                                   </p>
@@ -761,6 +810,13 @@ const ArtistDashboard = () => {
           </Tabs>
         </div>
       </div>
+      
+      {/* Audio element for campaign previews */}
+      <audio
+        ref={audioRef}
+        onEnded={() => setCurrentlyPlaying(null)}
+        onError={() => setCurrentlyPlaying(null)}
+      />
     </DashboardLayout>
   );
 };
