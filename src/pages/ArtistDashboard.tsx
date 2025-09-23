@@ -388,7 +388,12 @@ const ArtistDashboard = () => {
                             View Details
                           </Button>
                           {displayCampaign.status === 'Active' && (
-                            <Button variant="outline" size="sm" className="flex-1">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="flex-1"
+                              onClick={() => navigate(`/campaign/${campaign.id}`)}
+                            >
                               Manage
                             </Button>
                           )}
