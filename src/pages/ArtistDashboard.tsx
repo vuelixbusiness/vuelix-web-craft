@@ -207,9 +207,9 @@ const ArtistDashboard = () => {
     songTitle: campaign.song_title,
     status: campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1),
     budget: Number(campaign.budget),
-    spent: campaign.actualSpent || 0,
-    estimatedPending: campaign.estimatedPending || 0,
-    available: campaign.availableBudget || Number(campaign.budget),
+    spent: Number(campaign.actualSpent) || 0,
+    estimatedPending: Number(campaign.estimatedPending) || 0,
+    available: Number(campaign.availableBudget) || Number(campaign.budget),
     creators: campaign.creatorCount || 0,
     videos: campaign.creatorCount || 0, // Each creator typically creates one video
     views: campaign.totalViews || 0,
