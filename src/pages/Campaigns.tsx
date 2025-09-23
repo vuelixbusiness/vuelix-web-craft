@@ -29,6 +29,7 @@ interface Campaign {
   instructions: string;
   budget: number;
   end_date: string;
+  artist_id: string;
   profiles?: {
     display_name?: string;
   } | null;
@@ -44,6 +45,8 @@ const Campaigns = () => {
 
   const fetchCampaigns = async () => {
     try {
+      console.log('🔍 Fetching campaigns...');
+      
       // First get campaigns
       const { data: campaignsData, error: campaignsError } = await supabase
         .from('campaigns')
@@ -69,24 +72,37 @@ const Campaigns = () => {
         .eq('status', 'active')
         .order('created_at', { ascending: false });
 
+      console.log('📊 Campaigns query result:', { campaignsData, campaignsError });
+
       if (campaignsError) throw campaignsError;
 
+      if (!campaignsData || campaignsData.length === 0) {
+        console.log('❌ No campaigns found');
+        setCampaigns([]);
+        return;
+      }
+
       // Then get artist profiles for the campaigns
-      const artistIds = [...new Set(campaignsData?.map(c => c.artist_id) || [])];
-      const { data: profilesData } = await supabase
+      const artistIds = [...new Set(campaignsData.map(c => c.artist_id))];
+      console.log('👥 Fetching profiles for artist IDs:', artistIds);
+
+      const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
         .select('user_id, display_name')
         .in('user_id', artistIds);
 
+      console.log('👤 Profiles query result:', { profilesData, profilesError });
+
       // Merge the data
-      const campaignsWithProfiles = campaignsData?.map(campaign => ({
+      const campaignsWithProfiles = campaignsData.map(campaign => ({
         ...campaign,
         profiles: profilesData?.find(p => p.user_id === campaign.artist_id) || null
-      })) || [];
+      }));
 
+      console.log('✅ Final campaigns with profiles:', campaignsWithProfiles);
       setCampaigns(campaignsWithProfiles as Campaign[]);
     } catch (error) {
-      console.error('Error fetching campaigns:', error);
+      console.error('💥 Error fetching campaigns:', error);
       toast({
         title: "Error",
         description: "Failed to load campaigns",
