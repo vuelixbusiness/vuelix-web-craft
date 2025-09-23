@@ -40,6 +40,7 @@ interface Campaign {
   instructions: string;
   budget: number;
   end_date: string;
+  artist_id: string;
   profiles?: {
     display_name?: string;
   } | null;
@@ -89,19 +90,40 @@ const CampaignManagement = () => {
 
   const fetchCampaigns = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: campaignsData, error: campaignsError } = await supabase
         .from('campaigns')
         .select(`
           id, title, song_title, song_url, cover_art_url, campaign_type,
           genre, platforms, payout_type, payout_rate, vip_bonus,
-          max_payout, vip_max_payout, instructions, budget, end_date,
-          profiles!campaigns_artist_id_fkey (display_name)
+          max_payout, vip_max_payout, instructions, budget, end_date, artist_id
         `)
         .eq('status', 'active')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setCampaigns((data || []) as Campaign[]);
+      if (campaignsError) throw campaignsError;
+
+      // Fetch artist profiles for campaigns
+      if (campaignsData && campaignsData.length > 0) {
+        const artistIds = [...new Set(campaignsData.map(c => c.artist_id))];
+        const { data: profilesData, error: profilesError } = await supabase
+          .from('profiles')
+          .select('user_id, display_name')
+          .in('user_id', artistIds);
+
+        if (profilesError) {
+          console.error('Error fetching profiles:', profilesError);
+        }
+
+        // Map profiles to campaigns
+        const campaignsWithProfiles = campaignsData.map(campaign => ({
+          ...campaign,
+          profiles: profilesData?.find(p => p.user_id === campaign.artist_id) || null
+        }));
+
+        setCampaigns(campaignsWithProfiles as Campaign[]);
+      } else {
+        setCampaigns([]);
+      }
     } catch (error) {
       console.error('Error fetching campaigns:', error);
       toast({
@@ -121,8 +143,7 @@ const CampaignManagement = () => {
         .select(`
           *, 
           campaigns (
-            id, title, song_title, cover_art_url, genre,
-            profiles!campaigns_artist_id_fkey (display_name)
+            id, title, song_title, cover_art_url, genre, artist_id
           )
         `)
         .eq('creator_id', user.id)
