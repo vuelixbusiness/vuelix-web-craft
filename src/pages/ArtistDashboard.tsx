@@ -337,6 +337,7 @@ const ArtistDashboard = () => {
                           </div>
                           <Badge 
                             variant={displayCampaign.status === 'Active' ? 'default' : 
+                                     displayCampaign.status === 'Paused' ? 'secondary' :
                                      displayCampaign.status === 'Completed' ? 'secondary' : 'outline'}
                           >
                             {displayCampaign.status}
