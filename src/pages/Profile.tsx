@@ -9,10 +9,14 @@ import { Badge } from "@/components/ui/badge";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { User, Camera, Mail, Calendar, Trophy } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Profile = () => {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [isEditable, setIsEditable] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
     username: user?.username || '',
@@ -23,10 +27,38 @@ const Profile = () => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
-    // TODO: Implement profile update logic
-    console.log('Saving profile:', formData);
-    setIsEditable(false);
+  const handleSave = async () => {
+    if (!user?.id) return;
+
+    try {
+      setIsLoading(true);
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          display_name: formData.name,
+          username: formData.username,
+          bio: formData.bio
+        })
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+      
+      setIsEditable(false);
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update profile",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleCancel = () => {
@@ -104,8 +136,10 @@ const Profile = () => {
                   <Button onClick={() => setIsEditable(true)}>Edit Profile</Button>
                 ) : (
                   <div className="space-x-2">
-                    <Button variant="outline" onClick={handleCancel}>Cancel</Button>
-                    <Button onClick={handleSave}>Save Changes</Button>
+                    <Button variant="outline" onClick={handleCancel} disabled={isLoading}>Cancel</Button>
+                    <Button onClick={handleSave} disabled={isLoading}>
+                      {isLoading ? "Saving..." : "Save Changes"}
+                    </Button>
                   </div>
                 )}
               </CardHeader>
