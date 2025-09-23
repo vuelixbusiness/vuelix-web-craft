@@ -1,53 +1,70 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { Search, TrendingUp, DollarSign, Video, Music, Eye, Heart, Play } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import DashboardLayout from "@/components/DashboardLayout";
+import VideoSubmission from "@/components/VideoSubmission";
 
 const CreatorDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
+  const [campaigns, setCampaigns] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCampaign, setSelectedCampaign] = useState(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  const campaigns = [
-    {
-      id: 1,
-      artist: "DJ Luna",
-      songTitle: "Midnight Vibes",
-      genre: "Electronic",
-      payoutRate: 2.50,
-      maxPayout: 99.99,
-      platforms: ["TikTok", "Instagram"],
-      image: "https://api.dicebear.com/7.x/shapes/svg?seed=luna",
-      requirements: "30s+ video, use audio for at least 15s"
-    },
-    {
-      id: 2,
-      artist: "The Echoes",
-      songTitle: "Summer Dreams",
-      genre: "Indie Pop",
-      payoutRate: 3.00,
-      maxPayout: 75.00,
-      platforms: ["YouTube", "TikTok"],
-      image: "https://api.dicebear.com/7.x/shapes/svg?seed=echoes",
-      requirements: "Creative interpretation welcome"
-    },
-    {
-      id: 3,
-      artist: "Bass Drop",
-      songTitle: "Electric Nights",
-      genre: "Hip Hop",
-      payoutRate: 4.25,
-      maxPayout: 150.00,
-      platforms: ["TikTok"],
-      image: "https://api.dicebear.com/7.x/shapes/svg?seed=bass",
-      requirements: "Dance/choreo preferred"
+  useEffect(() => {
+    fetchCampaigns();
+  }, []);
+
+  const fetchCampaigns = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('campaigns')
+        .select(`
+          *,
+          profiles!campaigns_artist_id_fkey(display_name, username)
+        `)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setCampaigns(data || []);
+    } catch (error) {
+      console.error('Error fetching campaigns:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load campaigns. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  const handleJoinCampaign = (campaign) => {
+    setSelectedCampaign(campaign);
+    setDialogOpen(true);
+  };
+
+  const handleSubmissionComplete = () => {
+    setDialogOpen(false);
+    setSelectedCampaign(null);
+    toast({
+      title: "Success!",
+      description: "Your video has been submitted for review.",
+    });
+  };
 
   const stats = {
     totalEarnings: 1247.50,
@@ -138,62 +155,90 @@ const CreatorDashboard = () => {
         <div className="space-y-6">
           <h2 className="text-2xl font-bold">Available Campaigns</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {campaigns.map((campaign) => (
-              <Card key={campaign.id} className="hover:shadow-lg transition-smooth cursor-pointer">
-                <CardContent className="p-6">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <img 
-                      src={campaign.image} 
-                      alt={campaign.artist}
-                      className="w-12 h-12 rounded-lg"
-                    />
-                    <div className="flex-1">
-                      <h3 className="font-semibold">{campaign.songTitle}</h3>
-                      <p className="text-sm text-muted-foreground">by {campaign.artist}</p>
-                    </div>
-                    <Button size="icon" variant="ghost">
-                      <Play className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Badge variant="secondary">{campaign.genre}</Badge>
-                      <div className="text-right">
-                        <p className="text-sm text-muted-foreground">Per 1K views</p>
-                        <p className="font-semibold text-green-600">${campaign.payoutRate}</p>
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {campaigns.map((campaign) => (
+                <Card key={campaign.id} className="hover:shadow-lg transition-smooth cursor-pointer">
+                  <CardContent className="p-6">
+                    <div className="flex items-center space-x-4 mb-4">
+                      <img 
+                        src={campaign.cover_art_url || "https://api.dicebear.com/7.x/shapes/svg?seed=" + campaign.id} 
+                        alt={campaign.profiles?.display_name || "Artist"}
+                        className="w-12 h-12 rounded-lg"
+                      />
+                      <div className="flex-1">
+                        <h3 className="font-semibold">{campaign.song_title}</h3>
+                        <p className="text-sm text-muted-foreground">by {campaign.profiles?.display_name || "Unknown Artist"}</p>
                       </div>
+                      {campaign.song_url && (
+                        <Button size="icon" variant="ghost">
+                          <Play className="w-4 h-4" />
+                        </Button>
+                      )}
                     </div>
                     
-                    <div className="flex flex-wrap gap-1">
-                      {campaign.platforms.map((platform) => (
-                        <Badge key={platform} variant="outline" className="text-xs">
-                          {platform}
-                        </Badge>
-                      ))}
-                    </div>
-                    
-                    <p className="text-xs text-muted-foreground">
-                      {campaign.requirements}
-                    </p>
-                    
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>Max: ${campaign.maxPayout}</span>
-                      <div className="flex items-center space-x-2">
-                        <Eye className="w-3 h-3" />
-                        <span>24 creators</span>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <Badge variant="secondary">{campaign.genre}</Badge>
+                        <div className="text-right">
+                          <p className="text-sm text-muted-foreground">Per 1K views</p>
+                          <p className="font-semibold text-green-600">${campaign.payout_rate}</p>
+                        </div>
                       </div>
+                      
+                      <div className="flex flex-wrap gap-1">
+                        {campaign.platforms?.map((platform) => (
+                          <Badge key={platform} variant="outline" className="text-xs">
+                            {platform}
+                          </Badge>
+                        ))}
+                      </div>
+                      
+                      <p className="text-xs text-muted-foreground">
+                        {campaign.instructions || "Follow campaign guidelines"}
+                      </p>
+                      
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>Max: ${campaign.max_payout}</span>
+                        <div className="flex items-center space-x-2">
+                          <Eye className="w-3 h-3" />
+                          <span>Active</span>
+                        </div>
+                      </div>
+                      
+                      <Dialog open={dialogOpen && selectedCampaign?.id === campaign.id} onOpenChange={(open) => {
+                        if (!open) {
+                          setDialogOpen(false);
+                          setSelectedCampaign(null);
+                        }
+                      }}>
+                        <DialogTrigger asChild>
+                          <Button className="w-full mt-4" onClick={() => handleJoinCampaign(campaign)}>
+                            Join Campaign
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle>Submit Your Video</DialogTitle>
+                          </DialogHeader>
+                          {selectedCampaign && (
+                            <VideoSubmission 
+                              campaign={selectedCampaign} 
+                              onSubmissionComplete={handleSubmissionComplete}
+                            />
+                          )}
+                        </DialogContent>
+                      </Dialog>
                     </div>
-                    
-                    <Button className="w-full mt-4">
-                      Join Campaign
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </DashboardLayout>
