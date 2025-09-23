@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { Plus, Music, Users, TrendingUp, Play, Eye, Heart, BarChart3, MessageCircle, Settings, Star, DollarSign } from "lucide-react";
+import { FaTiktok, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -25,7 +26,17 @@ interface Campaign {
   created_at: string;
   payout_type: string;
   platforms: string[];
+  cover_art_url?: string;
+  artist_id: string;
 }
+
+// Platform icon mapping
+const platformIcons: { [key: string]: JSX.Element } = {
+  'TikTok': <FaTiktok className="w-5 h-5 text-white" />,
+  'Instagram': <FaInstagram className="w-5 h-5 text-pink-500" />,
+  'YouTube': <FaYoutube className="w-5 h-5 text-red-500" />,
+  'Twitter': <FaTwitter className="w-5 h-5 text-blue-400" />,
+};
 
 interface CampaignStats {
   totalCampaigns: number;
@@ -292,120 +303,201 @@ const ArtistDashboard = () => {
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                   {isLoading ? (
                     // Loading skeletons
-                    Array.from({ length: 3 }).map((_, i) => (
-                      <Card key={i}>
-                        <CardHeader>
-                          <Skeleton className="h-6 w-3/4" />
-                          <Skeleton className="h-4 w-1/2" />
-                        </CardHeader>
-                        <CardContent>
-                          <Skeleton className="h-24 w-full" />
+                    Array.from({ length: 2 }).map((_, i) => (
+                      <Card key={i} className="h-80">
+                        <CardContent className="p-6">
+                          <div className="flex space-x-4 mb-4">
+                            <Skeleton className="w-20 h-20 rounded-lg" />
+                            <div className="flex-1 space-y-2">
+                              <Skeleton className="h-6 w-3/4" />
+                              <Skeleton className="h-4 w-1/2" />
+                              <Skeleton className="h-4 w-1/3" />
+                            </div>
+                          </div>
+                          <Skeleton className="h-32 w-full" />
                         </CardContent>
                       </Card>
                     ))
                   ) : campaigns.length === 0 ? (
                     // Empty state
-                    <div className="col-span-full text-center py-12">
-                      <Music className="w-16 h-16 mx-auto mb-4 text-muted-foreground/50" />
-                      <h3 className="text-lg font-semibold mb-2">No Campaigns Yet</h3>
-                      <p className="text-muted-foreground mb-4">
+                    <div className="col-span-full text-center py-20">
+                      <Music className="w-20 h-20 mx-auto mb-6 text-muted-foreground/50" />
+                      <h3 className="text-2xl font-semibold mb-3">No Campaigns Yet</h3>
+                      <p className="text-muted-foreground mb-6 text-lg">
                         Create your first campaign to start promoting your music
                       </p>
-                      <Button onClick={() => navigate('/artist-campaign')}>
-                        <Plus className="w-4 h-4 mr-2" />
+                      <Button size="lg" onClick={() => navigate('/artist-campaign')}>
+                        <Plus className="w-5 h-5 mr-2" />
                         Create Campaign
                       </Button>
                     </div>
                   ) : (
                     campaigns.map((campaign) => {
                       const displayCampaign = formatCampaignForDisplay(campaign);
-                      return (
-                    <Card key={campaign.id} className="hover:shadow-lg transition-smooth">
-                      <CardHeader className="pb-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 rounded-lg flex items-center justify-center">
-                              <img src={vuelixLogo} alt="Vuelix" className="w-10 h-10" />
-                            </div>
-                            <div>
-                              <CardTitle className="text-lg">{displayCampaign.songTitle}</CardTitle>
-                              <CardDescription>{displayCampaign.genre}</CardDescription>
-                            </div>
-                          </div>
-                          <Badge 
-                            variant={displayCampaign.status === 'Active' ? 'default' : 
-                                     displayCampaign.status === 'Paused' ? 'secondary' :
-                                     displayCampaign.status === 'Completed' ? 'secondary' : 'outline'}
-                          >
-                            {displayCampaign.status}
-                          </Badge>
-                        </div>
-                      </CardHeader>
+                      const availableBudget = displayCampaign.budget - displayCampaign.spent;
+                      const progressPercentage = (displayCampaign.spent / displayCampaign.budget) * 100;
                       
-                      <CardContent className="space-y-4">
-                        {/* Budget Progress */}
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span>Budget Used</span>
-                            <span>${displayCampaign.spent} / ${displayCampaign.budget}</span>
+                      return (
+                        <Card key={campaign.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-[1.02] min-h-[400px]">
+                          {/* Header Section with Cover Art */}
+                          <div className="relative h-32 bg-gradient-to-r from-primary/10 to-primary/20 flex items-center p-6">
+                            {/* Campaign Cover Art */}
+                            <div className="w-20 h-20 rounded-xl overflow-hidden shadow-lg bg-card mr-6 flex-shrink-0">
+                              <img 
+                                src={campaign.cover_art_url || vuelixLogo} 
+                                alt={displayCampaign.songTitle}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            
+                            {/* Campaign Info */}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between">
+                                <div>
+                                  <h3 className="text-2xl font-bold text-foreground truncate mb-1">
+                                    {displayCampaign.songTitle}
+                                  </h3>
+                                  <p className="text-muted-foreground text-sm mb-2">
+                                    by {campaign.title || "Artist"}
+                                  </p>
+                                  
+                                  {/* Platforms */}
+                                  <div className="flex items-center space-x-2">
+                                    {campaign.platforms?.map((platform, index) => (
+                                      <div key={index} className="w-8 h-8 rounded-full bg-background/80 flex items-center justify-center shadow-sm">
+                                        {platformIcons[platform] || <Music className="w-4 h-4" />}
+                                      </div>
+                                    ))}
+                                    <span className="text-xs text-muted-foreground ml-2">
+                                      {displayCampaign.genre}
+                                    </span>
+                                  </div>
+                                </div>
+                                
+                                {/* Status Badge */}
+                                <Badge 
+                                  variant={displayCampaign.status === 'Active' ? 'default' : 
+                                           displayCampaign.status === 'Paused' ? 'secondary' :
+                                           displayCampaign.status === 'Completed' ? 'secondary' : 'outline'}
+                                  className="text-sm px-3 py-1"
+                                >
+                                  {displayCampaign.status}
+                                </Badge>
+                              </div>
+                            </div>
                           </div>
-                          <Progress 
-                            value={(displayCampaign.spent / displayCampaign.budget) * 100} 
-                            className="h-2"
-                          />
-                        </div>
-                        
-                        {/* Stats */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-                          <div>
-                            <p className="text-lg font-semibold">{displayCampaign.creators}</p>
-                            <p className="text-xs text-muted-foreground">Creators</p>
-                          </div>
-                          <div>
-                            <p className="text-lg font-semibold">{displayCampaign.videos}</p>
-                            <p className="text-xs text-muted-foreground">Videos</p>
-                          </div>
-                          <div>
-                            <p className="text-lg font-semibold">{displayCampaign.views.toLocaleString()}</p>
-                            <p className="text-xs text-muted-foreground">Views</p>
-                          </div>
-                          <div>
-                            <p className="text-lg font-semibold">{displayCampaign.likes.toLocaleString()}</p>
-                            <p className="text-xs text-muted-foreground">Likes</p>
-                          </div>
-                        </div>
-                        
-                        {/* Actions */}
-                        <div className="flex space-x-2 pt-2">
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="flex-1"
-                            onClick={() => navigate(`/campaign/${campaign.id}`)}
-                          >
-                            View Details
-                          </Button>
-                          {(displayCampaign.status === 'Active' || displayCampaign.status === 'Paused') && (
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="flex-1"
-                              onClick={() => navigate(`/campaign/${campaign.id}/manage`)}
-                            >
-                              Manage
-                            </Button>
-                          )}
-                          {displayCampaign.status === 'Draft' && (
-                            <Button size="sm" className="flex-1">
-                              Launch
-                            </Button>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
+                          
+                          <CardContent className="p-6 space-y-6">
+                            {/* Financial Section - Engagement Pot */}
+                            <div className="bg-secondary/30 rounded-lg p-4 space-y-3">
+                              <div className="flex items-center justify-between">
+                                <h4 className="font-semibold text-lg flex items-center">
+                                  <DollarSign className="w-5 h-5 mr-2 text-primary" />
+                                  Engagement Pot
+                                </h4>
+                                <span className="text-sm text-muted-foreground">
+                                  {progressPercentage.toFixed(1)}% used
+                                </span>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <div className="flex justify-between items-baseline">
+                                  <span className="text-2xl font-bold text-primary">
+                                    ${availableBudget.toFixed(2)}
+                                  </span>
+                                  <span className="text-sm text-muted-foreground">
+                                    Available
+                                  </span>
+                                </div>
+                                <div className="flex justify-between items-baseline text-sm">
+                                  <span className="text-muted-foreground">
+                                    ${displayCampaign.spent.toFixed(2)} redeemed
+                                  </span>
+                                  <span className="text-muted-foreground">
+                                    of ${displayCampaign.budget.toFixed(2)} total
+                                  </span>
+                                </div>
+                                
+                                {/* Enhanced Progress Bar */}
+                                <div className="relative">
+                                  <Progress 
+                                    value={progressPercentage} 
+                                    className="h-3 bg-secondary"
+                                  />
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <span className="text-xs font-medium text-primary-foreground">
+                                      {progressPercentage > 15 ? `${progressPercentage.toFixed(0)}%` : ''}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Performance Stats */}
+                            <div className="grid grid-cols-4 gap-4">
+                              <div className="text-center p-3 bg-secondary/20 rounded-lg">
+                                <div className="flex items-center justify-center mb-1">
+                                  <Users className="w-4 h-4 text-muted-foreground" />
+                                </div>
+                                <p className="text-xl font-bold">{displayCampaign.creators}</p>
+                                <p className="text-xs text-muted-foreground">Creators</p>
+                              </div>
+                              <div className="text-center p-3 bg-secondary/20 rounded-lg">
+                                <div className="flex items-center justify-center mb-1">
+                                  <Play className="w-4 h-4 text-muted-foreground" />
+                                </div>
+                                <p className="text-xl font-bold">{displayCampaign.videos}</p>
+                                <p className="text-xs text-muted-foreground">Videos</p>
+                              </div>
+                              <div className="text-center p-3 bg-secondary/20 rounded-lg">
+                                <div className="flex items-center justify-center mb-1">
+                                  <Eye className="w-4 h-4 text-muted-foreground" />
+                                </div>
+                                <p className="text-xl font-bold">{displayCampaign.views.toLocaleString()}</p>
+                                <p className="text-xs text-muted-foreground">Views</p>
+                              </div>
+                              <div className="text-center p-3 bg-secondary/20 rounded-lg">
+                                <div className="flex items-center justify-center mb-1">
+                                  <Heart className="w-4 h-4 text-muted-foreground" />
+                                </div>
+                                <p className="text-xl font-bold">{displayCampaign.likes.toLocaleString()}</p>
+                                <p className="text-xs text-muted-foreground">Likes</p>
+                              </div>
+                            </div>
+                            
+                            {/* Action Buttons */}
+                            <div className="flex space-x-3 pt-2">
+                              <Button 
+                                variant="outline" 
+                                size="default" 
+                                className="flex-1"
+                                onClick={() => navigate(`/campaign/${campaign.id}`)}
+                              >
+                                <BarChart3 className="w-4 h-4 mr-2" />
+                                View Analytics
+                              </Button>
+                              {(displayCampaign.status === 'Active' || displayCampaign.status === 'Paused') && (
+                                <Button 
+                                  size="default" 
+                                  className="flex-1"
+                                  onClick={() => navigate(`/campaign/${campaign.id}/manage`)}
+                                >
+                                  <Settings className="w-4 h-4 mr-2" />
+                                  Manage
+                                </Button>
+                              )}
+                              {displayCampaign.status === 'Draft' && (
+                                <Button size="default" className="flex-1">
+                                  <Play className="w-4 h-4 mr-2" />
+                                  Launch
+                                </Button>
+                              )}
+                            </div>
+                          </CardContent>
+                        </Card>
                       );
                     })
                   )}
