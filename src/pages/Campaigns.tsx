@@ -1,44 +1,97 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import DashboardLayout from "@/components/DashboardLayout";
+import VideoSubmission from "@/components/VideoSubmission";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { Search, Music, DollarSign, Users, Filter, Play } from "lucide-react";
 import vuelixLogo from "@/assets/vuelix-logo-v.png";
 
-const Campaigns = () => {
-  const [searchQuery, setSearchQuery] = useState('');
+interface Campaign {
+  id: string;
+  title: string;
+  song_title: string;
+  song_url: string;
+  cover_art_url: string;
+  campaign_type: string;
+  genre: string;
+  platforms: string[];
+  payout_type: string;
+  payout_rate: number;
+  vip_bonus: number;
+  max_payout: number;
+  vip_max_payout: number;
+  instructions: string;
+  budget: number;
+  end_date: string;
+  profiles?: {
+    display_name?: string;
+  } | null;
+}
 
-  // Mock campaign data - replace with actual data
-  const campaigns = [
-    {
-      id: '1',
-      title: 'Summer Vibes Campaign',
-      artist: 'DJ Sunshine',
-      genre: 'Electronic',
-      payout_rate: 0.05,
-      platforms: ['TikTok', 'Instagram'],
-      requirements: 'Min 1000 followers',
-      status: 'active',
-      cover_art_url: null,
-    },
-    {
-      id: '2',
-      title: 'Indie Rock Promotion',
-      artist: 'The Midnight Band',
-      genre: 'Rock',
-      payout_rate: 0.08,
-      platforms: ['YouTube', 'TikTok'],
-      requirements: 'Min 500 followers',
-      status: 'active',
-      cover_art_url: null,
-    },
-  ];
+const Campaigns = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchCampaigns = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('campaigns')
+        .select(`
+          id,
+          title,
+          song_title,
+          song_url,
+          cover_art_url,
+          campaign_type,
+          genre,
+          platforms,
+          payout_type,
+          payout_rate,
+          vip_bonus,
+          max_payout,
+          vip_max_payout,
+          instructions,
+          budget,
+          end_date,
+          profiles!campaigns_artist_id_fkey (
+            display_name
+          )
+        `)
+        .eq('status', 'active')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setCampaigns((data || []) as Campaign[]);
+    } catch (error) {
+      console.error('Error fetching campaigns:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load campaigns",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCampaigns();
+  }, []);
 
   const filteredCampaigns = campaigns.filter(campaign =>
     campaign.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    campaign.artist.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    campaign.song_title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (campaign.profiles?.display_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
     campaign.genre.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -81,7 +134,7 @@ const Campaigns = () => {
                 <Music className="w-5 h-5 text-blue-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{campaigns.length}</div>
+                <div className="text-2xl font-bold">{isLoading ? '...' : campaigns.length}</div>
                 <p className="text-xs text-muted-foreground">Available to join</p>
               </CardContent>
             </Card>
@@ -95,7 +148,7 @@ const Campaigns = () => {
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">
-                  ${campaigns.length > 0 ? (campaigns.reduce((sum, c) => sum + c.payout_rate, 0) / campaigns.length).toFixed(3) : '0.00'}
+                  ${isLoading ? '...' : campaigns.length > 0 ? (campaigns.reduce((sum, c) => sum + c.payout_rate, 0) / campaigns.length).toFixed(3) : '0.00'}
                 </div>
                 <p className="text-xs text-muted-foreground">Per qualified view</p>
               </CardContent>
@@ -117,7 +170,20 @@ const Campaigns = () => {
 
           {/* Campaigns List */}
           <div className="space-y-6">
-            {filteredCampaigns.length === 0 ? (
+            {isLoading ? (
+              <div className="space-y-6">
+                {[1, 2, 3].map((i) => (
+                  <Card key={i} className="shadow-soft">
+                    <CardContent className="p-6">
+                      <div className="animate-pulse">
+                        <div className="h-4 bg-secondary rounded mb-2" />
+                        <div className="h-3 bg-secondary/60 rounded w-2/3" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : filteredCampaigns.length === 0 ? (
               <Card className="shadow-soft">
                 <CardContent className="text-center py-12">
                   <Music className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -135,16 +201,20 @@ const Campaigns = () => {
                       {/* Campaign Info */}
                       <div className="flex items-start space-x-4 flex-1">
                         <div className="w-16 h-16 rounded-lg flex items-center justify-center shadow-soft">
-                          <img src={vuelixLogo} alt="Vuelix" className="w-16 h-16" />
+                          {campaign.cover_art_url ? (
+                            <img src={campaign.cover_art_url} alt={campaign.song_title} className="w-16 h-16 rounded-lg object-cover" />
+                          ) : (
+                            <img src={vuelixLogo} alt="Vuelix" className="w-16 h-16" />
+                          )}
                         </div>
                         
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center space-x-2 mb-2">
-                            <h3 className="text-xl font-semibold truncate">{campaign.title}</h3>
-                            <Badge variant="secondary">{campaign.status}</Badge>
+                            <h3 className="text-xl font-semibold truncate">{campaign.song_title}</h3>
+                            <Badge variant="secondary">active</Badge>
                           </div>
                           
-                          <p className="text-muted-foreground mb-3">by {campaign.artist}</p>
+                          <p className="text-muted-foreground mb-3">by {campaign.profiles?.display_name || 'Unknown Artist'}</p>
                           
                           <div className="flex flex-wrap gap-2 mb-3">
                             <Badge variant="outline">{campaign.genre}</Badge>
@@ -153,7 +223,9 @@ const Campaigns = () => {
                             ))}
                           </div>
                           
-                          <p className="text-sm text-muted-foreground">{campaign.requirements}</p>
+                          {campaign.instructions && (
+                            <p className="text-sm text-muted-foreground line-clamp-2">{campaign.instructions}</p>
+                          )}
                         </div>
                       </div>
 
@@ -163,12 +235,36 @@ const Campaigns = () => {
                           <div className="text-2xl font-bold text-green-500">
                             ${campaign.payout_rate.toFixed(3)}
                           </div>
-                          <p className="text-xs text-muted-foreground">per qualified view</p>
+                          <p className="text-xs text-muted-foreground">per {campaign.payout_type.replace('per_', '')}</p>
                         </div>
                         
-                        <Button className="w-full lg:w-auto bg-gradient-primary hover:opacity-90 transition-smooth">
-                          Join Campaign
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button 
+                              className="w-full lg:w-auto bg-gradient-primary hover:opacity-90 transition-smooth"
+                              onClick={() => setSelectedCampaign(campaign)}
+                            >
+                              <Play className="w-4 h-4 mr-2" />
+                              Join Campaign
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-2xl">
+                            <DialogHeader>
+                              <DialogTitle>Join "{campaign.song_title}" Campaign</DialogTitle>
+                            </DialogHeader>
+                            {selectedCampaign && (
+                              <VideoSubmission 
+                                campaign={selectedCampaign}
+                                onSubmissionComplete={() => {
+                                  toast({
+                                    title: "Success!",
+                                    description: "Video submitted successfully"
+                                  });
+                                }}
+                              />
+                            )}
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </div>
                   </CardContent>
