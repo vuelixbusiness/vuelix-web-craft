@@ -11,6 +11,7 @@ interface User {
   type: 'creator' | 'artist';
   membershipType: 'regular' | 'premium';
   avatar?: string;
+  bio?: string;
 }
 
 interface AuthContextType {
@@ -20,6 +21,7 @@ interface AuthContextType {
   signInWithGoogle: (userType: 'creator' | 'artist') => Promise<boolean>;
   signInWithMicrosoft: (userType: 'creator' | 'artist') => Promise<boolean>;
   logout: () => void;
+  refreshUserProfile: () => Promise<void>;
   isLoading: boolean;
 }
 
@@ -157,7 +159,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               username: newProfile.username,
               type: newProfile.user_type as 'creator' | 'artist',
               membershipType: newProfile.membership_type as 'regular' | 'premium',
-              avatar: newProfile.avatar_url
+              avatar: newProfile.avatar_url,
+              bio: newProfile.bio
             });
           }
         } else {
@@ -179,7 +182,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           username: profile.username,
           type: profile.user_type as 'creator' | 'artist',
           membershipType: profile.membership_type as 'regular' | 'premium',
-          avatar: profile.avatar_url
+          avatar: profile.avatar_url,
+          bio: profile.bio
         });
       }
     } catch (error) {
@@ -333,6 +337,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const refreshUserProfile = async () => {
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    if (authUser) {
+      await fetchUserProfile(authUser);
+    }
+  };
+
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
@@ -340,7 +351,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, signInWithGoogle, signInWithMicrosoft, logout, isLoading }}>
+    <AuthContext.Provider value={{ user, login, signup, signInWithGoogle, signInWithMicrosoft, logout, refreshUserProfile, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

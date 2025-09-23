@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,15 +13,26 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, refreshUserProfile } = useAuth();
   const { toast } = useToast();
   const [isEditable, setIsEditable] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: user?.name || '',
-    username: user?.username || '',
-    bio: '', // Bio not available in current User interface
+    name: '',
+    username: '',
+    bio: '',
   });
+
+  // Load profile data on mount and when user changes
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        name: user.name || '',
+        username: user.username || '',
+        bio: user.bio || '',
+      });
+    }
+  }, [user]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -48,6 +59,9 @@ const Profile = () => {
         description: "Profile updated successfully",
       });
       
+      // Refresh user profile in AuthContext to get updated data
+      await refreshUserProfile();
+      
       setIsEditable(false);
     } catch (error) {
       console.error('Error updating profile:', error);
@@ -65,7 +79,7 @@ const Profile = () => {
     setFormData({
       name: user?.name || '',
       username: user?.username || '',
-      bio: '',
+      bio: user?.bio || '',
     });
     setIsEditable(false);
   };
