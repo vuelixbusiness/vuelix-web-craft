@@ -96,8 +96,8 @@ const ArtistRelations = () => {
           genre: item.campaigns?.genre || 'Unknown'
         },
         profiles: {
-          display_name: item.campaigns?.profiles?.display_name || 'Unknown Artist',
-          avatar_url: item.campaigns?.profiles?.avatar_url
+          display_name: item.campaigns?.profiles?.[0]?.display_name || 'Unknown Artist',
+          avatar_url: item.campaigns?.profiles?.[0]?.avatar_url
         }
       }));
 

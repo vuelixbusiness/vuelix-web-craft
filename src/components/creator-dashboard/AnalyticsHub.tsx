@@ -132,7 +132,7 @@ const AnalyticsHub = () => {
         .slice(0, 5)
         .map(p => ({
           song_title: p.campaigns?.song_title || 'Unknown Song',
-          artist: p.campaigns?.profiles?.display_name || 'Unknown Artist',
+          artist: p.campaigns?.profiles?.[0]?.display_name || 'Unknown Artist',
           views: p.current_views || 0,
           earnings: p.payout_amount || 0,
           platform: p.platform || 'unknown'
