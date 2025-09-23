@@ -92,6 +92,11 @@ const CampaignCard = ({
     return `$${rate.toFixed(3)}${type ? ` per ${type.replace('per_', '')}` : ''}`;
   };
 
+  const formatPayoutForBox = (rate?: number, type?: string) => {
+    const amount = rate ? `$${rate.toFixed(3)}` : '$0.00';
+    return `${amount} / 1K Views`;
+  };
+
   const getStatusColor = (status?: string) => {
     switch (status?.toLowerCase()) {
       case 'active': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
@@ -103,7 +108,19 @@ const CampaignCard = ({
   };
 
   return (
-    <Card className={`shadow-soft hover:shadow-elegant transition-smooth ${className}`}>
+    <Card className={`relative shadow-soft hover:shadow-elegant transition-smooth ${className}`}>
+      {/* Payout Rate Box - Top Right Corner */}
+      {variant === 'creator-available' && (
+        <div className="absolute top-4 right-4 z-10">
+          <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-3 py-2 rounded-xl shadow-lg">
+            <p className="text-xs font-medium opacity-90">Payout Rate</p>
+            <p className="text-sm font-bold">
+              {formatPayoutForBox(campaign.payout_rate, campaign.payout_type)}
+            </p>
+          </div>
+        </div>
+      )}
+      
       <CardContent className="p-6">
         <div className="flex items-start space-x-4">
           {/* Campaign Cover Art */}
