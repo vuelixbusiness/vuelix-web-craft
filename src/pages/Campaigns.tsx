@@ -44,7 +44,8 @@ const Campaigns = () => {
 
   const fetchCampaigns = async () => {
     try {
-      const { data, error } = await supabase
+      // First get campaigns
+      const { data: campaignsData, error: campaignsError } = await supabase
         .from('campaigns')
         .select(`
           id,
@@ -63,15 +64,27 @@ const Campaigns = () => {
           instructions,
           budget,
           end_date,
-          profiles!campaigns_artist_id_fkey (
-            display_name
-          )
+          artist_id
         `)
         .eq('status', 'active')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setCampaigns((data || []) as Campaign[]);
+      if (campaignsError) throw campaignsError;
+
+      // Then get artist profiles for the campaigns
+      const artistIds = [...new Set(campaignsData?.map(c => c.artist_id) || [])];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('user_id, display_name')
+        .in('user_id', artistIds);
+
+      // Merge the data
+      const campaignsWithProfiles = campaignsData?.map(campaign => ({
+        ...campaign,
+        profiles: profilesData?.find(p => p.user_id === campaign.artist_id) || null
+      })) || [];
+
+      setCampaigns(campaignsWithProfiles as Campaign[]);
     } catch (error) {
       console.error('Error fetching campaigns:', error);
       toast({
