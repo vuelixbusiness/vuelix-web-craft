@@ -21,7 +21,10 @@ import {
   DollarSign,
   Calendar,
   Save,
-  X
+  X,
+  Upload,
+  Image,
+  Volume2
 } from "lucide-react";
 import {
   AlertDialog,
@@ -60,6 +63,7 @@ interface Campaign {
   platforms: string[];
   campaign_type: string;
   cover_art_url?: string;
+  song_url?: string;
 }
 
 interface Participation {
@@ -84,6 +88,11 @@ export default function CampaignManagement() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [coverArtFile, setCoverArtFile] = useState<File | null>(null);
+  const [audioFile, setAudioFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [coverArtPreview, setCoverArtPreview] = useState<string | null>(null);
+  const [audioPreview, setAudioPreview] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     title: "",
     song_title: "",
@@ -179,11 +188,62 @@ export default function CampaignManagement() {
     }
   };
 
+  // File upload functions
+  const uploadFile = async (file: File, bucket: string, folder: string): Promise<string> => {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${folder}/${Date.now()}.${fileExt}`;
+    
+    const { error: uploadError } = await supabase.storage
+      .from(bucket)
+      .upload(fileName, file);
+
+    if (uploadError) throw uploadError;
+
+    const { data } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(fileName);
+
+    return data.publicUrl;
+  };
+
+  const handleCoverArtChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setCoverArtFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => setCoverArtPreview(e.target?.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleAudioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setAudioFile(file);
+      const url = URL.createObjectURL(file);
+      setAudioPreview(url);
+    }
+  };
+
   const updateCampaign = async () => {
     if (!campaign) return;
     
     try {
       setActionLoading(true);
+      setUploading(true);
+      
+      let coverArtUrl = campaign.cover_art_url;
+      let songUrl = campaign.song_url;
+
+      // Upload cover art if new file selected
+      if (coverArtFile) {
+        coverArtUrl = await uploadFile(coverArtFile, 'campaign-cover-art', campaign.id);
+      }
+
+      // Upload audio if new file selected
+      if (audioFile) {
+        songUrl = await uploadFile(audioFile, 'campaign-audio', campaign.id);
+      }
       
       const updatedData = {
         title: editForm.title,
@@ -193,7 +253,9 @@ export default function CampaignManagement() {
         max_payout: editForm.max_payout ? parseFloat(editForm.max_payout) : null,
         vip_max_payout: editForm.vip_max_payout ? parseFloat(editForm.vip_max_payout) : null,
         instructions: editForm.instructions,
-        end_date: editForm.end_date ? new Date(editForm.end_date).toISOString() : null
+        end_date: editForm.end_date ? new Date(editForm.end_date).toISOString() : null,
+        cover_art_url: coverArtUrl,
+        song_url: songUrl
       };
 
       const { error } = await supabase
@@ -205,6 +267,10 @@ export default function CampaignManagement() {
 
       setCampaign({ ...campaign, ...updatedData });
       setEditModalOpen(false);
+      setCoverArtFile(null);
+      setAudioFile(null);
+      setCoverArtPreview(null);
+      setAudioPreview(null);
       
       toast({
         title: "Success",
@@ -219,6 +285,7 @@ export default function CampaignManagement() {
       });
     } finally {
       setActionLoading(false);
+      setUploading(false);
     }
   };
 
@@ -430,15 +497,117 @@ export default function CampaignManagement() {
                       rows={4}
                     />
                   </div>
+
+                  {/* File Upload Section */}
+                  <div className="space-y-4">
+                    <h4 className="text-sm font-medium">Media Files</h4>
+                    
+                    {/* Cover Art Upload */}
+                    <div className="space-y-2">
+                      <Label htmlFor="cover_art">Campaign Cover Art</Label>
+                      <div className="flex items-center space-x-4">
+                        <Input
+                          id="cover_art"
+                          type="file"
+                          accept="image/*"
+                          onChange={handleCoverArtChange}
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => document.getElementById('cover_art')?.click()}
+                        >
+                          <Image className="w-4 h-4 mr-2" />
+                          Browse
+                        </Button>
+                      </div>
+                      
+                      {/* Current cover art or preview */}
+                      {(coverArtPreview || campaign?.cover_art_url) && (
+                        <div className="mt-2">
+                          <img
+                            src={coverArtPreview || campaign?.cover_art_url || ''}
+                            alt="Cover art preview"
+                            className="w-32 h-32 object-cover rounded-md border"
+                          />
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {coverArtPreview ? 'New cover art selected' : 'Current cover art'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Audio Upload */}
+                    <div className="space-y-2">
+                      <Label htmlFor="audio_file">Song Audio File</Label>
+                      <div className="flex items-center space-x-4">
+                        <Input
+                          id="audio_file"
+                          type="file"
+                          accept="audio/*"
+                          onChange={handleAudioChange}
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => document.getElementById('audio_file')?.click()}
+                        >
+                          <Volume2 className="w-4 h-4 mr-2" />
+                          Browse
+                        </Button>
+                      </div>
+                      
+                      {/* Current audio or preview */}
+                      {(audioPreview || campaign?.song_url) && (
+                        <div className="mt-2">
+                          <audio
+                            controls
+                            src={audioPreview || campaign?.song_url || ''}
+                            className="w-full max-w-sm"
+                          >
+                            Your browser does not support the audio element.
+                          </audio>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {audioPreview ? 'New audio file selected' : 'Current audio file'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
                 <DialogFooter>
-                  <Button variant="outline" onClick={() => setEditModalOpen(false)}>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setEditModalOpen(false);
+                      setCoverArtFile(null);
+                      setAudioFile(null);
+                      setCoverArtPreview(null);
+                      setAudioPreview(null);
+                    }}
+                  >
                     <X className="w-4 h-4 mr-2" />
                     Cancel
                   </Button>
-                  <Button onClick={updateCampaign} disabled={actionLoading}>
-                    <Save className="w-4 h-4 mr-2" />
-                    Save Changes
+                  <Button 
+                    onClick={updateCampaign} 
+                    disabled={actionLoading || uploading}
+                  >
+                    {uploading ? (
+                      <>
+                        <Upload className="w-4 h-4 mr-2 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Save className="w-4 h-4 mr-2" />
+                        Save Changes
+                      </>
+                    )}
                   </Button>
                 </DialogFooter>
               </DialogContent>
