@@ -4,6 +4,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { 
@@ -15,7 +18,9 @@ import {
   AlertTriangle,
   Users,
   DollarSign,
-  Calendar
+  Calendar,
+  Save,
+  X
 } from "lucide-react";
 import {
   AlertDialog,
@@ -28,6 +33,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 interface Campaign {
   id: string;
@@ -68,6 +82,17 @@ export default function CampaignManagement() {
   const [participations, setParticipations] = useState<Participation[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    title: "",
+    song_title: "",
+    budget: "",
+    payout_rate: "",
+    max_payout: "",
+    vip_max_payout: "",
+    instructions: "",
+    end_date: ""
+  });
 
   useEffect(() => {
     if (id) {
@@ -88,6 +113,18 @@ export default function CampaignManagement() {
 
       if (campaignError) throw campaignError;
       setCampaign(campaignData);
+      
+      // Initialize edit form with campaign data
+      setEditForm({
+        title: campaignData.title || "",
+        song_title: campaignData.song_title || "",
+        budget: campaignData.budget?.toString() || "",
+        payout_rate: campaignData.payout_rate?.toString() || "",
+        max_payout: campaignData.max_payout?.toString() || "",
+        vip_max_payout: campaignData.vip_max_payout?.toString() || "",
+        instructions: campaignData.instructions || "",
+        end_date: campaignData.end_date ? new Date(campaignData.end_date).toISOString().split('T')[0] : ""
+      });
 
       // Fetch participations
       const { data: participationData, error: participationError } = await supabase
@@ -134,6 +171,49 @@ export default function CampaignManagement() {
       toast({
         title: "Error",
         description: "Failed to update campaign status",
+        variant: "destructive",
+      });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const updateCampaign = async () => {
+    if (!campaign) return;
+    
+    try {
+      setActionLoading(true);
+      
+      const updatedData = {
+        title: editForm.title,
+        song_title: editForm.song_title,
+        budget: parseFloat(editForm.budget),
+        payout_rate: parseFloat(editForm.payout_rate),
+        max_payout: editForm.max_payout ? parseFloat(editForm.max_payout) : null,
+        vip_max_payout: editForm.vip_max_payout ? parseFloat(editForm.vip_max_payout) : null,
+        instructions: editForm.instructions,
+        end_date: editForm.end_date ? new Date(editForm.end_date).toISOString() : null
+      };
+
+      const { error } = await supabase
+        .from('campaigns')
+        .update(updatedData)
+        .eq('id', campaign.id);
+
+      if (error) throw error;
+
+      setCampaign({ ...campaign, ...updatedData });
+      setEditModalOpen(false);
+      
+      toast({
+        title: "Success",
+        description: "Campaign updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating campaign:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update campaign",
         variant: "destructive",
       });
     } finally {
@@ -247,13 +327,121 @@ export default function CampaignManagement() {
               </Button>
             )}
 
-            <Button 
-              variant="outline" 
-              onClick={() => navigate(`/campaign/${campaign.id}`)}
-            >
-              <Edit className="w-4 h-4 mr-2" />
-              View Details
-            </Button>
+            <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline">
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Campaign
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl">
+                <DialogHeader>
+                  <DialogTitle>Edit Campaign</DialogTitle>
+                  <DialogDescription>
+                    Update your campaign details and settings.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="title">Campaign Title</Label>
+                      <Input
+                        id="title"
+                        value={editForm.title}
+                        onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                        placeholder="Enter campaign title"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="song_title">Song Title</Label>
+                      <Input
+                        id="song_title"
+                        value={editForm.song_title}
+                        onChange={(e) => setEditForm({ ...editForm, song_title: e.target.value })}
+                        placeholder="Enter song title"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="budget">Budget ($)</Label>
+                      <Input
+                        id="budget"
+                        type="number"
+                        value={editForm.budget}
+                        onChange={(e) => setEditForm({ ...editForm, budget: e.target.value })}
+                        placeholder="0.00"
+                        step="0.01"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="payout_rate">Payout Rate ($ per 1k views)</Label>
+                      <Input
+                        id="payout_rate"
+                        type="number"
+                        value={editForm.payout_rate}
+                        onChange={(e) => setEditForm({ ...editForm, payout_rate: e.target.value })}
+                        placeholder="0.00"
+                        step="0.01"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="max_payout">Max Payout ($)</Label>
+                      <Input
+                        id="max_payout"
+                        type="number"
+                        value={editForm.max_payout}
+                        onChange={(e) => setEditForm({ ...editForm, max_payout: e.target.value })}
+                        placeholder="Optional"
+                        step="0.01"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="vip_max_payout">VIP Max Payout ($)</Label>
+                      <Input
+                        id="vip_max_payout"
+                        type="number"
+                        value={editForm.vip_max_payout}
+                        onChange={(e) => setEditForm({ ...editForm, vip_max_payout: e.target.value })}
+                        placeholder="Optional"
+                        step="0.01"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="end_date">End Date</Label>
+                    <Input
+                      id="end_date"
+                      type="date"
+                      value={editForm.end_date}
+                      onChange={(e) => setEditForm({ ...editForm, end_date: e.target.value })}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="instructions">Instructions</Label>
+                    <Textarea
+                      id="instructions"
+                      value={editForm.instructions}
+                      onChange={(e) => setEditForm({ ...editForm, instructions: e.target.value })}
+                      placeholder="Provide detailed instructions for creators..."
+                      rows={4}
+                    />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setEditModalOpen(false)}>
+                    <X className="w-4 h-4 mr-2" />
+                    Cancel
+                  </Button>
+                  <Button onClick={updateCampaign} disabled={actionLoading}>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Changes
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
 
             {campaign.status !== 'terminated' && (
               <AlertDialog>
