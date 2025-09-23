@@ -1,14 +1,13 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import CampaignCard from "@/components/ui/campaign-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import VideoSubmission from "@/components/VideoSubmission";
 import { 
   Search, 
   Filter, 
@@ -69,6 +68,8 @@ const CampaignManagement = () => {
   const [selectedPlatform, setSelectedPlatform] = useState<string>("");
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const platformIcons = {
     tiktok: <FaTiktok className="w-4 h-4" />,
@@ -163,12 +164,39 @@ const CampaignManagement = () => {
     return matchesSearch && matchesPlatform;
   });
 
+  // Audio control functions
+  const toggleAudio = (campaignId: string, songUrl: string) => {
+    if (!audioRef.current) return;
+
+    if (currentlyPlaying === campaignId) {
+      audioRef.current.pause();
+      setCurrentlyPlaying(null);
+    } else {
+      if (currentlyPlaying) {
+        audioRef.current.pause();
+      }
+      audioRef.current.src = songUrl;
+      audioRef.current.play();
+      setCurrentlyPlaying(campaignId);
+    }
+  };
+
   useEffect(() => {
     setIsLoading(true);
     Promise.all([fetchCampaigns(), fetchParticipations()]).finally(() => {
       setIsLoading(false);
     });
   }, [user?.id]);
+
+  // Cleanup audio when component unmounts
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+    };
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -229,84 +257,28 @@ const CampaignManagement = () => {
 
           {/* Available Campaigns Grid */}
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {[1, 2, 3, 4, 5, 6].map((i) => (
                 <Card key={i} className="animate-pulse">
-                  <CardHeader>
-                    <div className="h-4 bg-secondary rounded mb-2" />
-                    <div className="h-3 bg-secondary/60 rounded w-2/3" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-20 bg-secondary/40 rounded" />
+                  <CardContent className="p-6">
+                    <div className="h-20 bg-secondary rounded" />
                   </CardContent>
                 </Card>
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {filteredCampaigns.map((campaign) => (
-                <Card key={campaign.id} className="hover:shadow-lg transition-smooth">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <CardTitle className="text-lg">{campaign.song_title}</CardTitle>
-                        <CardDescription>by {campaign.profiles?.display_name || 'Unknown Artist'}</CardDescription>
-                      </div>
-                      {campaign.cover_art_url && (
-                        <img
-                          src={campaign.cover_art_url}
-                          alt={campaign.song_title}
-                          className="w-12 h-12 rounded object-cover"
-                        />
-                      )}
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex flex-wrap gap-1">
-                      {campaign.platforms.map((platform) => (
-                        <Badge key={platform} variant="outline" className="flex items-center space-x-1">
-                          {platformIcons[platform as keyof typeof platformIcons]}
-                          <span className="text-xs">{platformNames[platform as keyof typeof platformNames]}</span>
-                        </Badge>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <DollarSign className="w-4 h-4 text-green-500" />
-                        <span className="font-medium">
-                          ${campaign.payout_rate} per {campaign.payout_type.replace('per_', '')}
-                        </span>
-                      </div>
-                    </div>
-
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button className="w-full" onClick={() => setSelectedCampaign(campaign)}>
-                          <PlayCircle className="w-4 h-4 mr-2" />
-                          Join Campaign
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle>Join "{campaign.song_title}" Campaign</DialogTitle>
-                        </DialogHeader>
-                        {selectedCampaign && (
-                          <VideoSubmission 
-                            campaign={selectedCampaign}
-                            onSubmissionComplete={() => {
-                              toast({
-                                title: "Success!",
-                                description: "Video submitted successfully"
-                              });
-                              fetchParticipations();
-                            }}
-                          />
-                        )}
-                      </DialogContent>
-                    </Dialog>
-                  </CardContent>
-                </Card>
+                <CampaignCard
+                  key={campaign.id}
+                  campaign={campaign}
+                  variant="creator-available"
+                  showJoinButton={true}
+                  showPlayButton={true}
+                  onJoinCampaign={(campaign) => setSelectedCampaign(campaign as any)}
+                  onAudioToggle={toggleAudio}
+                  isPlaying={currentlyPlaying === campaign.id}
+                />
               ))}
             </div>
           )}
@@ -315,38 +287,26 @@ const CampaignManagement = () => {
         <TabsContent value="active" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {participations.filter(p => p.status === 'approved').map((participation) => (
-              <Card key={participation.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-lg">{participation.campaigns.song_title}</CardTitle>
-                      <CardDescription>Active Campaign</CardDescription>
-                    </div>
-                    {statusIcons[participation.status as keyof typeof statusIcons]}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-muted-foreground">Views</p>
-                      <p className="font-semibold flex items-center">
-                        <Eye className="w-4 h-4 mr-1" />
-                        {participation.current_views.toLocaleString()}
-                      </p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Earnings</p>
-                      <p className="font-semibold text-green-600">
-                        ${participation.payout_amount}
-                      </p>
-                    </div>
-                  </div>
-                  <Badge variant="outline" className="flex items-center space-x-1 w-fit">
-                    {platformIcons[participation.platform as keyof typeof platformIcons]}
-                    <span>{platformNames[participation.platform as keyof typeof platformNames]}</span>
-                  </Badge>
-                </CardContent>
-              </Card>
+              <CampaignCard
+                key={participation.id}
+                campaign={{
+                  id: participation.campaign_id,
+                  song_title: participation.campaigns.song_title,
+                  song_url: (participation.campaigns as any).song_url,
+                  cover_art_url: (participation.campaigns as any).cover_art_url,
+                  genre: participation.campaigns.genre,
+                  platforms: [participation.platform],
+                  views: participation.current_views,
+                  likes: participation.current_likes,
+                  status: participation.status,
+                  profiles: participation.campaigns.profiles,
+                  payout_amount: participation.payout_amount
+                } as any}
+                variant="creator-joined"
+                showPlayButton={true}
+                onAudioToggle={toggleAudio}
+                isPlaying={currentlyPlaying === participation.campaign_id}
+              />
             ))}
           </div>
         </TabsContent>
@@ -354,29 +314,28 @@ const CampaignManagement = () => {
         <TabsContent value="pending" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {participations.filter(p => p.status === 'pending').map((participation) => (
-              <Card key={participation.id}>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-lg">{participation.campaigns.song_title}</CardTitle>
-                      <CardDescription>Awaiting Review</CardDescription>
-                    </div>
-                    {statusIcons[participation.status as keyof typeof statusIcons]}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <Badge variant="outline" className="flex items-center space-x-1 w-fit">
-                    {platformIcons[participation.platform as keyof typeof platformIcons]}
-                    <span>{platformNames[participation.platform as keyof typeof platformNames]}</span>
-                  </Badge>
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Submitted {new Date(participation.created_at).toLocaleDateString()}
-                  </p>
-                </CardContent>
-              </Card>
+              <CampaignCard
+                key={participation.id}
+                campaign={{
+                  id: participation.campaign_id,
+                  song_title: participation.campaigns.song_title,
+                  song_url: (participation.campaigns as any).song_url,
+                  cover_art_url: (participation.campaigns as any).cover_art_url,
+                  genre: participation.campaigns.genre,
+                  platforms: [participation.platform],
+                  status: participation.status,
+                  profiles: participation.campaigns.profiles,
+                  end_date: participation.created_at
+                } as any}
+                variant="creator-joined"
+                showPlayButton={true}
+                onAudioToggle={toggleAudio}
+                isPlaying={currentlyPlaying === participation.campaign_id}
+              />
             ))}
           </div>
         </TabsContent>
+
 
         <TabsContent value="completed" className="space-y-6">
           <Card>
@@ -390,6 +349,13 @@ const CampaignManagement = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Audio element for campaign previews */}
+      <audio
+        ref={audioRef}
+        onEnded={() => setCurrentlyPlaying(null)}
+        onError={() => setCurrentlyPlaying(null)}
+      />
     </div>
   );
 };

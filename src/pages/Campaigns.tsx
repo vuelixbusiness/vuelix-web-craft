@@ -1,16 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import CampaignCard from "@/components/ui/campaign-card";
 import DashboardLayout from "@/components/DashboardLayout";
-import VideoSubmission from "@/components/VideoSubmission";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Music, DollarSign, Users, Filter, Play } from "lucide-react";
-import vuelixLogo from "@/assets/vuelix-logo-v.png";
+import { Search, Music, DollarSign, Users, Filter } from "lucide-react";
 
 interface Campaign {
   id: string;
@@ -42,6 +39,8 @@ const Campaigns = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const fetchCampaigns = async () => {
     try {
@@ -113,8 +112,35 @@ const Campaigns = () => {
     }
   };
 
+  // Audio control functions
+  const toggleAudio = (campaignId: string, songUrl: string) => {
+    if (!audioRef.current) return;
+
+    if (currentlyPlaying === campaignId) {
+      audioRef.current.pause();
+      setCurrentlyPlaying(null);
+    } else {
+      if (currentlyPlaying) {
+        audioRef.current.pause();
+      }
+      audioRef.current.src = songUrl;
+      audioRef.current.play();
+      setCurrentlyPlaying(campaignId);
+    }
+  };
+
   useEffect(() => {
     fetchCampaigns();
+  }, []);
+
+  // Cleanup audio when component unmounts
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+    };
   }, []);
 
   const filteredCampaigns = campaigns.filter(campaign =>
@@ -197,23 +223,20 @@ const Campaigns = () => {
             </Card>
           </div>
 
-          {/* Campaigns List */}
-          <div className="space-y-6">
+          {/* Campaigns Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {isLoading ? (
-              <div className="space-y-6">
-                {[1, 2, 3].map((i) => (
-                  <Card key={i} className="shadow-soft">
+              <>
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <Card key={i} className="shadow-soft animate-pulse">
                     <CardContent className="p-6">
-                      <div className="animate-pulse">
-                        <div className="h-4 bg-secondary rounded mb-2" />
-                        <div className="h-3 bg-secondary/60 rounded w-2/3" />
-                      </div>
+                      <div className="h-20 bg-secondary rounded" />
                     </CardContent>
                   </Card>
                 ))}
-              </div>
+              </>
             ) : filteredCampaigns.length === 0 ? (
-              <Card className="shadow-soft">
+              <Card className="shadow-soft col-span-full">
                 <CardContent className="text-center py-12">
                   <Music className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">No campaigns found</h3>
@@ -224,85 +247,28 @@ const Campaigns = () => {
               </Card>
             ) : (
               filteredCampaigns.map((campaign) => (
-                <Card key={campaign.id} className="shadow-soft hover:shadow-elegant transition-smooth">
-                  <CardContent className="p-6">
-                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-                      {/* Campaign Info */}
-                      <div className="flex items-start space-x-4 flex-1">
-                        <div className="w-16 h-16 rounded-lg flex items-center justify-center shadow-soft">
-                          {campaign.cover_art_url ? (
-                            <img src={campaign.cover_art_url} alt={campaign.song_title} className="w-16 h-16 rounded-lg object-cover" />
-                          ) : (
-                            <img src={vuelixLogo} alt="Vuelix" className="w-16 h-16" />
-                          )}
-                        </div>
-                        
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <h3 className="text-xl font-semibold truncate">{campaign.song_title}</h3>
-                            <Badge variant="secondary">active</Badge>
-                          </div>
-                          
-                          <p className="text-muted-foreground mb-3">by {campaign.profiles?.display_name || 'Unknown Artist'}</p>
-                          
-                          <div className="flex flex-wrap gap-2 mb-3">
-                            <Badge variant="outline">{campaign.genre}</Badge>
-                            {campaign.platforms.map((platform) => (
-                              <Badge key={platform} variant="outline">{platform}</Badge>
-                            ))}
-                          </div>
-                          
-                          {campaign.instructions && (
-                            <p className="text-sm text-muted-foreground line-clamp-2">{campaign.instructions}</p>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Campaign Actions */}
-                      <div className="flex flex-col items-end space-y-3 lg:min-w-0">
-                        <div className="text-right">
-                          <div className="text-2xl font-bold text-green-500">
-                            ${campaign.payout_rate.toFixed(3)}
-                          </div>
-                          <p className="text-xs text-muted-foreground">per {campaign.payout_type.replace('per_', '')}</p>
-                        </div>
-                        
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button 
-                              className="w-full lg:w-auto bg-gradient-primary hover:opacity-90 transition-smooth"
-                              onClick={() => setSelectedCampaign(campaign)}
-                            >
-                              <Play className="w-4 h-4 mr-2" />
-                              Join Campaign
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-2xl">
-                            <DialogHeader>
-                              <DialogTitle>Join "{campaign.song_title}" Campaign</DialogTitle>
-                            </DialogHeader>
-                            {selectedCampaign && (
-                              <VideoSubmission 
-                                campaign={selectedCampaign}
-                                onSubmissionComplete={() => {
-                                  toast({
-                                    title: "Success!",
-                                    description: "Video submitted successfully"
-                                  });
-                                }}
-                              />
-                            )}
-                          </DialogContent>
-                        </Dialog>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <CampaignCard
+                  key={campaign.id}
+                  campaign={campaign}
+                  variant="creator-available"
+                  showJoinButton={true}
+                  showPlayButton={true}
+                  onJoinCampaign={(campaign) => setSelectedCampaign(campaign as any)}
+                  onAudioToggle={toggleAudio}
+                  isPlaying={currentlyPlaying === campaign.id}
+                />
               ))
             )}
           </div>
         </div>
       </div>
+
+      {/* Audio element for campaign previews */}
+      <audio
+        ref={audioRef}
+        onEnded={() => setCurrentlyPlaying(null)}
+        onError={() => setCurrentlyPlaying(null)}
+      />
     </DashboardLayout>
   );
 };

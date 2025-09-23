@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import CampaignCard from "@/components/ui/campaign-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatCurrency } from "@/lib/utils";
@@ -31,6 +32,8 @@ interface Campaign {
   last_tracked_at: string;
   campaigns: {
     song_title: string;
+    song_url?: string;
+    cover_art_url?: string;
     genre: string;
     end_date?: string;
     profiles: {
@@ -56,6 +59,8 @@ const YourCampaigns = () => {
     pendingReview: 0
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const platformIcons = {
     tiktok: <FaTiktok className="w-4 h-4" />,
@@ -85,6 +90,8 @@ const YourCampaigns = () => {
           *,
           campaigns (
             song_title,
+            song_url,
+            cover_art_url,
             genre,
             end_date,
             profiles!campaigns_artist_id_fkey (display_name)
@@ -118,9 +125,36 @@ const YourCampaigns = () => {
     }
   };
 
+  // Audio control functions
+  const toggleAudio = (campaignId: string, songUrl: string) => {
+    if (!audioRef.current) return;
+
+    if (currentlyPlaying === campaignId) {
+      audioRef.current.pause();
+      setCurrentlyPlaying(null);
+    } else {
+      if (currentlyPlaying) {
+        audioRef.current.pause();
+      }
+      audioRef.current.src = songUrl;
+      audioRef.current.play();
+      setCurrentlyPlaying(campaignId);
+    }
+  };
+
   useEffect(() => {
     fetchCampaigns();
   }, [user?.id]);
+
+  // Cleanup audio when component unmounts
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+    };
+  }, []);
 
   if (isLoading) {
     return (
@@ -222,62 +256,30 @@ const YourCampaigns = () => {
               </Button>
             </div>
           ) : (
-            <div className="space-y-4">
-              {campaigns.slice(0, 5).map((campaign) => (
-                <div key={campaign.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-secondary/50 transition-smooth">
-                  <div className="flex items-center space-x-4">
-                    <div className="flex items-center space-x-2">
-                      {statusIcons[campaign.status as keyof typeof statusIcons]}
-                      <Badge 
-                        variant="outline" 
-                        className={statusColors[campaign.status as keyof typeof statusColors]}
-                      >
-                        {campaign.status}
-                      </Badge>
-                    </div>
-                    
-                    <div>
-                      <p className="font-medium">{campaign.campaigns.song_title}</p>
-                      <p className="text-sm text-muted-foreground">
-                        by {campaign.campaigns.profiles?.display_name || 'Unknown Artist'}
-                      </p>
-                    </div>
-
-                    <Badge variant="outline" className="flex items-center space-x-1">
-                      {platformIcons[campaign.platform as keyof typeof platformIcons]}
-                      <span className="capitalize">{campaign.platform}</span>
-                    </Badge>
-                  </div>
-
-                  <div className="flex items-center space-x-6 text-sm">
-                    <div className="text-right">
-                      <p className="flex items-center text-muted-foreground">
-                        <Eye className="w-4 h-4 mr-1" />
-                        {campaign.current_views.toLocaleString()}
-                      </p>
-                    </div>
-                    
-                    <div className="text-right">
-                      <p className="flex items-center text-muted-foreground">
-                        <Heart className="w-4 h-4 mr-1" />
-                        {campaign.current_likes.toLocaleString()}
-                      </p>
-                    </div>
-
-                    <div className="text-right">
-                      <p className="font-semibold text-green-600">
-                        {formatCurrency(campaign.payout_amount)}
-                      </p>
-                    </div>
-
-                    <div className="text-right text-xs text-muted-foreground">
-                      <p className="flex items-center">
-                        <Calendar className="w-3 h-3 mr-1" />
-                        {new Date(campaign.created_at).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {campaigns.slice(0, 6).map((campaign) => (
+                <CampaignCard
+                  key={campaign.id}
+                  campaign={{
+                    id: campaign.id,
+                    song_title: campaign.campaigns.song_title,
+                    song_url: campaign.campaigns.song_url,
+                    cover_art_url: campaign.campaigns.cover_art_url,
+                    genre: campaign.campaigns.genre,
+                    platforms: [campaign.platform],
+                    views: campaign.current_views,
+                    likes: campaign.current_likes,
+                    status: campaign.status,
+                    end_date: campaign.created_at,
+                    profiles: campaign.campaigns.profiles,
+                    payout_amount: campaign.payout_amount
+                  } as any}
+                  variant="creator-joined"
+                  showPlayButton={true}
+                  onAudioToggle={toggleAudio}
+                  isPlaying={currentlyPlaying === campaign.id}
+                  className="h-full"
+                />
               ))}
             </div>
           )}
@@ -319,6 +321,13 @@ const YourCampaigns = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Audio element for campaign previews */}
+      <audio
+        ref={audioRef}
+        onEnded={() => setCurrentlyPlaying(null)}
+        onError={() => setCurrentlyPlaying(null)}
+      />
     </div>
   );
 };
