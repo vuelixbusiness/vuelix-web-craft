@@ -40,10 +40,10 @@ interface Campaign {
 
 // Platform icon mapping
 const platformIcons: { [key: string]: JSX.Element } = {
-  'TikTok': <FaTiktok className="w-5 h-5 text-white" />,
-  'Instagram': <FaInstagram className="w-5 h-5 text-pink-500" />,
-  'YouTube': <FaYoutube className="w-5 h-5 text-red-500" />,
-  'Twitter': <FaTwitter className="w-5 h-5 text-blue-400" />,
+  'tiktok': <FaTiktok className="w-5 h-5 text-white" />,
+  'instagram': <FaInstagram className="w-5 h-5 text-pink-500" />,
+  'youtube': <FaYoutube className="w-5 h-5 text-red-500" />,
+  'twitter': <FaTwitter className="w-5 h-5 text-blue-400" />,
 };
 
 interface CampaignStats {
