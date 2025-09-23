@@ -214,7 +214,8 @@ const ArtistDashboard = () => {
     videos: campaign.creatorCount || 0, // Each creator typically creates one video
     views: campaign.totalViews || 0,
     likes: campaign.totalLikes || 0,
-    genre: campaign.genre
+    genre: campaign.genre,
+    platforms: campaign.platforms
   });
 
   const creatorStats = [
