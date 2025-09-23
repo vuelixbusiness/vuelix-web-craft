@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useAuth } from "@/contexts/AuthContext";
 import DashboardLayout from "@/components/DashboardLayout";
 import CampaignManagement from "@/components/creator-dashboard/CampaignManagement";
 import AnalyticsHub from "@/components/creator-dashboard/AnalyticsHub";
@@ -14,7 +13,6 @@ import {
 } from "lucide-react";
 
 const CreatorDashboard = () => {
-  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('management');
 
   return (
@@ -22,7 +20,7 @@ const CreatorDashboard = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">Welcome back, {user?.email?.split('@')[0]}! 👋</h1>
+          <h1 className="text-3xl font-bold mb-2">Creator Dashboard</h1>
           <p className="text-muted-foreground">
             Manage your campaigns, track performance, and grow your creator network
           </p>
