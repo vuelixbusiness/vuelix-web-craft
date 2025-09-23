@@ -191,9 +191,9 @@ const ArtistDashboard = () => {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h1 className="text-3xl font-bold mb-2">Artist Dashboard</h1>
-              <p className="text-muted-foreground">
-                Switch between different dashboard views to manage your music career
-              </p>
+          <p className="text-muted-foreground">
+            Manage your campaigns, track engagement, and measure your reach.
+          </p>
             </div>
             <Button onClick={() => navigate('/artist-campaign')} className="flex items-center space-x-2">
               <Plus className="w-4 h-4" />
