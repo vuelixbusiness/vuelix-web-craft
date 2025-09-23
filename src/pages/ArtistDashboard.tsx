@@ -11,6 +11,7 @@ import { FaTiktok, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { formatCurrency } from "@/lib/utils";
 import DashboardLayout from "@/components/DashboardLayout";
 import vuelixLogo from "@/assets/vuelix-logo-v.png";
 
@@ -285,7 +286,7 @@ const ArtistDashboard = () => {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-muted-foreground">Total Spent</p>
-                        <p className="text-2xl font-bold">${stats.totalSpent}</p>
+                        <p className="text-2xl font-bold">{formatCurrency(stats.totalSpent)}</p>
                       </div>
                       <Users className="w-8 h-8 text-purple-500" />
                     </div>
@@ -406,7 +407,7 @@ const ArtistDashboard = () => {
                               <div className="space-y-2">
                                 <div className="flex justify-between items-baseline">
                                   <span className="text-2xl font-bold text-primary">
-                                    ${availableBudget.toFixed(2)}
+                                    {formatCurrency(availableBudget)}
                                   </span>
                                   <span className="text-sm text-muted-foreground">
                                     Available
@@ -414,10 +415,10 @@ const ArtistDashboard = () => {
                                 </div>
                                 <div className="flex justify-between items-baseline text-sm">
                                   <span className="text-muted-foreground">
-                                    ${displayCampaign.spent.toFixed(2)} redeemed
+                                    {formatCurrency(displayCampaign.spent)} redeemed
                                   </span>
                                   <span className="text-muted-foreground">
-                                    of ${displayCampaign.budget.toFixed(2)} total
+                                    of {formatCurrency(displayCampaign.budget)} total
                                   </span>
                                 </div>
                                 

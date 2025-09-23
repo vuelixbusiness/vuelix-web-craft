@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { format } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -937,7 +937,7 @@ const ArtistCampaignFlow = () => {
                             </div>
                             <div className="flex justify-between text-xs text-muted-foreground mt-2">
                               <span>Used: $0</span>
-                              <span>Available: ${campaignData.budget.toFixed(0)}</span>
+                              <span>Available: {formatCurrency(campaignData.budget || 0)}</span>
                             </div>
                          </div>
                         )}
@@ -1068,11 +1068,11 @@ const ArtistCampaignFlow = () => {
                         <div className="text-sm space-y-1 text-muted-foreground">
                           <div className="flex justify-between">
                             <span>Total Budget:</span>
-                            <span className="font-medium">${campaignData.budget}</span>
+                            <span className="font-medium">{formatCurrency(campaignData.budget || 0)}</span>
                           </div>
                            <div className="flex justify-between">
                              <span>Vuelix 5% Operations Fee:</span>
-                             <span className="font-medium">${(campaignData.budget * 0.05).toFixed(2)}</span>
+                             <span className="font-medium">{formatCurrency((campaignData.budget || 0) * 0.05)}</span>
                            </div>
                         </div>
                       </CardContent>

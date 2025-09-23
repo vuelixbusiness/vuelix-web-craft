@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { formatCurrency } from "@/lib/utils";
 import { 
   Heart,
   Search,
@@ -262,7 +263,7 @@ const ArtistRelations = () => {
                     </div>
                     <div>
                       <p className="text-muted-foreground">Total Earned</p>
-                      <p className="font-semibold text-green-600">${artist.totalEarnings.toFixed(2)}</p>
+                      <p className="font-semibold text-green-600">{formatCurrency(artist.totalEarnings)}</p>
                     </div>
                   </div>
 
@@ -332,7 +333,7 @@ const ArtistRelations = () => {
                     </div>
                     <div>
                       <p className="text-muted-foreground">Earned</p>
-                      <p className="font-semibold text-green-600">${collaboration.earnings.toFixed(2)}</p>
+                      <p className="font-semibold text-green-600">{formatCurrency(collaboration.earnings)}</p>
                     </div>
                   </div>
                   <Badge variant="outline">{collaboration.campaigns.genre}</Badge>

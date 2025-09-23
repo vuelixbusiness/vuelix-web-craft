@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { formatCurrency } from "@/lib/utils";
 import { 
   TrendingUp, 
   DollarSign, 
@@ -203,7 +204,7 @@ const AnalyticsHub = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Earnings</p>
-                <p className="text-2xl font-bold">${analyticsData.totalEarnings.toFixed(2)}</p>
+                <p className="text-2xl font-bold">{formatCurrency(analyticsData.totalEarnings)}</p>
               </div>
               <DollarSign className="w-8 h-8 text-green-500" />
             </div>
@@ -337,7 +338,7 @@ const AnalyticsHub = () => {
                     </div>
                     <div className="text-right">
                       <p className="font-semibold">{platform.views.toLocaleString()} views</p>
-                      <p className="text-sm text-green-600">${platform.earnings.toFixed(2)}</p>
+                      <p className="text-sm text-green-600">{formatCurrency(platform.earnings)}</p>
                     </div>
                   </div>
                 ))}
@@ -366,7 +367,7 @@ const AnalyticsHub = () => {
                     <div className="flex items-center space-x-4">
                       <div className="text-right">
                         <p className="font-semibold">{video.views.toLocaleString()} views</p>
-                        <p className="text-sm text-green-600">${video.earnings.toFixed(2)}</p>
+                        <p className="text-sm text-green-600">{formatCurrency(video.earnings)}</p>
                       </div>
                       <Badge variant="outline" className="flex items-center space-x-1">
                         {platformIcons[video.platform as keyof typeof platformIcons]}

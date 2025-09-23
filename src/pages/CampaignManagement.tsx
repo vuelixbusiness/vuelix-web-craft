@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { formatCurrency } from "@/lib/utils";
 import { 
   Play, 
   Pause, 
@@ -501,7 +502,7 @@ export default function CampaignManagement() {
             <div className="flex items-center gap-3">
               <DollarSign className="w-8 h-8 text-primary" />
               <div>
-                <p className="text-2xl font-bold">${totalPayout.toFixed(2)}</p>
+                <p className="text-2xl font-bold">{formatCurrency(totalPayout)}</p>
                 <p className="text-sm text-muted-foreground">Total Payouts</p>
               </div>
             </div>
@@ -513,7 +514,7 @@ export default function CampaignManagement() {
             <div className="flex items-center gap-3">
               <Calendar className="w-8 h-8 text-primary" />
               <div>
-                <p className="text-2xl font-bold">${campaign.budget}</p>
+                <p className="text-2xl font-bold">{formatCurrency(campaign.budget)}</p>
                 <p className="text-sm text-muted-foreground">Total Budget</p>
               </div>
             </div>
@@ -599,7 +600,7 @@ export default function CampaignManagement() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium">${participation.payout_amount.toFixed(2)}</p>
+                    <p className="font-medium">{formatCurrency(participation.payout_amount)}</p>
                     <p className="text-sm text-muted-foreground">Earned</p>
                   </div>
                 </div>

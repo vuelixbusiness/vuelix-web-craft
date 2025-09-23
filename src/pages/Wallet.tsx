@@ -9,6 +9,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { formatCurrency } from "@/lib/utils";
 import { Wallet as WalletIcon, TrendingUp, Download, Plus, CreditCard, Clock, Send, AlertCircle } from "lucide-react";
 
 interface Transaction {
@@ -174,21 +175,21 @@ const Wallet = () => {
   const balanceCards = [
     {
       title: 'Available Balance',
-      amount: `$${availableBalance.toFixed(2)}`,
+      amount: formatCurrency(availableBalance),
       description: 'Ready to withdraw',
       icon: WalletIcon,
       color: 'text-green-500',
     },
     {
       title: 'Pending Earnings',
-      amount: `$${pendingEarnings.toFixed(2)}`,
+      amount: formatCurrency(pendingEarnings),
       description: 'Processing payments',
       icon: Clock,
       color: 'text-yellow-500',
     },
     {
       title: 'Total Earned',
-      amount: `$${totalEarned.toFixed(2)}`,
+      amount: formatCurrency(totalEarned),
       description: 'All-time earnings',
       icon: TrendingUp,
       color: 'text-blue-500',
@@ -331,7 +332,7 @@ const Wallet = () => {
                             <Download className="w-5 h-5 text-primary-foreground" />
                           </div>
                           <div>
-                            <p className="font-medium">${request.amount.toFixed(2)} via {request.method}</p>
+                            <p className="font-medium">{formatCurrency(request.amount)} via {request.method}</p>
                             <p className="text-sm text-muted-foreground">
                               {new Date(request.created_at).toLocaleDateString()}
                             </p>

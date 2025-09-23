@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { formatCurrency } from "@/lib/utils";
 import { 
   Eye, 
   Heart, 
@@ -287,11 +288,11 @@ const ViewTracker = () => {
                 <div className="text-right">
                   {participation.payout_claimed ? (
                     <div className="text-green-600 font-semibold">
-                      Claimed: ${participation.payout_amount}
+                      Claimed: {formatCurrency(participation.payout_amount)}
                     </div>
                   ) : participation.status === 'approved' ? (
                     <div className="text-primary font-semibold">
-                      Est: ${estimatedPayout.toFixed(2)}
+                      Est: {formatCurrency(estimatedPayout)}
                     </div>
                   ) : null}
                 </div>
@@ -331,7 +332,7 @@ const ViewTracker = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Estimated Earnings</span>
-                    <span className="font-medium">${estimatedPayout.toFixed(2)}</span>
+                    <span className="font-medium">{formatCurrency(estimatedPayout)}</span>
                   </div>
                   <Progress value={Math.min((estimatedPayout / (participation.campaigns?.max_payout || 100)) * 100, 100)} />
                 </div>
@@ -366,7 +367,7 @@ const ViewTracker = () => {
                         ) : (
                           <DollarSign className="w-4 h-4 mr-2" />
                         )}
-                        Claim ${estimatedPayout.toFixed(2)}
+                        Claim {formatCurrency(estimatedPayout)}
                       </Button>
                     )}
                   </>

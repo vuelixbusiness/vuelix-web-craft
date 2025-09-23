@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { formatCurrency } from "@/lib/utils";
 import { 
   PlayCircle, 
   DollarSign, 
@@ -157,7 +158,7 @@ const YourCampaigns = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Total Earnings</p>
-                <p className="text-2xl font-bold">${stats.totalEarnings.toFixed(2)}</p>
+                <p className="text-2xl font-bold">{formatCurrency(stats.totalEarnings)}</p>
               </div>
               <DollarSign className="w-8 h-8 text-green-500" />
             </div>
@@ -265,7 +266,7 @@ const YourCampaigns = () => {
 
                     <div className="text-right">
                       <p className="font-semibold text-green-600">
-                        ${campaign.payout_amount.toFixed(2)}
+                        {formatCurrency(campaign.payout_amount)}
                       </p>
                     </div>
 
