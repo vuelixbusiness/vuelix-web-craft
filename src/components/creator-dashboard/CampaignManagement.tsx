@@ -8,6 +8,7 @@ import CampaignCard from "@/components/ui/campaign-card";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { formatCurrency } from "@/lib/utils";
 import { 
   Search, 
   Filter, 
@@ -103,8 +104,25 @@ const CampaignManagement = () => {
 
       if (campaignsError) throw campaignsError;
 
-      // Fetch artist profiles for campaigns
       if (campaignsData && campaignsData.length > 0) {
+        // Fetch redeemed amounts for each campaign
+        const campaignIds = campaignsData.map(c => c.id);
+        const { data: participationsData, error: participationsError } = await supabase
+          .from('campaign_participations')
+          .select('campaign_id, payout_amount')
+          .in('campaign_id', campaignIds);
+
+        if (participationsError) {
+          console.error('Error fetching participations for budget calculation:', participationsError);
+        }
+
+        // Calculate redeemed amounts per campaign
+        const redeemedAmounts = participationsData?.reduce((acc, participation) => {
+          acc[participation.campaign_id] = (acc[participation.campaign_id] || 0) + (participation.payout_amount || 0);
+          return acc;
+        }, {} as Record<string, number>) || {};
+
+        // Fetch artist profiles for campaigns
         const artistIds = [...new Set(campaignsData.map(c => c.artist_id))];
         const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
@@ -115,11 +133,20 @@ const CampaignManagement = () => {
           console.error('Error fetching profiles:', profilesError);
         }
 
-        // Map profiles to campaigns
-        const campaignsWithProfiles = campaignsData.map(campaign => ({
-          ...campaign,
-          profiles: profilesData?.find(p => p.user_id === campaign.artist_id) || null
-        }));
+        // Map profiles and budget information to campaigns
+        const campaignsWithProfiles = campaignsData.map(campaign => {
+          const redeemed = redeemedAmounts[campaign.id] || 0;
+          const availableBudget = Math.max(0, (campaign.budget || 0) - redeemed);
+          const budgetUsedPercentage = campaign.budget ? (redeemed / campaign.budget) * 100 : 0;
+
+          return {
+            ...campaign,
+            profiles: profilesData?.find(p => p.user_id === campaign.artist_id) || null,
+            redeemed,
+            availableBudget,
+            budgetUsedPercentage
+          };
+        });
 
         setCampaigns(campaignsWithProfiles as Campaign[]);
       } else {
