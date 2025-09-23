@@ -387,7 +387,7 @@ const ArtistDashboard = () => {
                           >
                             View Details
                           </Button>
-                          {displayCampaign.status === 'Active' && (
+                          {(displayCampaign.status === 'Active' || displayCampaign.status === 'Paused') && (
                             <Button 
                               variant="outline" 
                               size="sm" 
