@@ -279,7 +279,7 @@ const CampaignCard = ({
                               variant="ghost"
                               size="sm"
                               onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                              className="mt-2 h-auto p-0 text-primary hover:text-primary/80"
+                              className="mt-8 h-auto p-0 text-primary hover:text-primary/80"
                             >
                               {isDescriptionExpanded ? "View Less" : "View More"}
                             </Button>
