@@ -21,8 +21,9 @@ import Signup from "./pages/Signup";
 import Terms from "./pages/Terms";
 import CreatorDashboard from "./pages/CreatorDashboard";
 import ArtistDashboard from "./pages/ArtistDashboard";
-import CampaignDetails from "./pages/CampaignDetails";
-import CampaignManagement from "./pages/CampaignManagement";
+import CampaignDetails from "@/pages/CampaignDetails";
+import CampaignManagement from "@/pages/CampaignManagement";
+import CampaignJoin from "@/pages/CampaignJoin";
 import Chat from "./pages/Chat";
 import Notifications from "./pages/Notifications";
 import Support from "./pages/Support";
@@ -71,6 +72,11 @@ const App = () => (
               <Route path="/campaign/:id/manage" element={
                 <ProtectedRoute>
                   <CampaignManagement />
+                </ProtectedRoute>
+              } />
+              <Route path="/campaign/:id/join" element={
+                <ProtectedRoute>
+                  <CampaignJoin />
                 </ProtectedRoute>
               } />
               <Route path="/leaderboard" element={

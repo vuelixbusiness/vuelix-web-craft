@@ -3,8 +3,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import VideoSubmission from "@/components/VideoSubmission";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/utils";
 import { 
@@ -313,31 +311,16 @@ const CampaignCard = ({
                           </Button>
                         )}
                         {showJoinButton && (
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button 
-                                className="bg-gradient-primary hover:opacity-90 transition-smooth ml-auto"
-                                onClick={() => onJoinCampaign?.(campaign)}
-                              >
-                                <PlayCircle className="w-4 h-4 mr-2" />
-                                Join Campaign
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-2xl">
-                              <DialogHeader>
-                                <DialogTitle>Join "{campaign.song_title}" Campaign</DialogTitle>
-                              </DialogHeader>
-                              <VideoSubmission 
-                                campaign={campaign as any}
-                                onSubmissionComplete={() => {
-                                  toast({
-                                    title: "Success!",
-                                    description: "Video submitted successfully"
-                                  });
-                                }}
-                              />
-                            </DialogContent>
-                          </Dialog>
+                          <Button 
+                            className="bg-gradient-primary hover:opacity-90 transition-smooth ml-auto"
+                            onClick={() => {
+                              onJoinCampaign?.(campaign);
+                              window.location.href = `/campaign/${campaign.id}/join`;
+                            }}
+                          >
+                            <PlayCircle className="w-4 h-4 mr-2" />
+                            Join Campaign
+                          </Button>
                         )}
                       </div>
                     </div>

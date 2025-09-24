@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
-import VideoSubmission from "@/components/VideoSubmission";
+
 import ViewTracker from "@/components/ViewTracker";
 import { 
   Search, 
@@ -301,33 +301,16 @@ const CreatorCampaigns = () => {
                         )}
 
                         {/* Apply Button */}
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button 
-                              className="w-full"
-                              onClick={() => setSelectedCampaign(campaign)}
-                            >
-                              <PlayCircle className="w-4 h-4 mr-2" />
-                              Join Campaign
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-2xl">
-                            <DialogHeader>
-                              <DialogTitle>Join "{campaign.song_title}" Campaign</DialogTitle>
-                            </DialogHeader>
-                            {selectedCampaign && (
-                              <VideoSubmission 
-                                campaign={selectedCampaign}
-                                onSubmissionComplete={() => {
-                                  toast({
-                                    title: "Success!",
-                                    description: "Video submitted successfully"
-                                  });
-                                }}
-                              />
-                            )}
-                          </DialogContent>
-                        </Dialog>
+                        <Button 
+                          className="w-full"
+                          onClick={() => {
+                            setSelectedCampaign(campaign);
+                            window.location.href = `/campaign/${campaign.id}/join`;
+                          }}
+                        >
+                          <PlayCircle className="w-4 h-4 mr-2" />
+                          Join Campaign
+                        </Button>
                       </CardContent>
                     </Card>
                   ))}
