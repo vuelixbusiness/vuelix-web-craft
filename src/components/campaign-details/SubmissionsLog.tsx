@@ -91,6 +91,16 @@ const SubmissionsLog = ({ submissions, campaignId, isArtist, onSubmissionUpdate 
     return current - initial;
   };
 
+  // Function to determine what status to display based on the current filter
+  const getDisplayStatus = (actualStatus: string, currentFilter: string) => {
+    // In "Approved" filter view, show live submissions as "approved" for tracking
+    if (currentFilter === 'approved' && actualStatus === 'live') {
+      return 'approved';
+    }
+    // In all other cases, show the actual status
+    return actualStatus;
+  };
+
   const handleStatusUpdate = async (submissionId: string, status: string) => {
     try {
       const { error } = await supabase
@@ -183,7 +193,16 @@ const SubmissionsLog = ({ submissions, campaignId, isArtist, onSubmissionUpdate 
       submission.profiles?.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       submission.profiles?.display_name?.toLowerCase().includes(searchTerm.toLowerCase());
     
-    const matchesStatus = statusFilter === 'all' || submission.status === statusFilter;
+    // Special logic for approved filter to show both approved and live submissions
+    let matchesStatus;
+    if (statusFilter === 'all') {
+      matchesStatus = true;
+    } else if (statusFilter === 'approved') {
+      matchesStatus = submission.status === 'approved' || submission.status === 'live';
+    } else {
+      matchesStatus = submission.status === statusFilter;
+    }
+    
     const matchesPlatform = platformFilter === 'all' || submission.platform === platformFilter;
     
     return matchesSearch && matchesStatus && matchesPlatform;
@@ -339,8 +358,8 @@ const SubmissionsLog = ({ submissions, campaignId, isArtist, onSubmissionUpdate 
                       </TableCell>
                       
                       <TableCell>
-                        <Badge variant={getStatusColor(submission.status)}>
-                          {submission.status}
+                        <Badge variant={getStatusColor(getDisplayStatus(submission.status, statusFilter))}>
+                          {getDisplayStatus(submission.status, statusFilter)}
                         </Badge>
                       </TableCell>
                       
