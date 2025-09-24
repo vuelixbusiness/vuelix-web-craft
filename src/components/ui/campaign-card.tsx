@@ -124,21 +124,20 @@ const CampaignCard = ({
       )}
       
       <CardContent className="p-6">
-        <div className="flex items-start space-x-4">
-          {/* Campaign Cover Art */}
-          <div className="w-20 h-20 rounded-lg flex items-center justify-center shadow-soft flex-shrink-0">
-            {campaign.cover_art_url ? (
-              <img 
-                src={campaign.cover_art_url} 
-                alt={campaign.song_title} 
-                className="w-20 h-20 rounded-lg object-cover" 
-              />
-            ) : (
-              <img src={vuelixLogo} alt="Vuelix" className="w-16 h-16" />
-            )}
-          </div>
+        {/* Campaign Cover Art */}
+        <div className="w-20 h-20 rounded-lg flex items-center justify-center shadow-soft mb-4">
+          {campaign.cover_art_url ? (
+            <img 
+              src={campaign.cover_art_url} 
+              alt={campaign.song_title} 
+              className="w-20 h-20 rounded-lg object-cover" 
+            />
+          ) : (
+            <img src={vuelixLogo} alt="Vuelix" className="w-16 h-16" />
+          )}
+        </div>
 
-          <div className="flex-1 min-w-0">
+        <div>
             {/* Song Title & Play Button */}
             <div className="flex items-center space-x-3 mb-2">
               <div className="flex items-center space-x-2 flex-1 min-w-0">
@@ -342,7 +341,6 @@ const CampaignCard = ({
                 )}
               </div>
             )}
-          </div>
         </div>
       </CardContent>
     </Card>
