@@ -79,6 +79,8 @@ const SubmissionsLog = ({ submissions, campaignId, isArtist, onSubmissionUpdate 
         return 'destructive';
       case 'live':
         return 'default';
+      case 'paid_out':
+        return 'outline';
       default:
         return 'secondary';
     }
@@ -242,9 +244,11 @@ const SubmissionsLog = ({ submissions, campaignId, isArtist, onSubmissionUpdate 
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
-              {uniqueStatuses.map(status => (
-                <SelectItem key={status} value={status}>{status}</SelectItem>
-              ))}
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+              <SelectItem value="live">Live</SelectItem>
+              <SelectItem value="paid_out">Paid Out</SelectItem>
             </SelectContent>
           </Select>
 
@@ -373,9 +377,11 @@ const SubmissionsLog = ({ submissions, campaignId, isArtist, onSubmissionUpdate 
                           <p className="font-medium text-primary">
                             {formatCurrency(submission.payout_amount)}
                           </p>
-                          {submission.payout_claimed && (
+                          {submission.status === 'paid_out' ? (
+                            <p className="text-xs text-green-600">Payout Finalized</p>
+                          ) : submission.payout_claimed ? (
                             <p className="text-xs text-muted-foreground">Claimed</p>
-                          )}
+                          ) : null}
                         </div>
                       </TableCell>
                       
