@@ -95,7 +95,14 @@ const CreatorCampaigns = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setCampaigns((data || []) as Campaign[]);
+      
+      // Map instructions to description for campaign cards
+      const campaignsWithDescriptions = (data || []).map(campaign => ({
+        ...campaign,
+        description: campaign.instructions
+      }));
+      
+      setCampaigns(campaignsWithDescriptions as Campaign[]);
     } catch (error) {
       console.error('Error fetching campaigns:', error);
       toast({
