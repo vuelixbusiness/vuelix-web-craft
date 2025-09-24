@@ -258,9 +258,9 @@ const CampaignCard = ({
                   </div>
                 )}
 
-                <div className="bg-secondary/30 rounded-lg -ml-6 pl-6 pr-4 py-4 mb-4">
+                <div className="bg-secondary/30 rounded-lg -ml-6 pl-6 pr-4 py-3 mb-4">
                   <div>
-                    <p className="text-sm text-muted-foreground mb-1">Campaign Description</p>
+                    <p className="text-sm text-muted-foreground mb-0.5">Campaign Description</p>
                     {(() => {
                       const description = campaign.description || "Join this exciting campaign to promote amazing music and earn rewards for your creative content!";
                       const characterLimit = 220;
@@ -268,56 +268,55 @@ const CampaignCard = ({
                       
                       return (
                         <div>
-                          <p className="text-sm text-foreground leading-relaxed">
+                          <p className="text-sm text-foreground leading-normal">
                             {shouldTruncate && !isDescriptionExpanded 
                               ? `${description.slice(0, characterLimit)}...` 
                               : description
                             }
                           </p>
-                          {shouldTruncate && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                              className="mt-8 h-auto p-0 text-primary hover:text-primary/80"
-                            >
-                              {isDescriptionExpanded ? "View Less" : "View More"}
-                            </Button>
-                          )}
+                          <div className="mt-4 flex items-center justify-between">
+                            {shouldTruncate && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                                className="h-auto p-0 text-primary hover:text-primary/80"
+                              >
+                                {isDescriptionExpanded ? "View Less" : "View More"}
+                              </Button>
+                            )}
+                            {showJoinButton && (
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button 
+                                    className="bg-gradient-primary hover:opacity-90 transition-smooth ml-auto"
+                                    onClick={() => onJoinCampaign?.(campaign)}
+                                  >
+                                    <PlayCircle className="w-4 h-4 mr-2" />
+                                    Join Campaign
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-2xl">
+                                  <DialogHeader>
+                                    <DialogTitle>Join "{campaign.song_title}" Campaign</DialogTitle>
+                                  </DialogHeader>
+                                  <VideoSubmission 
+                                    campaign={campaign as any}
+                                    onSubmissionComplete={() => {
+                                      toast({
+                                        title: "Success!",
+                                        description: "Video submitted successfully"
+                                      });
+                                    }}
+                                  />
+                                </DialogContent>
+                              </Dialog>
+                            )}
+                          </div>
                         </div>
                       );
                     })()}
                   </div>
-                  
-                  {showJoinButton && (
-                    <div className="mt-4 flex justify-end">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button 
-                            className="bg-gradient-primary hover:opacity-90 transition-smooth"
-                            onClick={() => onJoinCampaign?.(campaign)}
-                          >
-                            <PlayCircle className="w-4 h-4 mr-2" />
-                            Join Campaign
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="max-w-2xl">
-                          <DialogHeader>
-                            <DialogTitle>Join "{campaign.song_title}" Campaign</DialogTitle>
-                          </DialogHeader>
-                          <VideoSubmission 
-                            campaign={campaign as any}
-                            onSubmissionComplete={() => {
-                              toast({
-                                title: "Success!",
-                                description: "Video submitted successfully"
-                              });
-                            }}
-                          />
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  )}
                 </div>
               </>
             )}
