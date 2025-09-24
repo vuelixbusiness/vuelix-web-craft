@@ -124,20 +124,23 @@ const CampaignCard = ({
       )}
       
       <CardContent className="p-6">
-        {/* Campaign Cover Art */}
-        <div className="w-20 h-20 rounded-lg flex items-center justify-center shadow-soft mb-4">
-          {campaign.cover_art_url ? (
-            <img 
-              src={campaign.cover_art_url} 
-              alt={campaign.song_title} 
-              className="w-20 h-20 rounded-lg object-cover" 
-            />
-          ) : (
-            <img src={vuelixLogo} alt="Vuelix" className="w-16 h-16" />
-          )}
-        </div>
+        {/* Top Section: Photo + Key Details (Horizontal Layout) */}
+        <div className="flex items-start space-x-4 mb-4">
+          {/* Campaign Cover Art */}
+          <div className="w-20 h-20 rounded-lg flex items-center justify-center shadow-soft flex-shrink-0">
+            {campaign.cover_art_url ? (
+              <img 
+                src={campaign.cover_art_url} 
+                alt={campaign.song_title} 
+                className="w-20 h-20 rounded-lg object-cover" 
+              />
+            ) : (
+              <img src={vuelixLogo} alt="Vuelix" className="w-16 h-16" />
+            )}
+          </div>
 
-        <div>
+          {/* Key Campaign Details */}
+          <div className="flex-1 min-w-0">
             {/* Song Title & Play Button */}
             <div className="flex items-center space-x-3 mb-2">
               <div className="flex items-center space-x-2 flex-1 min-w-0">
@@ -187,7 +190,7 @@ const CampaignCard = ({
 
             {/* Campaign Stats - Different for each variant */}
             {variant === 'artist' && (
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="text-center p-3 bg-secondary/20 rounded-lg">
                   <DollarSign className="w-5 h-5 mx-auto text-green-500 mb-1" />
                   <p className="text-xs text-muted-foreground">Budget</p>
@@ -211,115 +214,6 @@ const CampaignCard = ({
               </div>
             )}
 
-            {variant === 'creator-available' && (
-              <>
-                {/* Budget Information */}
-                {campaign.budget && (
-                  <div className="bg-secondary/30 rounded-lg -ml-6 pl-6 pr-4 py-4 mb-4">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center space-x-2">
-                        <DollarSign className="w-5 h-5 text-primary" />
-                        <span className="font-semibold">Engagement Pot</span>
-                      </div>
-                      <span className="text-sm text-muted-foreground">
-                        {campaign.budgetUsedPercentage?.toFixed(1) || '0.0'}% used
-                      </span>
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <div>
-                        <p className="text-2xl font-bold text-primary">
-                          {formatCurrency(campaign.availableBudget || campaign.budget)}
-                        </p>
-                        <p className="text-xs text-muted-foreground">Available</p>
-                      </div>
-                      
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          {formatCurrency(campaign.redeemed || 0)} redeemed
-                        </span>
-                        <span className="text-muted-foreground">
-                          of {formatCurrency(campaign.budget)} total
-                        </span>
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <Progress value={campaign.budgetUsedPercentage || 0} className="h-3" />
-                        {(campaign.budgetUsedPercentage || 0) > 15 && (
-                          <div className="text-center">
-                            <span className="text-xs font-medium">
-                              {campaign.budgetUsedPercentage?.toFixed(1) || '0.0'}%
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="bg-secondary/30 rounded-lg -ml-6 pl-6 pr-4 py-3 mb-4">
-                  <div>
-                    <p className="text-sm text-muted-foreground mb-0.5">Campaign Description</p>
-                    {(() => {
-                      const description = campaign.description || "Join this exciting campaign to promote amazing music and earn rewards for your creative content!";
-                      const characterLimit = 220;
-                      const shouldTruncate = description.length > characterLimit;
-                      
-                      return (
-                        <div>
-                          <p className="text-sm text-foreground leading-normal">
-                            {shouldTruncate && !isDescriptionExpanded 
-                              ? `${description.slice(0, characterLimit)}...` 
-                              : description
-                            }
-                          </p>
-                          <div className="mt-4 flex items-center justify-between">
-                            {shouldTruncate && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                                className="h-auto p-0 text-primary hover:text-primary/80"
-                              >
-                                {isDescriptionExpanded ? "View Less" : "View More"}
-                              </Button>
-                            )}
-                            {showJoinButton && (
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <Button 
-                                    className="bg-gradient-primary hover:opacity-90 transition-smooth ml-auto"
-                                    onClick={() => onJoinCampaign?.(campaign)}
-                                  >
-                                    <PlayCircle className="w-4 h-4 mr-2" />
-                                    Join Campaign
-                                  </Button>
-                                </DialogTrigger>
-                                <DialogContent className="max-w-2xl">
-                                  <DialogHeader>
-                                    <DialogTitle>Join "{campaign.song_title}" Campaign</DialogTitle>
-                                  </DialogHeader>
-                                  <VideoSubmission 
-                                    campaign={campaign as any}
-                                    onSubmissionComplete={() => {
-                                      toast({
-                                        title: "Success!",
-                                        description: "Video submitted successfully"
-                                      });
-                                    }}
-                                  />
-                                </DialogContent>
-                              </Dialog>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                </div>
-              </>
-            )}
-
             {variant === 'creator-joined' && (
               <div className="flex items-center space-x-6 text-sm">
                 <div className="flex items-center text-muted-foreground">
@@ -341,7 +235,118 @@ const CampaignCard = ({
                 )}
               </div>
             )}
+          </div>
         </div>
+
+        {/* Bottom Section: Full Width Engagement & Description */}
+        {variant === 'creator-available' && (
+          <>
+            {/* Budget Information */}
+            {campaign.budget && (
+              <div className="bg-secondary/30 rounded-lg -ml-6 pl-6 pr-4 py-4 mb-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center space-x-2">
+                    <DollarSign className="w-5 h-5 text-primary" />
+                    <span className="font-semibold">Engagement Pot</span>
+                  </div>
+                  <span className="text-sm text-muted-foreground">
+                    {campaign.budgetUsedPercentage?.toFixed(1) || '0.0'}% used
+                  </span>
+                </div>
+                
+                <div className="space-y-3">
+                  <div>
+                    <p className="text-2xl font-bold text-primary">
+                      {formatCurrency(campaign.availableBudget || campaign.budget)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">Available</p>
+                  </div>
+                  
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">
+                      {formatCurrency(campaign.redeemed || 0)} redeemed
+                    </span>
+                    <span className="text-muted-foreground">
+                      of {formatCurrency(campaign.budget)} total
+                    </span>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <Progress value={campaign.budgetUsedPercentage || 0} className="h-3" />
+                    {(campaign.budgetUsedPercentage || 0) > 15 && (
+                      <div className="text-center">
+                        <span className="text-xs font-medium">
+                          {campaign.budgetUsedPercentage?.toFixed(1) || '0.0'}%
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="bg-secondary/30 rounded-lg -ml-6 pl-6 pr-4 py-3 mb-4">
+              <div>
+                <p className="text-sm text-muted-foreground mb-0.5">Campaign Description</p>
+                {(() => {
+                  const description = campaign.description || "Join this exciting campaign to promote amazing music and earn rewards for your creative content!";
+                  const characterLimit = 220;
+                  const shouldTruncate = description.length > characterLimit;
+                  
+                  return (
+                    <div>
+                      <p className="text-sm text-foreground leading-normal">
+                        {shouldTruncate && !isDescriptionExpanded 
+                          ? `${description.slice(0, characterLimit)}...` 
+                          : description
+                        }
+                      </p>
+                      <div className="mt-4 flex items-center justify-between">
+                        {shouldTruncate && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                            className="h-auto p-0 text-primary hover:text-primary/80"
+                          >
+                            {isDescriptionExpanded ? "View Less" : "View More"}
+                          </Button>
+                        )}
+                        {showJoinButton && (
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button 
+                                className="bg-gradient-primary hover:opacity-90 transition-smooth ml-auto"
+                                onClick={() => onJoinCampaign?.(campaign)}
+                              >
+                                <PlayCircle className="w-4 h-4 mr-2" />
+                                Join Campaign
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent className="max-w-2xl">
+                              <DialogHeader>
+                                <DialogTitle>Join "{campaign.song_title}" Campaign</DialogTitle>
+                              </DialogHeader>
+                              <VideoSubmission 
+                                campaign={campaign as any}
+                                onSubmissionComplete={() => {
+                                  toast({
+                                    title: "Success!",
+                                    description: "Video submitted successfully"
+                                  });
+                                }}
+                              />
+                            </DialogContent>
+                          </Dialog>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+          </>
+        )}
       </CardContent>
     </Card>
   );
