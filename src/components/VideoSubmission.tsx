@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,15 +18,26 @@ import {
   CheckCircle
 } from "lucide-react";
 import { FaTiktok, FaInstagram, FaYoutube } from "react-icons/fa";
+import MediaAssetsSection from "./MediaAssetsSection";
+import AudioAssetsSection from "./AudioAssetsSection";
 
 interface Campaign {
   id: string;
   title: string;
   song_title: string;
+  song_url?: string;
+  cover_art_url?: string;
   payout_type: string;
   payout_rate: number;
   platforms: string[];
   instructions: string;
+}
+
+interface MediaAsset {
+  id: string;
+  url: string;
+  type: string;
+  created_at: string;
 }
 
 interface VideoSubmissionProps {
@@ -40,6 +51,29 @@ const VideoSubmission = ({ campaign, onSubmissionComplete }: VideoSubmissionProp
   const [videoUrl, setVideoUrl] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
+  const [isLoadingAssets, setIsLoadingAssets] = useState(true);
+
+  useEffect(() => {
+    const fetchMediaAssets = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('media_assets')
+          .select('*')
+          .eq('campaign_id', campaign.id)
+          .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        setMediaAssets(data || []);
+      } catch (error) {
+        console.error('Error fetching media assets:', error);
+      } finally {
+        setIsLoadingAssets(false);
+      }
+    };
+
+    fetchMediaAssets();
+  }, [campaign.id]);
 
   const platformIcons = {
     tiktok: <FaTiktok className="w-4 h-4" />,
@@ -154,6 +188,20 @@ const VideoSubmission = ({ campaign, onSubmissionComplete }: VideoSubmissionProp
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
+          {/* Media Assets Section */}
+          <MediaAssetsSection 
+            campaign={campaign}
+            mediaAssets={mediaAssets}
+            isLoading={isLoadingAssets}
+          />
+
+          {/* Audio Assets Section */}
+          <AudioAssetsSection 
+            campaign={campaign}
+            audioAssets={mediaAssets.filter(asset => asset.type === 'audio')}
+            isLoading={isLoadingAssets}
+          />
+
           {/* Campaign Info */}
           <div className="p-4 bg-secondary/20 rounded-lg">
             <h3 className="font-medium mb-2">{campaign.title}</h3>
