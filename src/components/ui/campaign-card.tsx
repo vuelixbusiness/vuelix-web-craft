@@ -91,11 +91,11 @@ const CampaignCard = ({
 
   const formatPayout = (rate?: number, type?: string) => {
     if (!rate) return "$0.00";
-    return `$${rate.toFixed(3)}${type ? ` per ${type.replace('per_', '')}` : ''}`;
+    return `$${parseFloat(rate.toFixed(3)).toString()}${type ? ` per ${type.replace('per_', '')}` : ''}`;
   };
 
   const formatPayoutForBox = (rate?: number, type?: string) => {
-    const amount = rate ? `$${rate.toFixed(3)}` : '$0.00';
+    const amount = rate ? `$${parseFloat(rate.toFixed(3)).toString()}` : '$0.00';
     return `${amount} / 1K Views`;
   };
 
