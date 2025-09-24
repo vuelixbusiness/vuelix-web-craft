@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import DashboardLayout from "@/components/DashboardLayout";
-import { useNotifications, Notification } from "@/hooks/useNotifications";
+import { useNotifications, ExtendedNotification } from "@/hooks/useNotifications";
 import { 
   Bell, 
   BellOff, 
@@ -12,34 +12,41 @@ import {
   TrendingUp, 
   Check,
   X,
-  Settings
- } from "lucide-react";
+  Settings,
+  Users,
+  AlertCircle
+} from "lucide-react";
 
 const Notifications = () => {
-  const { 
-    notifications, 
-    unreadCount, 
-    isLoading, 
-    markAsRead, 
-    markAllAsRead, 
-    deleteAllRead 
-  } = useNotifications();
+  const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead, deleteAllRead } = useNotifications();
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
 
   const notificationIcons = {
     payment: DollarSign,
+    payout: DollarSign,
     campaign: TrendingUp,
+    campaign_join: Users,
+    campaign_joined: TrendingUp,
+    status_update: AlertCircle,
+    participation_update: Users,
     message: MessageSquare,
     system: Bell,
-    campaign_join: TrendingUp,
-    campaign_joined: TrendingUp,
-    status_update: Bell,
-    participation_update: TrendingUp,
   };
 
+  // Filter notifications based on current filter
   const filteredNotifications = filter === 'all' 
     ? notifications 
     : notifications.filter(n => !n.read);
+
+  // Get priority color for notification styling
+  const getPriorityColor = (priority: string) => {
+    switch (priority) {
+      case 'critical': return 'border-destructive bg-destructive/5';
+      case 'high': return 'border-warning bg-warning/5';
+      case 'medium': return 'border-primary/50 bg-primary/5';
+      default: return '';
+    }
+  };
 
   return (
     <DashboardLayout>
@@ -124,14 +131,14 @@ const Notifications = () => {
                 </CardContent>
               </Card>
             ) : (
-              filteredNotifications.map((notification) => {
+              filteredNotifications.map((notification: ExtendedNotification) => {
                 const IconComponent = notificationIcons[notification.type as keyof typeof notificationIcons] || Bell;
                 
                 return (
                   <Card 
                     key={notification.id}
                     className={`cursor-pointer transition-all hover:shadow-md ${
-                      !notification.read ? 'border-primary/50 bg-primary/5' : ''
+                      !notification.read ? getPriorityColor(notification.priority) : ''
                     }`}
                     onClick={() => !notification.read && markAsRead(notification.id)}
                   >
@@ -151,21 +158,15 @@ const Notifications = () => {
                               {new Date(notification.created_at).toLocaleString()}
                             </p>
                             <div className="flex items-center space-x-2">
-                              {notification.category && (
-                                <Badge variant="outline" className="text-xs">
-                                  {notification.category}
-                                </Badge>
-                              )}
-                              {notification.priority && notification.priority !== 'medium' && (
-                                <Badge 
-                                  variant={notification.priority === 'high' || notification.priority === 'critical' ? 'destructive' : 'secondary'} 
-                                  className="text-xs"
-                                >
-                                  {notification.priority}
-                                </Badge>
-                              )}
-                              <Badge variant="secondary" className="text-xs">
-                                {notification.type}
+                              <Badge variant="secondary" className="text-xs capitalize">
+                                {notification.category}
+                              </Badge>
+                              <Badge 
+                                variant={notification.priority === 'critical' ? 'destructive' : 
+                                        notification.priority === 'high' ? 'default' : 'secondary'} 
+                                className="text-xs capitalize"
+                              >
+                                {notification.priority}
                               </Badge>
                               {!notification.read && (
                                 <Badge variant="default" className="text-xs">

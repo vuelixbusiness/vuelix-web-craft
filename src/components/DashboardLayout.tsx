@@ -73,8 +73,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
             {/* User Menu - Fixed right position */}
             <div className="flex items-center space-x-6 flex-shrink-0">
-              <NotificationBell />
               <ThemeToggle />
+              <NotificationBell />
               <Avatar className="w-12 h-12">
             <AvatarImage src={user?.avatar} alt={user?.name} />
             <AvatarFallback className="text-sm">

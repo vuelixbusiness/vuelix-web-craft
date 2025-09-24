@@ -1,29 +1,31 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { toast } from '@/hooks/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
-export interface Notification {
+export interface ExtendedNotification {
   id: string;
   user_id: string;
   type: string;
   message: string;
   read: boolean;
-  created_at: string;
-  priority?: string;
-  category?: string;
-  metadata?: Record<string, any>;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  category: 'campaign' | 'payout' | 'system' | 'message';
+  metadata: Record<string, any>;
   expires_at?: string;
-  updated_at?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export const useNotifications = () => {
   const { user } = useAuth();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const { toast } = useToast();
+  const [notifications, setNotifications] = useState<ExtendedNotification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [unreadCount, setUnreadCount] = useState(0);
 
-  const fetchNotifications = async () => {
+  // Fetch notifications from database
+  const fetchNotifications = useCallback(async () => {
     if (!user?.id) return;
 
     try {
@@ -31,22 +33,24 @@ export const useNotifications = () => {
         .from('notifications')
         .select('*')
         .eq('user_id', user.id)
+        .or('expires_at.is.null,expires_at.gt.now()')
         .order('created_at', { ascending: false })
         .limit(50);
 
       if (error) throw error;
 
-      const notificationsList = (data || []) as Notification[];
-      setNotifications(notificationsList);
-      setUnreadCount(notificationsList.filter(n => !n.read).length);
+      const notifs = data as ExtendedNotification[] || [];
+      setNotifications(notifs);
+      setUnreadCount(notifs.filter(n => !n.read).length);
     } catch (error: any) {
-      console.error('Error fetching notifications:', error);
+      console.error('Failed to fetch notifications:', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [user?.id]);
 
-  const markAsRead = async (notificationId: string) => {
+  // Mark notification as read
+  const markAsRead = useCallback(async (notificationId: string) => {
     try {
       const { error } = await supabase
         .from('notifications')
@@ -55,21 +59,22 @@ export const useNotifications = () => {
 
       if (error) throw error;
 
-      setNotifications(prev =>
-        prev.map(notif =>
-          notif.id === notificationId
+      setNotifications(prev => 
+        prev.map(notif => 
+          notif.id === notificationId 
             ? { ...notif, read: true }
             : notif
         )
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
     } catch (error: any) {
-      console.error('Error marking notification as read:', error);
+      console.error('Failed to mark notification as read:', error);
     }
-  };
+  }, []);
 
-  const markAllAsRead = async () => {
-    if (!user?.id) return;
+  // Mark all notifications as read
+  const markAllAsRead = useCallback(async () => {
+    if (!user?.id || unreadCount === 0) return;
 
     try {
       const { error } = await supabase
@@ -80,7 +85,7 @@ export const useNotifications = () => {
 
       if (error) throw error;
 
-      setNotifications(prev =>
+      setNotifications(prev => 
         prev.map(notif => ({ ...notif, read: true }))
       );
       setUnreadCount(0);
@@ -90,15 +95,17 @@ export const useNotifications = () => {
         description: "All notifications marked as read",
       });
     } catch (error: any) {
+      console.error('Failed to mark notifications as read:', error);
       toast({
         title: "Error",
         description: "Failed to mark notifications as read",
         variant: "destructive",
       });
     }
-  };
+  }, [user?.id, unreadCount, toast]);
 
-  const deleteAllRead = async () => {
+  // Delete read notifications
+  const deleteAllRead = useCallback(async () => {
     if (!user?.id) return;
 
     try {
@@ -117,73 +124,83 @@ export const useNotifications = () => {
         description: "Read notifications deleted",
       });
     } catch (error: any) {
+      console.error('Failed to delete notifications:', error);
       toast({
         title: "Error",
         description: "Failed to delete notifications",
         variant: "destructive",
       });
     }
-  };
+  }, [user?.id, toast]);
 
+  // Show toast for high priority notifications
+  const showToastForNotification = useCallback((notification: ExtendedNotification) => {
+    if (notification.priority === 'high' || notification.priority === 'critical') {
+      toast({
+        title: notification.type === 'campaign_join' ? '🎉 New Participant!' : 
+               notification.type === 'status_update' ? '📋 Status Update' :
+               notification.type === 'payout_processed' ? '💰 Payment Received' : 
+               '📢 Notification',
+        description: notification.message,
+        variant: notification.priority === 'critical' ? 'destructive' : 'default',
+      });
+    }
+  }, [toast]);
+
+  // Set up real-time subscriptions
   useEffect(() => {
+    if (!user?.id) return;
+
     fetchNotifications();
 
     // Set up real-time notifications
-    if (user?.id) {
-      const channel = supabase
-        .channel('notifications')
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'notifications',
-            filter: `user_id=eq.${user.id}`
-          },
-          (payload) => {
-            const newNotification = payload.new as Notification;
-            setNotifications(prev => [newNotification, ...prev]);
+    const channel = supabase
+      .channel('user_notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          const newNotification = payload.new as ExtendedNotification;
+          setNotifications(prev => [newNotification, ...prev]);
+          setUnreadCount(prev => prev + 1);
+          showToastForNotification(newNotification);
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          const updatedNotification = payload.new as ExtendedNotification;
+          setNotifications(prev => 
+            prev.map(notif => 
+              notif.id === updatedNotification.id ? updatedNotification : notif
+            )
+          );
+          // Update unread count if read status changed
+          const oldNotification = payload.old as ExtendedNotification;
+          if (!oldNotification.read && updatedNotification.read) {
+            setUnreadCount(prev => Math.max(0, prev - 1));
+          } else if (oldNotification.read && !updatedNotification.read) {
             setUnreadCount(prev => prev + 1);
-            
-            // Show toast for high-priority notifications
-            if (newNotification.priority === 'high' || newNotification.priority === 'critical') {
-              toast({
-                title: "New Notification",
-                description: newNotification.message,
-                duration: 5000,
-              });
-            }
           }
-        )
-        .on(
-          'postgres_changes',
-          {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'notifications',
-            filter: `user_id=eq.${user.id}`
-          },
-          (payload) => {
-            const updatedNotification = payload.new as Notification;
-            setNotifications(prev =>
-              prev.map(notif =>
-                notif.id === updatedNotification.id ? updatedNotification : notif
-              )
-            );
-            
-            // Update unread count if read status changed
-            if (updatedNotification.read && payload.old && !payload.old.read) {
-              setUnreadCount(prev => Math.max(0, prev - 1));
-            }
-          }
-        )
-        .subscribe();
+        }
+      )
+      .subscribe();
 
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
-  }, [user?.id]);
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, fetchNotifications, showToastForNotification]);
 
   return {
     notifications,
@@ -192,6 +209,6 @@ export const useNotifications = () => {
     markAsRead,
     markAllAsRead,
     deleteAllRead,
-    fetchNotifications,
+    refresh: fetchNotifications
   };
 };

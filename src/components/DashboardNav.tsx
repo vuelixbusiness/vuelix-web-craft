@@ -106,8 +106,8 @@ const DashboardNav = ({ dashboardType }: DashboardNavProps) => {
           </div>
           
           <div className="flex items-center space-x-4">
-            <NotificationBell size="sm" />
             <ThemeToggle />
+            <NotificationBell />
             <Avatar>
               <AvatarImage src={user?.avatar} alt={user?.name} />
               <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
