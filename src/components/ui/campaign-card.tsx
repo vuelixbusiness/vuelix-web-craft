@@ -15,7 +15,8 @@ import {
   PlayCircle,
   Calendar,
   Target,
-  Users
+  Users,
+  CheckSquare
 } from "lucide-react";
 import { FaTiktok, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 import vuelixLogo from "@/assets/vuelix-logo-official.png";
@@ -72,6 +73,7 @@ const CampaignCard = ({
 }: CampaignCardProps) => {
   const { toast } = useToast();
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [isRulesExpanded, setIsRulesExpanded] = useState(false);
   
   const platformIcons = {
     tiktok: <FaTiktok className="w-4 h-4" />,
@@ -323,6 +325,58 @@ const CampaignCard = ({
                           </Button>
                         )}
                       </div>
+                    </div>
+                  );
+                })()}
+              </div>
+            </div>
+
+            {/* Campaign Rules */}
+            <div className="bg-secondary/20 rounded-lg px-4 py-3 mb-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <CheckSquare className="w-4 h-4 text-primary" />
+                <p className="text-sm font-medium text-foreground">Campaign Rules</p>
+              </div>
+              <div>
+                {(() => {
+                  const defaultRules = [
+                    "Use the provided song in your content",
+                    "Include relevant hashtags and mentions",
+                    "Follow platform community guidelines",
+                    "Submit high-quality, original content",
+                    "Track and report your video metrics"
+                  ];
+                  
+                  const rules = defaultRules;
+                  const shouldTruncate = rules.length > 3;
+                  const displayRules = shouldTruncate && !isRulesExpanded ? rules.slice(0, 3) : rules;
+                  
+                  return (
+                    <div>
+                      <ul className="text-sm text-muted-foreground space-y-1 list-none">
+                        {displayRules.map((rule, index) => (
+                          <li key={index} className="flex items-start space-x-2">
+                            <span className="text-primary font-bold text-xs mt-0.5">•</span>
+                            <span>{rule}</span>
+                          </li>
+                        ))}
+                        {shouldTruncate && !isRulesExpanded && (
+                          <li className="flex items-start space-x-2 text-muted-foreground/60">
+                            <span className="text-primary font-bold text-xs mt-0.5">•</span>
+                            <span>And {rules.length - 3} more rules...</span>
+                          </li>
+                        )}
+                      </ul>
+                      {shouldTruncate && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setIsRulesExpanded(!isRulesExpanded)}
+                          className="h-auto p-0 text-primary hover:text-primary/80 mt-2"
+                        >
+                          {isRulesExpanded ? "View Less" : "View All Rules"}
+                        </Button>
+                      )}
                     </div>
                   );
                 })()}
