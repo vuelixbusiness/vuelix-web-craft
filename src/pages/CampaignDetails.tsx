@@ -29,6 +29,7 @@ interface Campaign {
   max_payout: number | null;
   vip_max_payout: number | null;
   campaign_type: string;
+  artist_id: string;
 }
 
 interface Participant {
@@ -363,7 +364,12 @@ const CampaignDetails = () => {
             <ParticipantsList participants={uniqueParticipants} />
             
             {/* Complete Submissions Log Box */}
-            <SubmissionsLog submissions={participants} />
+          <SubmissionsLog 
+            submissions={participants} 
+            campaignId={id!}
+            isArtist={campaign?.artist_id === user?.id}
+            onSubmissionUpdate={fetchCampaignDetails}
+          />
           </div>
 
           {/* Media Assets */}
