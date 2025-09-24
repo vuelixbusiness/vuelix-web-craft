@@ -73,6 +73,7 @@ const CampaignCard = ({
   className = ""
 }: CampaignCardProps) => {
   const { toast } = useToast();
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   
   const platformIcons = {
     tiktok: <FaTiktok className="w-4 h-4" />,
@@ -260,9 +261,32 @@ const CampaignCard = ({
                 <div className="bg-secondary/30 rounded-lg -ml-6 pl-6 pr-4 py-4 mb-4">
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Campaign Description</p>
-                    <p className="text-sm text-foreground leading-relaxed">
-                      {campaign.description || "Join this exciting campaign to promote amazing music and earn rewards for your creative content!"}
-                    </p>
+                    {(() => {
+                      const description = campaign.description || "Join this exciting campaign to promote amazing music and earn rewards for your creative content!";
+                      const characterLimit = 120;
+                      const shouldTruncate = description.length > characterLimit;
+                      
+                      return (
+                        <div>
+                          <p className="text-sm text-foreground leading-relaxed">
+                            {shouldTruncate && !isDescriptionExpanded 
+                              ? `${description.slice(0, characterLimit)}...` 
+                              : description
+                            }
+                          </p>
+                          {shouldTruncate && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                              className="mt-2 h-auto p-0 text-primary hover:text-primary/80"
+                            >
+                              {isDescriptionExpanded ? "View Less" : "View More"}
+                            </Button>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                   
                   {showJoinButton && (
