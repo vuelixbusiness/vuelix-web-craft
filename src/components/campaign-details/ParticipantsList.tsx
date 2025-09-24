@@ -11,7 +11,6 @@ interface UniqueParticipant {
   submission_count: number;
   platforms: string[];
   primary_platform: string;
-  status: string;
   profiles: {
     username: string;
     display_name: string | null;
@@ -32,21 +31,6 @@ const ParticipantsList = ({ participants }: ParticipantsListProps) => {
     });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'approved':
-        return 'default';
-      case 'pending':
-        return 'secondary';
-      case 'rejected':
-        return 'destructive';
-      default:
-        return 'secondary';
-    }
-  };
-
-  const approvedCount = participants.filter(p => p.status === 'approved').length;
-  const pendingCount = participants.filter(p => p.status === 'pending').length;
 
   return (
     <Card>
@@ -55,8 +39,6 @@ const ParticipantsList = ({ participants }: ParticipantsListProps) => {
           <CardTitle>Campaign Participants</CardTitle>
           <div className="flex gap-2 text-sm">
             <Badge variant="outline">{participants.length} Total</Badge>
-            <Badge variant="default">{approvedCount} Approved</Badge>
-            <Badge variant="secondary">{pendingCount} Pending</Badge>
           </div>
         </div>
       </CardHeader>
@@ -75,7 +57,6 @@ const ParticipantsList = ({ participants }: ParticipantsListProps) => {
                   <TableHead>Join Date</TableHead>
                   <TableHead>Platform</TableHead>
                   <TableHead>Submissions</TableHead>
-                  <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -116,11 +97,6 @@ const ParticipantsList = ({ participants }: ParticipantsListProps) => {
                     <TableCell>
                       <Badge variant="outline" className="text-xs">
                         {participant.submission_count} submission{participant.submission_count !== 1 ? 's' : ''}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge variant={getStatusColor(participant.status)}>
-                        {participant.status}
                       </Badge>
                     </TableCell>
                     <TableCell>

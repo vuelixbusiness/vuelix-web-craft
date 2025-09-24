@@ -59,7 +59,6 @@ interface UniqueParticipant {
   submission_count: number;
   platforms: string[];
   primary_platform: string;
-  status: string;
   profiles: {
     username: string;
     display_name: string | null;
@@ -145,7 +144,6 @@ const CampaignDetails = () => {
               submission_count: 1,
               platforms: [participant.platform],
               primary_platform: participant.platform,
-              status: participant.status,
               profiles: participant.profiles
             });
           } else {
@@ -157,7 +155,6 @@ const CampaignDetails = () => {
             // Use most recent submission data
             if (new Date(participant.created_at) > new Date(existing.join_date)) {
               existing.primary_platform = participant.platform;
-              existing.status = participant.status;
             }
             // Use earliest join date
             if (new Date(participant.created_at) < new Date(existing.join_date)) {
