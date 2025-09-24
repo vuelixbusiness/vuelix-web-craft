@@ -1,4 +1,5 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,17 +14,17 @@ interface DatabaseSubmission {
   campaign_id: string
 }
 
-Deno.serve(async (req) => {
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
+serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
 
     console.log('Starting status transition check...')
 
@@ -31,7 +32,7 @@ Deno.serve(async (req) => {
     const tenDaysAgo = new Date()
     tenDaysAgo.setDate(tenDaysAgo.getDate() - 10)
 
-    const { data: eligibleSubmissions, error: fetchError } = await supabaseClient
+    const { data: eligibleSubmissions, error: fetchError } = await supabase
       .from('campaign_participations')
       .select('id, status, updated_at, creator_id, campaign_id')
       .eq('status', 'live')
@@ -66,7 +67,7 @@ Deno.serve(async (req) => {
         console.log(`Processing submission ${submission.id}...`)
 
         // Update status to paid_out
-        const { error: updateError } = await supabaseClient
+        const { error: updateError } = await supabase
           .from('campaign_participations')
           .update({ 
             status: 'paid_out',
@@ -81,7 +82,7 @@ Deno.serve(async (req) => {
         }
 
         // Trigger payout processing
-        const { error: payoutError } = await supabaseClient.functions.invoke('process-payout', {
+        const { error: payoutError } = await supabase.functions.invoke('process-payout', {
           body: {
             participationId: submission.id,
             userId: submission.creator_id
@@ -99,7 +100,7 @@ Deno.serve(async (req) => {
 
       } catch (error) {
         console.error(`Unexpected error processing submission ${submission.id}:`, error)
-        errors.push(`Unexpected error for submission ${submission.id}: ${error.message}`)
+        errors.push(`Unexpected error for submission ${submission.id}: ${error instanceof Error ? error.message : 'Unknown error'}`)
       }
     }
 
@@ -125,7 +126,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: 'Internal server error',
-        message: error.message 
+        message: error instanceof Error ? error.message : 'Unknown error'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
