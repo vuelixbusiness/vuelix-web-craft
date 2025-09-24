@@ -52,12 +52,27 @@ interface Participant {
   } | null;
 }
 
+interface UniqueParticipant {
+  creator_id: string;
+  join_date: string;
+  submission_count: number;
+  platforms: string[];
+  primary_platform: string;
+  status: string;
+  profiles: {
+    username: string;
+    display_name: string | null;
+    avatar_url: string | null;
+  } | null;
+}
+
 const CampaignDetails = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [participants, setParticipants] = useState<Participant[]>([]);
+  const [uniqueParticipants, setUniqueParticipants] = useState<UniqueParticipant[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -114,8 +129,46 @@ const CampaignDetails = () => {
         }));
 
         setParticipants(participantsWithProfiles);
+
+        // Create unique participants by grouping by creator_id
+        const uniqueParticipantsMap = new Map<string, UniqueParticipant>();
+        
+        participantsWithProfiles.forEach(participant => {
+          const existing = uniqueParticipantsMap.get(participant.creator_id);
+          
+          if (!existing) {
+            // First submission from this creator
+            uniqueParticipantsMap.set(participant.creator_id, {
+              creator_id: participant.creator_id,
+              join_date: participant.created_at,
+              submission_count: 1,
+              platforms: [participant.platform],
+              primary_platform: participant.platform,
+              status: participant.status,
+              profiles: participant.profiles
+            });
+          } else {
+            // Update existing participant data
+            existing.submission_count++;
+            if (!existing.platforms.includes(participant.platform)) {
+              existing.platforms.push(participant.platform);
+            }
+            // Use most recent submission data
+            if (new Date(participant.created_at) > new Date(existing.join_date)) {
+              existing.primary_platform = participant.platform;
+              existing.status = participant.status;
+            }
+            // Use earliest join date
+            if (new Date(participant.created_at) < new Date(existing.join_date)) {
+              existing.join_date = participant.created_at;
+            }
+          }
+        });
+
+        setUniqueParticipants(Array.from(uniqueParticipantsMap.values()));
       } else {
         setParticipants([]);
+        setUniqueParticipants([]);
       }
     } catch (error) {
       console.error('Error in fetchCampaignDetails:', error);
@@ -213,7 +266,7 @@ const CampaignDetails = () => {
                 <Users className="w-8 h-8 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">Participants</p>
-                  <p className="text-2xl font-bold">{participants.length}</p>
+                  <p className="text-2xl font-bold">{uniqueParticipants.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -307,7 +360,7 @@ const CampaignDetails = () => {
           {/* Two Distinct Boxes */}
           <div className="lg:col-span-2 space-y-6">
             {/* Campaign Participants Box */}
-            <ParticipantsList participants={participants} />
+            <ParticipantsList participants={uniqueParticipants} />
             
             {/* Complete Submissions Log Box */}
             <SubmissionsLog submissions={participants} />
@@ -364,7 +417,7 @@ const CampaignDetails = () => {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Avg. Views per Creator</span>
                   <span className="font-medium">
-                    {participants.length > 0 ? Math.round(totalViews / participants.length).toLocaleString() : 0}
+                    {uniqueParticipants.length > 0 ? Math.round(totalViews / uniqueParticipants.length).toLocaleString() : 0}
                   </span>
                 </div>
               </CardContent>

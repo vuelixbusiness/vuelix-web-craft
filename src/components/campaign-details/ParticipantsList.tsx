@@ -5,12 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { MessageCircle, User } from 'lucide-react';
 
-interface Participant {
-  id: string;
+interface UniqueParticipant {
   creator_id: string;
+  join_date: string;
+  submission_count: number;
+  platforms: string[];
+  primary_platform: string;
   status: string;
-  created_at: string;
-  platform: string;
   profiles: {
     username: string;
     display_name: string | null;
@@ -19,7 +20,7 @@ interface Participant {
 }
 
 interface ParticipantsListProps {
-  participants: Participant[];
+  participants: UniqueParticipant[];
 }
 
 const ParticipantsList = ({ participants }: ParticipantsListProps) => {
@@ -73,13 +74,14 @@ const ParticipantsList = ({ participants }: ParticipantsListProps) => {
                   <TableHead>Creator</TableHead>
                   <TableHead>Join Date</TableHead>
                   <TableHead>Platform</TableHead>
+                  <TableHead>Submissions</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {participants.map((participant) => (
-                  <TableRow key={participant.id}>
+                  <TableRow key={participant.creator_id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <Avatar className="w-8 h-8">
@@ -98,9 +100,23 @@ const ParticipantsList = ({ participants }: ParticipantsListProps) => {
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell>{formatDate(participant.created_at)}</TableCell>
+                    <TableCell>{formatDate(participant.join_date)}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">{participant.platform}</Badge>
+                      {participant.platforms.length === 1 ? (
+                        <Badge variant="outline">{participant.primary_platform}</Badge>
+                      ) : (
+                        <div className="flex items-center gap-1">
+                          <Badge variant="outline">{participant.primary_platform}</Badge>
+                          <Badge variant="secondary" className="text-xs">
+                            +{participant.platforms.length - 1}
+                          </Badge>
+                        </div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className="text-xs">
+                        {participant.submission_count} submission{participant.submission_count !== 1 ? 's' : ''}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <Badge variant={getStatusColor(participant.status)}>
