@@ -215,7 +215,7 @@ const CampaignCard = ({
               <>
                 {/* Budget Information */}
                 {campaign.budget && (
-                  <div className="bg-secondary/30 rounded-lg -mx-6 px-6 py-4 mb-4">
+                  <div className="bg-secondary/30 rounded-lg -ml-6 pl-6 pr-4 py-4 mb-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center space-x-2">
                         <DollarSign className="w-5 h-5 text-primary" />
@@ -257,7 +257,7 @@ const CampaignCard = ({
                   </div>
                 )}
 
-                <div className="bg-secondary/30 rounded-lg -mx-6 px-6 py-4 mb-4">
+                <div className="bg-secondary/30 rounded-lg -ml-6 pl-6 pr-4 py-4 mb-4">
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Campaign Description</p>
                     <p className="text-sm text-foreground leading-relaxed">
