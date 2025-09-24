@@ -141,6 +141,7 @@ const CampaignManagement = () => {
 
           return {
             ...campaign,
+            description: campaign.instructions,
             profiles: profilesData?.find(p => p.user_id === campaign.artist_id) || null,
             redeemed,
             availableBudget,
