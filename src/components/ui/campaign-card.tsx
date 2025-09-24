@@ -256,8 +256,17 @@ const CampaignCard = ({
                   </div>
                 )}
 
-                {showJoinButton && (
-                  <div className="flex justify-end mb-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center space-x-4">
+                    <div className="text-center">
+                      <p className="text-xs text-muted-foreground">Payout Rate</p>
+                      <p className="font-bold text-green-500 text-lg">
+                        {formatPayout(campaign.payout_rate, campaign.payout_type)}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {showJoinButton && (
                     <Dialog>
                       <DialogTrigger asChild>
                         <Button 
@@ -283,8 +292,8 @@ const CampaignCard = ({
                         />
                       </DialogContent>
                     </Dialog>
-                  </div>
-                )}
+                  )}
+                </div>
               </>
             )}
 
