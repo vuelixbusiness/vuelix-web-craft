@@ -1,11 +1,9 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import DashboardLayout from "@/components/DashboardLayout";
-import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
+import { useNotifications, Notification } from "@/hooks/useNotifications";
 import { 
   Bell, 
   BellOff, 
@@ -15,21 +13,17 @@ import {
   Check,
   X,
   Settings
-} from "lucide-react";
-
-interface Notification {
-  id: string;
-  type: string;
-  message: string;
-  read: boolean;
-  created_at: string;
-}
+ } from "lucide-react";
 
 const Notifications = () => {
-  const { user } = useAuth();
-  const { toast } = useToast();
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { 
+    notifications, 
+    unreadCount, 
+    isLoading, 
+    markAsRead, 
+    markAllAsRead, 
+    deleteAllRead 
+  } = useNotifications();
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
 
   const notificationIcons = {
@@ -37,143 +31,15 @@ const Notifications = () => {
     campaign: TrendingUp,
     message: MessageSquare,
     system: Bell,
+    campaign_join: TrendingUp,
+    campaign_joined: TrendingUp,
+    status_update: Bell,
+    participation_update: TrendingUp,
   };
-
-  const fetchNotifications = async () => {
-    if (!user?.id) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('notifications' as any)
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setNotifications(data as any || []);
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: "Failed to fetch notifications",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const markAsRead = async (notificationId: string) => {
-    try {
-      const { error } = await supabase
-        .from('notifications' as any)
-        .update({ read: true })
-        .eq('id', notificationId);
-
-      if (error) throw error;
-
-      setNotifications(prev => 
-        prev.map(notif => 
-          notif.id === notificationId 
-            ? { ...notif, read: true }
-            : notif
-        )
-      );
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: "Failed to mark notification as read",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const markAllAsRead = async () => {
-    if (!user?.id) return;
-
-    try {
-      const { error } = await supabase
-        .from('notifications' as any)
-        .update({ read: true })
-        .eq('user_id', user.id)
-        .eq('read', false);
-
-      if (error) throw error;
-
-      setNotifications(prev => 
-        prev.map(notif => ({ ...notif, read: true }))
-      );
-
-      toast({
-        title: "Success",
-        description: "All notifications marked as read",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: "Failed to mark notifications as read",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const deleteAllRead = async () => {
-    if (!user?.id) return;
-
-    try {
-      const { error } = await supabase
-        .from('notifications' as any)
-        .delete()
-        .eq('user_id', user.id)
-        .eq('read', true);
-
-      if (error) throw error;
-
-      setNotifications(prev => prev.filter(notif => !notif.read));
-
-      toast({
-        title: "Success",
-        description: "Read notifications deleted",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: "Failed to delete notifications",
-        variant: "destructive",
-      });
-    }
-  };
-
-  useEffect(() => {
-    fetchNotifications();
-
-    // Set up real-time notifications
-    const channel = supabase
-      .channel('notifications')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user?.id}`
-        },
-        (payload) => {
-          const newNotification = payload.new as Notification;
-          setNotifications(prev => [newNotification, ...prev]);
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id]);
 
   const filteredNotifications = filter === 'all' 
     ? notifications 
     : notifications.filter(n => !n.read);
-
-  const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
     <DashboardLayout>
@@ -285,6 +151,19 @@ const Notifications = () => {
                               {new Date(notification.created_at).toLocaleString()}
                             </p>
                             <div className="flex items-center space-x-2">
+                              {notification.category && (
+                                <Badge variant="outline" className="text-xs">
+                                  {notification.category}
+                                </Badge>
+                              )}
+                              {notification.priority && notification.priority !== 'medium' && (
+                                <Badge 
+                                  variant={notification.priority === 'high' || notification.priority === 'critical' ? 'destructive' : 'secondary'} 
+                                  className="text-xs"
+                                >
+                                  {notification.priority}
+                                </Badge>
+                              )}
                               <Badge variant="secondary" className="text-xs">
                                 {notification.type}
                               </Badge>

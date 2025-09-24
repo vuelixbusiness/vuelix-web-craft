@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { LogOut, MessageCircle, ArrowLeftRight, Home, Settings } from "lucide-react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import ThemeToggle from "@/components/ThemeToggle";
+import NotificationBell from "@/components/NotificationBell";
 import vuelixLogo from "@/assets/vuelix-logo-v.png";
 
 interface DashboardNavProps {
@@ -105,6 +106,7 @@ const DashboardNav = ({ dashboardType }: DashboardNavProps) => {
           </div>
           
           <div className="flex items-center space-x-4">
+            <NotificationBell size="sm" />
             <ThemeToggle />
             <Avatar>
               <AvatarImage src={user?.avatar} alt={user?.name} />

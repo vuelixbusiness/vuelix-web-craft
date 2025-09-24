@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
 import { LogOut, User, Wallet, Music, Users, Trophy, BarChart3, Home } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
+import NotificationBell from '@/components/NotificationBell';
 import vuelixLogo from "@/assets/vuelix-logo-v.png";
 
 interface DashboardLayoutProps {
@@ -72,6 +73,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
             {/* User Menu - Fixed right position */}
             <div className="flex items-center space-x-6 flex-shrink-0">
+              <NotificationBell />
               <ThemeToggle />
               <Avatar className="w-12 h-12">
             <AvatarImage src={user?.avatar} alt={user?.name} />
