@@ -60,6 +60,7 @@ interface Campaign {
   end_date?: string;
   created_at: string;
   instructions?: string;
+  rules?: string;
   platforms: string[];
   campaign_type: string;
   cover_art_url?: string;
@@ -101,6 +102,7 @@ export default function CampaignManagement() {
     max_payout: "",
     vip_max_payout: "",
     instructions: "",
+    rules: "",
     end_date: ""
   });
 
@@ -133,6 +135,7 @@ export default function CampaignManagement() {
         max_payout: campaignData.max_payout?.toString() || "",
         vip_max_payout: campaignData.vip_max_payout?.toString() || "",
         instructions: campaignData.instructions || "",
+        rules: campaignData.rules || "",
         end_date: campaignData.end_date ? new Date(campaignData.end_date).toISOString().split('T')[0] : ""
       });
 
@@ -253,6 +256,7 @@ export default function CampaignManagement() {
         max_payout: editForm.max_payout ? parseFloat(editForm.max_payout) : null,
         vip_max_payout: editForm.vip_max_payout ? parseFloat(editForm.vip_max_payout) : null,
         instructions: editForm.instructions,
+        rules: editForm.rules,
         end_date: editForm.end_date ? new Date(editForm.end_date).toISOString() : null,
         cover_art_url: coverArtUrl,
         song_url: songUrl
@@ -497,6 +501,16 @@ export default function CampaignManagement() {
                       rows={4}
                     />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="rules">Campaign Rules</Label>
+                    <Textarea
+                      id="rules"
+                      value={editForm.rules}
+                      onChange={(e) => setEditForm({ ...editForm, rules: e.target.value })}
+                      placeholder="• Use the provided song in your content&#10;• Include relevant hashtags and mentions&#10;• Follow platform community guidelines&#10;• Submit high-quality, original content&#10;• Track and report your video metrics"
+                      rows={4}
+                    />
+                  </div>
 
                   {/* File Upload Section */}
                   <div className="space-y-4">
@@ -735,6 +749,20 @@ export default function CampaignManagement() {
               <div>
                 <label className="text-sm font-medium text-muted-foreground">Instructions</label>
                 <p className="mt-1 text-sm">{campaign.instructions}</p>
+              </div>
+            </>
+          )}
+
+          {campaign.rules && (
+            <>
+              <Separator />
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Campaign Rules</label>
+                <div className="mt-1 text-sm">
+                  {campaign.rules.split('\n').map((rule, index) => (
+                    <p key={index} className="mb-1">{rule}</p>
+                  ))}
+                </div>
               </div>
             </>
           )}

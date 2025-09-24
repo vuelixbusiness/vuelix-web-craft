@@ -41,6 +41,7 @@ interface Campaign {
   status?: string;
   end_date?: string;
   description?: string;
+  rules?: string;
   profiles?: {
     display_name?: string;
   } | null;
@@ -341,13 +342,21 @@ const CampaignCard = ({
                 {(() => {
                   const defaultRules = [
                     "Use the provided song in your content",
-                    "Include relevant hashtags and mentions",
+                    "Include relevant hashtags and mentions", 
                     "Follow platform community guidelines",
                     "Submit high-quality, original content",
                     "Track and report your video metrics"
                   ];
                   
-                  const rules = defaultRules;
+                  let rules = defaultRules;
+                  
+                  // Use campaign rules if available, otherwise use default rules
+                  if (campaign.rules && campaign.rules.trim()) {
+                    rules = campaign.rules.split('\n')
+                      .map(rule => rule.replace(/^[•\-\*]\s*/, '').trim())
+                      .filter(rule => rule.length > 0);
+                  }
+                  
                   const shouldTruncate = rules.length > 3;
                   const displayRules = shouldTruncate && !isRulesExpanded ? rules.slice(0, 3) : rules;
                   

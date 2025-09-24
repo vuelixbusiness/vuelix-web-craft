@@ -38,6 +38,7 @@ interface Campaign {
   max_payout: number;
   vip_max_payout: number;
   instructions: string;
+  rules?: string;
   budget: number;
   end_date: string;
   artist_id: string;
@@ -97,7 +98,7 @@ const CampaignManagement = () => {
         .select(`
           id, title, song_title, song_url, cover_art_url, campaign_type,
           genre, platforms, payout_type, payout_rate, vip_bonus,
-          max_payout, vip_max_payout, instructions, budget, end_date, artist_id
+          max_payout, vip_max_payout, instructions, rules, budget, end_date, artist_id
         `)
         .eq('status', 'active')
         .order('created_at', { ascending: false });

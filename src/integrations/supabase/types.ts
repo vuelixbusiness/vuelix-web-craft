@@ -99,6 +99,7 @@ export type Database = {
           payout_type: string
           platforms: string[]
           reference_links: string | null
+          rules: string | null
           song_title: string
           song_url: string | null
           status: string | null
@@ -123,6 +124,7 @@ export type Database = {
           payout_type: string
           platforms: string[]
           reference_links?: string | null
+          rules?: string | null
           song_title: string
           song_url?: string | null
           status?: string | null
@@ -147,6 +149,7 @@ export type Database = {
           payout_type?: string
           platforms?: string[]
           reference_links?: string | null
+          rules?: string | null
           song_title?: string
           song_url?: string | null
           status?: string | null

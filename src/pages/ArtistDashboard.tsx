@@ -30,6 +30,8 @@ interface Campaign {
   platforms: string[];
   cover_art_url?: string;
   artist_id: string;
+  instructions?: string;
+  rules?: string;
   // Additional fields from spending calculation
   actualSpent?: number;
   estimatedPending?: number;
