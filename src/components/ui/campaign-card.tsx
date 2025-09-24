@@ -266,7 +266,7 @@ const CampaignCard = ({
                   </div>
                   
                   {showJoinButton && (
-                    <div className="mt-4 flex justify-end">
+                    <div className="mt-4 flex justify-start">
                       <Dialog>
                         <DialogTrigger asChild>
                           <Button 
