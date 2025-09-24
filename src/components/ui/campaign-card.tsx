@@ -215,7 +215,7 @@ const CampaignCard = ({
               <>
                 {/* Budget Information */}
                 {campaign.budget && (
-                  <div className="bg-secondary/30 rounded-lg p-4 mb-4">
+                  <div className="bg-secondary/30 rounded-lg -mx-6 px-6 py-4 mb-4">
                     <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center space-x-2">
                         <DollarSign className="w-5 h-5 text-primary" />
@@ -257,42 +257,42 @@ const CampaignCard = ({
                   </div>
                 )}
 
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex-1">
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-1">Campaign Description</p>
-                      <p className="text-sm text-foreground leading-relaxed">
-                        {campaign.description || "Join this exciting campaign to promote amazing music and earn rewards for your creative content!"}
-                      </p>
-                    </div>
+                <div className="mb-4">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Campaign Description</p>
+                    <p className="text-sm text-foreground leading-relaxed">
+                      {campaign.description || "Join this exciting campaign to promote amazing music and earn rewards for your creative content!"}
+                    </p>
                   </div>
                   
                   {showJoinButton && (
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button 
-                          className="bg-gradient-primary hover:opacity-90 transition-smooth"
-                          onClick={() => onJoinCampaign?.(campaign)}
-                        >
-                          <PlayCircle className="w-4 h-4 mr-2" />
-                          Join Campaign
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl">
-                        <DialogHeader>
-                          <DialogTitle>Join "{campaign.song_title}" Campaign</DialogTitle>
-                        </DialogHeader>
-                        <VideoSubmission 
-                          campaign={campaign as any}
-                          onSubmissionComplete={() => {
-                            toast({
-                              title: "Success!",
-                              description: "Video submitted successfully"
-                            });
-                          }}
-                        />
-                      </DialogContent>
-                    </Dialog>
+                    <div className="mt-4 flex justify-end">
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button 
+                            className="bg-gradient-primary hover:opacity-90 transition-smooth"
+                            onClick={() => onJoinCampaign?.(campaign)}
+                          >
+                            <PlayCircle className="w-4 h-4 mr-2" />
+                            Join Campaign
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="max-w-2xl">
+                          <DialogHeader>
+                            <DialogTitle>Join "{campaign.song_title}" Campaign</DialogTitle>
+                          </DialogHeader>
+                          <VideoSubmission 
+                            campaign={campaign as any}
+                            onSubmissionComplete={() => {
+                              toast({
+                                title: "Success!",
+                                description: "Video submitted successfully"
+                              });
+                            }}
+                          />
+                        </DialogContent>
+                      </Dialog>
+                    </div>
                   )}
                 </div>
               </>
