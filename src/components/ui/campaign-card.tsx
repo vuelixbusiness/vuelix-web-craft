@@ -257,7 +257,7 @@ const CampaignCard = ({
                   </div>
                 )}
 
-                <div className="mb-4">
+                <div className="bg-secondary/30 rounded-lg -mx-6 px-6 py-4 mb-4">
                   <div>
                     <p className="text-sm text-muted-foreground mb-1">Campaign Description</p>
                     <p className="text-sm text-foreground leading-relaxed">
