@@ -6,9 +6,10 @@ import DashboardLayout from '@/components/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { CalendarDays, DollarSign, Music, Users, Eye, Heart, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
+import ParticipantsList from '@/components/campaign-details/ParticipantsList';
+import SubmissionsLog from '@/components/campaign-details/SubmissionsLog';
 
 interface Campaign {
   id: string;
@@ -43,6 +44,7 @@ interface Participant {
   payout_amount: number;
   payout_claimed: boolean;
   created_at: string;
+  last_tracked_at: string;
   profiles: {
     username: string;
     display_name: string | null;
@@ -85,7 +87,7 @@ const CampaignDetails = () => {
       // Fetch participants
       const { data: participantsData, error: participantsError } = await supabase
         .from('campaign_participations')
-        .select('*')
+        .select('*, last_tracked_at')
         .eq('campaign_id', id);
 
       if (participantsError) {
@@ -242,42 +244,42 @@ const CampaignDetails = () => {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Campaign Details */}
-          <div className="lg:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Campaign Information</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Genre</label>
-                    <p className="font-medium">{campaign.genre}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Campaign Type</label>
-                    <p className="font-medium">{campaign.campaign_type}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Payout Type</label>
-                    <p className="font-medium">{campaign.payout_type}</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Payout Rate</label>
-                    <p className="font-medium">{formatCurrency(campaign.payout_rate)} per view</p>
-                  </div>
-                </div>
-                
+        {/* Campaign Information */}
+        <div className="mb-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Campaign Information</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-muted-foreground">Platforms</label>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {campaign.platforms.map((platform) => (
-                      <Badge key={platform} variant="outline">{platform}</Badge>
-                    ))}
-                  </div>
+                  <label className="text-sm font-medium text-muted-foreground">Genre</label>
+                  <p className="font-medium">{campaign.genre}</p>
                 </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Campaign Type</label>
+                  <p className="font-medium">{campaign.campaign_type}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Payout Type</label>
+                  <p className="font-medium">{campaign.payout_type}</p>
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Payout Rate</label>
+                  <p className="font-medium">{formatCurrency(campaign.payout_rate)} per view</p>
+                </div>
+              </div>
+              
+              <div>
+                <label className="text-sm font-medium text-muted-foreground">Platforms</label>
+                <div className="flex flex-wrap gap-2 mt-1">
+                  {campaign.platforms.map((platform) => (
+                    <Badge key={platform} variant="outline">{platform}</Badge>
+                  ))}
+                </div>
+              </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Created</label>
                   <p className="font-medium">{formatDate(campaign.created_at)}</p>
@@ -289,69 +291,26 @@ const CampaignDetails = () => {
                     <p className="font-medium">{formatDate(campaign.end_date)}</p>
                   </div>
                 )}
+              </div>
 
-                {campaign.instructions && (
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">Instructions</label>
-                    <p className="text-sm bg-muted p-3 rounded-md">{campaign.instructions}</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+              {campaign.instructions && (
+                <div>
+                  <label className="text-sm font-medium text-muted-foreground">Instructions</label>
+                  <p className="text-sm bg-muted p-3 rounded-md">{campaign.instructions}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
-            {/* Participants */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Participants ({participants.length})</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {participants.length === 0 ? (
-                  <p className="text-muted-foreground text-center py-8">No participants yet</p>
-                ) : (
-                  <div className="space-y-4">
-                    {participants.map((participant) => (
-                      <div key={participant.id} className="flex items-center gap-4 p-4 border rounded-lg">
-                        <Avatar>
-                          <AvatarImage src={participant.profiles?.avatar_url || ''} />
-                          <AvatarFallback>
-                            {participant.profiles?.username?.charAt(0).toUpperCase() || 'U'}
-                          </AvatarFallback>
-                        </Avatar>
-                        
-                        <div className="flex-1">
-                          <p className="font-medium">
-                            {participant.profiles?.display_name || participant.profiles?.username}
-                          </p>
-                          <p className="text-sm text-muted-foreground">@{participant.profiles?.username}</p>
-                        </div>
-
-                        <div className="text-right">
-                          <p className="text-sm font-medium">
-                            {participant.current_views.toLocaleString()} views
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            {participant.current_likes.toLocaleString()} likes
-                          </p>
-                        </div>
-
-                        <Badge variant={participant.status === 'approved' ? 'default' : 'secondary'}>
-                          {participant.status}
-                        </Badge>
-
-                        <div className="text-right">
-                          <p className="text-sm font-medium text-primary">
-                            {formatCurrency(participant.payout_amount)}
-                          </p>
-                          {participant.payout_claimed && (
-                            <p className="text-xs text-muted-foreground">Claimed</p>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Two Distinct Boxes */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Campaign Participants Box */}
+            <ParticipantsList participants={participants} />
+            
+            {/* Complete Submissions Log Box */}
+            <SubmissionsLog submissions={participants} />
           </div>
 
           {/* Media Assets */}
