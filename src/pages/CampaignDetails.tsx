@@ -102,7 +102,7 @@ const CampaignDetails = () => {
       // Fetch participants
       const { data: participantsData, error: participantsError } = await supabase
         .from('campaign_participations')
-        .select('*, last_tracked_at')
+        .select('*')
         .eq('campaign_id', id);
 
       if (participantsError) {
@@ -110,8 +110,8 @@ const CampaignDetails = () => {
         return;
       }
 
-      // Fetch profiles for participants
       if (participantsData && participantsData.length > 0) {
+        // Fetch profiles for participants
         const creatorIds = participantsData.map(p => p.creator_id);
         const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
@@ -122,11 +122,36 @@ const CampaignDetails = () => {
           console.error('Error fetching profiles:', profilesError);
         }
 
-        // Combine participants with their profiles
-        const participantsWithProfiles = participantsData.map(participant => ({
-          ...participant,
-          profiles: profilesData?.find(profile => profile.user_id === participant.creator_id) || null
-        }));
+        // Create a map for easier lookup
+        const profilesMap = new Map();
+        profilesData?.forEach(profile => {
+          profilesMap.set(profile.user_id, {
+            username: profile.username,
+            display_name: profile.display_name,
+            avatar_url: profile.avatar_url
+          });
+        });
+
+        // Combine participants with their profiles, providing fallbacks
+        const participantsWithProfiles = participantsData.map(participant => {
+          const profile = profilesMap.get(participant.creator_id);
+          return {
+            ...participant,
+            profiles: profile || {
+              username: `user_${participant.creator_id.slice(0, 8)}`,
+              display_name: null,
+              avatar_url: null
+            }
+          };
+        });
+        
+        // Log any missing profile data for debugging
+        const missingProfiles = participantsWithProfiles.filter(p => 
+          p.profiles.username.startsWith('user_')
+        );
+        if (missingProfiles.length > 0) {
+          console.warn('Participants with missing profiles:', missingProfiles.map(p => p.creator_id));
+        }
 
         setParticipants(participantsWithProfiles);
 

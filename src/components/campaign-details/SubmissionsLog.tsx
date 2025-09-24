@@ -103,12 +103,17 @@ const SubmissionsLog = ({ submissions, campaignId, isArtist, onSubmissionUpdate 
 
   const handleStatusUpdate = async (submissionId: string, status: string) => {
     try {
+      console.log('Updating submission status:', { submissionId, status });
+      
       const { error } = await supabase
         .from('campaign_participations')
         .update({ status, updated_at: new Date().toISOString() })
         .eq('id', submissionId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Status update error:', error);
+        throw error;
+      }
       
       toast({
         title: "Status updated",
@@ -117,6 +122,7 @@ const SubmissionsLog = ({ submissions, campaignId, isArtist, onSubmissionUpdate 
       
       onSubmissionUpdate?.();
     } catch (error) {
+      console.error('Failed to update status:', error);
       toast({
         title: "Error",
         description: "Failed to update submission status",
@@ -340,10 +346,10 @@ const SubmissionsLog = ({ submissions, campaignId, isArtist, onSubmissionUpdate 
                           </Avatar>
                           <div>
                             <p className="font-medium">
-                              {submission.profiles?.display_name || submission.profiles?.username}
+                              {submission.profiles?.display_name || submission.profiles?.username || 'Unknown User'}
                             </p>
                             <p className="text-xs text-muted-foreground">
-                              @{submission.profiles?.username}
+                              @{submission.profiles?.username || 'unknown'}
                             </p>
                           </div>
                         </div>
