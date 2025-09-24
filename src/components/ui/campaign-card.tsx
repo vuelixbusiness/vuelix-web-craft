@@ -263,7 +263,7 @@ const CampaignCard = ({
                     <p className="text-sm text-muted-foreground mb-1">Campaign Description</p>
                     {(() => {
                       const description = campaign.description || "Join this exciting campaign to promote amazing music and earn rewards for your creative content!";
-                      const characterLimit = 120;
+                      const characterLimit = 220;
                       const shouldTruncate = description.length > characterLimit;
                       
                       return (
