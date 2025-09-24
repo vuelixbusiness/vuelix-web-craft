@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/utils";
 import DashboardLayout from "@/components/DashboardLayout";
+import ArtistCampaignList from "@/components/ArtistCampaignList";
 import vuelixLogo from "@/assets/vuelix-logo-v.png";
 
 type DashboardProfile = 'campaigns' | 'analytics' | 'creators' | 'settings';
@@ -67,6 +68,7 @@ const ArtistDashboard = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [stats, setStats] = useState<CampaignStats>({
     totalCampaigns: 0,
@@ -390,48 +392,61 @@ const ArtistDashboard = () => {
                 <div className="flex items-center justify-between">
                   <h3 className="text-xl font-bold">Your Campaigns</h3>
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">Filter</Button>
-                    <Button variant="outline" size="sm">Sort</Button>
+                    <Button 
+                      variant={viewMode === 'cards' ? 'default' : 'outline'} 
+                      size="sm"
+                      onClick={() => setViewMode('cards')}
+                    >
+                      Cards
+                    </Button>
+                    <Button 
+                      variant={viewMode === 'list' ? 'default' : 'outline'} 
+                      size="sm"
+                      onClick={() => setViewMode('list')}
+                    >
+                      List
+                    </Button>
                   </div>
                 </div>
                 
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                  {isLoading ? (
-                    // Loading skeletons
-                    Array.from({ length: 2 }).map((_, i) => (
-                      <Card key={i} className="h-80">
-                        <CardContent className="p-6">
-                          <div className="flex space-x-4 mb-4">
-                            <Skeleton className="w-20 h-20 rounded-lg" />
-                            <div className="flex-1 space-y-2">
-                              <Skeleton className="h-6 w-3/4" />
-                              <Skeleton className="h-4 w-1/2" />
-                              <Skeleton className="h-4 w-1/3" />
+                {viewMode === 'cards' ? (
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    {isLoading ? (
+                      // Loading skeletons
+                      Array.from({ length: 2 }).map((_, i) => (
+                        <Card key={i} className="h-80">
+                          <CardContent className="p-6">
+                            <div className="flex space-x-4 mb-4">
+                              <Skeleton className="w-20 h-20 rounded-lg" />
+                              <div className="flex-1 space-y-2">
+                                <Skeleton className="h-6 w-3/4" />
+                                <Skeleton className="h-4 w-1/2" />
+                                <Skeleton className="h-4 w-1/3" />
+                              </div>
                             </div>
-                          </div>
-                          <Skeleton className="h-32 w-full" />
-                        </CardContent>
-                      </Card>
-                    ))
-                  ) : campaigns.length === 0 ? (
-                    // Empty state
-                    <div className="col-span-full text-center py-20">
-                      <Music className="w-20 h-20 mx-auto mb-6 text-muted-foreground/50" />
-                      <h3 className="text-2xl font-semibold mb-3">No Campaigns Yet</h3>
-                      <p className="text-muted-foreground mb-6 text-lg">
-                        Create your first campaign to start promoting your music
-                      </p>
-                      <Button size="lg" onClick={() => navigate('/artist-campaign')}>
-                        <Plus className="w-5 h-5 mr-2" />
-                        Create Campaign
-                      </Button>
-                    </div>
-                  ) : (
-                    campaigns.map((campaign) => {
-                      const displayCampaign = formatCampaignForDisplay(campaign);
-                      const totalCommitted = displayCampaign.spent + displayCampaign.estimatedPending;
-                      const availableBudget = displayCampaign.available;
-                      const progressPercentage = displayCampaign.budget > 0 ? (totalCommitted / displayCampaign.budget) * 100 : 0;
+                            <Skeleton className="h-32 w-full" />
+                          </CardContent>
+                        </Card>
+                      ))
+                    ) : campaigns.length === 0 ? (
+                      // Empty state
+                      <div className="col-span-full text-center py-20">
+                        <Music className="w-20 h-20 mx-auto mb-6 text-muted-foreground/50" />
+                        <h3 className="text-2xl font-semibold mb-3">No Campaigns Yet</h3>
+                        <p className="text-muted-foreground mb-6 text-lg">
+                          Create your first campaign to start promoting your music
+                        </p>
+                        <Button size="lg" onClick={() => navigate('/artist-campaign')}>
+                          <Plus className="w-5 h-5 mr-2" />
+                          Create Campaign
+                        </Button>
+                      </div>
+                    ) : (
+                      campaigns.map((campaign) => {
+                        const displayCampaign = formatCampaignForDisplay(campaign);
+                        const totalCommitted = displayCampaign.spent + displayCampaign.estimatedPending;
+                        const availableBudget = displayCampaign.available;
+                        const progressPercentage = displayCampaign.budget > 0 ? (totalCommitted / displayCampaign.budget) * 100 : 0;
                       
                       return (
                         <Card key={campaign.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-[1.02] min-h-[400px]">
@@ -619,11 +634,19 @@ const ArtistDashboard = () => {
                              </div>
                            </CardContent>
                          </Card>
-                       );
-                     })
-                   )}
-                 </div>
-               </div>
+                        );
+                      })
+                    )}
+                  </div>
+                ) : (
+                  <ArtistCampaignList 
+                    campaigns={campaigns}
+                    isLoading={isLoading}
+                    currentlyPlaying={currentlyPlaying}
+                    onToggleAudio={toggleAudio}
+                  />
+                )}
+              </div>
              </TabsContent>
 
             {/* Analytics Profile */}
