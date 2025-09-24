@@ -462,29 +462,74 @@ export type Database = {
           },
         ]
       }
-      notifications: {
+      notification_preferences: {
         Row: {
+          category: string
           created_at: string | null
+          email_enabled: boolean | null
           id: string
-          message: string
-          read: boolean | null
-          type: string
+          in_app_enabled: boolean | null
+          updated_at: string | null
           user_id: string
         }
         Insert: {
+          category: string
           created_at?: string | null
+          email_enabled?: boolean | null
           id?: string
-          message: string
-          read?: boolean | null
-          type: string
+          in_app_enabled?: boolean | null
+          updated_at?: string | null
           user_id: string
         }
         Update: {
+          category?: string
           created_at?: string | null
+          email_enabled?: boolean | null
+          id?: string
+          in_app_enabled?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          priority: string | null
+          read: boolean | null
+          type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          priority?: string | null
+          read?: boolean | null
+          type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          expires_at?: string | null
           id?: string
           message?: string
+          metadata?: Json | null
+          priority?: string | null
           read?: boolean | null
           type?: string
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: [
@@ -720,7 +765,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_notification: {
+        Args: {
+          p_category?: string
+          p_message: string
+          p_metadata?: Json
+          p_priority?: string
+          p_type: string
+          p_user_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       membership_type: "regular" | "premium"
