@@ -302,8 +302,8 @@ const CampaignCard = ({
                           : description
                         }
                       </p>
-                      <div className="mt-4 flex items-center justify-between">
-                        {shouldTruncate && (
+                      {shouldTruncate && (
+                        <div className="mt-4">
                           <Button
                             variant="ghost"
                             size="sm"
@@ -312,20 +312,8 @@ const CampaignCard = ({
                           >
                             {isDescriptionExpanded ? "View Less" : "View More"}
                           </Button>
-                        )}
-                        {showJoinButton && (
-                          <Button 
-                            className="bg-gradient-primary hover:opacity-90 transition-smooth ml-auto"
-                            onClick={() => {
-                              onJoinCampaign?.(campaign);
-                              window.location.href = `/campaign/${campaign.id}/join`;
-                            }}
-                          >
-                            <PlayCircle className="w-4 h-4 mr-2" />
-                            Join Campaign
-                          </Button>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   );
                 })()}
@@ -376,16 +364,30 @@ const CampaignCard = ({
                           </li>
                         )}
                       </ul>
-                      {shouldTruncate && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setIsRulesExpanded(!isRulesExpanded)}
-                          className="h-auto p-0 text-primary hover:text-primary/80 mt-2"
-                        >
-                          {isRulesExpanded ? "View Less" : "View All Rules"}
-                        </Button>
-                      )}
+                      <div className="mt-4 flex items-center justify-between">
+                        {shouldTruncate && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setIsRulesExpanded(!isRulesExpanded)}
+                            className="h-auto p-0 text-primary hover:text-primary/80"
+                          >
+                            {isRulesExpanded ? "View Less" : "View All Rules"}
+                          </Button>
+                        )}
+                        {showJoinButton && (
+                          <Button 
+                            className="bg-gradient-primary hover:opacity-90 transition-smooth ml-auto"
+                            onClick={() => {
+                              onJoinCampaign?.(campaign);
+                              window.location.href = `/campaign/${campaign.id}/join`;
+                            }}
+                          >
+                            <PlayCircle className="w-4 h-4 mr-2" />
+                            Join Campaign
+                          </Button>
+                        )}
+                      </div>
                     </div>
                   );
                 })()}
