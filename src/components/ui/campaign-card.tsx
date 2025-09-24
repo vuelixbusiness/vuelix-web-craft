@@ -41,6 +41,7 @@ interface Campaign {
   likes?: number;
   status?: string;
   end_date?: string;
+  description?: string;
   profiles?: {
     display_name?: string;
   } | null;
@@ -257,11 +258,11 @@ const CampaignCard = ({
                 )}
 
                 <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-4">
-                    <div className="text-center">
-                      <p className="text-xs text-muted-foreground">Payout Rate</p>
-                      <p className="font-bold text-green-500 text-lg">
-                        {formatPayout(campaign.payout_rate, campaign.payout_type)}
+                  <div className="flex-1">
+                    <div>
+                      <p className="text-sm text-muted-foreground mb-1">Campaign Description</p>
+                      <p className="text-sm text-foreground leading-relaxed">
+                        {campaign.description || "Join this exciting campaign to promote amazing music and earn rewards for your creative content!"}
                       </p>
                     </div>
                   </div>
