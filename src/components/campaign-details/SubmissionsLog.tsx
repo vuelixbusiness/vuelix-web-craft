@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Eye, Heart, ExternalLink, Download, Search, Filter, MoreVertical, Check, X, Edit, MessageCircle, FileText, Trash2 } from 'lucide-react';
+import { Eye, Heart, ExternalLink, Download, Search, Filter, MoreVertical, Check, X, Edit, MessageCircle, FileText, Trash2, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { SubmissionManagementDialogs } from './SubmissionManagementDialogs';
@@ -344,13 +344,21 @@ const SubmissionsLog = ({ submissions, campaignId, isArtist, onSubmissionUpdate 
                               {submission.profiles?.username?.charAt(0).toUpperCase() || 'U'}
                             </AvatarFallback>
                           </Avatar>
-                          <div>
-                            <p className="font-medium">
-                              {submission.profiles?.display_name || submission.profiles?.username || 'Unknown User'}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              @{submission.profiles?.username || 'unknown'}
-                            </p>
+                          <div className="flex items-center gap-2">
+                            <div>
+                              <p className="font-medium">
+                                {submission.profiles?.display_name || submission.profiles?.username || 'Unknown User'}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                @{submission.profiles?.username || 'unknown'}
+                              </p>
+                            </div>
+                            {submission.status === 'pending' && (
+                              <div className="flex items-center gap-1 px-2 py-1 bg-orange-100 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 rounded-full">
+                                <Sparkles className="w-3 h-3" />
+                                <span className="text-xs font-medium">New</span>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </TableCell>
