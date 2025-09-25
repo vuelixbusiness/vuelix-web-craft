@@ -15,6 +15,7 @@ import { format } from "date-fns";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import CampaignCard from "@/components/ui/campaign-card";
 import { 
   Upload, 
   Music, 
@@ -83,6 +84,40 @@ const ArtistCampaignFlow = () => {
   const [isLaunching, setIsLaunching] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
+  // Transform campaignData to Campaign interface for CampaignCard
+  const transformToCampaign = () => {
+    const coverArtUrl = campaignData.coverArtFile 
+      ? URL.createObjectURL(campaignData.coverArtFile) 
+      : campaignData.coverArtLink || undefined;
+
+    const songUrl = campaignData.songFile 
+      ? URL.createObjectURL(campaignData.songFile)
+      : campaignData.songLink || undefined;
+
+    return {
+      id: 'preview-campaign',
+      song_title: campaignData.songTitle || 'Song Title',
+      title: `${campaignData.songTitle || 'Song Title'} Campaign`,
+      cover_art_url: coverArtUrl,
+      song_url: songUrl,
+      genre: campaignData.genre,
+      platforms: campaignData.platforms,
+      payout_rate: campaignData.payoutRate,
+      payout_type: campaignData.payoutType,
+      budget: campaignData.budget || 0,
+      status: 'active',
+      description: campaignData.instructions,
+      rules: campaignData.rules,
+      profiles: { display_name: 'Your Artist Name' },
+      budgetUsedPercentage: 0,
+      availableBudget: campaignData.budget || 0,
+      redeemed: 0,
+      views: 0,
+      likes: 0,
+      activeCreators: 0
+    };
+  };
+
   const handleSongFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -124,31 +159,40 @@ const ArtistCampaignFlow = () => {
     }
   };
 
-  const toggleAudioPreview = () => {
-    if (!audioRef.current) {
-      // Create audio element for uploaded file or link
-      if (campaignData.songFile) {
-        const audio = new Audio(URL.createObjectURL(campaignData.songFile));
-        audioRef.current = audio;
-      } else if (campaignData.songLink) {
-        // For demo purposes - in real app you'd need proper audio URLs
-        const audio = new Audio(campaignData.songLink);
-        audioRef.current = audio;
-      } else {
-        return;
-      }
+  const toggleAudioPreview = (campaignId?: string, songUrl?: string) => {
+    // Use provided songUrl from CampaignCard or fallback to campaign data
+    const audioSrc = songUrl || (campaignData.songFile 
+      ? URL.createObjectURL(campaignData.songFile)
+      : campaignData.songLink);
 
+    if (!audioSrc) return;
+
+    if (!audioRef.current) {
+      // Create audio element
+      const audio = new Audio(audioSrc);
+      audioRef.current = audio;
+      
       audioRef.current.addEventListener('ended', () => {
         setIsPlayingPreview(false);
       });
+    } else if (audioRef.current.src !== audioSrc) {
+      // Update audio source if different
+      audioRef.current.src = audioSrc;
     }
 
     if (isPlayingPreview) {
       audioRef.current.pause();
       setIsPlayingPreview(false);
     } else {
-      audioRef.current.play();
-      setIsPlayingPreview(true);
+      audioRef.current.play()
+        .then(() => setIsPlayingPreview(true))
+        .catch(() => {
+          toast({ 
+            title: "Error", 
+            description: "Failed to play audio", 
+            variant: "destructive" 
+          });
+        });
     }
   };
 
@@ -842,187 +886,20 @@ const ArtistCampaignFlow = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <Card className="bg-secondary relative">
-                    <CardContent className="p-6">
-                       {/* Highlighted Payout Rate Box - Top Right */}
-                       <div className="absolute top-4 right-4 bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 text-white px-3.5 py-1.5 rounded-lg shadow-lg border-2 border-white/20">
-                          <div className="text-lg font-bold">
-                            Earn ${campaignData.payoutRate} /1k views
-                          </div>
-                       </div>
-                       
-                       {/* Max Payout Info - Below Earn Button */}
-                       <div className="absolute top-20 right-4 mt-1">
-                         {campaignData.maxPayout && (
-                           <div className="bg-black/80 backdrop-blur-sm border border-cyan-400/30 rounded-md px-2 py-1 shadow-lg">
-                             <div className="flex items-center space-x-1">
-                               <span className="text-[10px] text-cyan-400 font-medium tracking-wider uppercase">Max Payout Total:</span>
-                               <span className="text-sm font-bold text-white bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-                                 ${campaignData.maxPayout}
-                               </span>
-                             </div>
-                           </div>
-                         )}
-                       </div>
-                       
-                        <div className="flex items-center space-x-4 mb-6">
-                          <div 
-                            className={`relative w-16 h-16 rounded-lg flex items-center justify-center cursor-pointer transition-smooth group ${
-                              campaignData.coverArtFile || campaignData.coverArtLink 
-                                ? 'bg-transparent' 
-                                : 'bg-gradient-primary'
-                            }`}
-                            onClick={toggleAudioPreview}
-                          >
-                            {campaignData.coverArtFile ? (
-                              <>
-                                <img 
-                                  src={URL.createObjectURL(campaignData.coverArtFile)} 
-                                  alt="Song cover" 
-                                  className="w-full h-full object-cover rounded-lg"
-                                />
-                                <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-smooth">
-                                  {isPlayingPreview ? (
-                                    <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
-                                      <div className="w-1 h-4 bg-primary mr-0.5"></div>
-                                      <div className="w-1 h-4 bg-primary"></div>
-                                    </div>
-                                  ) : (
-                                    <Play className="w-6 h-6 text-white ml-1" />
-                                  )}
-                                </div>
-                              </>
-                            ) : campaignData.coverArtLink ? (
-                              <>
-                                <img 
-                                  src={campaignData.coverArtLink} 
-                                  alt="Song cover" 
-                                  className="w-full h-full object-cover rounded-lg"
-                                />
-                                <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 group-hover:opacity-100 transition-smooth">
-                                  {isPlayingPreview ? (
-                                    <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
-                                      <div className="w-1 h-4 bg-primary mr-0.5"></div>
-                                      <div className="w-1 h-4 bg-primary"></div>
-                                    </div>
-                                  ) : (
-                                    <Play className="w-6 h-6 text-white ml-1" />
-                                  )}
-                                </div>
-                              </>
-                            ) : (
-                              <div className="flex items-center justify-center">
-                                {isPlayingPreview ? (
-                                  <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
-                                    <div className="w-1 h-4 bg-primary mr-0.5"></div>
-                                    <div className="w-1 h-4 bg-primary"></div>
-                                  </div>
-                                ) : (
-                                  <Music className="w-8 h-8 text-white" />
-                                )}
-                              </div>
-                            )}
-                          </div>
-                          <div>
-                            <h3 className="text-xl font-bold">Your Artist Name - {campaignData.songTitle || 'Song Title'}</h3>
-                            <p className="text-muted-foreground">
-                              {campaignData.genre} • {campaignData.campaignType}
-                              {(campaignData.songFile || campaignData.songLink) && (
-                                <span className="ml-2 text-primary text-sm">
-                                  {isPlayingPreview ? '▶ Playing...' : '⏸ Click to preview'}
-                                </span>
-                              )}
-                            </p>
-                          </div>
-                        </div>
-                       
-                       {/* Campaign Budget Progress Bar */}
-                       {campaignData.budget && (
-                         <div className="mb-6 p-4 bg-secondary/30 rounded-lg">
-                            <div className="flex justify-between items-center mb-3">
-                              <span className="text-sm font-medium">Campaign Budget Remaining</span>
-                              <span className="text-sm font-bold text-primary">100% remaining</span>
-                            </div>
-                            <div className="relative w-full bg-muted/40 rounded-full h-4 overflow-hidden">
-                              <div 
-                                className="h-full rounded-full bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600 transition-all duration-500 ease-out animate-scale-in relative"
-                                style={{ width: '100%' }}
-                              >
-                                <div className="absolute inset-0 bg-gradient-to-r from-cyan-300/20 to-purple-500/20 animate-pulse"></div>
-                              </div>
-                              <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-white mix-blend-difference">
-                                100%
-                              </div>
-                            </div>
-                            <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                              <span>Used: $0</span>
-                              <span>Available: {formatCurrency(campaignData.budget || 0)}</span>
-                            </div>
-                         </div>
-                        )}
-
-                        {/* Campaign Description */}
-                        {campaignData.instructions && (
-                          <div className="mb-6 p-4 bg-secondary/20 rounded-lg border border-border/40">
-                            <div className="flex justify-between items-center mb-2">
-                              <div className="text-sm font-medium text-foreground">Campaign Description</div>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                                className="text-xs h-6 px-2 text-primary hover:text-primary-foreground"
-                              >
-                                {isDescriptionExpanded ? "See Less" : "See More"}
-                              </Button>
-                            </div>
-                            <div className="text-sm text-muted-foreground leading-relaxed">
-                              {isDescriptionExpanded 
-                                ? campaignData.instructions 
-                                : `${campaignData.instructions.slice(0, 120)}${campaignData.instructions.length > 120 ? "..." : ""}`
-                              }
-                            </div>
-                          </div>
-                        )}
-                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                         <div className="space-y-3">
-                           {campaignData.vipBonus && (
-                             <div>
-                               <div className="text-xs text-muted-foreground mb-1">VIP Payout Rate</div>
-                               <div className="text-sm font-bold text-primary">
-                                 ${campaignData.vipBonus}
-                               </div>
-                             </div>
-                           )}
-                         </div>
-                         
-                         <div className="space-y-3">
-                           {campaignData.vipMaxPayout && (
-                             <div>
-                               <div className="text-xs text-muted-foreground mb-1">VIP Max Payout Total</div>
-                               <div className="text-sm font-bold text-primary">
-                                 ${campaignData.vipMaxPayout}
-                               </div>
-                             </div>
-                           )}
-                         </div>
-                      </div>
-                      
-                      <div className="mb-4">
-                        <div className="text-sm text-muted-foreground mb-2">Target Platforms</div>
-                        <div className="flex gap-2">
-                          {campaignData.platforms.map((platform) => (
-                            <Badge key={platform} variant="outline" className="text-xs capitalize">
-                              {platform}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                      
-                      <Button variant="outline" className="w-full" disabled>
-                        Apply to Campaign
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  <div className="space-y-4">
+                    <div className="text-sm text-muted-foreground bg-secondary/20 rounded-lg p-3 border border-primary/20">
+                      <strong className="text-primary">Preview Mode:</strong> This shows exactly how your campaign will appear to creators.
+                    </div>
+                    
+                    <CampaignCard
+                      campaign={transformToCampaign()}
+                      variant="creator-available"
+                      showJoinButton={false}
+                      showPlayButton={true}
+                      onAudioToggle={toggleAudioPreview}
+                      isPlaying={isPlayingPreview}
+                    />
+                  </div>
                 </CardContent>
               </Card>
 
