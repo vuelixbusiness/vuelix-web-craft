@@ -62,7 +62,8 @@ interface CampaignData {
   
   // Step 3
   endDate?: Date;
-  budget?: number;
+  budget?: number; // Net budget after 5% platform fee deduction
+  totalInvestment?: number; // Total amount artist pays (before fee)
 }
 
 const DEFAULT_CAMPAIGN_RULES = `• Post on the required platforms listed in the campaign.
@@ -244,8 +245,27 @@ const ArtistCampaignFlow = () => {
     { id: "youtube", name: "YouTube", icon: <FaYoutube className="w-6 h-6" /> }
   ];
 
+  // Utility functions for platform fee calculation
+  const calculatePlatformFee = (totalInvestment: number) => {
+    return totalInvestment * 0.05;
+  };
+
+  const calculateNetBudget = (totalInvestment: number) => {
+    return totalInvestment - calculatePlatformFee(totalInvestment);
+  };
+
   const updateCampaignData = (field: keyof CampaignData, value: any) => {
     setCampaignData(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Handle budget input with automatic fee calculation
+  const handleBudgetChange = (totalInvestment: number) => {
+    const netBudget = calculateNetBudget(totalInvestment);
+    setCampaignData(prev => ({ 
+      ...prev, 
+      budget: netBudget,
+      totalInvestment: totalInvestment
+    }));
   };
 
   const togglePlatform = (platformId: string) => {
@@ -948,33 +968,40 @@ const ArtistCampaignFlow = () => {
 
                   {/* Budget */}
                   <div className="space-y-2">
-                    <Label className="text-base font-medium">Campaign Budget ($)</Label>
+                    <Label className="text-base font-medium">Total Investment ($)</Label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input 
                         type="number"
                         placeholder="0.00"
                         className="pl-10"
-                        value={campaignData.budget || ''}
-                        onChange={(e) => updateCampaignData('budget', parseFloat(e.target.value))}
+                        value={(campaignData as any).totalInvestment || ''}
+                        onChange={(e) => handleBudgetChange(parseFloat(e.target.value) || 0)}
                       />
                     </div>
+                    <p className="text-sm text-muted-foreground">
+                      This includes the 5% Vuelix platform fee
+                    </p>
                   </div>
 
                   {/* Budget Summary */}
-                  {campaignData.budget && campaignData.payoutRate && (
+                  {(campaignData as any).totalInvestment && campaignData.payoutRate && (
                     <Card className="bg-primary/5 border-primary/20">
                       <CardContent className="p-4">
-                        <h4 className="font-medium mb-2">Budget Summary</h4>
+                        <h4 className="font-medium mb-2">Budget Breakdown</h4>
                         <div className="text-sm space-y-1 text-muted-foreground">
                           <div className="flex justify-between">
-                            <span>Total Budget:</span>
-                            <span className="font-medium">{formatCurrency(campaignData.budget || 0)}</span>
+                            <span>Total Investment:</span>
+                            <span className="font-medium">{formatCurrency((campaignData as any).totalInvestment || 0)}</span>
                           </div>
-                           <div className="flex justify-between">
-                             <span>Vuelix 5% Operations Fee:</span>
-                             <span className="font-medium">{formatCurrency((campaignData.budget || 0) * 0.05)}</span>
-                           </div>
+                          <div className="flex justify-between">
+                            <span>Platform Fee (5%):</span>
+                            <span className="font-medium text-destructive">-{formatCurrency(calculatePlatformFee((campaignData as any).totalInvestment || 0))}</span>
+                          </div>
+                          <div className="border-t pt-1 mt-2 flex justify-between font-medium">
+                            <span>Available to Creators:</span>
+                            <span className="text-primary">{formatCurrency(campaignData.budget || 0)}</span>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
