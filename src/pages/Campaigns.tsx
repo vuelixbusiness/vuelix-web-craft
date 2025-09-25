@@ -40,6 +40,7 @@ const Campaigns = () => {
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
+  const [totalCreators, setTotalCreators] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const fetchCampaigns = async () => {
@@ -113,6 +114,44 @@ const Campaigns = () => {
     }
   };
 
+  const fetchTotalCreators = async () => {
+    try {
+      console.log('👥 Fetching total creators count...');
+      
+      // First get active campaign IDs
+      const { data: activeCampaigns, error: campaignsError } = await supabase
+        .from('campaigns')
+        .select('id')
+        .eq('status', 'active');
+
+      if (campaignsError) throw campaignsError;
+
+      if (!activeCampaigns || activeCampaigns.length === 0) {
+        setTotalCreators(0);
+        return;
+      }
+
+      const activeCampaignIds = activeCampaigns.map(c => c.id);
+
+      // Get unique creators participating in active campaigns
+      const { data: participations, error: participationsError } = await supabase
+        .from('campaign_participations')
+        .select('creator_id')
+        .in('campaign_id', activeCampaignIds);
+
+      if (participationsError) throw participationsError;
+
+      const uniqueCreatorIds = [...new Set(participations?.map(p => p.creator_id) || [])];
+      const totalCount = uniqueCreatorIds.length;
+
+      console.log('👥 Total unique creators:', totalCount);
+      setTotalCreators(totalCount);
+    } catch (error) {
+      console.error('💥 Error fetching total creators:', error);
+      setTotalCreators(0);
+    }
+  };
+
   // Audio control functions
   const toggleAudio = (campaignId: string, songUrl: string) => {
     if (!audioRef.current) return;
@@ -132,6 +171,7 @@ const Campaigns = () => {
 
   useEffect(() => {
     fetchCampaigns();
+    fetchTotalCreators();
   }, []);
 
   // Cleanup audio when component unmounts
@@ -218,7 +258,7 @@ const Campaigns = () => {
                 <Users className="w-5 h-5 text-purple-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">0</div>
+                <div className="text-2xl font-bold">{isLoading ? '...' : totalCreators}</div>
                 <p className="text-xs text-muted-foreground">Participating</p>
               </CardContent>
             </Card>
