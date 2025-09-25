@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -82,6 +83,7 @@ const ArtistCampaignFlow = () => {
   const [isConnectingSong, setIsConnectingSong] = useState(false);
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
   const [isLaunching, setIsLaunching] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Transform campaignData to Campaign interface for CampaignCard
@@ -256,7 +258,10 @@ const ArtistCampaignFlow = () => {
   };
 
   const canContinue = (step: number) => {
-    // Temporarily disabled validation - allows progression through all steps
+    // Temporarily disabled validation - allows progression through all steps except step 3 terms
+    if (step === 3) {
+      return termsAccepted;
+    }
     return true;
     
     /* Original validation logic - commented out for now
@@ -974,6 +979,35 @@ const ArtistCampaignFlow = () => {
                       </CardContent>
                     </Card>
                   )}
+
+                  {/* Terms Acceptance */}
+                  <div className="space-y-4 p-4 bg-secondary/20 rounded-lg border border-primary/20">
+                    <div className="flex items-start space-x-3">
+                      <Checkbox
+                        id="terms-accepted"
+                        checked={termsAccepted}
+                        onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+                        className="mt-0.5"
+                      />
+                      <div className="flex-1">
+                        <label
+                          htmlFor="terms-accepted"
+                          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
+                          I confirm that I have the rights to all media I upload and agree to the{" "}
+                          <Link
+                            to="/terms"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary underline hover:text-primary/80"
+                          >
+                            Vuelix Terms of Service
+                          </Link>
+                          .
+                        </label>
+                      </div>
+                    </div>
+                  </div>
 
                   <div className="flex space-x-4">
                     <Button 
