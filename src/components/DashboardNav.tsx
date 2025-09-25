@@ -45,36 +45,12 @@ const DashboardNav = ({ dashboardType }: DashboardNavProps) => {
               <img src={vuelixLogo} alt="Vuelix" className="w-8 h-8" />
               <span className="text-xl font-bold">Vuelix</span>
             </Link>
-            <div className="flex items-center space-x-2">
-              <Badge variant="secondary" className="hidden md:inline-flex">
-                {isOnSpecializedDashboard 
-                  ? (dashboardType === 'creator' ? 'Creator Dashboard' : 'Artist Dashboard')
-                  : 'Home Dashboard'
-                }
-              </Badge>
-              {user?.type === 'artist' && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleDashboardSwitch}
-                  className="flex items-center space-x-1 text-xs h-6 px-2"
-                  title={isOnSpecializedDashboard ? 'Switch to Home Dashboard' : 'Switch to Artist Dashboard'}
-                >
-                  {isOnSpecializedDashboard ? (
-                    <>
-                      <Home className="w-3 h-3" />
-                      <span className="hidden lg:inline">Home</span>
-                    </>
-                  ) : (
-                    <>
-                      <Settings className="w-3 h-3" />
-                      <span className="hidden lg:inline">Artist</span>
-                    </>
-                  )}
-                  <ArrowLeftRight className="w-3 h-3" />
-                </Button>
-              )}
-            </div>
+            <Badge variant="secondary" className="hidden md:inline-flex">
+              {isOnSpecializedDashboard 
+                ? (dashboardType === 'creator' ? 'Creator Dashboard' : 'Artist Dashboard')
+                : 'Home Dashboard'
+              }
+            </Badge>
           </div>
 
           {/* Navigation Links */}
