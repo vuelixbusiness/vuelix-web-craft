@@ -155,7 +155,7 @@ const ArtistDashboard = () => {
         const totalBudget = campaignsWithSpending.reduce((sum, c) => sum + Number(c.budget || 0), 0);
         const totalActualSpent = campaignsWithSpending.reduce((sum, c) => sum + (c.actualSpent || 0), 0);
         const totalViews = campaignsWithSpending.reduce((sum, c) => sum + (c.totalViews || 0), 0);
-        const totalCreators = new Set(spendingData?.map(p => p.creator_id) || []).size;
+        const totalCreators = new Set(spendingData?.filter(p => p.creator_id !== user?.id).map(p => p.creator_id) || []).size;
         
         setStats({
           totalCampaigns: campaignsWithSpending.length,
