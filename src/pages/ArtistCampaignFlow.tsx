@@ -54,6 +54,7 @@ interface CampaignData {
   maxPayout?: number;
   vipMaxPayout?: number;
   instructions?: string;
+  rules?: string;
   referenceLinks?: string;
   approvalRequired?: boolean;
   
@@ -275,6 +276,7 @@ const ArtistCampaignFlow = () => {
         vip_bonus: campaignData.vipBonus || 0,
         vip_max_payout: campaignData.vipMaxPayout || null,
         instructions: campaignData.instructions || null,
+        rules: campaignData.rules || null,
         reference_links: campaignData.referenceLinks || null,
         approval_required: campaignData.approvalRequired || false,
         budget: campaignData.budget,
@@ -760,6 +762,17 @@ const ArtistCampaignFlow = () => {
                     className="min-h-[120px]"
                     value={campaignData.instructions || ''}
                     onChange={(e) => updateCampaignData('instructions', e.target.value)}
+                  />
+                </div>
+
+                {/* Campaign Rules */}
+                <div className="space-y-2">
+                  <Label className="text-base font-medium">Campaign Rules</Label>
+                  <Textarea 
+                    placeholder="Set clear rules for participation. Examples: Must include song title in caption, Must use specified hashtags, No explicit content, Must be original content..."
+                    className="min-h-[120px]"
+                    value={campaignData.rules || ''}
+                    onChange={(e) => updateCampaignData('rules', e.target.value)}
                   />
                 </div>
 
