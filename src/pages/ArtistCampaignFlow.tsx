@@ -63,6 +63,11 @@ interface CampaignData {
   budget?: number;
 }
 
+const DEFAULT_CAMPAIGN_RULES = `• Post on the required platforms listed in the campaign.
+• Include the provided hashtags and mentions.
+• Keep your submission public for the full campaign duration.
+• Submit only original content that follows platform and Vuelix guidelines.`;
+
 const ArtistCampaignFlow = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -70,7 +75,8 @@ const ArtistCampaignFlow = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [campaignData, setCampaignData] = useState<CampaignData>({
-    platforms: []
+    platforms: [],
+    rules: DEFAULT_CAMPAIGN_RULES
   });
   const [isConnectingSong, setIsConnectingSong] = useState(false);
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
