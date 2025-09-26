@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import CampaignCard from "@/components/ui/campaign-card";
 import Navigation from "@/components/Navigation";
+import DashboardNav from "@/components/DashboardNav";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Search, Music, DollarSign, Users, Filter } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -34,6 +36,7 @@ interface Campaign {
 
 const Campaigns = () => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
@@ -191,13 +194,17 @@ const Campaigns = () => {
     campaign.genre.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleCampaignClick = () => {
-    navigate('/login');
+  const handleCampaignClick = (campaignId?: string) => {
+    if (user) {
+      navigate(`/campaign/${campaignId}/join`);
+    } else {
+      navigate('/login');
+    }
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <Navigation />
+      {user ? <DashboardNav dashboardType="creator" /> : <Navigation />}
       <div className="container mx-auto px-6 py-8 mt-20">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
@@ -293,13 +300,13 @@ const Campaigns = () => {
               </Card>
             ) : (
               filteredCampaigns.map((campaign) => (
-                <div key={campaign.id} onClick={handleCampaignClick} className="cursor-pointer">
+                <div key={campaign.id} onClick={() => handleCampaignClick(campaign.id)} className="cursor-pointer">
                   <CampaignCard
                     campaign={campaign}
                     variant="creator-available"
                     showJoinButton={true}
                     showPlayButton={true}
-                    onJoinCampaign={handleCampaignClick}
+                    onJoinCampaign={() => handleCampaignClick(campaign.id)}
                     onAudioToggle={toggleAudio}
                     isPlaying={currentlyPlaying === campaign.id}
                   />
