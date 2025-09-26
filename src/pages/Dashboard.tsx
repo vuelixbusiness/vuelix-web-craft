@@ -82,7 +82,7 @@ const Dashboard = () => {
                     <p className="text-base text-muted-foreground mb-6">
                       {action.description}
                     </p>
-                    <Button variant="outline" size="lg" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-smooth">
+                    <Button variant="default" className="w-full transition-smooth">
                       Get Started
                     </Button>
                   </CardContent>
@@ -106,7 +106,7 @@ const Dashboard = () => {
               <p className="text-lg text-muted-foreground mb-6">
                 No recent activity yet. Start participating in campaigns to see your progress here!
               </p>
-              <Button asChild size="lg">
+              <Button asChild>
                 <Link to="/campaigns">Browse Campaigns</Link>
               </Button>
             </div>
