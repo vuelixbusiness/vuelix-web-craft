@@ -73,8 +73,12 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
 
   const initializeChatRooms = async () => {
     try {
+      setLoading(true);
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
 
       // Check if group chat room exists for this campaign
       let { data: groupRoom } = await supabase
@@ -85,6 +89,15 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
         .maybeSingle();
 
       if (!groupRoom) {
+        // Debug access before creating room
+        const { data: debugInfo } = await supabase.rpc('debug_campaign_chat_access', {
+          _user_id: user.id,
+          _room_name: `campaign_${campaign.id}_group`,
+          _room_type: 'campaign_group'
+        });
+        
+        console.log('Group chat access debug:', debugInfo);
+
         // Create group chat room - use current user as creator, RLS will handle access
         const { data: newGroupRoom, error: roomError } = await supabase
           .from('chat_rooms')
@@ -98,9 +111,11 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
         
         if (roomError) {
           console.error('Error creating group room:', roomError);
+          console.error('Group room debug info:', debugInfo);
+          
           toast({
-            title: "Error",
-            description: "Failed to create group chat",
+            title: "Access Error",
+            description: `Failed to create group chat. ${roomError.code === '42501' ? 'You may not have permission to access this campaign.' : roomError.message}`,
             variant: "destructive"
           });
           return;
@@ -140,11 +155,21 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
           .maybeSingle();
 
         if (!dmRoom) {
+          // Debug access before creating DM room
+          const dmRoomName = `campaign_${campaign.id}_dm_${user.id}_${campaign.artist_id}`;
+          const { data: dmDebugInfo } = await supabase.rpc('debug_campaign_chat_access', {
+            _user_id: user.id,
+            _room_name: dmRoomName,
+            _room_type: 'campaign_dm'
+          });
+          
+          console.log('DM chat access debug:', dmDebugInfo);
+
           // Create DM room
           const { data: newDmRoom, error: dmError } = await supabase
             .from('chat_rooms')
             .insert({
-              name: `campaign_${campaign.id}_dm_${user.id}_${campaign.artist_id}`,
+              name: dmRoomName,
               room_type: 'campaign_dm',
               created_by: user.id
             })
@@ -153,9 +178,11 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
 
           if (dmError) {
             console.error('Error creating DM room:', dmError);
+            console.error('DM room debug info:', dmDebugInfo);
+            
             toast({
-              title: "Error", 
-              description: "Failed to create direct message room",
+              title: "Access Error", 
+              description: `Failed to create direct message room. ${dmError.code === '42501' ? 'You may not have permission to access this campaign.' : dmError.message}`,
               variant: "destructive"
             });
             return;

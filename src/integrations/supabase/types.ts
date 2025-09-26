@@ -783,6 +783,10 @@ export type Database = {
         }
         Returns: string
       }
+      debug_campaign_chat_access: {
+        Args: { _room_name: string; _room_type: string; _user_id: string }
+        Returns: Json
+      }
       get_user_chat_rooms: {
         Args: { _user_id: string }
         Returns: {
