@@ -3,11 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import CampaignCard from "@/components/ui/campaign-card";
-import DashboardLayout from "@/components/DashboardLayout";
-import { useAuth } from "@/contexts/AuthContext";
+import Navigation from "@/components/Navigation";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Search, Music, DollarSign, Users, Filter } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface Campaign {
   id: string;
@@ -33,8 +33,8 @@ interface Campaign {
 }
 
 const Campaigns = () => {
-  const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
@@ -191,13 +191,18 @@ const Campaigns = () => {
     campaign.genre.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const handleCampaignClick = () => {
+    navigate('/login');
+  };
+
   return (
-    <DashboardLayout>
-      <div className="container mx-auto px-6 py-8">
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      <div className="container mx-auto px-6 py-8 mt-20">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">Discover Campaigns</h1>
+            <h1 className="text-3xl font-bold mb-2 text-foreground">Discover Campaigns</h1>
             <p className="text-muted-foreground">
               Find amazing music campaigns and start earning rewards
             </p>
@@ -222,43 +227,43 @@ const Campaigns = () => {
 
           {/* Campaign Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="shadow-soft">
+            <Card className="bg-card border-border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Active Campaigns
                 </CardTitle>
-                <Music className="w-5 h-5 text-blue-500" />
+                <Music className="w-5 h-5 text-stat-blue" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{isLoading ? '...' : campaigns.length}</div>
+                <div className="text-2xl font-bold text-foreground">{isLoading ? '...' : campaigns.length}</div>
                 <p className="text-xs text-muted-foreground">Available to join</p>
               </CardContent>
             </Card>
             
-            <Card className="shadow-soft">
+            <Card className="bg-card border-border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Average Payout
                 </CardTitle>
-                <DollarSign className="w-5 h-5 text-green-500" />
+                <DollarSign className="w-5 h-5 text-stat-green" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-foreground">
                   ${isLoading ? '...' : campaigns.length > 0 ? (campaigns.reduce((sum, c) => sum + c.payout_rate, 0) / campaigns.length).toFixed(3) : '0.00'}
                 </div>
                 <p className="text-xs text-muted-foreground">Per qualified view</p>
               </CardContent>
             </Card>
 
-            <Card className="shadow-soft">
+            <Card className="bg-card border-border">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground">
                   Total Creators
                 </CardTitle>
-                <Users className="w-5 h-5 text-purple-500" />
+                <Users className="w-5 h-5 text-stat-purple" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{isLoading ? '...' : totalCreators}</div>
+                <div className="text-2xl font-bold text-foreground">{isLoading ? '...' : totalCreators}</div>
                 <p className="text-xs text-muted-foreground">Participating</p>
               </CardContent>
             </Card>
@@ -269,18 +274,18 @@ const Campaigns = () => {
             {isLoading ? (
               <>
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <Card key={i} className="shadow-soft animate-pulse">
+                  <Card key={i} className="bg-card border-border animate-pulse">
                     <CardContent className="p-6">
-                      <div className="h-20 bg-secondary rounded" />
+                      <div className="h-20 bg-muted rounded" />
                     </CardContent>
                   </Card>
                 ))}
               </>
             ) : filteredCampaigns.length === 0 ? (
-              <Card className="shadow-soft col-span-full">
+              <Card className="bg-card border-border col-span-full">
                 <CardContent className="text-center py-12">
                   <Music className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No campaigns found</h3>
+                  <h3 className="text-lg font-medium mb-2 text-foreground">No campaigns found</h3>
                   <p className="text-muted-foreground">
                     {searchQuery ? 'Try adjusting your search terms.' : 'Check back later for new campaigns.'}
                   </p>
@@ -288,16 +293,17 @@ const Campaigns = () => {
               </Card>
             ) : (
               filteredCampaigns.map((campaign) => (
-                <CampaignCard
-                  key={campaign.id}
-                  campaign={campaign}
-                  variant="creator-available"
-                  showJoinButton={true}
-                  showPlayButton={true}
-                  onJoinCampaign={(campaign) => setSelectedCampaign(campaign as any)}
-                  onAudioToggle={toggleAudio}
-                  isPlaying={currentlyPlaying === campaign.id}
-                />
+                <div key={campaign.id} onClick={handleCampaignClick} className="cursor-pointer">
+                  <CampaignCard
+                    campaign={campaign}
+                    variant="creator-available"
+                    showJoinButton={true}
+                    showPlayButton={true}
+                    onJoinCampaign={handleCampaignClick}
+                    onAudioToggle={toggleAudio}
+                    isPlaying={currentlyPlaying === campaign.id}
+                  />
+                </div>
               ))
             )}
           </div>
@@ -310,7 +316,7 @@ const Campaigns = () => {
         onEnded={() => setCurrentlyPlaying(null)}
         onError={() => setCurrentlyPlaying(null)}
       />
-    </DashboardLayout>
+    </div>
   );
 };
 

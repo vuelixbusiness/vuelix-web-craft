@@ -59,11 +59,7 @@ const App = () => (
                   <Wallet />
                 </ProtectedRoute>
               } />
-              <Route path="/campaigns" element={
-                <ProtectedRoute>
-                  <Campaigns />
-                </ProtectedRoute>
-              } />
+              <Route path="/campaigns" element={<Campaigns />} />
               <Route path="/campaign/:id" element={
                 <ProtectedRoute>
                   <CampaignDetails />
