@@ -75,11 +75,7 @@ const App = () => (
                   <CampaignJoin />
                 </ProtectedRoute>
               } />
-              <Route path="/leaderboard" element={
-                <ProtectedRoute>
-                  <Leaderboard />
-                </ProtectedRoute>
-              } />
+              <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/notifications" element={
                 <ProtectedRoute>
                   <Notifications />
