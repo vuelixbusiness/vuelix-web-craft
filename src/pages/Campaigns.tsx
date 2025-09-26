@@ -36,7 +36,7 @@ interface Campaign {
 
 const Campaigns = () => {
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
@@ -324,6 +324,14 @@ const Campaigns = () => {
   );
 
   // Show appropriate layout based on authentication status
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
   if (user) {
     return (
       <DashboardLayout>
