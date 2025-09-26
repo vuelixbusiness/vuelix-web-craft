@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import CampaignCard from "@/components/ui/campaign-card";
 import Navigation from "@/components/Navigation";
 import DashboardLayout from "@/components/DashboardLayout";
+import { CampaignsLayout } from "@/components/campaign-hub/CampaignsLayout";
+import { CampaignFilters } from "@/components/campaign-hub/CampaignsSidebar";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,6 +46,7 @@ const Campaigns = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
   const [totalCreators, setTotalCreators] = useState(0);
+  const [filters, setFilters] = useState<CampaignFilters>({});
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const fetchCampaigns = async () => {
@@ -187,12 +190,62 @@ const Campaigns = () => {
     };
   }, []);
 
-  const filteredCampaigns = campaigns.filter(campaign =>
-    campaign.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    campaign.song_title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    (campaign.profiles?.display_name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-    campaign.genre.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Calculate campaign counts for sidebar
+  const campaignCounts = {
+    total: campaigns.length,
+    byGenre: campaigns.reduce((acc, campaign) => {
+      const genre = campaign.genre.toLowerCase();
+      acc[genre] = (acc[genre] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>),
+    byPlatform: campaigns.reduce((acc, campaign) => {
+      campaign.platforms.forEach(platform => {
+        const platformKey = platform.toLowerCase();
+        acc[platformKey] = (acc[platformKey] || 0) + 1;
+      });
+      return acc;
+    }, {} as Record<string, number>),
+    byPayoutType: campaigns.reduce((acc, campaign) => {
+      const payoutType = campaign.payout_type === 'per_view' ? 'performance' : 'fixed';
+      acc[payoutType] = (acc[payoutType] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>),
+  };
+
+  // Apply filters
+  const filteredCampaigns = campaigns.filter(campaign => {
+    // Search filter
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase();
+      const matchesSearch = 
+        campaign.title.toLowerCase().includes(searchTerm) ||
+        campaign.song_title.toLowerCase().includes(searchTerm) ||
+        (campaign.profiles?.display_name || '').toLowerCase().includes(searchTerm) ||
+        campaign.genre.toLowerCase().includes(searchTerm);
+      
+      if (!matchesSearch) return false;
+    }
+
+    // Genre filter
+    if (filters.genre && campaign.genre.toLowerCase() !== filters.genre) {
+      return false;
+    }
+
+    // Platform filter
+    if (filters.platform && !campaign.platforms.some(p => p.toLowerCase() === filters.platform)) {
+      return false;
+    }
+
+    // Payout type filter
+    if (filters.payoutType) {
+      const campaignPayoutType = campaign.payout_type === 'per_view' ? 'performance' : 'fixed';
+      if (campaignPayoutType !== filters.payoutType) {
+        return false;
+      }
+    }
+
+    return true;
+  });
 
   const handleCampaignClick = (campaignId?: string) => {
     if (user) {
@@ -211,23 +264,6 @@ const Campaigns = () => {
           <p className="text-muted-foreground">
             Find amazing music campaigns and start earning rewards
           </p>
-        </div>
-
-        {/* Search and Filters */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search campaigns, artists, or genres..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
-          </div>
-          <Button variant="outline" className="md:w-auto">
-            <Filter className="w-4 h-4 mr-2" />
-            Filters
-          </Button>
         </div>
 
         {/* Campaign Stats */}
@@ -334,9 +370,13 @@ const Campaigns = () => {
 
   if (user) {
     return (
-      <DashboardLayout>
+      <CampaignsLayout 
+        campaignCounts={campaignCounts}
+        onFilterChange={setFilters}
+        currentFilters={filters}
+      >
         {campaignsContent}
-      </DashboardLayout>
+      </CampaignsLayout>
     );
   }
 
