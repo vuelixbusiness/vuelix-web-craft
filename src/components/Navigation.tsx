@@ -61,13 +61,14 @@ const Navigation = () => {
           </a>
           
           <div className="hidden md:flex items-center space-x-8">
-            <a 
-              href="#how-it-works" 
-              onClick={(e) => handleSmoothScroll(e, 'how-it-works')}
-              className="text-muted-foreground hover:text-foreground transition-smooth"
-            >
-              How It Works
-            </a>
+            <Button variant="default" size="sm" asChild>
+              <a 
+                href="#how-it-works" 
+                onClick={(e) => handleSmoothScroll(e, 'how-it-works')}
+              >
+                How It Works
+              </a>
+            </Button>
             <a 
               href="#for-artists" 
               onClick={(e) => handleSmoothScroll(e, 'for-artists')}
