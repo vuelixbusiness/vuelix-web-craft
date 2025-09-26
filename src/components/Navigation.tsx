@@ -48,43 +48,43 @@ const Navigation = () => {
     }
   };
 
-  return <nav className="fixed top-0 left-0 right-0 z-50 bg-primary/90 backdrop-blur-sm border-b border-primary/20">
-      <div className="w-full px-2 py-4">
+  return <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-sm">
+      <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <a 
             href="/" 
             onClick={handleLogoClick}
             className="flex items-center space-x-2 hover:opacity-80 transition-smooth"
           >
-            <img src={vuelixLogo} alt="Vuelix" className="w-12 h-12" />
-            <span className="text-xl font-bold text-primary-foreground">Vuelix</span>
+            <img src={vuelixLogo} alt="Vuelix" className="w-8 h-8" />
+            <span className="text-xl font-bold">Vuelix</span>
           </a>
           
-          <div className="hidden md:flex items-center space-x-4">
+          <div className="hidden md:flex items-center space-x-8">
             <a 
               href="#how-it-works" 
               onClick={(e) => handleSmoothScroll(e, 'how-it-works')}
-              className="px-4 py-2 rounded-md bg-white/10 text-primary-foreground hover:bg-white/20 hover:text-primary-foreground transition-smooth"
+              className="text-muted-foreground hover:text-foreground transition-smooth"
             >
               How It Works
             </a>
             <a 
               href="#for-artists" 
               onClick={(e) => handleSmoothScroll(e, 'for-artists')}
-              className="px-4 py-2 rounded-md bg-white/10 text-primary-foreground hover:bg-white/20 hover:text-primary-foreground transition-smooth"
+              className="text-muted-foreground hover:text-foreground transition-smooth"
             >
               For Artists
             </a>
             <a 
               href="#for-creators" 
               onClick={(e) => handleSmoothScroll(e, 'for-creators')}
-              className="px-4 py-2 rounded-md bg-white/10 text-primary-foreground hover:bg-white/20 hover:text-primary-foreground transition-smooth"
+              className="text-muted-foreground hover:text-foreground transition-smooth"
             >
               For Creators
             </a>
-            <a href="/campaigns" className="px-4 py-2 rounded-md bg-white/10 text-primary-foreground hover:bg-white/20 hover:text-primary-foreground transition-smooth">Campaigns</a>
-            <a href="/leaderboard" className="px-4 py-2 rounded-md bg-white/10 text-primary-foreground hover:bg-white/20 hover:text-primary-foreground transition-smooth">Leaderboard</a>
-            <a href="/vuelix-plus" className="px-4 py-2 rounded-md bg-white/10 text-primary-foreground hover:bg-white/20 hover:text-primary-foreground transition-smooth">Vuelix+</a>
+            <a href="/campaigns" className="text-muted-foreground hover:text-foreground transition-smooth">Campaigns</a>
+            <a href="/leaderboard" className="text-muted-foreground hover:text-foreground transition-smooth">Leaderboard</a>
+            <a href="/vuelix-plus" className="text-muted-foreground hover:text-foreground transition-smooth">Vuelix+</a>
           </div>
           
           <div className="flex items-center space-x-4">
@@ -92,7 +92,7 @@ const Navigation = () => {
             <Button variant="ghost" size="sm" asChild>
               <a href="/login">Log In</a>
             </Button>
-            <Button variant="hero" size="sm" asChild>
+            <Button variant="default" size="sm" asChild>
               <a href="/signup">Join Now</a>
             </Button>
           </div>
