@@ -104,12 +104,14 @@ export function CampaignHubLayout({
 
         <div className="flex w-full pt-14">
           {/* Sidebar */}
-          <CampaignSidebar 
-            activeSection={activeSection} 
-            onSectionChange={setActiveSection}
-            campaign={campaign}
-            participation={participation}
-          />
+          <div className="w-80 flex-shrink-0">
+            <CampaignSidebar 
+              activeSection={activeSection} 
+              onSectionChange={setActiveSection}
+              campaign={campaign}
+              participation={participation}
+            />
+          </div>
 
           {/* Main Content */}
           <main className="flex-1 p-6 overflow-auto">
