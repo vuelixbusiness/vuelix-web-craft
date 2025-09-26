@@ -60,8 +60,8 @@ const Navigation = () => {
             <span className="text-xl font-bold">Vuelix</span>
           </a>
           
-          <div className="hidden md:flex items-center space-x-8">
-            <Button variant="default" size="sm" asChild>
+          <div className="hidden md:flex items-center space-x-2">
+            <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
               <a 
                 href="#how-it-works" 
                 onClick={(e) => handleSmoothScroll(e, 'how-it-works')}
@@ -69,31 +69,39 @@ const Navigation = () => {
                 How It Works
               </a>
             </Button>
-            <a 
-              href="#for-artists" 
-              onClick={(e) => handleSmoothScroll(e, 'for-artists')}
-              className="text-muted-foreground hover:text-foreground transition-smooth"
-            >
-              For Artists
-            </a>
-            <a 
-              href="#for-creators" 
-              onClick={(e) => handleSmoothScroll(e, 'for-creators')}
-              className="text-muted-foreground hover:text-foreground transition-smooth"
-            >
-              For Creators
-            </a>
-            <a href="/campaigns" className="text-muted-foreground hover:text-foreground transition-smooth">Campaigns</a>
-            <a href="/leaderboard" className="text-muted-foreground hover:text-foreground transition-smooth">Leaderboard</a>
-            <a href="/vuelix-plus" className="text-muted-foreground hover:text-foreground transition-smooth">Vuelix+</a>
+            <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
+              <a 
+                href="#for-artists" 
+                onClick={(e) => handleSmoothScroll(e, 'for-artists')}
+              >
+                For Artists
+              </a>
+            </Button>
+            <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
+              <a 
+                href="#for-creators" 
+                onClick={(e) => handleSmoothScroll(e, 'for-creators')}
+              >
+                For Creators
+              </a>
+            </Button>
+            <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
+              <a href="/campaigns">Campaigns</a>
+            </Button>
+            <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
+              <a href="/leaderboard">Leaderboard</a>
+            </Button>
+            <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
+              <a href="/vuelix-plus">Vuelix+</a>
+            </Button>
           </div>
           
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2">
             <ThemeToggle />
-            <Button variant="ghost" size="sm" asChild>
+            <Button variant="ghost" size="sm" className="rounded-full" asChild>
               <a href="/login">Log In</a>
             </Button>
-            <Button variant="default" size="sm" asChild>
+            <Button variant="default" size="sm" className="rounded-full" asChild>
               <a href="/signup">Join Now</a>
             </Button>
           </div>
