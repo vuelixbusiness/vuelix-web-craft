@@ -789,6 +789,10 @@ export type Database = {
           room_id: string
         }[]
       }
+      is_campaign_participant: {
+        Args: { _campaign_id: string; _user_id: string }
+        Returns: boolean
+      }
       sync_campaign_chat_members: {
         Args: { _campaign_id: string; _room_id: string }
         Returns: undefined
