@@ -72,7 +72,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setIsLoading(false); // Set loading false when no session
         
         // Handle redirects for unauthenticated users
-        if (window.location.pathname.includes('dashboard') || window.location.pathname.includes('campaigns')) {
+        if (window.location.pathname.includes('dashboard')) {
           console.log('🔄 Redirecting unauthenticated user to home');
           setTimeout(() => {
             window.location.href = "/";
