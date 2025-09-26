@@ -13,12 +13,12 @@ interface Campaign {
   payout_rate: number;
   vip_bonus?: number;
   platforms: string[];
-  budget: number;
+  budget?: number;
   end_date?: string;
   created_at: string;
   cover_art_url?: string;
-  genre: string;
-  status: string;
+  genre?: string;
+  status?: string;
 }
 
 interface Participation {
@@ -49,8 +49,8 @@ const platformNames: Record<string, string> = {
 };
 
 export function CampaignOverviewSection({ campaign, participation }: CampaignOverviewSectionProps) {
-  const budgetSpent = campaign.budget * 0.65; // Mock data
-  const budgetProgress = (budgetSpent / campaign.budget) * 100;
+  const budgetSpent = (campaign.budget || 0) * 0.65; // Mock data
+  const budgetProgress = campaign.budget ? (budgetSpent / campaign.budget) * 100 : 0;
   const daysRemaining = campaign.end_date 
     ? Math.max(0, Math.ceil((new Date(campaign.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
     : null;
@@ -72,10 +72,12 @@ export function CampaignOverviewSection({ campaign, participation }: CampaignOve
                 <h1 className="text-2xl font-bold">{campaign.title}</h1>
                 <p className="text-xl text-muted-foreground">{campaign.song_title}</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <Badge variant="secondary">{campaign.genre}</Badge>
-                  <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'}>
-                    {campaign.status}
-                  </Badge>
+                  {campaign.genre && <Badge variant="secondary">{campaign.genre}</Badge>}
+                  {campaign.status && (
+                    <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'}>
+                      {campaign.status}
+                    </Badge>
+                  )}
                 </div>
               </div>
               
@@ -117,7 +119,7 @@ export function CampaignOverviewSection({ campaign, participation }: CampaignOve
               ${budgetSpent.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground mb-2">
-              of ${campaign.budget.toLocaleString()} total
+              of ${(campaign.budget || 0).toLocaleString()} total
             </p>
             <Progress value={budgetProgress} className="h-2" />
           </CardContent>

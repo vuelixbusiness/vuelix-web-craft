@@ -25,8 +25,19 @@ interface Campaign {
   id: string;
   title: string;
   song_title: string;
+  artist_id: string;
+  payout_type: string;
+  payout_rate: number;
+  vip_bonus?: number;
+  platforms: string[];
+  budget?: number;
+  end_date?: string;
+  created_at: string;
   cover_art_url?: string;
-  genre: string;
+  instructions?: string;
+  rules?: string;
+  genre?: string;
+  status?: string;
 }
 
 interface Participation {
@@ -110,9 +121,11 @@ export function CampaignSidebar({
             <h2 className="font-semibold text-sm truncate">{campaign.title}</h2>
             <p className="text-xs text-muted-foreground truncate">{campaign.song_title}</p>
             <div className="flex items-center gap-2 mt-2">
-              <BadgeComponent variant="secondary" className="text-xs">
-                {campaign.genre}
-              </BadgeComponent>
+              {campaign.genre && (
+                <BadgeComponent variant="secondary" className="text-xs">
+                  {campaign.genre}
+                </BadgeComponent>
+              )}
               {participation && (
                 <BadgeComponent 
                   variant="outline" 

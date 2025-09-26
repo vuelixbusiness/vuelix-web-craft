@@ -4,9 +4,22 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 interface Campaign {
+  id: string;
+  title: string;
+  song_title: string;
+  artist_id: string;
+  payout_type: string;
+  payout_rate: number;
+  vip_bonus?: number;
+  platforms: string[];
+  budget?: number;
+  end_date?: string;
+  created_at: string;
+  cover_art_url?: string;
   instructions?: string;
   rules?: string;
-  platforms: string[];
+  genre?: string;
+  status?: string;
 }
 
 interface RulesSectionProps {

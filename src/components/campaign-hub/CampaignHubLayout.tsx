@@ -34,7 +34,7 @@ interface Campaign {
   instructions?: string;
   rules?: string;
   genre?: string;
-  status: string;
+  status?: string;
 }
 
 interface Participation {
