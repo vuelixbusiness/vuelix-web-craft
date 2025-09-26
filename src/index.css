@@ -67,53 +67,59 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 240 10% 3%;
-    --foreground: 250 20% 95%;
+    --background: 220 15% 7%;
+    --foreground: 0 0% 98%;
 
-    --card: 240 12% 4%;
-    --card-foreground: 250 20% 95%;
+    --card: 220 15% 9%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 240 12% 4%;
-    --popover-foreground: 250 20% 95%;
+    --popover: 220 15% 9%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 250 84% 64%;
-    --primary-foreground: 8 12% 6%;
+    --primary: 260 84% 64%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 250 20% 12%;
-    --secondary-foreground: 250 20% 85%;
+    --secondary: 220 15% 15%;
+    --secondary-foreground: 0 0% 85%;
 
-    --muted: 250 20% 12%;
-    --muted-foreground: 250 10% 60%;
+    --muted: 220 15% 15%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 250 20% 14%;
-    --accent-foreground: 250 20% 85%;
+    --accent: 260 84% 64%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84% 65%;
-    --destructive-foreground: 250 20% 95%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 250 20% 18%;
-    --input: 250 20% 18%;
-    --ring: 250 84% 64%;
+    --border: 220 15% 18%;
+    --input: 220 15% 18%;
+    --ring: 260 84% 64%;
 
     /* Custom Vuelix dark design tokens */
     --gradient-primary: linear-gradient(135deg, hsl(260 84% 64%), hsl(290 84% 68%));
-    --gradient-secondary: linear-gradient(135deg, hsl(260 20% 12%), hsl(280 20% 14%));
+    --gradient-secondary: linear-gradient(135deg, hsl(220 15% 15%), hsl(220 15% 18%));
     --gradient-hero: linear-gradient(135deg, hsl(260 84% 64%), hsl(290 84% 68%), hsl(320 84% 72%));
-    --gradient-background: linear-gradient(135deg, hsl(260 15% 8%), hsl(280 20% 6%), hsl(300 25% 4%));
+    --gradient-background: linear-gradient(135deg, hsl(220 15% 7%), hsl(220 15% 9%));
     
-    --shadow-elegant: 0 10px 30px -10px hsl(250 84% 64% / 0.3);
-    --shadow-soft: 0 4px 20px -4px hsl(250 20% 20% / 0.2);
+    --shadow-elegant: 0 10px 30px -10px hsl(260 84% 64% / 0.3);
+    --shadow-soft: 0 4px 20px -4px hsl(220 15% 5% / 0.4);
     
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
-    --sidebar-background: 8 12% 6%;
-    --sidebar-foreground: 250 20% 85%;
-    --sidebar-primary: 250 84% 64%;
-    --sidebar-primary-foreground: 8 12% 6%;
-    --sidebar-accent: 250 20% 12%;
-    --sidebar-accent-foreground: 250 20% 85%;
-    --sidebar-border: 250 20% 18%;
-    --sidebar-ring: 250 84% 64%;
+    /* Stat card colors */
+    --stat-green: 120 84% 55%;
+    --stat-blue: 210 84% 65%;
+    --stat-purple: 280 84% 65%;
+    --stat-yellow: 45 84% 65%;
+
+    --sidebar-background: 220 15% 7%;
+    --sidebar-foreground: 0 0% 85%;
+    --sidebar-primary: 260 84% 64%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 220 15% 15%;
+    --sidebar-accent-foreground: 0 0% 85%;
+    --sidebar-border: 220 15% 18%;
+    --sidebar-ring: 260 84% 64%;
   }
 }
 

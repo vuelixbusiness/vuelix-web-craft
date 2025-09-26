@@ -57,6 +57,10 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        "stat-green": "hsl(var(--stat-green))",
+        "stat-blue": "hsl(var(--stat-blue))",
+        "stat-purple": "hsl(var(--stat-purple))",
+        "stat-yellow": "hsl(var(--stat-yellow))",
       },
       backgroundImage: {
         'gradient-primary': 'var(--gradient-primary)',

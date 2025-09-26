@@ -35,77 +35,89 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-background">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-6">
-          <div className="flex items-center">
-            {/* Logo Section - Fixed width for dedicated left space */}
-            <div className="flex-shrink-0 w-64 pl-4">
-              <Link to="/dashboard" className="flex items-center space-x-3">
-                <img src={vuelixLogo} alt="Vuelix" className="w-10 h-10" />
-                <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                  Vuelix
-                </span>
-              </Link>
+      <header className="border-b border-border bg-background sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            {/* Logo Section */}
+            <div className="flex items-center space-x-3">
+              <img src={vuelixLogo} alt="Vuelix" className="w-8 h-8" />
+              <span className="text-xl font-bold text-foreground">
+                Vuelix
+              </span>
             </div>
 
-            {/* Horizontal Navigation - Centered with controlled spacing */}
-            <nav className="hidden md:flex items-center justify-center flex-1 space-x-2">
-              {navigationItems.map((item) => {
+            {/* Horizontal Navigation - Centered */}
+            <nav className="hidden md:flex items-center space-x-1">
+              {navigationItems.slice(0, -1).map((item) => {
                 const IconComponent = item.icon;
                 return (
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`px-4 py-3 rounded-full text-sm font-medium transition-smooth flex items-center space-x-2 ${
+                    className={`px-3 py-2 rounded-full text-sm font-medium transition-smooth flex items-center space-x-2 ${
                       isActivePath(item.path)
-                        ? 'bg-gradient-primary text-primary-foreground shadow-elegant'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                        ? 'bg-muted text-foreground'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                     }`}
                   >
-                     <IconComponent className="w-7 h-7" />
+                    <IconComponent className="w-4 h-4" />
                     <span>{item.label}</span>
                   </Link>
                 );
               })}
+              {/* Special Vuelix button */}
+              <Link
+                to="/dashboard"
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-smooth flex items-center space-x-2 ${
+                  isActivePath('/dashboard')
+                    ? 'bg-primary text-primary-foreground'
+                    : 'bg-primary/20 text-primary hover:bg-primary/30'
+                }`}
+              >
+                <Home className="w-4 h-4" />
+                <span>Vuelix</span>
+              </Link>
             </nav>
 
-            {/* User Menu - Fixed right position */}
-            <div className="flex items-center space-x-6 flex-shrink-0">
+            {/* User Menu - Right side */}
+            <div className="flex items-center space-x-3">
               <ThemeToggle />
               <NotificationBell />
-              <Avatar className="w-12 h-12">
-            <AvatarImage src={user?.avatar} alt={user?.name} />
-            <AvatarFallback className="text-sm">
-              {user?.name?.slice(0, 2).toUpperCase() || 'U'}
-            </AvatarFallback>
-          </Avatar>
-          <div className="hidden lg:block">
-            <p className="text-base font-medium">@{user?.username}</p>
-            <p className="text-sm text-muted-foreground capitalize">{user?.membershipType}</p>
-          </div>
-              <Button variant="ghost" size="default" onClick={handleLogout}>
-                <LogOut className="w-5 h-5" />
+              <div className="flex items-center space-x-3">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={user?.avatar} alt={user?.name} />
+                  <AvatarFallback className="text-xs">
+                    {user?.name?.slice(0, 2).toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="hidden lg:block">
+                  <p className="text-sm font-medium text-foreground">@{user?.username}</p>
+                  <p className="text-xs text-muted-foreground capitalize">{user?.membershipType || 'Regular'}</p>
+                </div>
+              </div>
+              <Button variant="ghost" size="sm" onClick={handleLogout}>
+                <LogOut className="w-4 h-4" />
               </Button>
             </div>
           </div>
 
           {/* Mobile Navigation */}
-          <nav className="md:hidden mt-6 flex flex-wrap gap-3">
+          <nav className="md:hidden mt-4 flex flex-wrap gap-2">
             {navigationItems.map((item) => {
               const IconComponent = item.icon;
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-smooth flex items-center space-x-2 ${
+                  className={`px-3 py-2 rounded-full text-xs font-medium transition-smooth flex items-center space-x-2 ${
                     isActivePath(item.path)
-                      ? 'bg-gradient-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                      ? item.path === '/dashboard' ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
-                  <IconComponent className="w-7 h-7" />
+                  <IconComponent className="w-4 h-4" />
                   <span>{item.label}</span>
                 </Link>
               );
