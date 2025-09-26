@@ -62,14 +62,8 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
   const [authError, setAuthError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  // Check if we're on a valid authenticated campaign route
-  const isValidRoute = location.pathname.includes('/campaign/') && 
-                      (location.pathname.includes('/join') || 
-                       location.pathname.includes('/manage') ||
-                       location.pathname === `/campaign/${campaign.id}`);
-
-  // Wait for auth and validate route before initializing
-  const canInitializeChat = !authLoading && user && isValidRoute;
+  // Allow chat to work from any authenticated context - focus on permissions, not routes
+  const canInitializeChat = !authLoading && user;
 
   useEffect(() => {
     if (canInitializeChat) {
@@ -78,11 +72,8 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
     } else if (!authLoading && !user) {
       setAuthError("Authentication required to access campaign chat.");
       setLoading(false);
-    } else if (!authLoading && user && !isValidRoute) {
-      setAuthError("Campaign chat must be accessed from a campaign page.");
-      setLoading(false);
     }
-  }, [canInitializeChat, campaign.id, authLoading, user, isValidRoute]);
+  }, [canInitializeChat, campaign.id, authLoading, user]);
 
   useEffect(() => {
     const newActiveRoomId = activeTab === "group" ? groupRoomId : dmRoomId;
@@ -354,11 +345,6 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
           <div>
             <h3 className="font-medium text-destructive">Chat Access Error</h3>
             <p className="text-sm text-muted-foreground">{authError}</p>
-            {!isValidRoute && (
-              <p className="text-sm text-muted-foreground mt-1">
-                Please access the chat from a campaign page: /campaign/{campaign.id}/join
-              </p>
-            )}
           </div>
         </div>
       </div>
