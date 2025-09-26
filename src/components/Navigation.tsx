@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useLocation, useNavigate, Link } from "react-router-dom";
+import { HelpCircle, Music, Video, BarChart3, Trophy, Star } from "lucide-react";
 import vuelixLogo from "@/assets/vuelix-logo-v.png";
 
 const Navigation = () => {
@@ -65,34 +66,49 @@ const Navigation = () => {
               <a 
                 href="#how-it-works" 
                 onClick={(e) => handleSmoothScroll(e, 'how-it-works')}
+                className="flex items-center space-x-2"
               >
-                How It Works
+                <HelpCircle className="w-4 h-4" />
+                <span>How It Works</span>
               </a>
             </Button>
             <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
               <a 
                 href="#for-artists" 
                 onClick={(e) => handleSmoothScroll(e, 'for-artists')}
+                className="flex items-center space-x-2"
               >
-                For Artists
+                <Music className="w-4 h-4" />
+                <span>For Artists</span>
               </a>
             </Button>
             <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
               <a 
                 href="#for-creators" 
                 onClick={(e) => handleSmoothScroll(e, 'for-creators')}
+                className="flex items-center space-x-2"
               >
-                For Creators
+                <Video className="w-4 h-4" />
+                <span>For Creators</span>
               </a>
             </Button>
             <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
-              <a href="/campaigns">Campaigns</a>
+              <a href="/campaigns" className="flex items-center space-x-2">
+                <BarChart3 className="w-4 h-4" />
+                <span>Campaigns</span>
+              </a>
             </Button>
             <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
-              <a href="/leaderboard">Leaderboard</a>
+              <a href="/leaderboard" className="flex items-center space-x-2">
+                <Trophy className="w-4 h-4" />
+                <span>Leaderboard</span>
+              </a>
             </Button>
             <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
-              <a href="/vuelix-plus">Vuelix+</a>
+              <a href="/vuelix-plus" className="flex items-center space-x-2">
+                <Star className="w-4 h-4" />
+                <span>Vuelix+</span>
+              </a>
             </Button>
           </div>
           
