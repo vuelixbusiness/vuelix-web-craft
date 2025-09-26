@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { CampaignMediaAssetsPanel } from "../CampaignMediaAssetsPanel";
 
 interface Campaign {
   id: string;
@@ -27,9 +28,17 @@ interface Participation {
   created_at: string;
 }
 
+interface MediaAsset {
+  id: string;
+  url: string;
+  type: string;
+  created_at: string;
+}
+
 interface CampaignOverviewSectionProps {
   campaign: Campaign;
   participation?: Participation;
+  mediaAssets?: MediaAsset[];
 }
 
 const platformIcons: Record<string, string> = {
@@ -48,7 +57,7 @@ const platformNames: Record<string, string> = {
   spotify: "Spotify"
 };
 
-export function CampaignOverviewSection({ campaign, participation }: CampaignOverviewSectionProps) {
+export function CampaignOverviewSection({ campaign, participation, mediaAssets = [] }: CampaignOverviewSectionProps) {
   const budgetSpent = (campaign.budget || 0) * 0.65; // Mock data
   const budgetProgress = campaign.budget ? (budgetSpent / campaign.budget) * 100 : 0;
   const daysRemaining = campaign.end_date 
@@ -106,6 +115,13 @@ export function CampaignOverviewSection({ campaign, participation }: CampaignOve
           </div>
         </CardContent>
       </Card>
+
+      {/* Media Assets Panel */}
+      <CampaignMediaAssetsPanel 
+        campaign={campaign} 
+        mediaAssets={mediaAssets} 
+        isLoading={false} 
+      />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

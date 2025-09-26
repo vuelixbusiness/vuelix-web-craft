@@ -22,6 +22,7 @@ interface Campaign {
   id: string;
   title: string;
   song_title: string;
+  song_url?: string;
   artist_id: string;
   payout_type: string;
   payout_rate: number;
@@ -46,9 +47,17 @@ interface Participation {
   payout_claimed_at?: string;
 }
 
+interface MediaAsset {
+  id: string;
+  url: string;
+  type: string;
+  created_at: string;
+}
+
 interface CampaignHubLayoutProps {
   campaign: Campaign;
   participation?: Participation;
+  mediaAssets?: MediaAsset[];
   onBack: () => void;
   onSubmissionComplete?: () => void;
 }
@@ -56,6 +65,7 @@ interface CampaignHubLayoutProps {
 export function CampaignHubLayout({ 
   campaign, 
   participation, 
+  mediaAssets = [],
   onBack,
   onSubmissionComplete 
 }: CampaignHubLayoutProps) {
@@ -64,7 +74,7 @@ export function CampaignHubLayout({
   const renderActiveSection = () => {
     switch (activeSection) {
       case "overview":
-        return <CampaignOverviewSection campaign={campaign} participation={participation} />;
+        return <CampaignOverviewSection campaign={campaign} participation={participation} mediaAssets={mediaAssets} />;
       case "rules":
         return <RulesSection campaign={campaign} />;
       case "rewards":
@@ -76,7 +86,7 @@ export function CampaignHubLayout({
       case "updates":
         return <UpdatesSection campaign={campaign} />;
       default:
-        return <CampaignOverviewSection campaign={campaign} participation={participation} />;
+        return <CampaignOverviewSection campaign={campaign} participation={participation} mediaAssets={mediaAssets} />;
     }
   };
 

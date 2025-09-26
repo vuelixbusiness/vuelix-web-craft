@@ -37,12 +37,20 @@ interface Participation {
   payout_amount: number;
 }
 
+interface MediaAsset {
+  id: string;
+  url: string;
+  type: string;
+  created_at: string;
+}
+
 export default function CampaignJoin() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [participation, setParticipation] = useState<Participation | null>(null);
+  const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -82,6 +90,19 @@ export default function CampaignJoin() {
         };
         
         setCampaign(transformedCampaign);
+
+        // Fetch media assets for this campaign
+        const { data: mediaAssetsData, error: mediaAssetsError } = await supabase
+          .from('media_assets')
+          .select('*')
+          .eq('campaign_id', id)
+          .order('created_at', { ascending: false });
+
+        if (mediaAssetsError && mediaAssetsError.code !== 'PGRST116') {
+          console.error('Error fetching media assets:', mediaAssetsError);
+        } else if (mediaAssetsData) {
+          setMediaAssets(mediaAssetsData);
+        }
 
         // Check if user has already joined this campaign
         const { data: participationData, error: participationError } = await supabase
@@ -186,6 +207,7 @@ export default function CampaignJoin() {
     <CampaignHubLayout
       campaign={campaign}
       participation={participation}
+      mediaAssets={mediaAssets}
       onBack={handleBack}
       onSubmissionComplete={handleSubmissionComplete}
     />
