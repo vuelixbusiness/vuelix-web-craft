@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import CampaignCard from "@/components/ui/campaign-card";
 import Navigation from "@/components/Navigation";
-import DashboardNav from "@/components/DashboardNav";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -204,7 +203,7 @@ const Campaigns = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {user ? <DashboardNav dashboardType="creator" /> : <Navigation />}
+      <Navigation />
       <div className="container mx-auto px-6 py-8 mt-20">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
