@@ -85,16 +85,26 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
         .maybeSingle();
 
       if (!groupRoom) {
-        // Create group chat room
-        const { data: newGroupRoom } = await supabase
+        // Create group chat room - use current user as creator, RLS will handle access
+        const { data: newGroupRoom, error: roomError } = await supabase
           .from('chat_rooms')
           .insert({
             name: `campaign_${campaign.id}_group`,
             room_type: 'campaign_group',
-            created_by: campaign.artist_id
+            created_by: user.id
           })
           .select('id')
           .single();
+        
+        if (roomError) {
+          console.error('Error creating group room:', roomError);
+          toast({
+            title: "Error",
+            description: "Failed to create group chat",
+            variant: "destructive"
+          });
+          return;
+        }
         
         groupRoom = newGroupRoom;
       }
@@ -110,6 +120,11 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
 
         if (syncError) {
           console.error('Error syncing chat members:', syncError);
+          toast({
+            title: "Warning",
+            description: "Could not sync all participants to group chat",
+            variant: "destructive"
+          });
         } else {
           console.log('Successfully synced chat members for group room');
         }
@@ -126,7 +141,7 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
 
         if (!dmRoom) {
           // Create DM room
-          const { data: newDmRoom } = await supabase
+          const { data: newDmRoom, error: dmError } = await supabase
             .from('chat_rooms')
             .insert({
               name: `campaign_${campaign.id}_dm_${user.id}_${campaign.artist_id}`,
@@ -135,6 +150,16 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
             })
             .select('id')
             .single();
+
+          if (dmError) {
+            console.error('Error creating DM room:', dmError);
+            toast({
+              title: "Error", 
+              description: "Failed to create direct message room",
+              variant: "destructive"
+            });
+            return;
+          }
 
           dmRoom = newDmRoom;
 
