@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
-import { Send, MessageCircle, Users, Pin, Search, Hash, User } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import { Send, MessageCircle, Users, Pin, Search, Hash, User, AlertCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
 interface Campaign {
@@ -46,6 +48,8 @@ interface CampaignChatProps {
 }
 
 export function CampaignChat({ campaign }: CampaignChatProps) {
+  const location = useLocation();
+  const { user, isLoading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState("group");
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -55,11 +59,30 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
   const [dmRoomId, setDmRoomId] = useState<string | null>(null);
   const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
   const { toast } = useToast();
 
+  // Check if we're on a valid authenticated campaign route
+  const isValidRoute = location.pathname.includes('/campaign/') && 
+                      (location.pathname.includes('/join') || 
+                       location.pathname.includes('/manage') ||
+                       location.pathname === `/campaign/${campaign.id}`);
+
+  // Wait for auth and validate route before initializing
+  const canInitializeChat = !authLoading && user && isValidRoute;
+
   useEffect(() => {
-    initializeChatRooms();
-  }, [campaign.id]);
+    if (canInitializeChat) {
+      setAuthError(null);
+      initializeChatRooms();
+    } else if (!authLoading && !user) {
+      setAuthError("Authentication required to access campaign chat.");
+      setLoading(false);
+    } else if (!authLoading && user && !isValidRoute) {
+      setAuthError("Campaign chat must be accessed from a campaign page.");
+      setLoading(false);
+    }
+  }, [canInitializeChat, campaign.id, authLoading, user, isValidRoute]);
 
   useEffect(() => {
     const newActiveRoomId = activeTab === "group" ? groupRoomId : dmRoomId;
@@ -74,8 +97,12 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
   const initializeChatRooms = async () => {
     try {
       setLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+      
+      // Double-check auth state before proceeding
+      const { data: { user: authUser }, error: authError } = await supabase.auth.getUser();
+      if (authError || !authUser || authUser.id !== user?.id) {
+        console.error('Auth validation failed:', { authError, authUser: !!authUser, expectedUserId: user?.id });
+        setAuthError("Authentication state mismatch. Please refresh the page.");
         setLoading(false);
         return;
       }
@@ -98,13 +125,13 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
         
         console.log('Group chat access debug:', debugInfo);
 
-        // Create group chat room - use current user as creator, RLS will handle access
+        // Create group chat room - use authenticated user as creator, RLS will handle access
         const { data: newGroupRoom, error: roomError } = await supabase
           .from('chat_rooms')
           .insert({
             name: `campaign_${campaign.id}_group`,
             room_type: 'campaign_group',
-            created_by: user.id
+            created_by: authUser.id
           })
           .select('id')
           .single();
@@ -146,19 +173,19 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
       }
 
       // Check if DM room exists between current user and artist
-      if (user.id !== campaign.artist_id) {
+      if (authUser.id !== campaign.artist_id) {
         let { data: dmRoom } = await supabase
           .from('chat_rooms')
           .select('id')
-          .eq('name', `campaign_${campaign.id}_dm_${user.id}_${campaign.artist_id}`)
+          .eq('name', `campaign_${campaign.id}_dm_${authUser.id}_${campaign.artist_id}`)
           .eq('room_type', 'campaign_dm')
           .maybeSingle();
 
         if (!dmRoom) {
           // Debug access before creating DM room
-          const dmRoomName = `campaign_${campaign.id}_dm_${user.id}_${campaign.artist_id}`;
+          const dmRoomName = `campaign_${campaign.id}_dm_${authUser.id}_${campaign.artist_id}`;
           const { data: dmDebugInfo } = await supabase.rpc('debug_campaign_chat_access', {
-            _user_id: user.id,
+            _user_id: authUser.id,
             _room_name: dmRoomName,
             _room_type: 'campaign_dm'
           });
@@ -171,7 +198,7 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
             .insert({
               name: dmRoomName,
               room_type: 'campaign_dm',
-              created_by: user.id
+              created_by: authUser.id
             })
             .select('id')
             .single();
@@ -193,7 +220,7 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
           // Add both users to the DM room
           if (dmRoom?.id) {
             const { error: memberError } = await supabase.from('chat_room_members').insert([
-              { room_id: dmRoom.id, user_id: user.id },
+              { room_id: dmRoom.id, user_id: authUser.id },
               { room_id: dmRoom.id, user_id: campaign.artist_id }
             ]);
 
@@ -318,7 +345,27 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
 
   const isArtist = (userId: string) => userId === campaign.artist_id;
 
-  if (loading) {
+  // Show authentication error or loading states
+  if (authError) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-3 p-4 border border-destructive/20 rounded-lg bg-destructive/5">
+          <AlertCircle className="h-5 w-5 text-destructive" />
+          <div>
+            <h3 className="font-medium text-destructive">Chat Access Error</h3>
+            <p className="text-sm text-muted-foreground">{authError}</p>
+            {!isValidRoute && (
+              <p className="text-sm text-muted-foreground mt-1">
+                Please access the chat from a campaign page: /campaign/{campaign.id}/join
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (loading || authLoading) {
     return (
       <div className="space-y-6">
         <div>
