@@ -54,20 +54,20 @@ const Wallet = () => {
     try {
       // Fetch wallet data
       const { data: walletData, error: walletError } = await supabase
-        .from('wallets' as any)
+        .from('wallets')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (walletError && walletError.code !== 'PGRST116') {
+      if (walletError) {
         console.error('Wallet fetch error:', walletError);
       } else if (walletData) {
-        setWallet(walletData as any);
+        setWallet(walletData);
       }
 
       // Fetch transactions
       const { data: transactionsData, error: transactionsError } = await supabase
-        .from('transactions' as any)
+        .from('transactions')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
@@ -75,12 +75,12 @@ const Wallet = () => {
       if (transactionsError) {
         console.error('Transactions fetch error:', transactionsError);
       } else {
-        setTransactions(transactionsData as any || []);
+        setTransactions(transactionsData || []);
       }
 
       // Fetch payout requests
       const { data: payoutData, error: payoutError } = await supabase
-        .from('payout_requests' as any)
+        .from('payout_requests')
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
@@ -88,7 +88,7 @@ const Wallet = () => {
       if (payoutError) {
         console.error('Payout requests fetch error:', payoutError);
       } else {
-        setPayoutRequests(payoutData as any || []);
+        setPayoutRequests(payoutData || []);
       }
     } catch (error: any) {
       toast({
@@ -128,7 +128,7 @@ const Wallet = () => {
 
     try {
       const { data, error } = await supabase
-        .from('payout_requests' as any)
+        .from('payout_requests')
         .insert({
           user_id: user.id,
           amount: amount,
@@ -140,7 +140,7 @@ const Wallet = () => {
 
       if (error) throw error;
 
-      setPayoutRequests(prev => [data, ...prev] as any);
+      setPayoutRequests(prev => [data, ...prev]);
       setPayoutAmount("");
       setPayoutMethod("");
       setShowPayoutForm(false);
@@ -370,20 +370,20 @@ const Wallet = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {transactions.map((transaction: any, index: number) => (
+                  {transactions.map((transaction, index: number) => (
                     <div key={index} className="flex items-center justify-between p-4 border border-border rounded-lg">
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center">
                           <TrendingUp className="w-5 h-5 text-primary-foreground" />
                         </div>
-                        <div>
-                          <p className="font-medium">{transaction.description}</p>
-                          <p className="text-sm text-muted-foreground">{transaction.date}</p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-medium text-green-500">+${transaction.amount}</p>
-                        <Badge variant="secondary" className="text-xs">Completed</Badge>
+                         <div>
+                           <p className="font-medium">{transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</p>
+                           <p className="text-sm text-muted-foreground">{new Date(transaction.created_at).toLocaleDateString()}</p>
+                         </div>
+                       </div>
+                       <div className="text-right">
+                         <p className="font-medium text-green-500">+{formatCurrency(transaction.amount)}</p>
+                         <Badge variant="secondary" className="text-xs">{transaction.status}</Badge>
                       </div>
                     </div>
                   ))}
