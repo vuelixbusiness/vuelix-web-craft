@@ -93,33 +93,33 @@ const Navigation = () => {
               </a>
             </Button>
             <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
-              <a href="/campaigns" className="flex items-center space-x-2">
+              <Link to="/campaigns" className="flex items-center space-x-2">
                 <BarChart3 className="w-4 h-4" />
                 <span>Campaigns</span>
-              </a>
+              </Link>
             </Button>
             <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
-              <a href="/leaderboard" className="flex items-center space-x-2">
+              <Link to="/leaderboard" className="flex items-center space-x-2">
                 <Trophy className="w-4 h-4" />
                 <span>Leaderboard</span>
-              </a>
+              </Link>
             </Button>
             <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
-              <a href="/vuelix-plus" className="flex items-center space-x-2">
+              <Link to="/vuelix-plus" className="flex items-center space-x-2">
                 <Star className="w-4 h-4" />
                 <span>Vuelix+</span>
-              </a>
+              </Link>
             </Button>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <ThemeToggle />
-            <Button variant="ghost" size="sm" className="rounded-full" asChild>
-              <a href="/login">Log In</a>
-            </Button>
-            <Button variant="default" size="sm" className="rounded-full" asChild>
-              <a href="/signup">Join Now</a>
-            </Button>
+           </div>
+           
+           <div className="flex items-center space-x-2">
+             <ThemeToggle />
+             <Button variant="ghost" size="sm" className="rounded-full" asChild>
+               <Link to="/login">Log In</Link>
+             </Button>
+             <Button variant="default" size="sm" className="rounded-full" asChild>
+               <Link to="/signup">Join Now</Link>
+             </Button>
           </div>
         </div>
       </div>
