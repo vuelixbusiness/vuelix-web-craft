@@ -76,7 +76,7 @@ const Hero = () => {
   };
 
   const handleBrowseCampaigns = () => {
-    navigate('/login');
+    navigate('/campaigns');
   };
 
   return (
