@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import CampaignCard from "@/components/ui/campaign-card";
 import Navigation from "@/components/Navigation";
+import DashboardLayout from "@/components/DashboardLayout";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -201,118 +202,115 @@ const Campaigns = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Navigation />
-      <div className="container mx-auto px-6 py-8 mt-20">
-        <div className="max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2 text-foreground">Discover Campaigns</h1>
-            <p className="text-muted-foreground">
-              Find amazing music campaigns and start earning rewards
-            </p>
-          </div>
+  const campaignsContent = (
+    <div className="container mx-auto px-6 py-8">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2 text-foreground">Discover Campaigns</h1>
+          <p className="text-muted-foreground">
+            Find amazing music campaigns and start earning rewards
+          </p>
+        </div>
 
-          {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row gap-4 mb-8">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search campaigns, artists, or genres..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            <Button variant="outline" className="md:w-auto">
-              <Filter className="w-4 h-4 mr-2" />
-              Filters
-            </Button>
+        {/* Search and Filters */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search campaigns, artists, or genres..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
           </div>
+          <Button variant="outline" className="md:w-auto">
+            <Filter className="w-4 h-4 mr-2" />
+            Filters
+          </Button>
+        </div>
 
-          {/* Campaign Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="bg-card border-border">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Active Campaigns
-                </CardTitle>
-                <Music className="w-5 h-5 text-stat-blue" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">{isLoading ? '...' : campaigns.length}</div>
-                <p className="text-xs text-muted-foreground">Available to join</p>
+        {/* Campaign Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          <Card className="bg-card border-border">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Active Campaigns
+              </CardTitle>
+              <Music className="w-5 h-5 text-stat-blue" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">{isLoading ? '...' : campaigns.length}</div>
+              <p className="text-xs text-muted-foreground">Available to join</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-card border-border">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Average Payout
+              </CardTitle>
+              <DollarSign className="w-5 h-5 text-stat-green" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">
+                ${isLoading ? '...' : campaigns.length > 0 ? (campaigns.reduce((sum, c) => sum + c.payout_rate, 0) / campaigns.length).toFixed(3) : '0.00'}
+              </div>
+              <p className="text-xs text-muted-foreground">Per qualified view</p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card border-border">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Total Creators
+              </CardTitle>
+              <Users className="w-5 h-5 text-stat-purple" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-foreground">{isLoading ? '...' : totalCreators}</div>
+              <p className="text-xs text-muted-foreground">Participating</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Campaigns Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {isLoading ? (
+            <>
+              {[1, 2, 3, 4, 5, 6].map((i) => (
+                <Card key={i} className="bg-card border-border animate-pulse">
+                  <CardContent className="p-6">
+                    <div className="h-20 bg-muted rounded" />
+                  </CardContent>
+                </Card>
+              ))}
+            </>
+          ) : filteredCampaigns.length === 0 ? (
+            <Card className="bg-card border-border col-span-full">
+              <CardContent className="text-center py-12">
+                <Music className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2 text-foreground">No campaigns found</h3>
+                <p className="text-muted-foreground">
+                  {searchQuery ? 'Try adjusting your search terms.' : 'Check back later for new campaigns.'}
+                </p>
               </CardContent>
             </Card>
-            
-            <Card className="bg-card border-border">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Average Payout
-                </CardTitle>
-                <DollarSign className="w-5 h-5 text-stat-green" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">
-                  ${isLoading ? '...' : campaigns.length > 0 ? (campaigns.reduce((sum, c) => sum + c.payout_rate, 0) / campaigns.length).toFixed(3) : '0.00'}
-                </div>
-                <p className="text-xs text-muted-foreground">Per qualified view</p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-card border-border">
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Total Creators
-                </CardTitle>
-                <Users className="w-5 h-5 text-stat-purple" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-foreground">{isLoading ? '...' : totalCreators}</div>
-                <p className="text-xs text-muted-foreground">Participating</p>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Campaigns Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {isLoading ? (
-              <>
-                {[1, 2, 3, 4, 5, 6].map((i) => (
-                  <Card key={i} className="bg-card border-border animate-pulse">
-                    <CardContent className="p-6">
-                      <div className="h-20 bg-muted rounded" />
-                    </CardContent>
-                  </Card>
-                ))}
-              </>
-            ) : filteredCampaigns.length === 0 ? (
-              <Card className="bg-card border-border col-span-full">
-                <CardContent className="text-center py-12">
-                  <Music className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2 text-foreground">No campaigns found</h3>
-                  <p className="text-muted-foreground">
-                    {searchQuery ? 'Try adjusting your search terms.' : 'Check back later for new campaigns.'}
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              filteredCampaigns.map((campaign) => (
-                <div key={campaign.id} onClick={() => handleCampaignClick(campaign.id)} className="cursor-pointer">
-                  <CampaignCard
-                    campaign={campaign}
-                    variant="creator-available"
-                    showJoinButton={true}
-                    showPlayButton={true}
-                    onJoinCampaign={() => handleCampaignClick(campaign.id)}
-                    onAudioToggle={toggleAudio}
-                    isPlaying={currentlyPlaying === campaign.id}
-                  />
-                </div>
-              ))
-            )}
-          </div>
+          ) : (
+            filteredCampaigns.map((campaign) => (
+              <div key={campaign.id} onClick={() => handleCampaignClick(campaign.id)} className="cursor-pointer">
+                <CampaignCard
+                  campaign={campaign}
+                  variant="creator-available"
+                  showJoinButton={true}
+                  showPlayButton={true}
+                  onJoinCampaign={() => handleCampaignClick(campaign.id)}
+                  onAudioToggle={toggleAudio}
+                  isPlaying={currentlyPlaying === campaign.id}
+                />
+              </div>
+            ))
+          )}
         </div>
       </div>
 
@@ -322,6 +320,24 @@ const Campaigns = () => {
         onEnded={() => setCurrentlyPlaying(null)}
         onError={() => setCurrentlyPlaying(null)}
       />
+    </div>
+  );
+
+  // Show appropriate layout based on authentication status
+  if (user) {
+    return (
+      <DashboardLayout>
+        {campaignsContent}
+      </DashboardLayout>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navigation />
+      <div className="pt-20">
+        {campaignsContent}
+      </div>
     </div>
   );
 };
