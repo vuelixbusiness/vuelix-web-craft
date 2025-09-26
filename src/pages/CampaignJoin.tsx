@@ -2,15 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, MessageSquare } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
-import CampaignOverviewSidebar from '@/components/campaign-join/CampaignOverviewSidebar';
-import ParticipationStatusBanner from '@/components/campaign-join/ParticipationStatusBanner';
-import SubmissionTabs from '@/components/campaign-join/SubmissionTabs';
-import EarningsTracker from '@/components/campaign-join/EarningsTracker';
-import ActivityFeed from '@/components/campaign-join/ActivityFeed';
+import { CampaignHubLayout } from '@/components/campaign-hub/CampaignHubLayout';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface Campaign {
   id: string;
@@ -30,6 +25,8 @@ interface Campaign {
   vip_bonus?: number;
   max_payout?: number;
   vip_max_payout?: number;
+  artist_id: string;
+  created_at: string;
 }
 
 interface Participation {
@@ -79,7 +76,9 @@ export default function CampaignJoin() {
           genre: campaignData.genre,
           vip_bonus: campaignData.vip_bonus,
           max_payout: campaignData.max_payout,
-          vip_max_payout: campaignData.vip_max_payout
+          vip_max_payout: campaignData.vip_max_payout,
+          artist_id: campaignData.artist_id,
+          created_at: campaignData.created_at
         };
         
         setCampaign(transformedCampaign);
@@ -184,67 +183,11 @@ export default function CampaignJoin() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-6 max-w-7xl">
-        {/* Header with back button */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={handleBack}
-              className="flex items-center gap-2"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold">{campaign.song_title}</h1>
-              <p className="text-muted-foreground">
-                Campaign Management Hub
-              </p>
-            </div>
-          </div>
-          <Button variant="outline" size="sm" className="flex items-center gap-2">
-            <MessageSquare className="w-4 h-4" />
-            Chat with Artist
-          </Button>
-        </div>
-
-        {/* Participation Status Banner */}
-        <div className="mb-6">
-          <ParticipationStatusBanner 
-            hasJoined={!!participation}
-            participation={participation}
-          />
-        </div>
-
-        {/* Main Layout - 3 Column Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Left Sidebar - Campaign Overview */}
-          <div className="lg:col-span-1 space-y-6">
-            <CampaignOverviewSidebar campaign={campaign} />
-          </div>
-
-          {/* Main Content Area */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Submission Section */}
-            <SubmissionTabs 
-              campaign={campaign}
-              onSubmissionComplete={handleSubmissionComplete}
-            />
-          </div>
-
-          {/* Right Sidebar - Tracker & Activity */}
-          <div className="lg:col-span-1 space-y-6">
-            {/* Earnings Tracker */}
-            <EarningsTracker campaign={campaign} />
-            
-            {/* Activity Feed */}
-            <ActivityFeed campaignId={campaign.id} />
-          </div>
-        </div>
-      </div>
-    </div>
+    <CampaignHubLayout
+      campaign={campaign}
+      participation={participation}
+      onBack={handleBack}
+      onSubmissionComplete={handleSubmissionComplete}
+    />
   );
 }
