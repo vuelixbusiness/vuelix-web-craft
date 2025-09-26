@@ -90,7 +90,7 @@ const Wallet = () => {
       } else {
         setPayoutRequests(payoutData || []);
       }
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
         description: "Failed to fetch wallet data",
@@ -149,7 +149,7 @@ const Wallet = () => {
         title: "Success",
         description: "Payout request submitted successfully!",
       });
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Error",
         description: "Failed to submit payout request",
@@ -370,20 +370,22 @@ const Wallet = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {transactions.map((transaction, index: number) => (
+                  {transactions.map((transaction, index) => (
                     <div key={index} className="flex items-center justify-between p-4 border border-border rounded-lg">
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center">
                           <TrendingUp className="w-5 h-5 text-primary-foreground" />
                         </div>
-                         <div>
-                           <p className="font-medium">{transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1)}</p>
-                           <p className="text-sm text-muted-foreground">{new Date(transaction.created_at).toLocaleDateString()}</p>
-                         </div>
-                       </div>
-                       <div className="text-right">
-                         <p className="font-medium text-green-500">+{formatCurrency(transaction.amount)}</p>
-                         <Badge variant="secondary" className="text-xs">{transaction.status}</Badge>
+                        <div>
+                          <p className="font-medium">{transaction.type} - {formatCurrency(transaction.amount)}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(transaction.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-medium text-green-500">+{formatCurrency(transaction.amount)}</p>
+                        <Badge variant="secondary" className="text-xs">{transaction.status}</Badge>
                       </div>
                     </div>
                   ))}
