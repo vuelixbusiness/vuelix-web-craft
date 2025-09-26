@@ -53,6 +53,7 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
   const [participants, setParticipants] = useState<ChatParticipant[]>([]);
   const [groupRoomId, setGroupRoomId] = useState<string | null>(null);
   const [dmRoomId, setDmRoomId] = useState<string | null>(null);
+  const [activeRoomId, setActiveRoomId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
@@ -61,22 +62,27 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
   }, [campaign.id]);
 
   useEffect(() => {
-    if (groupRoomId && activeTab === "group") {
-      loadMessages(groupRoomId);
-    } else if (dmRoomId && activeTab === "dm") {
-      loadMessages(dmRoomId);
+    const newActiveRoomId = activeTab === "group" ? groupRoomId : dmRoomId;
+    setActiveRoomId(newActiveRoomId);
+    if (newActiveRoomId) {
+      loadMessages(newActiveRoomId);
+    } else {
+      setMessages([]);
     }
   }, [groupRoomId, dmRoomId, activeTab]);
 
   const initializeChatRooms = async () => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
       // Check if group chat room exists for this campaign
       let { data: groupRoom } = await supabase
         .from('chat_rooms')
         .select('id')
         .eq('name', `campaign_${campaign.id}_group`)
         .eq('room_type', 'campaign_group')
-        .single();
+        .maybeSingle();
 
       if (!groupRoom) {
         // Create group chat room
@@ -93,17 +99,30 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
         groupRoom = newGroupRoom;
       }
 
-      setGroupRoomId(groupRoom?.id || null);
+      if (groupRoom?.id) {
+        setGroupRoomId(groupRoom.id);
+        
+        // Sync campaign participants with group chat members using our new function
+        const { error: syncError } = await supabase.rpc('sync_campaign_chat_members', {
+          _campaign_id: campaign.id,
+          _room_id: groupRoom.id
+        });
+
+        if (syncError) {
+          console.error('Error syncing chat members:', syncError);
+        } else {
+          console.log('Successfully synced chat members for group room');
+        }
+      }
 
       // Check if DM room exists between current user and artist
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user && user.id !== campaign.artist_id) {
+      if (user.id !== campaign.artist_id) {
         let { data: dmRoom } = await supabase
           .from('chat_rooms')
           .select('id')
           .eq('name', `campaign_${campaign.id}_dm_${user.id}_${campaign.artist_id}`)
           .eq('room_type', 'campaign_dm')
-          .single();
+          .maybeSingle();
 
         if (!dmRoom) {
           // Create DM room
@@ -121,10 +140,16 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
 
           // Add both users to the DM room
           if (dmRoom?.id) {
-            await supabase.from('chat_room_members').insert([
+            const { error: memberError } = await supabase.from('chat_room_members').insert([
               { room_id: dmRoom.id, user_id: user.id },
               { room_id: dmRoom.id, user_id: campaign.artist_id }
             ]);
+
+            if (memberError) {
+              console.error('Error adding DM room members:', memberError);
+            } else {
+              console.log('Successfully added members to DM room');
+            }
           }
         }
 
@@ -209,17 +234,14 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
   };
 
   const sendMessage = async () => {
-    if (!newMessage.trim()) return;
-
-    const roomId = activeTab === "group" ? groupRoomId : dmRoomId;
-    if (!roomId) return;
+    if (!newMessage.trim() || !activeRoomId) return;
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
       await supabase.from('messages').insert({
-        room_id: roomId,
+        room_id: activeRoomId,
         sender_id: user.id,
         content: newMessage.trim(),
         message_type: 'text'
@@ -227,7 +249,7 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
 
       setNewMessage("");
       // Reload messages to show the new one
-      loadMessages(roomId);
+      loadMessages(activeRoomId);
     } catch (error) {
       console.error('Error sending message:', error);
       toast({

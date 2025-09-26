@@ -768,6 +768,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_user_chat_room_membership: {
+        Args: { _room_id: string; _user_id: string }
+        Returns: boolean
+      }
       create_notification: {
         Args: {
           p_category?: string
@@ -778,6 +782,16 @@ export type Database = {
           p_user_id: string
         }
         Returns: string
+      }
+      get_user_chat_rooms: {
+        Args: { _user_id: string }
+        Returns: {
+          room_id: string
+        }[]
+      }
+      sync_campaign_chat_members: {
+        Args: { _campaign_id: string; _room_id: string }
+        Returns: undefined
       }
     }
     Enums: {
