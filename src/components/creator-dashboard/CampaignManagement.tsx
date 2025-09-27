@@ -169,20 +169,39 @@ const CampaignManagement = () => {
     if (!user?.id) return;
     
     try {
-      // First fetch participations with campaigns data
+      // First fetch participations with campaigns data including budget
       const { data: participationData, error: participationError } = await supabase
         .from('campaign_participations')
         .select(`
           *, 
           campaigns (
             id, title, song_title, song_url, cover_art_url, genre, platforms, 
-            payout_type, payout_rate, artist_id
+            payout_type, payout_rate, artist_id, budget
           )
         `)
         .eq('creator_id', user.id)
         .order('created_at', { ascending: false });
 
       if (participationError) throw participationError;
+
+      // Calculate budget information for joined campaigns
+      const campaignIds = [...new Set(participationData?.map(p => p.campaigns?.id).filter(Boolean) || [])];
+      
+      // Fetch all participations for these campaigns to calculate redeemed amounts
+      const { data: allParticipationsData, error: allParticipationsError } = await supabase
+        .from('campaign_participations')
+        .select('campaign_id, payout_amount')
+        .in('campaign_id', campaignIds);
+
+      if (allParticipationsError) {
+        console.error('Error fetching all participations for budget calculation:', allParticipationsError);
+      }
+
+      // Calculate redeemed amounts per campaign
+      const redeemedAmounts = allParticipationsData?.reduce((acc, participation) => {
+        acc[participation.campaign_id] = (acc[participation.campaign_id] || 0) + (participation.payout_amount || 0);
+        return acc;
+      }, {} as Record<string, number>) || {};
 
       // Extract unique artist IDs to fetch profiles
       const artistIds = [...new Set(participationData?.map(p => p.campaigns?.artist_id).filter(Boolean) || [])];
@@ -195,16 +214,26 @@ const CampaignManagement = () => {
 
       if (profilesError) throw profilesError;
 
-      // Map profiles to campaigns
+      // Map profiles to campaigns and add budget information
       const profilesMap = new Map(profilesData?.map(p => [p.user_id, p]) || []);
       
-      const enrichedParticipations = participationData?.map(participation => ({
-        ...participation,
-        campaigns: {
-          ...participation.campaigns,
-          profiles: profilesMap.get(participation.campaigns?.artist_id)
-        }
-      })) || [];
+      const enrichedParticipations = participationData?.map(participation => {
+        const redeemed = redeemedAmounts[participation.campaigns?.id] || 0;
+        const budget = participation.campaigns?.budget || 0;
+        const availableBudget = Math.max(0, budget - redeemed);
+        const budgetUsedPercentage = budget ? (redeemed / budget) * 100 : 0;
+
+        return {
+          ...participation,
+          campaigns: {
+            ...participation.campaigns,
+            profiles: profilesMap.get(participation.campaigns?.artist_id),
+            redeemed,
+            availableBudget,
+            budgetUsedPercentage
+          }
+        };
+      }) || [];
 
       setParticipations(enrichedParticipations as any[]);
     } catch (error) {
@@ -368,9 +397,13 @@ const CampaignManagement = () => {
                   payout_type: (participation.campaigns as any).payout_type,
                   payout_rate: (participation.campaigns as any).payout_rate,
                   profiles: participation.campaigns.profiles,
-                  artist_id: participation.campaigns.artist_id
+                  artist_id: participation.campaigns.artist_id,
+                  budget: (participation.campaigns as any).budget,
+                  redeemed: (participation.campaigns as any).redeemed,
+                  availableBudget: (participation.campaigns as any).availableBudget,
+                  budgetUsedPercentage: (participation.campaigns as any).budgetUsedPercentage
                 } as any}
-                variant="creator-available"
+                variant="creator-joined"
                 showPlayButton={true}
                 onAudioToggle={toggleAudio}
                 isPlaying={currentlyPlaying === participation.campaign_id}
