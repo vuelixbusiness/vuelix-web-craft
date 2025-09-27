@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -85,7 +85,10 @@ const ArtistCampaignFlow = () => {
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
   const [isLaunching, setIsLaunching] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const songFileInputRef = useRef<HTMLInputElement>(null);
+  const coverArtFileInputRef = useRef<HTMLInputElement>(null);
 
   // Transform campaignData to Campaign interface for CampaignCard
   const transformToCampaign = () => {
@@ -121,20 +124,92 @@ const ArtistCampaignFlow = () => {
     };
   };
 
-  const handleSongFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSongFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      updateCampaignData('songFile', file);
-      updateCampaignData('songTitle', file.name.replace(/\.[^/.]+$/, ""));
+    if (!file) return;
+    
+    // Validate file size (50MB limit)
+    if (file.size > 50 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Song file must be under 50MB",
+        variant: "destructive"
+      });
+      return;
     }
-  };
+    
+    // Validate file type
+    if (!file.type.startsWith('audio/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an audio file",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsUploading(true);
+    
+    // Use single state update to prevent re-render loop
+    setCampaignData(prev => ({
+      ...prev,
+      songFile: file,
+      songTitle: file.name.replace(/\.[^/.]+$/, ""),
+      songLink: undefined // Clear song link when file is uploaded
+    }));
+    
+    setIsUploading(false);
+    
+    // Reset file input to allow re-uploading same file
+    if (event.target) {
+      event.target.value = '';
+    }
+  }, [toast]);
 
-  const handleCoverArtUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverArtUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      updateCampaignData('coverArtFile', file);
+    if (!file) return;
+    
+    // Validate file size (10MB limit)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Cover art must be under 10MB",
+        variant: "destructive"
+      });
+      return;
     }
-  };
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsUploading(true);
+    
+    // Clean up previous object URL to prevent memory leaks
+    if (campaignData.coverArtFile) {
+      URL.revokeObjectURL(URL.createObjectURL(campaignData.coverArtFile));
+    }
+    
+    setCampaignData(prev => ({
+      ...prev,
+      coverArtFile: file,
+      coverArtLink: undefined // Clear cover art link when file is uploaded
+    }));
+    
+    setIsUploading(false);
+    
+    // Reset file input to allow re-uploading same file
+    if (event.target) {
+      event.target.value = '';
+    }
+  }, [toast, campaignData.coverArtFile]);
 
   const handleApplyCoverArtLink = async () => {
     if (!campaignData.coverArtLink) return;
@@ -254,9 +329,20 @@ const ArtistCampaignFlow = () => {
     return totalInvestment - calculatePlatformFee(totalInvestment);
   };
 
-  const updateCampaignData = (field: keyof CampaignData, value: any) => {
+  const updateCampaignData = useCallback((field: keyof CampaignData, value: any) => {
     setCampaignData(prev => ({ ...prev, [field]: value }));
-  };
+  }, []);
+
+  // Optimized file input trigger functions using refs
+  const triggerSongFileInput = useCallback(() => {
+    if (isUploading) return; // Prevent multiple clicks during upload
+    songFileInputRef.current?.click();
+  }, [isUploading]);
+
+  const triggerCoverArtInput = useCallback(() => {
+    if (isUploading) return; // Prevent multiple clicks during upload
+    coverArtFileInputRef.current?.click();
+  }, [isUploading]);
 
   // Handle budget input with automatic fee calculation
   const handleBudgetChange = (totalInvestment: number) => {
@@ -483,19 +569,27 @@ const ArtistCampaignFlow = () => {
                       </p>
                     )}
                     <input
+                      ref={songFileInputRef}
                       type="file"
                       accept="audio/*,.mp3,.wav,.flac"
                       onChange={handleSongFileUpload}
                       className="hidden"
-                      id="song-upload"
                     />
                     <Button 
                       variant="outline" 
                       size="sm" 
                       className="mb-3"
-                      onClick={() => document.getElementById('song-upload')?.click()}
+                      onClick={triggerSongFileInput}
+                      disabled={isUploading}
                     >
-                      {campaignData.songFile ? 'Change File' : 'Choose File'}
+                      {isUploading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                          Uploading...
+                        </>
+                      ) : (
+                        campaignData.songFile ? 'Change File' : 'Choose File'
+                      )}
                     </Button>
                     <div className="text-xs text-muted-foreground mb-3">
                       Supported: MP3, WAV, FLAC (Max 50MB)
@@ -588,19 +682,27 @@ const ArtistCampaignFlow = () => {
                       </>
                     )}
                     <input
+                      ref={coverArtFileInputRef}
                       type="file"
                       accept="image/*,.jpg,.jpeg,.png,.webp"
                       onChange={handleCoverArtUpload}
                       className="hidden"
-                      id="cover-art-upload"
                     />
                     <Button 
                       variant="outline" 
                       size="sm" 
                       className="mb-4"
-                      onClick={() => document.getElementById('cover-art-upload')?.click()}
+                      onClick={triggerCoverArtInput}
+                      disabled={isUploading}
                     >
-                      {campaignData.coverArtFile ? 'Change Image' : 'Choose Image'}
+                      {isUploading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+                          Uploading...
+                        </>
+                      ) : (
+                        campaignData.coverArtFile ? 'Change Image' : 'Choose Image'
+                      )}
                     </Button>
                     <div className="text-xs text-muted-foreground mb-4">
                       Supported: JPG, PNG, WEBP (Max 10MB)
