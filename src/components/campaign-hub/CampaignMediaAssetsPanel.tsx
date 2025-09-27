@@ -182,7 +182,7 @@ export function CampaignMediaAssetsPanel({ campaign, mediaAssets, isLoading }: C
   }
 
   return (
-    <Card>
+    <Card className="min-h-[600px] lg:min-h-[700px]">
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -194,7 +194,7 @@ export function CampaignMediaAssetsPanel({ campaign, mediaAssets, isLoading }: C
           </Badge>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-8">
         {/* Visual Assets Preview */}
         {allVisualAssets.length > 0 && (
           <div>
