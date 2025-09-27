@@ -93,95 +93,103 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
 
   return (
     <div className="space-y-6">
-      {/* Campaign Header - Full width at the top */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex items-start gap-6">
-            <Avatar className="h-24 w-24 rounded-xl">
-              <AvatarImage src={campaign.cover_art_url} alt={campaign.title} />
-              <AvatarFallback className="rounded-xl text-lg">
-                {campaign.title.charAt(0)}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 space-y-4">
-              <div>
-                <h1 className="text-2xl font-bold">{campaign.title}</h1>
-                <p className="text-xl text-muted-foreground">{campaign.song_title}</p>
-                <div className="flex items-center gap-2 mt-2">
-                  {campaign.genre && <Badge variant="secondary">{campaign.genre}</Badge>}
-                  {campaign.status && (
-                    <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'}>
-                      {campaign.status}
-                    </Badge>
-                  )}
+      {/* Campaign Header - Aligned with Media Assets */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Card>
+            <CardContent className="p-6">
+              <div className="flex items-start gap-6">
+                <Avatar className="h-24 w-24 rounded-xl">
+                  <AvatarImage src={campaign.cover_art_url} alt={campaign.title} />
+                  <AvatarFallback className="rounded-xl text-lg">
+                    {campaign.title.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 space-y-4">
+                  <div>
+                    <h1 className="text-2xl font-bold">{campaign.title}</h1>
+                    <p className="text-xl text-muted-foreground">{campaign.song_title}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      {campaign.genre && <Badge variant="secondary">{campaign.genre}</Badge>}
+                      {campaign.status && (
+                        <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'}>
+                          {campaign.status}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-muted-foreground" />
+                      <span className="font-medium">
+                        ${campaign.payout_rate} {campaign.payout_type === 'per_view' ? 'per 1K views' : 'per submission'}
+                      </span>
+                      {campaign.vip_bonus && (
+                        <Badge variant="outline" className="text-xs">
+                          +${campaign.vip_bonus} VIP bonus
+                        </Badge>
+                      )}
+                    </div>
+                    {daysRemaining !== null && (
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm text-muted-foreground">
+                          {daysRemaining > 0 ? `${daysRemaining} days left` : 'Campaign ended'}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+
+      {/* Engagement Pot - Aligned with Media Assets */}
+      {campaign.budget && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <div className="bg-secondary/30 rounded-lg px-4 py-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2">
+                  <DollarSign className="w-5 h-5 text-primary" />
+                  <span className="font-semibold">Engagement Pot</span>
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  {budgetUsedPercentage.toFixed(1)}% used
+                </span>
               </div>
               
-              <div className="flex items-center gap-6">
-                <div className="flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
-                  <span className="font-medium">
-                    ${campaign.payout_rate} {campaign.payout_type === 'per_view' ? 'per 1K views' : 'per submission'}
+              <div className="space-y-3">
+                <div>
+                  <p className="text-2xl font-bold text-primary">
+                    {formatCurrency(availableBudget)}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Available</p>
+                </div>
+                
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    {formatCurrency(redeemed)} redeemed
                   </span>
-                  {campaign.vip_bonus && (
-                    <Badge variant="outline" className="text-xs">
-                      +${campaign.vip_bonus} VIP bonus
-                    </Badge>
+                  <span className="text-muted-foreground">
+                    of {formatCurrency(campaign.budget)} total
+                  </span>
+                </div>
+                
+                <div className="space-y-1">
+                  <Progress value={budgetUsedPercentage} className="h-3" />
+                  {budgetUsedPercentage > 15 && (
+                    <div className="text-center">
+                      <span className="text-xs font-medium">
+                        {budgetUsedPercentage.toFixed(1)}%
+                      </span>
+                    </div>
                   )}
                 </div>
-                {daysRemaining !== null && (
-                  <div className="flex items-center gap-2">
-                    <Calendar className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-sm text-muted-foreground">
-                      {daysRemaining > 0 ? `${daysRemaining} days left` : 'Campaign ended'}
-                    </span>
-                  </div>
-                )}
               </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Engagement Pot - Below Campaign Header */}
-      {campaign.budget && (
-        <div className="bg-secondary/30 rounded-lg px-4 py-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center space-x-2">
-              <DollarSign className="w-5 h-5 text-primary" />
-              <span className="font-semibold">Engagement Pot</span>
-            </div>
-            <span className="text-sm text-muted-foreground">
-              {budgetUsedPercentage.toFixed(1)}% used
-            </span>
-          </div>
-          
-          <div className="space-y-3">
-            <div>
-              <p className="text-2xl font-bold text-primary">
-                {formatCurrency(availableBudget)}
-              </p>
-              <p className="text-xs text-muted-foreground">Available</p>
-            </div>
-            
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">
-                {formatCurrency(redeemed)} redeemed
-              </span>
-              <span className="text-muted-foreground">
-                of {formatCurrency(campaign.budget)} total
-              </span>
-            </div>
-            
-            <div className="space-y-1">
-              <Progress value={budgetUsedPercentage} className="h-3" />
-              {budgetUsedPercentage > 15 && (
-                <div className="text-center">
-                  <span className="text-xs font-medium">
-                    {budgetUsedPercentage.toFixed(1)}%
-                  </span>
-                </div>
-              )}
             </div>
           </div>
         </div>
