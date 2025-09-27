@@ -1,4 +1,6 @@
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import EarningsTracker from "@/components/campaign-join/EarningsTracker";
+import { CampaignLeaderboard } from "./CampaignLeaderboard";
 
 interface Campaign {
   id: string;
@@ -33,13 +35,26 @@ export function RewardsSection({ campaign, participation }: RewardsSectionProps)
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold mb-2">Rewards & Earnings</h2>
+        <h2 className="text-2xl font-bold mb-2">Rewards & Leaderboard</h2>
         <p className="text-muted-foreground">
-          Track your performance and earnings for this campaign.
+          Compare your performance with other creators and track your earnings.
         </p>
       </div>
 
-      <EarningsTracker campaign={campaign} />
+      <Tabs defaultValue="leaderboard" className="w-full">
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
+          <TabsTrigger value="earnings">My Earnings</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="leaderboard" className="mt-6">
+          <CampaignLeaderboard campaign={campaign} />
+        </TabsContent>
+        
+        <TabsContent value="earnings" className="mt-6">
+          <EarningsTracker campaign={campaign} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

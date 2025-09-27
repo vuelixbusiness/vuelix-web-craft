@@ -65,12 +65,6 @@ const sidebarItems = [
     description: "Guidelines to follow"
   },
   {
-    id: "rewards" as CampaignSectionType,
-    title: "Rewards",
-    icon: Gift,
-    description: "Earnings & payouts"
-  },
-  {
     id: "submissions" as CampaignSectionType,
     title: "Submissions",
     icon: Upload,
@@ -87,6 +81,12 @@ const sidebarItems = [
     title: "Updates & Timeline",
     icon: Activity,
     description: "Campaign activity"
+  },
+  {
+    id: "rewards" as CampaignSectionType,
+    title: "Rewards & Leaderboard",
+    icon: Badge,
+    description: "Leaderboard & earnings"
   }
 ];
 
