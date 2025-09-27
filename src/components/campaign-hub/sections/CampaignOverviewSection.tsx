@@ -81,7 +81,6 @@ const platformNames: Record<string, string> = {
 
 export function CampaignOverviewSection({ campaign, participation, mediaAssets = [], participants = [], onViewAllParticipants }: CampaignOverviewSectionProps) {
   const budgetSpent = (campaign.budget || 0) * 0.65; // Mock data
-  const budgetProgress = campaign.budget ? (budgetSpent / campaign.budget) * 100 : 0;
   const daysRemaining = campaign.end_date 
     ? Math.max(0, Math.ceil((new Date(campaign.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
     : null;
@@ -89,7 +88,7 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
   // Mock data for engagement pot if not provided
   const availableBudget = campaign.availableBudget || (campaign.budget || 0) - budgetSpent;
   const redeemed = campaign.redeemed || budgetSpent;
-  const budgetUsedPercentage = campaign.budgetUsedPercentage || budgetProgress;
+  const budgetUsedPercentage = campaign.budgetUsedPercentage || ((campaign.budget ? (budgetSpent / campaign.budget) * 100 : 0));
 
   return (
     <div className="space-y-6">
@@ -222,17 +221,14 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
           <div className="grid grid-cols-1 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Budget Used</CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Performance</CardTitle>
+                <TrendingUp className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
-                  ${budgetSpent.toLocaleString()}
-                </div>
-                <p className="text-xs text-muted-foreground mb-2">
-                  of ${(campaign.budget || 0).toLocaleString()} total
+                <div className="text-2xl font-bold">85%</div>
+                <p className="text-xs text-muted-foreground">
+                  submission approval rate
                 </p>
-                <Progress value={budgetProgress} className="h-2" />
               </CardContent>
             </Card>
 
@@ -245,19 +241,6 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                 <div className="text-2xl font-bold">247</div>
                 <p className="text-xs text-muted-foreground">
                   creators joined
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Performance</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">85%</div>
-                <p className="text-xs text-muted-foreground">
-                  submission approval rate
                 </p>
               </CardContent>
             </Card>
