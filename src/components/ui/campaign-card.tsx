@@ -275,160 +275,193 @@ const CampaignCard = ({
           </div>
         </div>
 
-        {/* Bottom Section: Full Width Engagement & Description */}
-        {variant === 'creator-available' && (
-          <>
-            {/* Budget Information */}
-            {campaign.budget && (
-              <div className="bg-secondary/30 rounded-lg px-4 py-4 mb-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-2">
-                    <DollarSign className="w-5 h-5 text-primary" />
-                    <span className="font-semibold">Engagement Pot</span>
+        {/* Engagement Pot for creator-available variant */}
+        {variant === 'creator-available' && campaign.budget && (
+          <div className="bg-secondary/30 rounded-lg px-4 py-4 mb-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center space-x-2">
+                <DollarSign className="w-5 h-5 text-primary" />
+                <span className="font-semibold">Engagement Pot</span>
+              </div>
+              <span className="text-sm text-muted-foreground">
+                {campaign.budgetUsedPercentage?.toFixed(1) || '0.0'}% used
+              </span>
+            </div>
+            
+            <div className="space-y-3">
+              <div>
+                <p className="text-2xl font-bold text-primary">
+                  {formatCurrency(campaign.availableBudget || campaign.budget)}
+                </p>
+                <p className="text-xs text-muted-foreground">Available</p>
+              </div>
+              
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">
+                  {formatCurrency(campaign.redeemed || 0)} redeemed
+                </span>
+                <span className="text-muted-foreground">
+                  of {formatCurrency(campaign.budget)} total
+                </span>
+              </div>
+              
+              <div className="space-y-1">
+                <Progress value={campaign.budgetUsedPercentage || 0} className="h-3" />
+                {(campaign.budgetUsedPercentage || 0) > 15 && (
+                  <div className="text-center">
+                    <span className="text-xs font-medium">
+                      {campaign.budgetUsedPercentage?.toFixed(1) || '0.0'}%
+                    </span>
                   </div>
-                  <span className="text-sm text-muted-foreground">
-                    {campaign.budgetUsedPercentage?.toFixed(1) || '0.0'}% used
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Engagement Pot for creator-joined variant */}
+        {variant === 'creator-joined' && (
+          <div className="bg-secondary/30 rounded-lg px-4 py-4 mb-4">
+            <div className="flex items-center space-x-2 mb-3">
+              <DollarSign className="w-5 h-5 text-primary" />
+              <span className="font-semibold">Campaign Budget</span>
+            </div>
+            
+            <div className="space-y-3">
+              <div>
+                <p className="text-2xl font-bold text-primary">
+                  {formatCurrency(campaign.budget || 0)}
+                </p>
+                <p className="text-xs text-muted-foreground">Total Budget</p>
+              </div>
+              
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">
+                  Campaign funding available
+                </span>
+                <span className="text-green-600 font-medium">
+                  Active
+                </span>
+              </div>
+              
+              <div className="space-y-1">
+                <Progress value={75} className="h-3" />
+                <div className="text-center">
+                  <span className="text-xs font-medium text-muted-foreground">
+                    Budget actively funding creators
                   </span>
                 </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Description and Rules - Only for creator-available variant */}
+        {variant === 'creator-available' && (
+          <>
+            <div className="bg-secondary/30 rounded-lg px-4 py-3 mb-4">
+            <div>
+              <p className="text-sm text-muted-foreground mb-0.5">Campaign Description</p>
+              {(() => {
+                const description = campaign.description || "Join this exciting campaign to promote amazing music and earn rewards for your creative content!";
+                const characterLimit = 254;
+                const shouldTruncate = description.length > characterLimit;
                 
-                <div className="space-y-3">
+                return (
                   <div>
-                    <p className="text-2xl font-bold text-primary">
-                      {formatCurrency(campaign.availableBudget || campaign.budget)}
+                    <p className="text-sm text-foreground leading-normal">
+                      {shouldTruncate && !isDescriptionExpanded 
+                        ? `${description.slice(0, characterLimit)}...` 
+                        : description
+                      }
                     </p>
-                    <p className="text-xs text-muted-foreground">Available</p>
-                  </div>
-                  
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">
-                      {formatCurrency(campaign.redeemed || 0)} redeemed
-                    </span>
-                    <span className="text-muted-foreground">
-                      of {formatCurrency(campaign.budget)} total
-                    </span>
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <Progress value={campaign.budgetUsedPercentage || 0} className="h-3" />
-                    {(campaign.budgetUsedPercentage || 0) > 15 && (
-                      <div className="text-center">
-                        <span className="text-xs font-medium">
-                          {campaign.budgetUsedPercentage?.toFixed(1) || '0.0'}%
-                        </span>
+                    {shouldTruncate && (
+                      <div className="mt-4">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
+                          className="h-auto p-0 text-primary hover:text-primary/80"
+                        >
+                          {isDescriptionExpanded ? "View Less" : "View More"}
+                        </Button>
                       </div>
                     )}
                   </div>
-                </div>
-              </div>
-            )}
+                );
+              })()}
+            </div>
+          </div>
 
-            <div className="bg-secondary/30 rounded-lg px-4 py-3 mb-4">
-              <div>
-                <p className="text-sm text-muted-foreground mb-0.5">Campaign Description</p>
-                {(() => {
-                  const description = campaign.description || "Join this exciting campaign to promote amazing music and earn rewards for your creative content!";
-                  const characterLimit = 254;
-                  const shouldTruncate = description.length > characterLimit;
-                  
-                  return (
-                    <div>
-                      <p className="text-sm text-foreground leading-normal">
-                        {shouldTruncate && !isDescriptionExpanded 
-                          ? `${description.slice(0, characterLimit)}...` 
-                          : description
-                        }
-                      </p>
+          {/* Campaign Rules */}
+          <div className="bg-secondary/20 rounded-lg px-4 py-3 mb-4">
+            <div className="flex items-center space-x-2 mb-2">
+              <CheckSquare className="w-4 h-4 text-primary" />
+              <p className="text-sm font-medium text-foreground">Campaign Rules</p>
+            </div>
+            <div>
+              {(() => {
+                const defaultRules = [
+                  "Use the provided song in your content",
+                  "Include relevant hashtags and mentions", 
+                  "Follow platform community guidelines",
+                  "Submit high-quality, original content",
+                  "Track and report your video metrics"
+                ];
+                
+                let rules = defaultRules;
+                
+                // Use campaign rules if available, otherwise use default rules
+                if (campaign.rules && campaign.rules.trim()) {
+                  rules = campaign.rules.split('\n')
+                    .map(rule => rule.replace(/^[•\-\*]\s*/, '').trim())
+                    .filter(rule => rule.length > 0);
+                }
+                
+                const shouldTruncate = rules.length > 3;
+                const displayRules = shouldTruncate && !isRulesExpanded ? rules.slice(0, 3) : rules;
+                
+                return (
+                  <div>
+                    <ul className="text-sm text-muted-foreground space-y-1 list-none">
+                      {displayRules.map((rule, index) => (
+                        <li key={index} className="flex items-start space-x-2">
+                          <span className="text-primary font-bold text-xs mt-0.5">•</span>
+                          <span>{rule}</span>
+                        </li>
+                      ))}
+                      {shouldTruncate && !isRulesExpanded && (
+                        <li className="flex items-start space-x-2 text-muted-foreground/60">
+                          <span className="text-primary font-bold text-xs mt-0.5">•</span>
+                          <span>And {rules.length - 3} more rules...</span>
+                        </li>
+                      )}
+                    </ul>
+                    <div className="mt-4 flex items-center justify-between">
                       {shouldTruncate && (
-                        <div className="mt-4">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                            className="h-auto p-0 text-primary hover:text-primary/80"
-                          >
-                            {isDescriptionExpanded ? "View Less" : "View More"}
-                          </Button>
-                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setIsRulesExpanded(!isRulesExpanded)}
+                          className="h-auto p-0 text-primary hover:text-primary/80"
+                        >
+                          {isRulesExpanded ? "View Less" : "View All Rules"}
+                        </Button>
+                      )}
+                      {showJoinButton && (
+                        <Button 
+                          onClick={() => onJoinCampaign?.(campaign)} 
+                          className="ml-auto bg-gradient-primary hover:bg-gradient-primary/90"
+                        >
+                          Join Campaign
+                        </Button>
                       )}
                     </div>
-                  );
-                })()}
-              </div>
+                  </div>
+                );
+              })()}
             </div>
-
-            {/* Campaign Rules */}
-            <div className="bg-secondary/20 rounded-lg px-4 py-3 mb-4">
-              <div className="flex items-center space-x-2 mb-2">
-                <CheckSquare className="w-4 h-4 text-primary" />
-                <p className="text-sm font-medium text-foreground">Campaign Rules</p>
-              </div>
-              <div>
-                {(() => {
-                  const defaultRules = [
-                    "Use the provided song in your content",
-                    "Include relevant hashtags and mentions", 
-                    "Follow platform community guidelines",
-                    "Submit high-quality, original content",
-                    "Track and report your video metrics"
-                  ];
-                  
-                  let rules = defaultRules;
-                  
-                  // Use campaign rules if available, otherwise use default rules
-                  if (campaign.rules && campaign.rules.trim()) {
-                    rules = campaign.rules.split('\n')
-                      .map(rule => rule.replace(/^[•\-\*]\s*/, '').trim())
-                      .filter(rule => rule.length > 0);
-                  }
-                  
-                  const shouldTruncate = rules.length > 3;
-                  const displayRules = shouldTruncate && !isRulesExpanded ? rules.slice(0, 3) : rules;
-                  
-                  return (
-                    <div>
-                      <ul className="text-sm text-muted-foreground space-y-1 list-none">
-                        {displayRules.map((rule, index) => (
-                          <li key={index} className="flex items-start space-x-2">
-                            <span className="text-primary font-bold text-xs mt-0.5">•</span>
-                            <span>{rule}</span>
-                          </li>
-                        ))}
-                        {shouldTruncate && !isRulesExpanded && (
-                          <li className="flex items-start space-x-2 text-muted-foreground/60">
-                            <span className="text-primary font-bold text-xs mt-0.5">•</span>
-                            <span>And {rules.length - 3} more rules...</span>
-                          </li>
-                        )}
-                      </ul>
-                      <div className="mt-4 flex items-center justify-between">
-                        {shouldTruncate && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setIsRulesExpanded(!isRulesExpanded)}
-                            className="h-auto p-0 text-primary hover:text-primary/80"
-                          >
-                            {isRulesExpanded ? "View Less" : "View All Rules"}
-                          </Button>
-                        )}
-                        {showJoinButton && (
-                          <Button 
-                            className="bg-gradient-primary hover:opacity-90 transition-smooth ml-auto"
-                            onClick={() => {
-                              onJoinCampaign?.(campaign);
-                              window.location.href = `/campaign/${campaign.id}/join`;
-                            }}
-                          >
-                            <PlayCircle className="w-4 h-4 mr-2" />
-                            Join Campaign
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })()}
-              </div>
-            </div>
+          </div>
           </>
         )}
       </CardContent>

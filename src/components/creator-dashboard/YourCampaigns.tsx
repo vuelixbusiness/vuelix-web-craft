@@ -272,7 +272,8 @@ const YourCampaigns = () => {
                     status: campaign.status,
                     end_date: campaign.created_at,
                     profiles: campaign.campaigns.profiles,
-                    payout_amount: campaign.payout_amount
+                    payout_amount: campaign.payout_amount,
+                    budget: 5000 // Mock budget for joined campaigns display
                   } as any}
                   variant="creator-joined"
                   showPlayButton={true}
