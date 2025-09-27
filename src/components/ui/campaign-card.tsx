@@ -133,20 +133,6 @@ const CampaignCard = ({
         </div>
       )}
 
-      {/* Video Link - Top Right Corner for Submissions */}
-      {variant === 'creator-submission' && campaign.video_url && campaign.platform && (
-        <div className="absolute top-4 right-4 z-10">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => window.open(campaign.video_url, '_blank')}
-            className="p-2 bg-background/90 backdrop-blur-sm border-primary/20 hover:bg-primary/10"
-          >
-            {platformIcons[campaign.platform as keyof typeof platformIcons]}
-            <ExternalLink className="w-3 h-3 ml-1" />
-          </Button>
-        </div>
-      )}
 
       {/* Timer - Bottom Right Corner for Submissions */}
       {variant === 'creator-submission' && campaign.status && campaign.updated_at && (
@@ -217,12 +203,16 @@ const CampaignCard = ({
                 <Badge variant="outline" className="text-xs">{campaign.genre}</Badge>
               )}
               {variant === 'creator-submission' ? (
-                // Show only the single platform for submissions
+                // Show only the single platform for submissions with clickable link
                 campaign.platform && (
-                  <Badge variant="outline" className="flex items-center space-x-1 text-xs">
+                  <button
+                    onClick={() => campaign.video_url && window.open(campaign.video_url, '_blank')}
+                    className="flex items-center space-x-1 px-2 py-1 text-xs border rounded-md hover:bg-secondary/50 transition-colors cursor-pointer"
+                  >
                     {platformIcons[campaign.platform as keyof typeof platformIcons]}
                     <span>{platformNames[campaign.platform as keyof typeof platformNames] || campaign.platform}</span>
-                  </Badge>
+                    {campaign.video_url && <ExternalLink className="w-3 h-3 ml-1" />}
+                  </button>
                 )
               ) : (
                 // Show all platforms for other variants
