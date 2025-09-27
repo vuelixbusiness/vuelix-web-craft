@@ -275,8 +275,8 @@ const CampaignCard = ({
           </div>
         </div>
 
-        {/* Engagement Pot for creator-available variant */}
-        {variant === 'creator-available' && campaign.budget && (
+        {/* Engagement Pot for both creator-available and creator-joined variants */}
+        {(variant === 'creator-available' || variant === 'creator-joined') && campaign.budget && (
           <div className="bg-secondary/30 rounded-lg px-4 py-4 mb-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
@@ -314,43 +314,6 @@ const CampaignCard = ({
                     </span>
                   </div>
                 )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Engagement Pot for creator-joined variant */}
-        {variant === 'creator-joined' && (
-          <div className="bg-secondary/30 rounded-lg px-4 py-4 mb-4">
-            <div className="flex items-center space-x-2 mb-3">
-              <DollarSign className="w-5 h-5 text-primary" />
-              <span className="font-semibold">Campaign Budget</span>
-            </div>
-            
-            <div className="space-y-3">
-              <div>
-                <p className="text-2xl font-bold text-primary">
-                  {formatCurrency(campaign.budget || 0)}
-                </p>
-                <p className="text-xs text-muted-foreground">Total Budget</p>
-              </div>
-              
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">
-                  Campaign funding available
-                </span>
-                <span className="text-green-600 font-medium">
-                  Active
-                </span>
-              </div>
-              
-              <div className="space-y-1">
-                <Progress value={75} className="h-3" />
-                <div className="text-center">
-                  <span className="text-xs font-medium text-muted-foreground">
-                    Budget actively funding creators
-                  </span>
-                </div>
               </div>
             </div>
           </div>
