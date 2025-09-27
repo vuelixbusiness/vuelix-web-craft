@@ -56,6 +56,7 @@ interface Participation {
   current_likes: number;
   payout_amount: number;
   created_at: string;
+  updated_at: string;
   campaign_id: string;
   campaigns: Campaign;
 }
@@ -398,9 +399,10 @@ const CampaignManagement = () => {
                   current_likes: participation.current_likes,
                   payout_amount: participation.payout_amount,
                   video_url: participation.video_url,
-                  platform: participation.platform
+                  platform: participation.platform,
+                  updated_at: participation.updated_at
                 } as any}
-                variant="creator-joined"
+                variant="creator-submission"
                 showPlayButton={true}
                 onAudioToggle={toggleAudio}
                 isPlaying={currentlyPlaying === participation.campaign_id}

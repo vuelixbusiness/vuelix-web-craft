@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/utils";
+import RunningTimer from "@/components/RunningTimer";
 import { 
   Play, 
   Pause, 
@@ -16,7 +17,8 @@ import {
   Calendar,
   Target,
   Users,
-  CheckSquare
+  CheckSquare,
+  ExternalLink
 } from "lucide-react";
 import { FaTiktok, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 import vuelixLogo from "@/assets/vuelix-logo-official.png";
@@ -49,11 +51,18 @@ interface Campaign {
   totalViews?: number;
   totalLikes?: number;
   activeCreators?: number;
+  // Submission-specific fields
+  current_views?: number;
+  current_likes?: number;
+  payout_amount?: number;
+  video_url?: string;
+  platform?: string;
+  updated_at?: string;
 }
 
 interface CampaignCardProps {
   campaign: Campaign;
-  variant?: 'artist' | 'creator-available' | 'creator-joined';
+  variant?: 'artist' | 'creator-available' | 'creator-joined' | 'creator-submission';
   showJoinButton?: boolean;
   showPlayButton?: boolean;
   onJoinCampaign?: (campaign: Campaign) => void;
@@ -123,6 +132,30 @@ const CampaignCard = ({
           </div>
         </div>
       )}
+
+      {/* Video Link & Timer - Top Right Corner for Submissions */}
+      {variant === 'creator-submission' && (
+        <div className="absolute top-4 right-4 z-10 flex flex-col items-end space-y-2">
+          {campaign.video_url && campaign.platform && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.open(campaign.video_url, '_blank')}
+              className="p-2 bg-background/90 backdrop-blur-sm border-primary/20 hover:bg-primary/10"
+            >
+              {platformIcons[campaign.platform as keyof typeof platformIcons]}
+              <ExternalLink className="w-3 h-3 ml-1" />
+            </Button>
+          )}
+          {campaign.status && campaign.updated_at && (
+            <RunningTimer 
+              startTime={campaign.updated_at} 
+              status={campaign.status}
+              className="bg-background/90 backdrop-blur-sm px-2 py-1 rounded-md border border-primary/20"
+            />
+          )}
+        </div>
+      )}
       
       <CardContent className="p-6">
         {/* Top Section: Photo + Key Details (Horizontal Layout) */}
@@ -181,12 +214,23 @@ const CampaignCard = ({
               {campaign.genre && (
                 <Badge variant="outline" className="text-xs">{campaign.genre}</Badge>
               )}
-              {campaign.platforms?.map((platform) => (
-                <Badge key={platform} variant="outline" className="flex items-center space-x-1 text-xs">
-                  {platformIcons[platform as keyof typeof platformIcons]}
-                  <span>{platformNames[platform as keyof typeof platformNames] || platform}</span>
-                </Badge>
-              ))}
+              {variant === 'creator-submission' ? (
+                // Show only the single platform for submissions
+                campaign.platform && (
+                  <Badge variant="outline" className="flex items-center space-x-1 text-xs">
+                    {platformIcons[campaign.platform as keyof typeof platformIcons]}
+                    <span>{platformNames[campaign.platform as keyof typeof platformNames] || campaign.platform}</span>
+                  </Badge>
+                )
+              ) : (
+                // Show all platforms for other variants
+                campaign.platforms?.map((platform) => (
+                  <Badge key={platform} variant="outline" className="flex items-center space-x-1 text-xs">
+                    {platformIcons[platform as keyof typeof platformIcons]}
+                    <span>{platformNames[platform as keyof typeof platformNames] || platform}</span>
+                  </Badge>
+                ))
+              )}
             </div>
 
             {/* Campaign Stats - Different for each variant */}
@@ -215,18 +259,18 @@ const CampaignCard = ({
               </div>
             )}
 
-            {variant === 'creator-joined' && (
+            {(variant === 'creator-joined' || variant === 'creator-submission') && (
               <div className="flex items-center space-x-6 text-sm">
                 <div className="flex items-center text-muted-foreground">
                   <Eye className="w-4 h-4 mr-1" />
-                  {(campaign.views || 0).toLocaleString()}
+                  {(campaign.current_views || campaign.views || 0).toLocaleString()}
                 </div>
                 <div className="flex items-center text-muted-foreground">
                   <Heart className="w-4 h-4 mr-1" />
-                  {(campaign.likes || 0).toLocaleString()}
+                  {(campaign.current_likes || campaign.likes || 0).toLocaleString()}
                 </div>
                 <div className="font-semibold text-green-600">
-                  ${((campaign as any).payout_amount || 0).toFixed(2)}
+                  ${(campaign.payout_amount || 0).toFixed(2)}
                 </div>
                 {campaign.end_date && (
                   <div className="flex items-center text-xs text-muted-foreground">
