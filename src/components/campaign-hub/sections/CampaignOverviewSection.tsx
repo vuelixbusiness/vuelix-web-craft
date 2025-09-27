@@ -171,11 +171,20 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
 
       {/* Main Content Grid - Two columns on desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Campaign Stats */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* Left Column - Media Assets (larger) */}
+        <div className="lg:col-span-2">
+          <CampaignMediaAssetsPanel 
+            campaign={campaign} 
+            mediaAssets={mediaAssets} 
+            isLoading={false} 
+          />
+        </div>
+
+        {/* Right Column - Campaign Stats */}
+        <div className="lg:col-span-1 space-y-6">
 
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Budget Used</CardTitle>
@@ -255,15 +264,6 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
               </CardContent>
             </Card>
           )}
-        </div>
-
-        {/* Right Column - Media Assets */}
-        <div className="lg:col-span-1">
-          <CampaignMediaAssetsPanel 
-            campaign={campaign} 
-            mediaAssets={mediaAssets} 
-            isLoading={false} 
-          />
         </div>
       </div>
     </div>

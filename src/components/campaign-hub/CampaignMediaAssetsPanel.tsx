@@ -49,7 +49,7 @@ export function CampaignMediaAssetsPanel({ campaign, mediaAssets, isLoading }: C
       created_at: '',
       isMainAsset: true
     }] : []),
-    ...visualAssets.slice(0, 5) // Limit to show max 6 total (including cover art)
+    ...visualAssets.slice(0, 8) // Limit to show max 9 total (including cover art)
   ];
 
   // Combine campaign song with other audio assets
@@ -202,11 +202,11 @@ export function CampaignMediaAssetsPanel({ campaign, mediaAssets, isLoading }: C
               <Image className="w-4 h-4 mr-2" />
               Visual Assets
             </h4>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {allVisualAssets.map((asset, index) => (
                 <div
                   key={asset.id}
-                  className="relative group border rounded-lg overflow-hidden bg-secondary/10 hover:bg-secondary/20 transition-colors aspect-square"
+                  className="relative group border rounded-lg overflow-hidden bg-secondary/10 hover:bg-secondary/20 transition-colors aspect-video"
                 >
                   {asset.type === 'image' || asset.type === 'graphics' ? (
                     <div className="relative w-full h-full">
@@ -223,10 +223,10 @@ export function CampaignMediaAssetsPanel({ campaign, mediaAssets, isLoading }: C
                           Cover
                         </Badge>
                       )}
-                      {index === allVisualAssets.length - 1 && visualAssets.length > 5 && (
+                      {index === allVisualAssets.length - 1 && visualAssets.length > 8 && (
                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                           <span className="text-white text-xs font-medium">
-                            +{visualAssets.length - 4} more
+                            +{visualAssets.length - 7} more
                           </span>
                         </div>
                       )}
