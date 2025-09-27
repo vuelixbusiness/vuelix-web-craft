@@ -75,7 +75,57 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
 
   return (
     <div className="space-y-6">
-      {/* Engagement Pot - At the top */}
+      {/* Campaign Header - Full width at the top */}
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-start gap-6">
+            <Avatar className="h-24 w-24 rounded-xl">
+              <AvatarImage src={campaign.cover_art_url} alt={campaign.title} />
+              <AvatarFallback className="rounded-xl text-lg">
+                {campaign.title.charAt(0)}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1 space-y-4">
+              <div>
+                <h1 className="text-2xl font-bold">{campaign.title}</h1>
+                <p className="text-xl text-muted-foreground">{campaign.song_title}</p>
+                <div className="flex items-center gap-2 mt-2">
+                  {campaign.genre && <Badge variant="secondary">{campaign.genre}</Badge>}
+                  {campaign.status && (
+                    <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'}>
+                      {campaign.status}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-6">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  <span className="font-medium">
+                    ${campaign.payout_rate} {campaign.payout_type === 'per_view' ? 'per 1K views' : 'per submission'}
+                  </span>
+                  {campaign.vip_bonus && (
+                    <Badge variant="outline" className="text-xs">
+                      +${campaign.vip_bonus} VIP bonus
+                    </Badge>
+                  )}
+                </div>
+                {daysRemaining !== null && (
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      {daysRemaining > 0 ? `${daysRemaining} days left` : 'Campaign ended'}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Engagement Pot - Below Campaign Header */}
       {campaign.budget && (
         <div className="bg-secondary/30 rounded-lg px-4 py-4">
           <div className="flex items-center justify-between mb-3">
@@ -121,57 +171,8 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
 
       {/* Main Content Grid - Two columns on desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Campaign Details */}
+        {/* Left Column - Campaign Stats */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Campaign Header */}
-          <Card>
-            <CardContent className="p-6">
-              <div className="flex items-start gap-6">
-                <Avatar className="h-24 w-24 rounded-xl">
-                  <AvatarImage src={campaign.cover_art_url} alt={campaign.title} />
-                  <AvatarFallback className="rounded-xl text-lg">
-                    {campaign.title.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 space-y-4">
-                  <div>
-                    <h1 className="text-2xl font-bold">{campaign.title}</h1>
-                    <p className="text-xl text-muted-foreground">{campaign.song_title}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      {campaign.genre && <Badge variant="secondary">{campaign.genre}</Badge>}
-                      {campaign.status && (
-                        <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'}>
-                          {campaign.status}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-6">
-                    <div className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">
-                        ${campaign.payout_rate} {campaign.payout_type === 'per_view' ? 'per 1K views' : 'per submission'}
-                      </span>
-                      {campaign.vip_bonus && (
-                        <Badge variant="outline" className="text-xs">
-                          +${campaign.vip_bonus} VIP bonus
-                        </Badge>
-                      )}
-                    </div>
-                    {daysRemaining !== null && (
-                      <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">
-                          {daysRemaining > 0 ? `${daysRemaining} days left` : 'Campaign ended'}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Stats Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
