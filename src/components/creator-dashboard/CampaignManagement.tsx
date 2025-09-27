@@ -168,20 +168,44 @@ const CampaignManagement = () => {
     if (!user?.id) return;
     
     try {
-      const { data, error } = await supabase
+      // First fetch participations with campaigns data
+      const { data: participationData, error: participationError } = await supabase
         .from('campaign_participations')
         .select(`
           *, 
           campaigns (
             id, title, song_title, song_url, cover_art_url, genre, platforms, 
-            payout_type, payout_rate, artist_id, profiles:artist_id (display_name)
+            payout_type, payout_rate, artist_id
           )
         `)
         .eq('creator_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
-      setParticipations((data || []) as any[]);
+      if (participationError) throw participationError;
+
+      // Extract unique artist IDs to fetch profiles
+      const artistIds = [...new Set(participationData?.map(p => p.campaigns?.artist_id).filter(Boolean) || [])];
+      
+      // Fetch profiles for artists
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, display_name')
+        .in('user_id', artistIds);
+
+      if (profilesError) throw profilesError;
+
+      // Map profiles to campaigns
+      const profilesMap = new Map(profilesData?.map(p => [p.user_id, p]) || []);
+      
+      const enrichedParticipations = participationData?.map(participation => ({
+        ...participation,
+        campaigns: {
+          ...participation.campaigns,
+          profiles: profilesMap.get(participation.campaigns?.artist_id)
+        }
+      })) || [];
+
+      setParticipations(enrichedParticipations as any[]);
     } catch (error) {
       console.error('Error fetching participations:', error);
     }
