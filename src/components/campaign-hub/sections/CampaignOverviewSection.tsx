@@ -4,6 +4,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { CampaignMediaAssetsPanel } from "../CampaignMediaAssetsPanel";
+import { CampaignReferencesBox } from "../CampaignReferencesBox";
+import { CampaignParticipantsBox } from "../CampaignParticipantsBox";
 import { formatCurrency } from "@/lib/utils";
 
 interface Campaign {
@@ -24,6 +26,7 @@ interface Campaign {
   cover_art_url?: string;
   genre?: string;
   status?: string;
+  reference_links?: string;
 }
 
 interface Participation {
@@ -39,10 +42,25 @@ interface MediaAsset {
   created_at: string;
 }
 
+interface UniqueParticipant {
+  creator_id: string;
+  join_date: string;
+  submission_count: number;
+  platforms: string[];
+  primary_platform: string;
+  profiles: {
+    username: string;
+    display_name: string | null;
+    avatar_url: string | null;
+  } | null;
+}
+
 interface CampaignOverviewSectionProps {
   campaign: Campaign;
   participation?: Participation;
   mediaAssets?: MediaAsset[];
+  participants?: UniqueParticipant[];
+  onViewAllParticipants?: () => void;
 }
 
 const platformIcons: Record<string, string> = {
@@ -61,7 +79,7 @@ const platformNames: Record<string, string> = {
   spotify: "Spotify"
 };
 
-export function CampaignOverviewSection({ campaign, participation, mediaAssets = [] }: CampaignOverviewSectionProps) {
+export function CampaignOverviewSection({ campaign, participation, mediaAssets = [], participants = [], onViewAllParticipants }: CampaignOverviewSectionProps) {
   const budgetSpent = (campaign.budget || 0) * 0.65; // Mock data
   const budgetProgress = campaign.budget ? (budgetSpent / campaign.budget) * 100 : 0;
   const daysRemaining = campaign.end_date 
@@ -171,12 +189,21 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
 
       {/* Main Content Grid - Two columns on desktop */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column - Media Assets (larger) */}
-        <div className="lg:col-span-2">
+        {/* Left Column - Media Assets, References, and Participants */}
+        <div className="lg:col-span-2 space-y-6">
           <CampaignMediaAssetsPanel 
             campaign={campaign} 
             mediaAssets={mediaAssets} 
             isLoading={false} 
+          />
+          
+          <CampaignReferencesBox 
+            referenceLinks={campaign.reference_links} 
+          />
+          
+          <CampaignParticipantsBox 
+            participants={participants}
+            onViewAll={onViewAllParticipants}
           />
         </div>
 
