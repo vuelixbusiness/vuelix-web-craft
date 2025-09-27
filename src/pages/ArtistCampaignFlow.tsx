@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect, useMemo } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -89,23 +89,29 @@ const ArtistCampaignFlow = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const songFileInputRef = useRef<HTMLInputElement>(null);
   const coverArtFileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Object URL management to prevent memory leaks
+  const [songObjectUrl, setSongObjectUrl] = useState<string | null>(null);
+  const [coverArtObjectUrl, setCoverArtObjectUrl] = useState<string | null>(null);
+
+  // Memoized object URLs to prevent re-creation on every render
+  const memoizedCoverArtUrl = useMemo(() => {
+    return coverArtObjectUrl || campaignData.coverArtLink;
+  }, [coverArtObjectUrl, campaignData.coverArtLink]);
+
+  const memoizedSongUrl = useMemo(() => {
+    return songObjectUrl || campaignData.songLink;
+  }, [songObjectUrl, campaignData.songLink]);
 
   // Transform campaignData to Campaign interface for CampaignCard
-  const transformToCampaign = () => {
-    const coverArtUrl = campaignData.coverArtFile 
-      ? URL.createObjectURL(campaignData.coverArtFile) 
-      : campaignData.coverArtLink || undefined;
-
-    const songUrl = campaignData.songFile 
-      ? URL.createObjectURL(campaignData.songFile)
-      : campaignData.songLink || undefined;
+  const transformToCampaign = useCallback(() => {
 
     return {
       id: 'preview-campaign',
       song_title: campaignData.songTitle || 'Song Title',
       title: `${campaignData.songTitle || 'Song Title'} Campaign`,
-      cover_art_url: coverArtUrl,
-      song_url: songUrl,
+      cover_art_url: memoizedCoverArtUrl,
+      song_url: memoizedSongUrl,
       genre: campaignData.genre,
       platforms: campaignData.platforms,
       payout_rate: campaignData.payoutRate,
@@ -122,7 +128,7 @@ const ArtistCampaignFlow = () => {
       likes: 0,
       activeCreators: 0
     };
-  };
+  }, [campaignData, memoizedCoverArtUrl, memoizedSongUrl]);
 
   const handleSongFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -149,6 +155,15 @@ const ArtistCampaignFlow = () => {
     }
     
     setIsUploading(true);
+    
+    // Cleanup old object URL if exists
+    if (songObjectUrl) {
+      URL.revokeObjectURL(songObjectUrl);
+    }
+    
+    // Create new object URL
+    const newObjectUrl = URL.createObjectURL(file);
+    setSongObjectUrl(newObjectUrl);
     
     // Use single state update to prevent re-render loop
     setCampaignData(prev => ({
@@ -192,10 +207,14 @@ const ArtistCampaignFlow = () => {
     
     setIsUploading(true);
     
-    // Clean up previous object URL to prevent memory leaks
-    if (campaignData.coverArtFile) {
-      URL.revokeObjectURL(URL.createObjectURL(campaignData.coverArtFile));
+    // Cleanup old object URL if exists
+    if (coverArtObjectUrl) {
+      URL.revokeObjectURL(coverArtObjectUrl);
     }
+    
+    // Create new object URL
+    const newObjectUrl = URL.createObjectURL(file);
+    setCoverArtObjectUrl(newObjectUrl);
     
     setCampaignData(prev => ({
       ...prev,
@@ -209,7 +228,7 @@ const ArtistCampaignFlow = () => {
     if (event.target) {
       event.target.value = '';
     }
-  }, [toast, campaignData.coverArtFile]);
+  }, [toast, coverArtObjectUrl]);
 
   const handleApplyCoverArtLink = async () => {
     if (!campaignData.coverArtLink) return;
@@ -238,10 +257,8 @@ const ArtistCampaignFlow = () => {
   };
 
   const toggleAudioPreview = (campaignId?: string, songUrl?: string) => {
-    // Use provided songUrl from CampaignCard or fallback to campaign data
-    const audioSrc = songUrl || (campaignData.songFile 
-      ? URL.createObjectURL(campaignData.songFile)
-      : campaignData.songLink);
+    // Use provided songUrl from CampaignCard or fallback to memoized URLs
+    const audioSrc = songUrl || memoizedSongUrl;
 
     if (!audioSrc) return;
 
@@ -489,6 +506,33 @@ const ArtistCampaignFlow = () => {
       setIsLaunching(false);
     }
   };
+
+  // Cleanup object URLs on component unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (songObjectUrl) {
+        URL.revokeObjectURL(songObjectUrl);
+      }
+      if (coverArtObjectUrl) {
+        URL.revokeObjectURL(coverArtObjectUrl);
+      }
+    };
+  }, [songObjectUrl, coverArtObjectUrl]);
+
+  // Clear object URLs when switching from file to link
+  useEffect(() => {
+    if (campaignData.songLink && songObjectUrl) {
+      URL.revokeObjectURL(songObjectUrl);
+      setSongObjectUrl(null);
+    }
+  }, [campaignData.songLink, songObjectUrl]);
+
+  useEffect(() => {
+    if (campaignData.coverArtLink && coverArtObjectUrl) {
+      URL.revokeObjectURL(coverArtObjectUrl);
+      setCoverArtObjectUrl(null);
+    }
+  }, [campaignData.coverArtLink, coverArtObjectUrl]);
 
   return (
     <DashboardLayout>
