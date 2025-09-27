@@ -173,7 +173,8 @@ const CampaignManagement = () => {
         .select(`
           *, 
           campaigns (
-            id, title, song_title, cover_art_url, genre, artist_id
+            id, title, song_title, song_url, cover_art_url, genre, platforms, 
+            payout_type, payout_rate, artist_id, profiles:artist_id (display_name)
           )
         `)
         .eq('creator_id', user.id)
@@ -239,7 +240,7 @@ const CampaignManagement = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="available">Available</TabsTrigger>
-          <TabsTrigger value="active">Active ({participations.filter(p => p.status === 'approved').length})</TabsTrigger>
+          <TabsTrigger value="active">Joined campaigns ({participations.length})</TabsTrigger>
           <TabsTrigger value="pending">Pending ({participations.filter(p => p.status === 'pending').length})</TabsTrigger>
           <TabsTrigger value="completed">Completed</TabsTrigger>
         </TabsList>
@@ -315,23 +316,23 @@ const CampaignManagement = () => {
 
         <TabsContent value="active" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {participations.filter(p => p.status === 'approved').map((participation) => (
+            {participations.map((participation) => (
               <CampaignCard
                 key={participation.id}
                 campaign={{
                   id: participation.campaign_id,
+                  title: participation.campaigns.title,
                   song_title: participation.campaigns.song_title,
                   song_url: (participation.campaigns as any).song_url,
                   cover_art_url: (participation.campaigns as any).cover_art_url,
                   genre: participation.campaigns.genre,
-                  platforms: [participation.platform],
-                  views: participation.current_views,
-                  likes: participation.current_likes,
-                  status: participation.status,
+                  platforms: (participation.campaigns as any).platforms || [participation.platform],
+                  payout_type: (participation.campaigns as any).payout_type,
+                  payout_rate: (participation.campaigns as any).payout_rate,
                   profiles: participation.campaigns.profiles,
-                  payout_amount: participation.payout_amount
+                  artist_id: participation.campaigns.artist_id
                 } as any}
-                variant="creator-joined"
+                variant="creator-available"
                 showPlayButton={true}
                 onAudioToggle={toggleAudio}
                 isPlaying={currentlyPlaying === participation.campaign_id}
