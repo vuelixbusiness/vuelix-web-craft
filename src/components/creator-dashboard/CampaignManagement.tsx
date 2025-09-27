@@ -278,7 +278,7 @@ const CampaignManagement = () => {
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="available">Available</TabsTrigger>
           <TabsTrigger value="active">Joined campaigns ({getUniqueCampaigns().length})</TabsTrigger>
-          <TabsTrigger value="pending">Pending ({participations.filter(p => p.status === 'pending').length})</TabsTrigger>
+          <TabsTrigger value="submissions">Submissions ({participations.length})</TabsTrigger>
           <TabsTrigger value="completed">Completed</TabsTrigger>
         </TabsList>
 
@@ -378,9 +378,9 @@ const CampaignManagement = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="pending" className="space-y-6">
+        <TabsContent value="submissions" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {participations.filter(p => p.status === 'pending').map((participation) => (
+            {participations.map((participation) => (
               <CampaignCard
                 key={participation.id}
                 campaign={{
@@ -392,7 +392,13 @@ const CampaignManagement = () => {
                   platforms: [participation.platform],
                   status: participation.status,
                   profiles: participation.campaigns.profiles,
-                  end_date: participation.created_at
+                  end_date: participation.created_at,
+                  // Add submission-specific data
+                  current_views: participation.current_views,
+                  current_likes: participation.current_likes,
+                  payout_amount: participation.payout_amount,
+                  video_url: participation.video_url,
+                  platform: participation.platform
                 } as any}
                 variant="creator-joined"
                 showPlayButton={true}
