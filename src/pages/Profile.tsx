@@ -11,10 +11,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { User, Camera, Mail, Calendar, Trophy } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAvatarUpload } from "@/hooks/useAvatarUpload";
 
 const Profile = () => {
   const { user, refreshUserProfile } = useAuth();
   const { toast } = useToast();
+  const { triggerFileInput, isUploading } = useAvatarUpload();
   const [isEditable, setIsEditable] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -111,6 +113,8 @@ const Profile = () => {
                     size="icon"
                     variant="outline"
                     className="absolute -bottom-2 -right-2 rounded-full w-8 h-8"
+                    onClick={triggerFileInput}
+                    disabled={isUploading}
                   >
                     <Camera className="w-4 h-4" />
                   </Button>

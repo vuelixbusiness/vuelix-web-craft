@@ -23,6 +23,8 @@ import {
   Trash2
 } from "lucide-react";
 import { FaTiktok, FaInstagram, FaYoutube } from "react-icons/fa";
+import { useAvatarUpload } from "@/hooks/useAvatarUpload";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface Profile {
   display_name: string;
@@ -49,6 +51,7 @@ interface ContentPreferences {
 const AccountSettings = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { triggerFileInput, isUploading } = useAvatarUpload();
   const [activeTab, setActiveTab] = useState('profile');
   const [isLoading, setIsLoading] = useState(false);
   
@@ -225,16 +228,24 @@ const AccountSettings = () => {
             <CardContent className="space-y-6">
               {/* Avatar */}
               <div className="flex items-center space-x-4">
-                <div className="w-20 h-20 bg-gradient-primary rounded-full flex items-center justify-center text-white text-2xl font-semibold">
-                  {profile.display_name.charAt(0) || 'U'}
-                </div>
+                <Avatar className="w-20 h-20">
+                  <AvatarImage src={profile.avatar_url} alt={profile.display_name} />
+                  <AvatarFallback className="text-2xl font-semibold">
+                    {profile.display_name.charAt(0) || 'U'}
+                  </AvatarFallback>
+                </Avatar>
                 <div>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={triggerFileInput}
+                    disabled={isUploading}
+                  >
                     <Camera className="w-4 h-4 mr-2" />
-                    Change Avatar
+                    {isUploading ? 'Uploading...' : 'Change Avatar'}
                   </Button>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Upload a new profile picture
+                    Upload a new profile picture (JPG, PNG, or WebP, max 5MB)
                   </p>
                 </div>
               </div>
