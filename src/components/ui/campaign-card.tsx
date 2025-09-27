@@ -133,27 +133,29 @@ const CampaignCard = ({
         </div>
       )}
 
-      {/* Video Link & Timer - Top Right Corner for Submissions */}
-      {variant === 'creator-submission' && (
-        <div className="absolute top-4 right-4 z-10 flex flex-col items-end space-y-2">
-          {campaign.video_url && campaign.platform && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => window.open(campaign.video_url, '_blank')}
-              className="p-2 bg-background/90 backdrop-blur-sm border-primary/20 hover:bg-primary/10"
-            >
-              {platformIcons[campaign.platform as keyof typeof platformIcons]}
-              <ExternalLink className="w-3 h-3 ml-1" />
-            </Button>
-          )}
-          {campaign.status && campaign.updated_at && (
-            <RunningTimer 
-              startTime={campaign.updated_at} 
-              status={campaign.status}
-              className="bg-background/90 backdrop-blur-sm px-2 py-1 rounded-md border border-primary/20"
-            />
-          )}
+      {/* Video Link - Top Right Corner for Submissions */}
+      {variant === 'creator-submission' && campaign.video_url && campaign.platform && (
+        <div className="absolute top-4 right-4 z-10">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => window.open(campaign.video_url, '_blank')}
+            className="p-2 bg-background/90 backdrop-blur-sm border-primary/20 hover:bg-primary/10"
+          >
+            {platformIcons[campaign.platform as keyof typeof platformIcons]}
+            <ExternalLink className="w-3 h-3 ml-1" />
+          </Button>
+        </div>
+      )}
+
+      {/* Timer - Bottom Right Corner for Submissions */}
+      {variant === 'creator-submission' && campaign.status && campaign.updated_at && (
+        <div className="absolute bottom-4 right-4 z-10">
+          <RunningTimer 
+            startTime={campaign.updated_at} 
+            status={campaign.status}
+            className="bg-background/90 backdrop-blur-sm px-2 py-1 rounded-md border border-primary/20"
+          />
         </div>
       )}
       
