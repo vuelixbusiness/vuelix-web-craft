@@ -95,7 +95,10 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
       {/* Campaign Header - Aligned with Media Assets */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
-          <Card>
+          <Card className="relative">
+            <div className="absolute top-4 right-4">
+              <DollarSign className="h-5 w-5 text-primary" />
+            </div>
             <CardContent className="p-6">
               <div className="flex items-start gap-6">
                 <Avatar className="h-24 w-24 rounded-xl">
@@ -108,13 +111,19 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                   <div>
                     <h1 className="text-2xl font-bold">{campaign.title}</h1>
                     <p className="text-xl text-muted-foreground">{campaign.song_title}</p>
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className="flex items-center gap-2 mt-2 flex-wrap">
                       {campaign.genre && <Badge variant="secondary">{campaign.genre}</Badge>}
                       {campaign.status && (
                         <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'}>
                           {campaign.status}
                         </Badge>
                       )}
+                      {campaign.platforms.map((platform) => (
+                        <Badge key={platform} variant="outline" className="flex items-center gap-1">
+                          <span className="text-sm">{platformIcons[platform] || "📱"}</span>
+                          <span>{platformNames[platform] || platform}</span>
+                        </Badge>
+                      ))}
                     </div>
                   </div>
                   
@@ -263,22 +272,6 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
             </Card>
           </div>
 
-          {/* Platforms */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Supported Platforms</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-3">
-                {campaign.platforms.map((platform) => (
-                  <Badge key={platform} variant="outline" className="flex items-center gap-2 px-3 py-2">
-                    <span className="text-base">{platformIcons[platform] || "📱"}</span>
-                    <span>{platformNames[platform] || platform}</span>
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
 
           {/* Participation Status */}
           {participation && (
