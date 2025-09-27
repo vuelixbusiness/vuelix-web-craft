@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
@@ -68,6 +69,7 @@ export default function SubmissionTabs({ campaign, onSubmissionComplete }: Submi
   const { toast } = useToast();
   const [videoUrl, setVideoUrl] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [participations, setParticipations] = useState<Participation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -129,6 +131,15 @@ export default function SubmissionTabs({ campaign, onSubmissionComplete }: Submi
       return;
     }
 
+    if (!termsAccepted) {
+      toast({
+        title: "Terms Required",
+        description: "Please accept the Terms & Conditions to continue",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!isValidUrl(videoUrl, selectedPlatform)) {
       toast({
         title: "Invalid URL",
@@ -170,6 +181,7 @@ export default function SubmissionTabs({ campaign, onSubmissionComplete }: Submi
 
       setVideoUrl("");
       setSelectedPlatform("");
+      setTermsAccepted(false);
       await fetchParticipations();
       onSubmissionComplete();
 
@@ -280,10 +292,29 @@ export default function SubmissionTabs({ campaign, onSubmissionComplete }: Submi
                 )}
               </div>
 
-              <Button 
+              {/* Terms & Conditions Section */}
+              <div className="space-y-3 border-t pt-4">
+                <div className="flex items-start space-x-3">
+                  <Checkbox 
+                    id="terms"
+                    checked={termsAccepted}
+                    onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+                  />
+                  <div className="space-y-1">
+                    <Label htmlFor="terms" className="text-sm leading-none">
+                      I agree to the Terms & Conditions and Campaign Rules
+                    </Label>
+                    <p className="text-xs text-muted-foreground">
+                      By submitting, you agree to follow all campaign guidelines and platform rules.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <Button
                 type="submit" 
                 className="w-full" 
-                disabled={isSubmitting || !videoUrl || !selectedPlatform || !isValidUrl(videoUrl, selectedPlatform)}
+                disabled={isSubmitting || !videoUrl || !selectedPlatform || !isValidUrl(videoUrl, selectedPlatform) || !termsAccepted}
               >
                 {isSubmitting ? (
                   <>
