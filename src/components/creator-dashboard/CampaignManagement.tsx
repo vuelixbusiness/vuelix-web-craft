@@ -211,6 +211,19 @@ const CampaignManagement = () => {
     }
   };
 
+  // Group participations by campaign to show each campaign only once
+  const getUniqueCampaigns = () => {
+    const campaignMap = new Map();
+    
+    participations.forEach(participation => {
+      if (!campaignMap.has(participation.campaign_id)) {
+        campaignMap.set(participation.campaign_id, participation);
+      }
+    });
+    
+    return Array.from(campaignMap.values());
+  };
+
   const filteredCampaigns = campaigns.filter((campaign) => {
     const matchesSearch = campaign.song_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (campaign.profiles?.display_name || '').toLowerCase().includes(searchTerm.toLowerCase());
@@ -264,7 +277,7 @@ const CampaignManagement = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="available">Available</TabsTrigger>
-          <TabsTrigger value="active">Joined campaigns ({participations.length})</TabsTrigger>
+          <TabsTrigger value="active">Joined campaigns ({getUniqueCampaigns().length})</TabsTrigger>
           <TabsTrigger value="pending">Pending ({participations.filter(p => p.status === 'pending').length})</TabsTrigger>
           <TabsTrigger value="completed">Completed</TabsTrigger>
         </TabsList>
@@ -340,9 +353,9 @@ const CampaignManagement = () => {
 
         <TabsContent value="active" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {participations.map((participation) => (
+            {getUniqueCampaigns().map((participation) => (
               <CampaignCard
-                key={participation.id}
+                key={participation.campaign_id}
                 campaign={{
                   id: participation.campaign_id,
                   title: participation.campaigns.title,
