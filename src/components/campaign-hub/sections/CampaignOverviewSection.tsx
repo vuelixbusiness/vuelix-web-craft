@@ -16,6 +16,8 @@ interface Campaign {
   payout_type: string;
   payout_rate: number;
   vip_bonus?: number;
+  max_payout?: number;
+  vip_max_payout?: number;
   platforms: string[];
   budget?: number;
   availableBudget?: number;
@@ -139,6 +141,14 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                         </Badge>
                       )}
                     </div>
+                    {(campaign.max_payout || campaign.vip_max_payout) && (
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm">
+                          Max ${campaign.vip_max_payout || campaign.max_payout} payout
+                        </span>
+                      </div>
+                    )}
                     {daysRemaining !== null && (
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4 text-muted-foreground" />
