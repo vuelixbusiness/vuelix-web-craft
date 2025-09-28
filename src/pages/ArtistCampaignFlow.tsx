@@ -904,7 +904,7 @@ const ArtistCampaignFlow = () => {
                       <SelectItem value="flat-rate">
                         <div className="flex items-center space-x-2">
                           <DollarSign className="w-4 h-4" />
-                          <span>Flat Rate - Fixed payment per submission</span>
+                          <span>Flat Rate - Fixed payment per 1,000 Views</span>
                         </div>
                       </SelectItem>
                     </SelectContent>

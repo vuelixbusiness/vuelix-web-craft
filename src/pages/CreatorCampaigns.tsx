@@ -275,7 +275,7 @@ const CreatorCampaigns = () => {
                           <div className="flex items-center space-x-2">
                             <DollarSign className="w-4 h-4 text-green-500" />
                             <span className="font-medium">
-                              ${campaign.payout_rate} per {campaign.payout_type.replace('per_', '')}
+                              ${campaign.payout_rate} per 1,000 Views
                             </span>
                           </div>
                           {user?.membershipType === 'premium' && campaign.vip_bonus && (

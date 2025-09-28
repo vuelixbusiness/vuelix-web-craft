@@ -106,12 +106,12 @@ const CampaignCard = ({
 
   const formatPayout = (rate?: number, type?: string) => {
     if (!rate) return "$0.00";
-    return `$${parseFloat(rate.toFixed(3)).toString()}${type ? ` per ${type.replace('per_', '')}` : ''}`;
+    return `$${parseFloat(rate.toFixed(3)).toString()} per 1,000 Views`;
   };
 
   const formatPayoutForBox = (rate?: number, type?: string) => {
     const amount = rate ? `$${parseFloat(rate.toFixed(3)).toString()}` : '$0.00';
-    return `${amount} / 1K Views`;
+    return `${amount} / 1,000 Views`;
   };
 
   const getStatusColor = (status?: string) => {

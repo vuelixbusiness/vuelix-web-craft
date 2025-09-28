@@ -217,7 +217,7 @@ const VideoSubmission = ({ campaign, onSubmissionComplete }: VideoSubmissionProp
               <div className="flex items-center space-x-2 mb-1">
                 <Eye className="w-4 h-4" />
                 <span>
-                  Earn ${campaign.payout_rate} per {campaign.payout_type.replace('per_', '')}
+                  Earn ${campaign.payout_rate} per 1,000 Views
                 </span>
               </div>
             </div>

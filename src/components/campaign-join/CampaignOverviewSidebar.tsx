@@ -112,7 +112,7 @@ export default function CampaignOverviewSidebar({ campaign }: CampaignOverviewSi
               <div className="flex items-center gap-1">
                 <DollarSign className="w-4 h-4 text-green-600" />
                 <span className="font-medium">
-                  ${campaign.payout_rate} per {campaign.payout_type.replace('per_', '')}
+                  ${campaign.payout_rate} per 1,000 Views
                 </span>
               </div>
             </div>
