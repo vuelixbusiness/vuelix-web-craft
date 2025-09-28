@@ -105,7 +105,8 @@ const Campaigns = () => {
           .from('campaign_participations')
           .select('campaign_id')
           .eq('creator_id', user.id)
-          .in('campaign_id', campaignsData.map(c => c.id));
+          .in('campaign_id', campaignsData.map(c => c.id))
+          .in('status', ['approved', 'live', 'submitted']);
         
         participationData = userParticipations || [];
       }
