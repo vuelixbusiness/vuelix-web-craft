@@ -527,7 +527,7 @@ const ArtistDashboard = () => {
                                     )}
                                   </div>
                                   <p className="text-muted-foreground text-sm mb-2">
-                                    by {campaign.title || "Artist"}
+                                    by {user?.name || 'Unknown Artist'}
                                   </p>
                                   
                                   {/* Platforms */}

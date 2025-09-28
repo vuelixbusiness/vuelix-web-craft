@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -65,6 +66,7 @@ const statusColors: { [key: string]: string } = {
 };
 
 const ArtistCampaignList = ({ campaigns, isLoading, currentlyPlaying, onToggleAudio, onDeleteCampaign }: ArtistCampaignListProps) => {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -227,7 +229,7 @@ const ArtistCampaignList = ({ campaigns, isLoading, currentlyPlaying, onToggleAu
                           </div>
                           <div>
                             <p className="font-semibold">{campaign.song_title}</p>
-                            <p className="text-sm text-muted-foreground">{campaign.title}</p>
+                            <p className="text-sm text-muted-foreground">by {user?.name || 'Unknown Artist'}</p>
                             <p className="text-xs text-muted-foreground">{campaign.genre}</p>
                           </div>
                         </div>
