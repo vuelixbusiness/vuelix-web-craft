@@ -137,17 +137,17 @@ const Campaigns = () => {
     try {
       console.log('👥 Fetching total creators count...');
       
-      // Get unique creators who have ever participated in any campaign
-      const { data: participations, error: participationsError } = await supabase
-        .from('campaign_participations')
-        .select('creator_id');
+      // Get total number of creators registered on the platform
+      const { count, error } = await supabase
+        .from('profiles')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_type', 'creator');
 
-      if (participationsError) throw participationsError;
+      if (error) throw error;
 
-      const uniqueCreatorIds = [...new Set(participations?.map(p => p.creator_id) || [])];
-      const totalCount = uniqueCreatorIds.length;
+      const totalCount = count || 0;
 
-      console.log('👥 Total unique creators who have participated:', totalCount);
+      console.log('👥 Total creators on platform:', totalCount);
       setTotalCreators(totalCount);
     } catch (error) {
       console.error('💥 Error fetching total creators:', error);
@@ -271,7 +271,7 @@ const Campaigns = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">{isLoading ? '...' : totalCreators}</div>
-              <p className="text-xs text-muted-foreground">Have participated</p>
+              <p className="text-xs text-muted-foreground">On the platform</p>
             </CardContent>
           </Card>
         </div>
