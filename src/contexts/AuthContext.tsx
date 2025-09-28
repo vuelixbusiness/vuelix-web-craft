@@ -44,6 +44,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log('🔄 Auth state change:', event, session?.user?.email);
       
+      // Log OAuth errors for debugging
+      if (event === 'SIGNED_IN' && session?.user) {
+        console.log('✅ OAuth sign-in successful:', {
+          provider: session.user.app_metadata?.provider,
+          email: session.user.email,
+          userId: session.user.id
+        });
+      } else if (event === 'SIGNED_OUT') {
+        console.log('🚪 User signed out');
+      }
+      
       if (session) {
         console.log('✅ Session exists, fetching profile...');
         // Defer Supabase calls with setTimeout to prevent deadlocks
@@ -285,6 +296,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             prompt: 'consent',
           }
         },
+      });
+      
+      // Log detailed information for debugging
+      console.log('📊 OAuth request details:', {
+        provider: 'google',
+        redirectTo,
+        currentOrigin: window.location.origin,
+        userAgent: navigator.userAgent.substring(0, 50) + '...'
       });
 
       if (error) {
