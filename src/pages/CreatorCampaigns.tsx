@@ -244,13 +244,19 @@ const CreatorCampaigns = () => {
                             <CardTitle className="text-lg">{campaign.song_title}</CardTitle>
                             <CardDescription>by {campaign.profiles?.display_name || 'Unknown Artist'}</CardDescription>
                           </div>
-                          {campaign.cover_art_url && (
-                            <img
-                              src={campaign.cover_art_url}
-                              alt={campaign.song_title}
-                              className="w-12 h-12 rounded object-cover"
-                            />
-                          )}
+                           {campaign.cover_art_url && (
+                             <div className="w-12 h-12 rounded object-cover relative">
+                               <img
+                                 src={campaign.cover_art_url}
+                                 alt={campaign.song_title}
+                                 className="w-12 h-12 rounded object-cover"
+                               />
+                               {/* Icon Box Overlay */}
+                               <div className="absolute -top-1 -right-1 w-5 h-5 rounded-sm bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10 border border-primary/20 flex items-center justify-center shadow-sm">
+                                 <Music className="w-2.5 h-2.5 text-primary" />
+                               </div>
+                             </div>
+                           )}
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-4">

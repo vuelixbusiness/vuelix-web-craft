@@ -495,12 +495,16 @@ const ArtistDashboard = () => {
                           {/* Header Section with Cover Art */}
                           <div className="relative h-32 bg-gradient-to-r from-primary/10 to-primary/20 flex items-center p-6">
                             {/* Campaign Cover Art */}
-                            <div className="w-20 h-20 rounded-xl overflow-hidden shadow-lg bg-card mr-6 flex-shrink-0">
+                            <div className="w-20 h-20 rounded-xl overflow-hidden shadow-lg bg-card mr-6 flex-shrink-0 relative">
                               <img 
                                 src={campaign.cover_art_url || vuelixLogo} 
                                 alt={displayCampaign.songTitle}
                                 className="w-full h-full object-cover"
                               />
+                              {/* Icon Box Overlay */}
+                              <div className="absolute -top-2 -right-2 w-6 h-6 rounded-md bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10 border border-primary/20 flex items-center justify-center shadow-sm">
+                                <Music className="w-3 h-3 text-primary" />
+                              </div>
                             </div>
                             
                             {/* Campaign Info */}

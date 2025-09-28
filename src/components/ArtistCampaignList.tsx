@@ -219,14 +219,18 @@ const ArtistCampaignList = ({ campaigns, isLoading, currentlyPlaying, onToggleAu
 
                       {/* Song & Campaign Info */}
                       <TableCell>
-                        <div className="flex items-center space-x-3">
-                          <div className="w-12 h-12 bg-muted rounded-lg flex-shrink-0 overflow-hidden">
-                            <img 
-                              src={campaign.cover_art_url || "/placeholder.svg"} 
-                              alt={campaign.song_title}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
+                         <div className="flex items-center space-x-3">
+                           <div className="w-12 h-12 bg-muted rounded-lg flex-shrink-0 overflow-hidden relative">
+                             <img 
+                               src={campaign.cover_art_url || "/placeholder.svg"} 
+                               alt={campaign.song_title}
+                               className="w-full h-full object-cover"
+                             />
+                             {/* Icon Box Overlay */}
+                             <div className="absolute -top-1 -right-1 w-5 h-5 rounded-sm bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10 border border-primary/20 flex items-center justify-center shadow-sm">
+                               <Music className="w-2.5 h-2.5 text-primary" />
+                             </div>
+                           </div>
                           <div>
                             <p className="font-semibold">{campaign.song_title}</p>
                             <p className="text-sm text-muted-foreground">by {user?.name || 'Unknown Artist'}</p>

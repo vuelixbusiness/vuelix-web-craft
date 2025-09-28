@@ -18,7 +18,8 @@ import {
   Target,
   Users,
   CheckSquare,
-  ExternalLink
+  ExternalLink,
+  Music
 } from "lucide-react";
 import { FaTiktok, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 import vuelixLogo from "@/assets/vuelix-logo-official.png";
@@ -156,7 +157,7 @@ const CampaignCard = ({
         {/* Top Section: Photo + Key Details (Horizontal Layout) */}
         <div className="flex items-start space-x-4 mb-4">
           {/* Campaign Cover Art */}
-          <div className="w-20 h-20 rounded-lg flex items-center justify-center shadow-soft flex-shrink-0">
+          <div className="w-20 h-20 rounded-lg flex items-center justify-center shadow-soft flex-shrink-0 relative">
             {campaign.cover_art_url ? (
               <img 
                 src={campaign.cover_art_url} 
@@ -166,6 +167,10 @@ const CampaignCard = ({
             ) : (
               <img src={vuelixLogo} alt="Vuelix" className="w-16 h-16" />
             )}
+            {/* Icon Box Overlay */}
+            <div className="absolute -top-2 -right-2 w-6 h-6 rounded-md bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10 border border-primary/20 flex items-center justify-center shadow-sm">
+              <Music className="w-3 h-3 text-primary" />
+            </div>
           </div>
 
           {/* Key Campaign Details */}
