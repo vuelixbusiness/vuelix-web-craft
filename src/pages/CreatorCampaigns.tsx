@@ -40,6 +40,7 @@ interface Campaign {
   instructions: string;
   budget: number;
   end_date: string;
+  isJoined?: boolean;
   profiles?: {
     display_name?: string;
   } | null;
@@ -97,11 +98,30 @@ const CreatorCampaigns = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
+
+      if (!data || data.length === 0) {
+        setCampaigns([]);
+        return;
+      }
+
+      // Check user participation if logged in
+      let participationData: any[] = [];
+      if (user) {
+        const { data: userParticipations } = await supabase
+          .from('campaign_participations')
+          .select('campaign_id')
+          .eq('creator_id', user.id)
+          .in('campaign_id', data.map(c => c.id))
+          .in('status', ['approved', 'joined', 'live', 'submitted']);
+        
+        participationData = userParticipations || [];
+      }
       
-      // Map instructions to description for campaign cards
-      const campaignsWithDescriptions = (data || []).map(campaign => ({
+      // Map instructions to description and add participation status
+      const campaignsWithDescriptions = data.map(campaign => ({
         ...campaign,
-        description: campaign.instructions
+        description: campaign.instructions,
+        isJoined: participationData.some(p => p.campaign_id === campaign.id)
       }));
       
       setCampaigns(campaignsWithDescriptions as Campaign[]);
@@ -318,7 +338,7 @@ const CreatorCampaigns = () => {
                           }}
                         >
                           <PlayCircle className="w-4 h-4 mr-2" />
-                          Join Campaign
+                          {campaign.isJoined ? 'View Campaign' : 'Join Campaign'}
                         </Button>
                       </CardContent>
                     </Card>
