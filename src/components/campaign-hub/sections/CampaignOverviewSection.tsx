@@ -117,7 +117,7 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                   <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">
+                      <span className="font-medium text-sm">
                         ${campaign.payout_rate} per 1,000 Views
                       </span>
                       {campaign.vip_bonus && (
