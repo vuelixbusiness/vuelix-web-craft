@@ -1,4 +1,4 @@
-import { Calendar, DollarSign, Users, TrendingUp, Clock } from "lucide-react";
+import { Calendar, DollarSign, Users, TrendingUp, Clock, Crown } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -147,6 +147,9 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                         <span className="text-sm">
                           Max ${campaign.vip_max_payout || campaign.max_payout} payout
                         </span>
+                        {campaign.vip_max_payout && (
+                          <Crown className="h-4 w-4 text-yellow-400" />
+                        )}
                       </div>
                     )}
                     {daysRemaining !== null && (
