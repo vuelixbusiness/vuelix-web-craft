@@ -66,6 +66,7 @@ interface CampaignCardProps {
   showJoinButton?: boolean;
   showPlayButton?: boolean;
   onJoinCampaign?: (campaign: Campaign) => void;
+  onCampaignClick?: (campaign: Campaign) => void;
   onAudioToggle?: (campaignId: string, songUrl: string) => void;
   isPlaying?: boolean;
   className?: string;
@@ -77,6 +78,7 @@ const CampaignCard = ({
   showJoinButton = false,
   showPlayButton = true,
   onJoinCampaign,
+  onCampaignClick,
   onAudioToggle,
   isPlaying = false,
   className = ""
@@ -120,7 +122,12 @@ const CampaignCard = ({
   };
 
   return (
-    <Card className={`relative shadow-soft hover:shadow-elegant transition-smooth ${className}`}>
+    <Card 
+      className={`relative shadow-soft hover:shadow-elegant transition-smooth ${
+        onCampaignClick ? 'cursor-pointer hover:shadow-lg' : ''
+      } ${className}`}
+      onClick={() => onCampaignClick?.(campaign)}
+    >
       {/* Payout Rate Box - Top Right Corner */}
       {variant === 'creator-available' && (
         <div className="absolute top-4 right-4 z-10">

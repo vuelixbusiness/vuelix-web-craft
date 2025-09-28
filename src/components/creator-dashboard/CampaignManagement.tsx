@@ -404,10 +404,11 @@ const CampaignManagement = () => {
                   availableBudget: (participation.campaigns as any).availableBudget,
                   budgetUsedPercentage: (participation.campaigns as any).budgetUsedPercentage
                 } as any}
-                variant="creator-joined"
-                showPlayButton={true}
-                onAudioToggle={toggleAudio}
-                isPlaying={currentlyPlaying === participation.campaign_id}
+                 variant="creator-joined"
+                 showPlayButton={true}
+                 onCampaignClick={(campaign) => navigate(`/campaign/${campaign.id}/join`)}
+                 onAudioToggle={toggleAudio}
+                 isPlaying={currentlyPlaying === participation.campaign_id}
               />
             ))}
           </div>
