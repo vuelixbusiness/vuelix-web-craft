@@ -134,23 +134,40 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
           (approvedSubmissions.length / reviewedSubmissions.length) * 100 : 100;
         setApprovalRate(calculatedApprovalRate);
 
-        // Calculate average response time for processed submissions
-        const processedSubmissions = participations.filter(p => 
-          p.status !== 'pending' && p.status !== 'submitted' && 
-          p.created_at !== p.updated_at
-        );
+        // Calculate average artist response time - only count artist-reviewed submissions
+        const artistReviewedSubmissions = participations.filter(p => {
+          // Only include submissions that have been reviewed by artist
+          const isReviewed = p.status === 'approved' || p.status === 'live' || p.status === 'rejected';
+          const hasTimeDiff = p.created_at !== p.updated_at;
+          
+          if (!isReviewed || !hasTimeDiff) return false;
+          
+          // Calculate response time and filter out invalid/outlier values
+          const createdAt = new Date(p.created_at).getTime();
+          const updatedAt = new Date(p.updated_at).getTime();
+          const responseTimeMs = updatedAt - createdAt;
+          
+          // Filter out invalid times (negative or unrealistic)
+          const responseTimeHours = responseTimeMs / (1000 * 60 * 60);
+          return responseTimeHours > 0 && responseTimeHours <= (30 * 24); // Max 30 days
+        });
 
-        if (processedSubmissions.length > 0) {
-          const totalResponseTime = processedSubmissions.reduce((total, p) => {
+        if (artistReviewedSubmissions.length >= 3) {
+          // Calculate average for submissions with sufficient data
+          const totalResponseTime = artistReviewedSubmissions.reduce((total, p) => {
             const createdAt = new Date(p.created_at).getTime();
             const updatedAt = new Date(p.updated_at).getTime();
             return total + (updatedAt - createdAt);
           }, 0);
 
-          const avgResponseTimeMs = totalResponseTime / processedSubmissions.length;
+          const avgResponseTimeMs = totalResponseTime / artistReviewedSubmissions.length;
           const avgResponseTimeHours = avgResponseTimeMs / (1000 * 60 * 60);
           setAvgResponseTime(avgResponseTimeHours);
+        } else if (artistReviewedSubmissions.length > 0 && artistReviewedSubmissions.length < 3) {
+          // Insufficient data for reliable average
+          setAvgResponseTime(-1); // Special value for "calculating"
         } else {
+          // No reviews yet
           setAvgResponseTime(null);
         }
       } catch (error) {
@@ -349,16 +366,22 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                   <div className="text-2xl font-bold">
                     {isLoadingMetrics ? (
                       <div className="animate-pulse bg-muted rounded h-8 w-16"></div>
-                    ) : avgResponseTime !== null ? (
-                      avgResponseTime < 1 ? 
-                        `${Math.round(avgResponseTime * 60)}m` : 
-                        `${avgResponseTime.toFixed(1)}h`
+                    ) : avgResponseTime === null ? (
+                      "No reviews yet"
+                    ) : avgResponseTime === -1 ? (
+                      "Calculating..."
+                    ) : avgResponseTime < 1/60 ? (
+                      `${Math.round(avgResponseTime * 60 * 60)}s`
+                    ) : avgResponseTime < 1 ? (
+                      `${Math.round(avgResponseTime * 60)}m`
+                    ) : avgResponseTime < 24 ? (
+                      `${avgResponseTime.toFixed(1)}h`
                     ) : (
-                      "No data"
+                      `${(avgResponseTime / 24).toFixed(1)}d`
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    avg. response time
+                    avg. artist response
                   </p>
                 </CardContent>
               </Card>
