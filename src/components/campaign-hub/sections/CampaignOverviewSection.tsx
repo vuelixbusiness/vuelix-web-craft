@@ -101,17 +101,23 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                     <p className="text-xl text-muted-foreground">{campaign.song_title}</p>
                     <div className="flex items-center gap-2 mt-2 flex-wrap">
                       {campaign.genre && <Badge variant="secondary">{campaign.genre}</Badge>}
-                      {campaign.status && (
-                        <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'}>
-                          {campaign.status}
+                      {campaign.platforms.includes('tiktok') && (
+                        <Badge variant="outline" className="flex items-center gap-1">
+                          {platformIcons['tiktok']}
+                          <span>{platformNames['tiktok']}</span>
                         </Badge>
                       )}
-                      {campaign.platforms.map((platform) => (
+                      {campaign.platforms.filter(platform => platform !== 'tiktok').map((platform) => (
                         <Badge key={platform} variant="outline" className="flex items-center gap-1">
                           {platformIcons[platform as keyof typeof platformIcons] || "📱"}
                           <span>{platformNames[platform] || platform}</span>
                         </Badge>
                       ))}
+                      {campaign.status && (
+                        <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'}>
+                          {campaign.status}
+                        </Badge>
+                      )}
                     </div>
                   </div>
                   
