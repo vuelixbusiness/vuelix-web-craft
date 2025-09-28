@@ -54,93 +54,6 @@ export default function CampaignJoin() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
-      if (!id || !user) return;
-      
-      try {
-        // Fetch campaign data
-        const { data: campaignData, error: campaignError } = await supabase
-          .from('campaigns')
-          .select('*')
-          .eq('id', id)
-          .single();
-
-        if (campaignError) throw campaignError;
-        
-        const transformedCampaign: Campaign = {
-          id: campaignData.id,
-          title: campaignData.title || campaignData.song_title || '',
-          song_title: campaignData.song_title || '',
-          song_url: campaignData.song_url,
-          cover_art_url: campaignData.cover_art_url,
-          payout_type: campaignData.payout_type || 'per_view',
-          payout_rate: campaignData.payout_rate || 0,
-          platforms: campaignData.platforms || [],
-          instructions: campaignData.instructions || '',
-          rules: campaignData.rules,
-          budget: campaignData.budget,
-          end_date: campaignData.end_date,
-          status: campaignData.status,
-          genre: campaignData.genre,
-          vip_bonus: campaignData.vip_bonus,
-          max_payout: campaignData.max_payout,
-          vip_max_payout: campaignData.vip_max_payout,
-          artist_id: campaignData.artist_id,
-          created_at: campaignData.created_at
-        };
-        
-        setCampaign(transformedCampaign);
-
-        // Fetch media assets for this campaign
-        const { data: mediaAssetsData, error: mediaAssetsError } = await supabase
-          .from('media_assets')
-          .select('*')
-          .eq('campaign_id', id)
-          .order('created_at', { ascending: false });
-
-        if (mediaAssetsError && mediaAssetsError.code !== 'PGRST116') {
-          console.error('Error fetching media assets:', mediaAssetsError);
-        } else if (mediaAssetsData) {
-          setMediaAssets(mediaAssetsData);
-        }
-
-        // Check if user has already joined this campaign
-        const { data: participationData, error: participationError } = await supabase
-          .from('campaign_participations')
-          .select('*')
-          .eq('campaign_id', id)
-          .eq('creator_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-
-        if (participationError && participationError.code !== 'PGRST116') {
-          throw participationError;
-        }
-
-        if (participationData) {
-          setParticipation({
-            id: participationData.id,
-            status: participationData.status,
-            created_at: participationData.created_at,
-            payout_claimed: participationData.payout_claimed,
-            payout_amount: participationData.payout_amount
-          });
-        }
-        
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load campaign details",
-          variant: "destructive",
-        });
-        navigate('/campaigns');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchData();
   }, [id, navigate, user]);
 
@@ -173,6 +86,93 @@ export default function CampaignJoin() {
     }
   };
 
+  const fetchData = async () => {
+    if (!id || !user) return;
+    
+    try {
+      // Fetch campaign data
+      const { data: campaignData, error: campaignError } = await supabase
+        .from('campaigns')
+        .select('*')
+        .eq('id', id)
+        .single();
+
+      if (campaignError) throw campaignError;
+      
+      const transformedCampaign: Campaign = {
+        id: campaignData.id,
+        title: campaignData.title || campaignData.song_title || '',
+        song_title: campaignData.song_title || '',
+        song_url: campaignData.song_url,
+        cover_art_url: campaignData.cover_art_url,
+        payout_type: campaignData.payout_type || 'per_view',
+        payout_rate: campaignData.payout_rate || 0,
+        platforms: campaignData.platforms || [],
+        instructions: campaignData.instructions || '',
+        rules: campaignData.rules,
+        budget: campaignData.budget,
+        end_date: campaignData.end_date,
+        status: campaignData.status,
+        genre: campaignData.genre,
+        vip_bonus: campaignData.vip_bonus,
+        max_payout: campaignData.max_payout,
+        vip_max_payout: campaignData.vip_max_payout,
+        artist_id: campaignData.artist_id,
+        created_at: campaignData.created_at
+      };
+      
+      setCampaign(transformedCampaign);
+
+      // Fetch media assets for this campaign
+      const { data: mediaAssetsData, error: mediaAssetsError } = await supabase
+        .from('media_assets')
+        .select('*')
+        .eq('campaign_id', id)
+        .order('created_at', { ascending: false });
+
+      if (mediaAssetsError && mediaAssetsError.code !== 'PGRST116') {
+        console.error('Error fetching media assets:', mediaAssetsError);
+      } else if (mediaAssetsData) {
+        setMediaAssets(mediaAssetsData);
+      }
+
+      // Check if user has already joined this campaign
+      const { data: participationData, error: participationError } = await supabase
+        .from('campaign_participations')
+        .select('*')
+        .eq('campaign_id', id)
+        .eq('creator_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (participationError && participationError.code !== 'PGRST116') {
+        throw participationError;
+      }
+
+      if (participationData) {
+        setParticipation({
+          id: participationData.id,
+          status: participationData.status,
+          created_at: participationData.created_at,
+          payout_claimed: participationData.payout_claimed,
+          payout_amount: participationData.payout_amount
+        });
+      }
+      
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load campaign details",
+        variant: "destructive",
+      });
+      navigate('/campaigns');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleJoinCampaign = async (campaign: Campaign) => {
     if (!user) {
       toast({
@@ -183,8 +183,8 @@ export default function CampaignJoin() {
       return;
     }
 
-    // Check if user already has a participation record
     try {
+      // Check if user already has a participation record
       const { data: existingParticipation } = await supabase
         .from('campaign_participations')
         .select('*')
@@ -193,14 +193,6 @@ export default function CampaignJoin() {
         .maybeSingle();
 
       if (existingParticipation) {
-        setParticipation({
-          id: existingParticipation.id,
-          status: existingParticipation.status,
-          created_at: existingParticipation.created_at,
-          payout_claimed: existingParticipation.payout_claimed || false,
-          payout_amount: existingParticipation.payout_amount || 0
-        });
-
         toast({
           title: "Already Joined",
           description: "You've already joined this campaign!",
@@ -208,18 +200,42 @@ export default function CampaignJoin() {
         return;
       }
 
-      // For now, we'll show a message that they need to submit a video to join
-      // This matches the current flow where participation is created when submitting
+      // Create participation record without requiring video submission
+      const { data, error } = await supabase
+        .from('campaign_participations')
+        .insert({
+          campaign_id: campaign.id,
+          creator_id: user.id,
+          status: 'joined',
+          video_url: null,
+          platform: null
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error joining campaign:", error);
+        toast({
+          title: "Error",
+          description: "Failed to join campaign. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log("Successfully joined campaign:", data);
       toast({
-        title: "Join Campaign",
-        description: "To join this campaign, please go to the Submissions section and submit your video.",
+        title: "Success!",
+        description: "Successfully joined campaign!",
       });
       
+      // Refresh the data to show updated participation status
+      await fetchData();
     } catch (error) {
-      console.error('Error checking participation:', error);
+      console.error("Error joining campaign:", error);
       toast({
         title: "Error",
-        description: "Failed to check participation status. Please try again.",
+        description: "Failed to join campaign. Please try again.",
         variant: "destructive",
       });
     }

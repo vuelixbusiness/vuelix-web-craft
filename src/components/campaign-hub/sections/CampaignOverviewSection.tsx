@@ -1,4 +1,4 @@
-import { Calendar, DollarSign, Users, TrendingUp, Clock, Crown } from "lucide-react";
+import { Calendar, DollarSign, Users, TrendingUp, Clock, Crown, Lock, CheckCircle } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -257,19 +257,37 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
               </Card>
             </div>
 
-            {/* Participants Card - Full Width */}
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Participants</CardTitle>
-                <Users className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">247</div>
-                <p className="text-xs text-muted-foreground">
-                  creators joined
-                </p>
-              </CardContent>
-            </Card>
+            {/* Campaign Status Box */}
+            {!participation ? (
+              <Card className="opacity-60">
+                <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                  <Lock className="h-4 w-4 text-muted-foreground mr-2" />
+                  <CardTitle className="text-sm font-medium">Campaign Status</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Join this Campaign to unlock access
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card>
+                <CardHeader className="flex flex-row items-center space-y-0 pb-2">
+                  <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
+                  <CardTitle className="text-sm font-medium">Campaign Status</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <Badge variant="outline" className="capitalize">
+                      {participation.status}
+                    </Badge>
+                    <p className="text-xs text-muted-foreground">
+                      Joined on {new Date(participation.created_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
 

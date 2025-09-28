@@ -28,11 +28,11 @@ export type Database = {
           payout_amount: number | null
           payout_claimed: boolean | null
           payout_claimed_at: string | null
-          platform: string
+          platform: string | null
           status: string | null
           updated_at: string
           video_id: string | null
-          video_url: string
+          video_url: string | null
         }
         Insert: {
           campaign_id: string
@@ -47,11 +47,11 @@ export type Database = {
           payout_amount?: number | null
           payout_claimed?: boolean | null
           payout_claimed_at?: string | null
-          platform: string
+          platform?: string | null
           status?: string | null
           updated_at?: string
           video_id?: string | null
-          video_url: string
+          video_url?: string | null
         }
         Update: {
           campaign_id?: string
@@ -66,11 +66,11 @@ export type Database = {
           payout_amount?: number | null
           payout_claimed?: boolean | null
           payout_claimed_at?: string | null
-          platform?: string
+          platform?: string | null
           status?: string | null
           updated_at?: string
           video_id?: string | null
-          video_url?: string
+          video_url?: string | null
         }
         Relationships: [
           {
