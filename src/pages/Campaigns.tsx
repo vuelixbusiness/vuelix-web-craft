@@ -177,6 +177,41 @@ const Campaigns = () => {
     fetchTotalCreators();
   }, []);
 
+  // Set up real-time subscription for creator count updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('profiles-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'profiles',
+          filter: 'user_type=eq.creator'
+        },
+        () => {
+          console.log('🔄 New creator registered, updating count...');
+          fetchTotalCreators();
+        }
+      )
+      .subscribe();
+
+    // Refresh data when page becomes visible (user returns from another tab)
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        console.log('👀 Page became visible, refreshing creator count...');
+        fetchTotalCreators();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      supabase.removeChannel(channel);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
+
   // Cleanup audio when component unmounts
   useEffect(() => {
     return () => {
