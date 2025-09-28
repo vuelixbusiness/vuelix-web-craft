@@ -182,7 +182,7 @@ export function CampaignMediaAssetsPanel({ campaign, mediaAssets, isLoading }: C
   }
 
   return (
-    <Card className="min-h-[600px] lg:min-h-[700px]">
+    <Card>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
