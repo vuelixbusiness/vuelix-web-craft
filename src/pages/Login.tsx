@@ -54,21 +54,21 @@ const Login = () => {
     }
   };
   const handleGoogleSignIn = async () => {
-    const success = await signInWithGoogle(userType);
-    if (!success) {
+    const result = await signInWithGoogle(userType);
+    if (!result.success) {
       toast({
-        title: "Sign in failed",
-        description: "Unable to sign in with Google. Please try again.",
+        title: "Google Sign-In Failed",
+        description: result.error || "Unable to sign in with Google. Please try again.",
         variant: "destructive"
       });
     }
   };
   const handleMicrosoftSignIn = async () => {
-    const success = await signInWithMicrosoft(userType);
-    if (!success) {
+    const result = await signInWithMicrosoft(userType);
+    if (!result.success) {
       toast({
-        title: "Sign in failed",
-        description: "Unable to sign in with Microsoft. Please try again.",
+        title: "Microsoft Sign-In Failed",
+        description: result.error || "Unable to sign in with Microsoft. Please try again.",
         variant: "destructive"
       });
     }

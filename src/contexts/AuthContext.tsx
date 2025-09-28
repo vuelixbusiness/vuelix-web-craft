@@ -18,8 +18,8 @@ interface AuthContextType {
   user: User | null;
   login: (email: string, password: string) => Promise<boolean>;
   signup: (email: string, password: string, name: string, username: string, userType: 'creator' | 'artist') => Promise<boolean>;
-  signInWithGoogle: (userType: 'creator' | 'artist') => Promise<boolean>;
-  signInWithMicrosoft: (userType: 'creator' | 'artist') => Promise<boolean>;
+  signInWithGoogle: (userType: 'creator' | 'artist') => Promise<{ success: boolean; error?: string }>;
+  signInWithMicrosoft: (userType: 'creator' | 'artist') => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   refreshUserProfile: () => Promise<void>;
   isLoading: boolean;
@@ -268,7 +268,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signInWithGoogle = async (userType: 'creator' | 'artist'): Promise<boolean> => {
+  const signInWithGoogle = async (userType: 'creator' | 'artist'): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     
     try {
@@ -290,21 +290,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) {
         console.error('❌ Google sign in error:', error);
         setIsLoading(false);
-        return false;
+        
+        // Provide more specific error messages based on error type
+        let userFriendlyMessage = 'Unable to sign in with Google. Please try again.';
+        
+        if (error.message?.includes('malformed')) {
+          userFriendlyMessage = 'OAuth configuration error. Please check your Google OAuth settings in Supabase.';
+        } else if (error.message?.includes('redirect_uri')) {
+          userFriendlyMessage = 'Redirect URL mismatch. Please check your authorized redirect URIs in Google Cloud Console.';
+        } else if (error.message?.includes('client_id')) {
+          userFriendlyMessage = 'Google Client ID not found or invalid. Please check your OAuth configuration.';
+        } else if (error.message?.includes('unauthorized')) {
+          userFriendlyMessage = 'Unauthorized domain. Please add your domain to authorized JavaScript origins.';
+        }
+        
+        return { success: false, error: userFriendlyMessage };
       }
 
       console.log('✅ Google OAuth initiated successfully');
       // OAuth redirects, so we don't need to handle success here
       // setIsLoading remains true as the page will redirect
-      return true;
+      return { success: true };
     } catch (error) {
       console.error('❌ Google sign in catch error:', error);
       setIsLoading(false);
-      return false;
+      return { 
+        success: false, 
+        error: 'Unexpected error during Google sign-in. Please try again or use email/password login.' 
+      };
     }
   };
 
-  const signInWithMicrosoft = async (userType: 'creator' | 'artist'): Promise<boolean> => {
+  const signInWithMicrosoft = async (userType: 'creator' | 'artist'): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     
     try {
@@ -323,17 +340,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) {
         console.error('❌ Microsoft sign in error:', error);
         setIsLoading(false);
-        return false;
+        
+        // Provide more specific error messages based on error type
+        let userFriendlyMessage = 'Unable to sign in with Microsoft. Please try again.';
+        
+        if (error.message?.includes('malformed')) {
+          userFriendlyMessage = 'OAuth configuration error. Please check your Microsoft OAuth settings in Supabase.';
+        } else if (error.message?.includes('redirect_uri')) {
+          userFriendlyMessage = 'Redirect URL mismatch. Please check your authorized redirect URIs in Azure.';
+        } else if (error.message?.includes('client_id')) {
+          userFriendlyMessage = 'Microsoft Client ID not found or invalid. Please check your OAuth configuration.';
+        }
+        
+        return { success: false, error: userFriendlyMessage };
       }
 
       console.log('✅ Microsoft OAuth initiated successfully');
       // OAuth redirects, so we don't need to handle success here
       // setIsLoading remains true as the page will redirect
-      return true;
+      return { success: true };
     } catch (error) {
       console.error('❌ Microsoft sign in catch error:', error);
       setIsLoading(false);
-      return false;
+      return { 
+        success: false, 
+        error: 'Unexpected error during Microsoft sign-in. Please try again or use email/password login.' 
+      };
     }
   };
 
