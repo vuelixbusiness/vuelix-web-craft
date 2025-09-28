@@ -652,15 +652,15 @@ const ArtistDashboard = () => {
                              
                              {/* Action Buttons */}
                              <div className="flex space-x-3 pt-2">
-                               <Button 
-                                 variant="outline" 
-                                 size="default" 
-                                 className="flex-1"
-                                 onClick={() => navigate(`/campaign/${campaign.id}`)}
-                               >
-                                 <BarChart3 className="w-4 h-4 mr-2" />
-                                 View Analytics
-                               </Button>
+                                <Button 
+                                  variant="outline" 
+                                  size="default" 
+                                  className="flex-1"
+                                  onClick={() => navigate(`/artist/campaign/${campaign.id}`)}
+                                >
+                                  <BarChart3 className="w-4 h-4 mr-2" />
+                                  View Analytics
+                                </Button>
                                {(displayCampaign.status === 'Active' || displayCampaign.status === 'Paused') && (
                                  <Button 
                                    size="default" 

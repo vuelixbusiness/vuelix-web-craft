@@ -15,6 +15,7 @@ import Leaderboard from "./pages/Leaderboard";
 import CreatorCampaigns from "./pages/CreatorCampaigns";
 import CreatorFlow from "./pages/CreatorFlow";
 import ArtistCampaignFlow from "./pages/ArtistCampaignFlow";
+import ArtistCampaignHub from "./pages/ArtistCampaignHub";
 import VuelixPlus from "./pages/VuelixPlus";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -127,6 +128,11 @@ const App = () => (
               <Route path="/artist-campaign" element={
                 <ProtectedRoute>
                   <ArtistCampaignFlow />
+                </ProtectedRoute>
+              } />
+              <Route path="/artist/campaign/:id" element={
+                <ProtectedRoute>
+                  <ArtistCampaignHub />
                 </ProtectedRoute>
               } />
               <Route path="/vuelix-plus" element={<VuelixPlus />} />
