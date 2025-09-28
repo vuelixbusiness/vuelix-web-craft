@@ -60,6 +60,7 @@ interface CampaignHubLayoutProps {
   mediaAssets?: MediaAsset[];
   onBack: () => void;
   onSubmissionComplete?: () => void;
+  onJoinCampaign?: (campaign: Campaign) => void;
 }
 
 export function CampaignHubLayout({ 
@@ -67,14 +68,15 @@ export function CampaignHubLayout({
   participation, 
   mediaAssets = [],
   onBack,
-  onSubmissionComplete 
+  onSubmissionComplete,
+  onJoinCampaign 
 }: CampaignHubLayoutProps) {
   const [activeSection, setActiveSection] = useState<CampaignSectionType>("overview");
 
   const renderActiveSection = () => {
     switch (activeSection) {
       case "overview":
-        return <CampaignOverviewSection campaign={campaign} participation={participation} mediaAssets={mediaAssets} />;
+        return <CampaignOverviewSection campaign={campaign} participation={participation} mediaAssets={mediaAssets} onJoinCampaign={onJoinCampaign} />;
       case "rules":
         return <RulesSection campaign={campaign} />;
       case "rewards":
@@ -86,7 +88,7 @@ export function CampaignHubLayout({
       case "updates":
         return <UpdatesSection campaign={campaign} />;
       default:
-        return <CampaignOverviewSection campaign={campaign} participation={participation} mediaAssets={mediaAssets} />;
+        return <CampaignOverviewSection campaign={campaign} participation={participation} mediaAssets={mediaAssets} onJoinCampaign={onJoinCampaign} />;
     }
   };
 

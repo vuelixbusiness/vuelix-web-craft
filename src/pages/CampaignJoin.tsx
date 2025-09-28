@@ -173,6 +173,58 @@ export default function CampaignJoin() {
     }
   };
 
+  const handleJoinCampaign = async (campaign: Campaign) => {
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to join this campaign",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if user already has a participation record
+    try {
+      const { data: existingParticipation } = await supabase
+        .from('campaign_participations')
+        .select('*')
+        .eq('campaign_id', campaign.id)
+        .eq('creator_id', user.id)
+        .maybeSingle();
+
+      if (existingParticipation) {
+        setParticipation({
+          id: existingParticipation.id,
+          status: existingParticipation.status,
+          created_at: existingParticipation.created_at,
+          payout_claimed: existingParticipation.payout_claimed || false,
+          payout_amount: existingParticipation.payout_amount || 0
+        });
+
+        toast({
+          title: "Already Joined",
+          description: "You've already joined this campaign!",
+        });
+        return;
+      }
+
+      // For now, we'll show a message that they need to submit a video to join
+      // This matches the current flow where participation is created when submitting
+      toast({
+        title: "Join Campaign",
+        description: "To join this campaign, please go to the Submissions section and submit your video.",
+      });
+      
+    } catch (error) {
+      console.error('Error checking participation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to check participation status. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleBack = () => {
     navigate(-1);
   };
@@ -210,6 +262,7 @@ export default function CampaignJoin() {
       mediaAssets={mediaAssets}
       onBack={handleBack}
       onSubmissionComplete={handleSubmissionComplete}
+      onJoinCampaign={handleJoinCampaign}
     />
   );
 }

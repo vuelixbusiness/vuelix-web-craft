@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { CampaignMediaAssetsPanel } from "../CampaignMediaAssetsPanel";
 import { CampaignReferencesBox } from "../CampaignReferencesBox";
 
@@ -49,6 +50,7 @@ interface CampaignOverviewSectionProps {
   campaign: Campaign;
   participation?: Participation;
   mediaAssets?: MediaAsset[];
+  onJoinCampaign?: (campaign: Campaign) => void;
 }
 
 const platformIcons: Record<string, string> = {
@@ -67,7 +69,7 @@ const platformNames: Record<string, string> = {
   spotify: "Spotify"
 };
 
-export function CampaignOverviewSection({ campaign, participation, mediaAssets = [] }: CampaignOverviewSectionProps) {
+export function CampaignOverviewSection({ campaign, participation, mediaAssets = [], onJoinCampaign }: CampaignOverviewSectionProps) {
   const budgetSpent = (campaign.budget || 0) * 0.65; // Mock data
   const daysRemaining = campaign.end_date 
     ? Math.max(0, Math.ceil((new Date(campaign.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
@@ -291,6 +293,28 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
             </Card>
           )}
         </div>
+      </div>
+
+      {/* Dynamic Join/Status Button - Bottom Right */}
+      <div className="fixed bottom-6 right-6 z-40">
+        {!participation ? (
+          <Button
+            onClick={() => onJoinCampaign?.(campaign)}
+            variant="hero"
+            size="lg"
+            className="animate-pulse shadow-elegant text-lg font-bold px-8 py-4 h-auto"
+          >
+            🔘 Join Now
+          </Button>
+        ) : (
+          <Button
+            disabled
+            size="lg"
+            className="bg-green-600 hover:bg-green-600 text-white shadow-elegant text-lg font-bold px-8 py-4 h-auto cursor-default"
+          >
+            🟢 Campaign Active
+          </Button>
+        )}
       </div>
     </div>
   );
