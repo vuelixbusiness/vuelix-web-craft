@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,6 +48,7 @@ interface Campaign {
 const CreatorCampaigns = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'browse' | 'my-videos' | 'earnings'>('browse');
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -309,9 +311,10 @@ const CreatorCampaigns = () => {
                         {/* Apply Button */}
                         <Button 
                           className="w-full"
-                          onClick={() => {
+                          onClick={(e) => {
+                            e.stopPropagation();
                             setSelectedCampaign(campaign);
-                            window.location.href = `/campaign/${campaign.id}/join`;
+                            navigate(`/campaign/${campaign.id}/join`);
                           }}
                         >
                           <PlayCircle className="w-4 h-4 mr-2" />
