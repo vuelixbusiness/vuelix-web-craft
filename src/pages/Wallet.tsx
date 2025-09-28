@@ -165,6 +165,28 @@ const Wallet = () => {
     fetchData();
   }, [user?.id]);
 
+  // Demo transaction data for UI preview
+  const demoTransactions: Transaction[] = [
+    { id: '1', type: 'reward', amount: 125.50, status: 'completed', created_at: '2024-01-15T10:30:00Z', campaign_id: 'camp1' },
+    { id: '2', type: 'membership', amount: 19.99, status: 'completed', created_at: '2024-01-14T14:22:00Z' },
+    { id: '3', type: 'payout', amount: 500.00, status: 'completed', created_at: '2024-01-13T09:15:00Z' },
+    { id: '4', type: 'reward', amount: 89.25, status: 'completed', created_at: '2024-01-12T16:45:00Z', campaign_id: 'camp2' },
+    { id: '5', type: 'payment', amount: 25.00, status: 'completed', created_at: '2024-01-11T11:30:00Z' },
+    { id: '6', type: 'reward', amount: 203.75, status: 'completed', created_at: '2024-01-10T13:20:00Z', campaign_id: 'camp3' },
+    { id: '7', type: 'fee', amount: 5.99, status: 'completed', created_at: '2024-01-09T08:45:00Z' },
+    { id: '8', type: 'bonus', amount: 50.00, status: 'completed', created_at: '2024-01-08T17:10:00Z' },
+    { id: '9', type: 'withdrawal', amount: 100.00, status: 'pending', created_at: '2024-01-07T12:00:00Z' },
+    { id: '10', type: 'reward', amount: 78.50, status: 'completed', created_at: '2024-01-06T15:30:00Z', campaign_id: 'camp4' },
+    { id: '11', type: 'membership', amount: 19.99, status: 'completed', created_at: '2024-01-05T10:15:00Z' },
+    { id: '12', type: 'refund', amount: 35.00, status: 'completed', created_at: '2024-01-04T14:45:00Z' },
+    { id: '13', type: 'reward', amount: 156.80, status: 'completed', created_at: '2024-01-03T11:20:00Z', campaign_id: 'camp5' },
+    { id: '14', type: 'payment', amount: 42.50, status: 'failed', created_at: '2024-01-02T09:30:00Z' },
+    { id: '15', type: 'reward', amount: 92.00, status: 'completed', created_at: '2024-01-01T16:00:00Z', campaign_id: 'camp6' },
+  ];
+
+  // Use demo transactions for UI preview, fallback to real transactions
+  const displayTransactions = transactions.length > 0 ? transactions : demoTransactions;
+
   const availableBalance = wallet?.balance || 0;
   const pendingEarnings = payoutRequests
     .filter(req => req.status === 'requested')
@@ -378,7 +400,7 @@ const Wallet = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {transactions.length === 0 ? (
+              {displayTransactions.length === 0 ? (
                 <div className="text-center py-12">
                   <WalletIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-medium mb-2">No transactions yet</h3>
@@ -390,8 +412,8 @@ const Wallet = () => {
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {transactions.map((transaction, index) => {
+                <div className="max-h-96 overflow-y-auto space-y-4 pr-2">
+                  {displayTransactions.map((transaction, index) => {
                     const display = getTransactionDisplay(transaction);
                     return (
                       <div key={index} className="flex items-center justify-between p-4 border border-border rounded-lg">
