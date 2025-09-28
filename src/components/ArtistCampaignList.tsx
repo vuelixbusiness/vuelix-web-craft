@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Eye, Heart, Users, Music, Play, Pause, Edit, MoreHorizontal, Search, Filter } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Eye, Heart, Users, Music, Play, Pause, Edit, MoreHorizontal, Search, Filter, Trash2 } from "lucide-react";
 import { FaTiktok, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 import {
   DropdownMenu,
@@ -45,6 +46,7 @@ interface ArtistCampaignListProps {
   isLoading: boolean;
   currentlyPlaying: string | null;
   onToggleAudio: (campaignId: string, songUrl: string) => void;
+  onDeleteCampaign?: (campaignId: string) => void;
 }
 
 const platformIcons: { [key: string]: JSX.Element } = {
@@ -59,13 +61,15 @@ const statusColors: { [key: string]: string } = {
   'paused': 'bg-yellow-100 text-yellow-800 border-yellow-200',
   'completed': 'bg-blue-100 text-blue-800 border-blue-200',
   'draft': 'bg-gray-100 text-gray-800 border-gray-200',
+  'terminated': 'bg-red-100 text-red-800 border-red-200',
 };
 
-const ArtistCampaignList = ({ campaigns, isLoading, currentlyPlaying, onToggleAudio }: ArtistCampaignListProps) => {
+const ArtistCampaignList = ({ campaigns, isLoading, currentlyPlaying, onToggleAudio, onDeleteCampaign }: ArtistCampaignListProps) => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("created_at");
+  const [deletingCampaign, setDeletingCampaign] = useState<string | null>(null);
 
   // Filter and sort campaigns
   const filteredCampaigns = campaigns
@@ -138,6 +142,7 @@ const ArtistCampaignList = ({ campaigns, isLoading, currentlyPlaying, onToggleAu
                   <SelectItem value="active">Active</SelectItem>
                   <SelectItem value="paused">Paused</SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
+                  <SelectItem value="terminated">Terminated</SelectItem>
                   <SelectItem value="draft">Draft</SelectItem>
                 </SelectContent>
               </Select>
@@ -300,6 +305,41 @@ const ArtistCampaignList = ({ campaigns, isLoading, currentlyPlaying, onToggleAu
                               <Eye className="w-4 h-4 mr-2" />
                               View Details
                             </DropdownMenuItem>
+                            {campaign.status === 'terminated' && onDeleteCampaign && (
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <DropdownMenuItem 
+                                    onSelect={(e) => e.preventDefault()}
+                                    className="text-red-600 focus:text-red-700"
+                                  >
+                                    <Trash2 className="w-4 h-4 mr-2" />
+                                    Delete Forever
+                                  </DropdownMenuItem>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete Campaign Forever?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to permanently delete the campaign "{campaign.title}"? 
+                                      This action cannot be undone and will remove all campaign data, including 
+                                      participant submissions and analytics.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => {
+                                        setDeletingCampaign(campaign.id);
+                                        onDeleteCampaign(campaign.id);
+                                      }}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Delete Forever
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            )}
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>

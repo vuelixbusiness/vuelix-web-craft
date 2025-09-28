@@ -69,6 +69,7 @@ const ArtistDashboard = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'cards' | 'list'>('cards');
+  const [isDeleting, setIsDeleting] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [stats, setStats] = useState<CampaignStats>({
     totalCampaigns: 0,
@@ -224,6 +225,47 @@ const ArtistDashboard = () => {
       audioRef.current.src = songUrl;
       audioRef.current.play();
       setCurrentlyPlaying(campaignId);
+    }
+  };
+
+  // Delete campaign function
+  const deleteCampaign = async (campaignId: string) => {
+    if (!user?.id) return;
+
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('campaigns')
+        .delete()
+        .eq('id', campaignId)
+        .eq('artist_id', user.id);
+
+      if (error) {
+        console.error('❌ Error deleting campaign:', error);
+        toast({
+          title: "Error Deleting Campaign",
+          description: "Failed to delete the campaign. Please try again.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      toast({
+        title: "Campaign Deleted",
+        description: "The campaign has been permanently deleted.",
+      });
+
+      // Remove the campaign from the local state
+      setCampaigns(prev => prev.filter(c => c.id !== campaignId));
+    } catch (error) {
+      console.error('❌ Unexpected error deleting campaign:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred while deleting the campaign.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -644,6 +686,7 @@ const ArtistDashboard = () => {
                     isLoading={isLoading}
                     currentlyPlaying={currentlyPlaying}
                     onToggleAudio={toggleAudio}
+                    onDeleteCampaign={deleteCampaign}
                   />
                 )}
               </div>
