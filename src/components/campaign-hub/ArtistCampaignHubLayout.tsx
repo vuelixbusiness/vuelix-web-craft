@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -9,14 +9,7 @@ import { RewardsSection } from "./sections/RewardsSection";
 import { CommunicationSection } from "./sections/CommunicationSection";
 import { UpdatesSection } from "./sections/UpdatesSection";
 import SubmissionsLog from "@/components/campaign-details/SubmissionsLog";
-
-export type CampaignSectionType = 
-  | "overview" 
-  | "rules" 
-  | "rewards" 
-  | "submissions" 
-  | "communication" 
-  | "updates";
+import { SectionUpdateProvider, useSectionUpdates, type CampaignSectionType } from "@/contexts/SectionUpdateContext";
 
 interface Campaign {
   id: string;
@@ -87,7 +80,7 @@ interface ArtistCampaignHubLayoutProps {
   onSubmissionUpdate?: () => void;
 }
 
-export function ArtistCampaignHubLayout({ 
+function ArtistCampaignHubContent({ 
   campaign, 
   mediaAssets = [],
   submissions = [],
@@ -95,6 +88,24 @@ export function ArtistCampaignHubLayout({
   onSubmissionUpdate
 }: ArtistCampaignHubLayoutProps) {
   const [activeSection, setActiveSection] = useState<CampaignSectionType>("overview");
+  const { sectionUpdates, markSectionAsUpdated, markSectionAsRead } = useSectionUpdates();
+  
+  // Track submissions changes
+  const [prevSubmissionsLength, setPrevSubmissionsLength] = useState(submissions.length);
+  
+  useEffect(() => {
+    if (submissions.length > prevSubmissionsLength) {
+      markSectionAsUpdated("submissions");
+      markSectionAsUpdated("overview"); // Update overview when new submissions arrive
+    }
+    setPrevSubmissionsLength(submissions.length);
+  }, [submissions.length, prevSubmissionsLength, markSectionAsUpdated]);
+
+  // Handle section changes and mark as read
+  const handleSectionChange = useCallback((section: CampaignSectionType) => {
+    setActiveSection(section);
+    markSectionAsRead(section);
+  }, [markSectionAsRead]);
 
   // Helper function to transform submissions into unique participants
   const transformToParticipants = (submissions: Submission[]): UniqueParticipant[] => {
@@ -211,11 +222,13 @@ export function ArtistCampaignHubLayout({
           <div className="w-80 flex-shrink-0">
             <CampaignSidebar 
               activeSection={activeSection} 
-              onSectionChange={setActiveSection}
+              onSectionChange={handleSectionChange}
               campaign={campaign}
               participation={{ 
                 status: 'approved'
               }} // Mock participation so all sections are unlocked for artists
+              sectionUpdates={sectionUpdates}
+              onMarkSectionAsRead={markSectionAsRead}
             />
           </div>
 
@@ -226,5 +239,13 @@ export function ArtistCampaignHubLayout({
         </div>
       </div>
     </SidebarProvider>
+  );
+}
+
+export function ArtistCampaignHubLayout(props: ArtistCampaignHubLayoutProps) {
+  return (
+    <SectionUpdateProvider campaignId={props.campaign.id}>
+      <ArtistCampaignHubContent {...props} />
+    </SectionUpdateProvider>
   );
 }

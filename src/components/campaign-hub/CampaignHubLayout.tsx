@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -10,14 +10,7 @@ import { SubmissionsSection } from "./sections/SubmissionsSection";
 import { CommunicationSection } from "./sections/CommunicationSection";
 import { UpdatesSection } from "./sections/UpdatesSection";
 import { LockedSectionPlaceholder } from "./LockedSectionPlaceholder";
-
-export type CampaignSectionType = 
-  | "overview" 
-  | "rules" 
-  | "rewards" 
-  | "submissions" 
-  | "communication" 
-  | "updates";
+import { SectionUpdateProvider, useSectionUpdates, type CampaignSectionType } from "@/contexts/SectionUpdateContext";
 
 interface Campaign {
   id: string;
@@ -64,7 +57,7 @@ interface CampaignHubLayoutProps {
   onJoinCampaign?: (campaign: Campaign) => void;
 }
 
-export function CampaignHubLayout({ 
+function CampaignHubLayoutContent({ 
   campaign, 
   participation, 
   mediaAssets = [],
@@ -73,6 +66,26 @@ export function CampaignHubLayout({
   onJoinCampaign 
 }: CampaignHubLayoutProps) {
   const [activeSection, setActiveSection] = useState<CampaignSectionType>("overview");
+  const { sectionUpdates, markSectionAsUpdated, markSectionAsRead } = useSectionUpdates();
+
+  // Handle section changes and mark as read
+  const handleSectionChange = useCallback((section: CampaignSectionType) => {
+    setActiveSection(section);
+    markSectionAsRead(section);
+  }, [markSectionAsRead]);
+
+  // Simulate triggering updates for demo purposes
+  useEffect(() => {
+    // This would normally be triggered by real events like new messages, submissions, etc.
+    const interval = setInterval(() => {
+      // Randomly mark communication section as updated to simulate new messages
+      if (Math.random() > 0.95) {
+        markSectionAsUpdated("communication");
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [markSectionAsUpdated]);
 
   const renderActiveSection = () => {
     const isLocked = !participation && ["submissions", "communication", "updates", "rewards"].includes(activeSection);
@@ -147,9 +160,11 @@ export function CampaignHubLayout({
           <div className="w-80 flex-shrink-0">
             <CampaignSidebar 
               activeSection={activeSection} 
-              onSectionChange={setActiveSection}
+              onSectionChange={handleSectionChange}
               campaign={campaign}
               participation={participation}
+              sectionUpdates={sectionUpdates}
+              onMarkSectionAsRead={markSectionAsRead}
             />
           </div>
 
@@ -160,5 +175,13 @@ export function CampaignHubLayout({
         </div>
       </div>
     </SidebarProvider>
+  );
+}
+
+export function CampaignHubLayout(props: CampaignHubLayoutProps) {
+  return (
+    <SectionUpdateProvider campaignId={props.campaign.id}>
+      <CampaignHubLayoutContent {...props} />
+    </SectionUpdateProvider>
   );
 }

@@ -6,7 +6,8 @@ import {
   Activity,
   BarChart3,
   Badge,
-  Lock
+  Lock,
+  Circle
 } from "lucide-react";
 import {
   Sidebar,
@@ -20,7 +21,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge as BadgeComponent } from "@/components/ui/badge";
-import { CampaignSectionType } from "./CampaignHubLayout";
+import { type CampaignSectionType } from "@/contexts/SectionUpdateContext";
 
 interface Campaign {
   id: string;
@@ -45,11 +46,22 @@ interface Participation {
   status: string;
 }
 
+interface SectionUpdates {
+  overview: boolean;
+  rules: boolean;
+  submissions: boolean;
+  communication: boolean;
+  updates: boolean;
+  rewards: boolean;
+}
+
 interface CampaignSidebarProps {
   activeSection: CampaignSectionType;
   onSectionChange: (section: CampaignSectionType) => void;
   campaign: Campaign;
   participation?: Participation;
+  sectionUpdates?: SectionUpdates;
+  onMarkSectionAsRead?: (section: CampaignSectionType) => void;
 }
 
 const sidebarItems = [
@@ -106,8 +118,22 @@ export function CampaignSidebar({
   activeSection, 
   onSectionChange, 
   campaign,
-  participation 
+  participation,
+  sectionUpdates = {
+    overview: false,
+    rules: false,
+    submissions: false,
+    communication: false,
+    updates: false,
+    rewards: false,
+  },
+  onMarkSectionAsRead
 }: CampaignSidebarProps) {
+  
+  const handleSectionChange = (section: CampaignSectionType) => {
+    onSectionChange(section);
+    onMarkSectionAsRead?.(section);
+  };
   return (
     <Sidebar className="w-80 border-r border-border">
       <SidebarHeader className="p-6 border-b border-border">
@@ -152,17 +178,24 @@ export function CampaignSidebar({
                 return (
                   <SidebarMenuItem key={item.id}>
                     <SidebarMenuButton
-                      onClick={() => !isLocked && onSectionChange(item.id)}
+                      onClick={() => !isLocked && handleSectionChange(item.id)}
                       isActive={isActive && !isLocked}
                       disabled={isLocked}
                       className={`h-auto p-3 flex-col items-start gap-1 ${
                         isLocked ? "opacity-50 cursor-not-allowed" : ""
                       }`}
                     >
-                      <div className="flex items-center gap-2 w-full">
+                      <div className="flex items-center gap-2 w-full relative">
                         {isLocked && <Lock className="h-3 w-3 shrink-0" />}
                         <Icon className="h-4 w-4 shrink-0" />
                         <span className="font-medium text-sm">{item.title}</span>
+                        
+                          {/* Update Indicator */}
+                          {!isLocked && sectionUpdates[item.id] && (
+                            <div className="absolute -top-1 -right-1 animate-pulse">
+                              <Circle className="h-2 w-2 fill-destructive text-destructive" />
+                            </div>
+                          )}
                       </div>
                       <span className="text-xs text-muted-foreground text-left">
                         {isLocked ? "Join campaign to unlock" : item.description}
