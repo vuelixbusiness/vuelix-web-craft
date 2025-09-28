@@ -120,7 +120,7 @@ const ArtistCampaignFlow = () => {
       status: 'active',
       description: campaignData.instructions,
       rules: campaignData.rules,
-      profiles: { display_name: 'Your Artist Name' },
+      profiles: { display_name: user?.name || 'Unknown Artist' },
       budgetUsedPercentage: 0,
       availableBudget: campaignData.budget || 0,
       redeemed: 0,
@@ -128,7 +128,7 @@ const ArtistCampaignFlow = () => {
       likes: 0,
       activeCreators: 0
     };
-  }, [campaignData, memoizedCoverArtUrl, memoizedSongUrl]);
+  }, [campaignData, memoizedCoverArtUrl, memoizedSongUrl, user]);
 
   const handleSongFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
