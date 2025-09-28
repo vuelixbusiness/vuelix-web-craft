@@ -8,7 +8,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { User, Camera, Mail, Calendar, Trophy } from "lucide-react";
+import { User, Camera, Mail, Calendar, Trophy, CreditCard, Settings } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAvatarUpload } from "@/hooks/useAvatarUpload";
@@ -17,6 +18,7 @@ const Profile = () => {
   const { user, refreshUserProfile } = useAuth();
   const { toast } = useToast();
   const { triggerFileInput, isUploading } = useAvatarUpload();
+  const navigate = useNavigate();
   const [isEditable, setIsEditable] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -221,6 +223,46 @@ const Profile = () => {
                 <div>
                   <div className="text-2xl font-bold text-primary">0</div>
                   <p className="text-sm text-muted-foreground">Total Views</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Payment Methods */}
+          <Card className="mt-6 shadow-soft">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center space-x-2">
+                <CreditCard className="w-5 h-5 text-primary" />
+                <span>Payment Methods</span>
+              </CardTitle>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/payment-methods')}
+                className="flex items-center space-x-2"
+              >
+                <Settings className="w-4 h-4" />
+                <span>Manage</span>
+              </Button>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-muted-foreground text-sm">
+                  Manage your payment methods for memberships and payout requests.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 border border-border rounded-lg">
+                    <h4 className="font-medium text-sm mb-2">For Memberships</h4>
+                    <p className="text-xs text-muted-foreground">
+                      No payment method added yet
+                    </p>
+                  </div>
+                  <div className="p-4 border border-border rounded-lg">
+                    <h4 className="font-medium text-sm mb-2">For Payouts</h4>
+                    <p className="text-xs text-muted-foreground">
+                      No payment method added yet
+                    </p>
+                  </div>
                 </div>
               </div>
             </CardContent>
