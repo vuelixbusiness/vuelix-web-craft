@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -83,6 +84,7 @@ export default function CampaignManagement() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [participations, setParticipations] = useState<Participation[]>([]);
@@ -422,6 +424,9 @@ export default function CampaignManagement() {
                       onChange={(e) => setEditForm({ ...editForm, song_title: e.target.value })}
                       placeholder="Enter song title"
                     />
+                    <p className="text-sm text-muted-foreground">
+                      Artist: {user?.name || 'Not Available'}
+                    </p>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
