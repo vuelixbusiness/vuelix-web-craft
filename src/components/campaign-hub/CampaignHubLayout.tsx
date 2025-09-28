@@ -9,6 +9,7 @@ import { RewardsSection } from "./sections/RewardsSection";
 import { SubmissionsSection } from "./sections/SubmissionsSection";
 import { CommunicationSection } from "./sections/CommunicationSection";
 import { UpdatesSection } from "./sections/UpdatesSection";
+import { LockedSectionPlaceholder } from "./LockedSectionPlaceholder";
 
 export type CampaignSectionType = 
   | "overview" 
@@ -74,6 +75,33 @@ export function CampaignHubLayout({
   const [activeSection, setActiveSection] = useState<CampaignSectionType>("overview");
 
   const renderActiveSection = () => {
+    const isLocked = !participation && ["submissions", "communication", "updates", "rewards"].includes(activeSection);
+    
+    if (isLocked) {
+      const sectionTitles = {
+        submissions: "Join Campaign to Upload Content",
+        communication: "Join Campaign to Chat",
+        updates: "Join Campaign to View Updates",
+        rewards: "Join Campaign to View Rewards"
+      };
+      
+      const sectionDescriptions = {
+        submissions: "Upload your content and track submission status once you join the campaign.",
+        communication: "Chat with the artist and other participants in this campaign.",
+        updates: "View campaign announcements and activity timeline.",
+        rewards: "Compare your performance with other creators and track your earnings."
+      };
+      
+      return (
+        <LockedSectionPlaceholder
+          title={sectionTitles[activeSection as keyof typeof sectionTitles]}
+          description={sectionDescriptions[activeSection as keyof typeof sectionDescriptions]}
+          campaign={campaign}
+          onJoinCampaign={onJoinCampaign}
+        />
+      );
+    }
+
     switch (activeSection) {
       case "overview":
         return <CampaignOverviewSection campaign={campaign} participation={participation} mediaAssets={mediaAssets} onJoinCampaign={onJoinCampaign} />;

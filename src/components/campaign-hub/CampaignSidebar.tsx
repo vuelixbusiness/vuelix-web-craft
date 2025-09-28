@@ -5,7 +5,8 @@ import {
   Upload, 
   Activity,
   BarChart3,
-  Badge
+  Badge,
+  Lock
 } from "lucide-react";
 import {
   Sidebar,
@@ -146,20 +147,25 @@ export function CampaignSidebar({
               {sidebarItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeSection === item.id;
+                const isLocked = !participation && ["submissions", "communication", "updates", "rewards"].includes(item.id);
                 
                 return (
                   <SidebarMenuItem key={item.id}>
                     <SidebarMenuButton
-                      onClick={() => onSectionChange(item.id)}
-                      isActive={isActive}
-                      className="h-auto p-3 flex-col items-start gap-1"
+                      onClick={() => !isLocked && onSectionChange(item.id)}
+                      isActive={isActive && !isLocked}
+                      disabled={isLocked}
+                      className={`h-auto p-3 flex-col items-start gap-1 ${
+                        isLocked ? "opacity-50 cursor-not-allowed" : ""
+                      }`}
                     >
                       <div className="flex items-center gap-2 w-full">
+                        {isLocked && <Lock className="h-3 w-3 shrink-0" />}
                         <Icon className="h-4 w-4 shrink-0" />
                         <span className="font-medium text-sm">{item.title}</span>
                       </div>
                       <span className="text-xs text-muted-foreground text-left">
-                        {item.description}
+                        {isLocked ? "Join campaign to unlock" : item.description}
                       </span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
