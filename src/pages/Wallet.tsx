@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -239,9 +240,11 @@ const Wallet = () => {
                 <Download className="w-4 h-4 mr-2" />
                 Request Payout
               </Button>
-              <Button variant="outline" className="h-12">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Payment Method
+              <Button variant="outline" className="h-12" asChild>
+                <Link to="/payment-methods">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Payment Method
+                </Link>
               </Button>
               <Button variant="outline" className="h-12">
                 <CreditCard className="w-4 h-4 mr-2" />
@@ -402,9 +405,11 @@ const Wallet = () => {
                   <CreditCard className="w-5 h-5 text-primary" />
                   <span>Payment Methods</span>
                 </div>
-                <Button variant="outline" size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Method
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/payment-methods">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Method
+                  </Link>
                 </Button>
               </CardTitle>
             </CardHeader>
@@ -414,7 +419,9 @@ const Wallet = () => {
                 <p className="text-muted-foreground mb-4">
                   No payment methods added yet. Add a payment method to receive your earnings.
                 </p>
-                <Button variant="outline">Add Payment Method</Button>
+                <Button variant="outline" asChild>
+                  <Link to="/payment-methods">Add Payment Method</Link>
+                </Button>
               </div>
             </CardContent>
           </Card>

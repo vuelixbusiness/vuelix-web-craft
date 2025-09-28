@@ -26,6 +26,7 @@ import CampaignManagement from "@/pages/CampaignManagement";
 import CampaignJoin from "@/pages/CampaignJoin";
 import Chat from "./pages/Chat";
 import Messages from "./pages/Messages";
+import PaymentMethods from "./pages/PaymentMethods";
 import Notifications from "./pages/Notifications";
 import Support from "./pages/Support";
 import Friends from "./pages/Friends";
@@ -90,6 +91,11 @@ const App = () => (
               <Route path="/friends" element={
                 <ProtectedRoute>
                   <Friends />
+                </ProtectedRoute>
+              } />
+              <Route path="/payment-methods" element={
+                <ProtectedRoute>
+                  <PaymentMethods />
                 </ProtectedRoute>
               } />
               
