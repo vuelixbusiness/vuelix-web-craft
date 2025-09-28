@@ -8,6 +8,8 @@ import { CampaignMediaAssetsPanel } from "../CampaignMediaAssetsPanel";
 import { CampaignReferencesBox } from "../CampaignReferencesBox";
 import { CampaignParticipantsBox } from "../CampaignParticipantsBox";
 import { FaTiktok, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 import { formatCurrency } from "@/lib/utils";
 
@@ -85,6 +87,10 @@ const platformNames: Record<string, string> = {
 };
 
 export function CampaignOverviewSection({ campaign, participation, mediaAssets = [], participants = [], onJoinCampaign }: CampaignOverviewSectionProps) {
+  const [approvalRate, setApprovalRate] = useState<number | null>(null);
+  const [avgResponseTime, setAvgResponseTime] = useState<number | null>(null);
+  const [isLoadingMetrics, setIsLoadingMetrics] = useState(true);
+
   const budgetSpent = (campaign.budget || 0) * 0.65; // Mock data
   const daysRemaining = campaign.end_date 
     ? Math.max(0, Math.ceil((new Date(campaign.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
@@ -94,6 +100,65 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
   const availableBudget = campaign.availableBudget || (campaign.budget || 0) - budgetSpent;
   const redeemed = campaign.redeemed || budgetSpent;
   const budgetUsedPercentage = campaign.budgetUsedPercentage || ((campaign.budget ? (budgetSpent / campaign.budget) * 100 : 0));
+
+  useEffect(() => {
+    const fetchCampaignMetrics = async () => {
+      try {
+        setIsLoadingMetrics(true);
+        
+        // Fetch all participations for this campaign
+        const { data: participations, error } = await supabase
+          .from('campaign_participations')
+          .select('*')
+          .eq('campaign_id', campaign.id);
+
+        if (error) {
+          console.error('Error fetching campaign participations:', error);
+          return;
+        }
+
+        if (!participations || participations.length === 0) {
+          setApprovalRate(null);
+          setAvgResponseTime(null);
+          return;
+        }
+
+        // Calculate approval rate
+        const totalSubmissions = participations.length;
+        const approvedSubmissions = participations.filter(p => 
+          p.status === 'approved' || p.status === 'live'
+        ).length;
+        const calculatedApprovalRate = totalSubmissions > 0 ? (approvedSubmissions / totalSubmissions) * 100 : 0;
+        setApprovalRate(calculatedApprovalRate);
+
+        // Calculate average response time for processed submissions
+        const processedSubmissions = participations.filter(p => 
+          p.status !== 'pending' && p.status !== 'submitted' && 
+          p.created_at !== p.updated_at
+        );
+
+        if (processedSubmissions.length > 0) {
+          const totalResponseTime = processedSubmissions.reduce((total, p) => {
+            const createdAt = new Date(p.created_at).getTime();
+            const updatedAt = new Date(p.updated_at).getTime();
+            return total + (updatedAt - createdAt);
+          }, 0);
+
+          const avgResponseTimeMs = totalResponseTime / processedSubmissions.length;
+          const avgResponseTimeHours = avgResponseTimeMs / (1000 * 60 * 60);
+          setAvgResponseTime(avgResponseTimeHours);
+        } else {
+          setAvgResponseTime(null);
+        }
+      } catch (error) {
+        console.error('Error calculating campaign metrics:', error);
+      } finally {
+        setIsLoadingMetrics(false);
+      }
+    };
+
+    fetchCampaignMetrics();
+  }, [campaign.id]);
 
   return (
     <div className="space-y-6">
@@ -257,7 +322,15 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">85%</div>
+                  <div className="text-2xl font-bold">
+                    {isLoadingMetrics ? (
+                      <div className="animate-pulse bg-muted rounded h-8 w-16"></div>
+                    ) : approvalRate !== null ? (
+                      `${Math.round(approvalRate)}%`
+                    ) : (
+                      "No data"
+                    )}
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     submission approval rate
                   </p>
@@ -270,7 +343,17 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                   <Clock className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">2.4 hrs</div>
+                  <div className="text-2xl font-bold">
+                    {isLoadingMetrics ? (
+                      <div className="animate-pulse bg-muted rounded h-8 w-16"></div>
+                    ) : avgResponseTime !== null ? (
+                      avgResponseTime < 1 ? 
+                        `${Math.round(avgResponseTime * 60)}m` : 
+                        `${avgResponseTime.toFixed(1)}h`
+                    ) : (
+                      "No data"
+                    )}
+                  </div>
                   <p className="text-xs text-muted-foreground">
                     avg. response time
                   </p>
