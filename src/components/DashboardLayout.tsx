@@ -3,9 +3,10 @@ import { Link, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, User, Wallet, Music, Users, Trophy, BarChart3, Home } from 'lucide-react';
+import { LogOut, User, Wallet, Music, Users, Trophy, BarChart3, Home, Circle } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import NotificationBell from '@/components/NotificationBell';
+import { useArtistNotifications } from '@/contexts/ArtistNotificationContext';
 import vuelixLogo from "@/assets/vuelix-logo-v.png";
 
 interface DashboardLayoutProps {
@@ -23,6 +24,7 @@ const navigationItems = [
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const { hasNotifications, markArtistDashboardVisited } = useArtistNotifications();
 
   const handleLogout = async () => {
     await logout();
@@ -59,14 +61,25 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`px-3 py-2 rounded-full text-sm font-medium transition-smooth flex items-center space-x-2 ${
+                    className={`px-3 py-2 rounded-full text-sm font-medium transition-smooth flex items-center space-x-2 relative ${
                       isActivePath(item.path)
                         ? 'bg-muted text-foreground'
                         : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                     }`}
+                    onClick={() => {
+                      if (item.path === '/artist') {
+                        markArtistDashboardVisited();
+                      }
+                    }}
                   >
                     <IconComponent className="w-4 h-4" />
                     <span>{item.label}</span>
+                    {/* Artist notification dot */}
+                    {item.path === '/artist' && hasNotifications && (
+                      <div className="absolute -top-1 -right-1 animate-pulse">
+                        <Circle className="h-2 w-2 fill-primary text-primary" />
+                      </div>
+                    )}
                   </Link>
                 );
               })}
@@ -104,14 +117,25 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`px-3 py-2 rounded-full text-xs font-medium transition-smooth flex items-center space-x-2 ${
+                  className={`px-3 py-2 rounded-full text-xs font-medium transition-smooth flex items-center space-x-2 relative ${
                     isActivePath(item.path)
                       ? 'bg-muted text-foreground'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
+                  onClick={() => {
+                    if (item.path === '/artist') {
+                      markArtistDashboardVisited();
+                    }
+                  }}
                 >
                   <IconComponent className="w-4 h-4" />
                   <span>{item.label}</span>
+                  {/* Artist notification dot */}
+                  {item.path === '/artist' && hasNotifications && (
+                    <div className="absolute -top-1 -right-1 animate-pulse">
+                      <Circle className="h-2 w-2 fill-primary text-primary" />
+                    </div>
+                  )}
                 </Link>
               );
             })}

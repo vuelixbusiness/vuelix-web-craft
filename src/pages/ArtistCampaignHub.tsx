@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { useArtistNotifications } from '@/contexts/ArtistNotificationContext';
 import { toast } from 'sonner';
 import { ArtistCampaignHubLayout } from '@/components/campaign-hub/ArtistCampaignHubLayout';
 
@@ -57,6 +58,7 @@ const ArtistCampaignHub = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { clearCampaignNotifications } = useArtistNotifications();
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [mediaAssets, setMediaAssets] = useState<MediaAsset[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
@@ -66,7 +68,12 @@ const ArtistCampaignHub = () => {
     if (!id || !user) return;
     
     fetchCampaignData();
-  }, [id, user]);
+    
+    // Clear notifications for this specific campaign when user visits it
+    if (id) {
+      clearCampaignNotifications(id);
+    }
+  }, [id, user, clearCampaignNotifications]);
 
   const fetchCampaignData = async () => {
     try {

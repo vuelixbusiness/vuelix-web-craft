@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
+import { useArtistNotifications } from "@/contexts/ArtistNotificationContext";
 import { Plus, Music, Users, TrendingUp, Play, Pause, Eye, Heart, BarChart3, MessageCircle, Settings, Star, DollarSign } from "lucide-react";
 import { FaTiktok, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -64,6 +65,7 @@ const ArtistDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { markArtistDashboardVisited } = useArtistNotifications();
   const [activeProfile, setActiveProfile] = useState<DashboardProfile>('campaigns');
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -180,9 +182,10 @@ const ArtistDashboard = () => {
     }
   };
 
-  // Setup real-time subscription
+  // Setup real-time subscription and mark dashboard as visited
   useEffect(() => {
     fetchCampaigns();
+    markArtistDashboardVisited();
 
     if (!user?.id) return;
 
