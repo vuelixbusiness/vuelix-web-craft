@@ -35,10 +35,33 @@ export function CampaignLeaderboard({ campaign }: CampaignLeaderboardProps) {
 
   useEffect(() => {
     fetchLeaderboard();
+
+    // Set up real-time listener for campaign participation updates
+    const channel = supabase
+      .channel('campaign-leaderboard-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: '*', // Listen to all changes (INSERT, UPDATE, DELETE)
+          schema: 'public',
+          table: 'campaign_participations',
+          filter: `campaign_id=eq.${campaign.id}`
+        },
+        () => {
+          // Refetch leaderboard when any participation changes
+          fetchLeaderboard();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [campaign.id]);
 
   const fetchLeaderboard = async () => {
     try {
+      // Fetch all campaign participants, sorted by earnings then join date
       const { data, error } = await supabase
         .from('campaign_participations')
         .select(`
@@ -46,12 +69,14 @@ export function CampaignLeaderboard({ campaign }: CampaignLeaderboardProps) {
           creator_id,
           current_views,
           current_likes,
-          payout_amount
+          payout_amount,
+          created_at
         `)
         .eq('campaign_id', campaign.id)
-        .eq('status', 'live')
-        .order('current_views', { ascending: false })
-        .limit(10);
+        .in('status', ['joined', 'approved', 'live', 'submitted'])
+        .order('payout_amount', { ascending: false })
+        .order('created_at', { ascending: true }) // Earlier join date ranks higher for ties
+        .limit(50); // Increased limit to show more participants
 
       if (error) throw error;
 
@@ -76,14 +101,15 @@ export function CampaignLeaderboard({ campaign }: CampaignLeaderboardProps) {
         }));
 
         setLeaderboard(leaderboardWithProfiles);
+        
+        // Find current user's rank in the full leaderboard
+        if (user) {
+          const userIndex = data.findIndex(entry => entry.creator_id === user.id);
+          setUserRank(userIndex !== -1 ? userIndex + 1 : null);
+        }
       } else {
         setLeaderboard([]);
-      }
-      
-      // Find current user's rank
-      if (user) {
-        const userIndex = data?.findIndex(entry => entry.creator_id === user.id);
-        setUserRank(userIndex !== -1 && userIndex !== undefined ? userIndex + 1 : null);
+        setUserRank(null);
       }
     } catch (error) {
       console.error('Error fetching leaderboard:', error);
