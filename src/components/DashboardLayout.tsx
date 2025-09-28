@@ -18,7 +18,6 @@ const navigationItems = [
   { label: 'Creator', path: '/creator', icon: Users },
   { label: 'Campaigns', path: '/campaigns', icon: BarChart3 },
   { label: 'Leaderboard', path: '/leaderboard', icon: Trophy },
-  { label: 'Vuelix', path: '/dashboard', icon: Home },
 ];
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
@@ -40,16 +39,21 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             {/* Logo Section */}
-            <div className="flex items-center space-x-3">
+            <Link 
+              to="/dashboard" 
+              className={`flex items-center space-x-3 hover:opacity-80 transition-smooth ${
+                isActivePath('/dashboard') ? 'opacity-100' : ''
+              }`}
+            >
               <img src={vuelixLogo} alt="Vuelix" className="w-8 h-8" />
               <span className="text-xl font-bold text-foreground">
                 Vuelix
               </span>
-            </div>
+            </Link>
 
             {/* Horizontal Navigation - Centered */}
             <nav className="hidden md:flex items-center space-x-1">
-              {navigationItems.slice(0, -1).map((item) => {
+              {navigationItems.map((item) => {
                 const IconComponent = item.icon;
                 return (
                   <Link
@@ -66,18 +70,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   </Link>
                 );
               })}
-              {/* Special Vuelix button */}
-              <Link
-                to="/dashboard"
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-smooth flex items-center space-x-2 ${
-                  isActivePath('/dashboard')
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-primary/20 text-primary hover:bg-primary/30'
-                }`}
-              >
-                <Home className="w-4 h-4" />
-                <span>Vuelix</span>
-              </Link>
             </nav>
 
             {/* User Menu - Right side */}
@@ -114,7 +106,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   to={item.path}
                   className={`px-3 py-2 rounded-full text-xs font-medium transition-smooth flex items-center space-x-2 ${
                     isActivePath(item.path)
-                      ? item.path === '/dashboard' ? 'bg-primary text-primary-foreground' : 'bg-muted text-foreground'
+                      ? 'bg-muted text-foreground'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
                 >
