@@ -84,21 +84,23 @@ const DashboardNav = ({ dashboardType }: DashboardNavProps) => {
           <div className="flex items-center space-x-4">
             <ThemeToggle />
             <NotificationBell />
-            <Avatar>
-              <AvatarImage src={user?.avatar} alt={user?.name} />
-              <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
-            </Avatar>
-            <div className="hidden md:block">
-              <p className="text-sm font-medium flex items-center space-x-2">
-                <span className={getMembershipColor(user?.membershipType || 'regular')}>
-                  @{user?.username}
-                </span>
-                <Badge variant={user?.membershipType === 'premium' ? 'default' : 'secondary'} className="text-xs">
-                  {user?.membershipType}
-                </Badge>
-              </p>
-              <p className="text-xs text-muted-foreground">{user?.email}</p>
-            </div>
+            <Link to="/profile" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+              <Avatar>
+                <AvatarImage src={user?.avatar} alt={user?.name} />
+                <AvatarFallback>{user?.name?.slice(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div className="hidden md:block">
+                <p className="text-sm font-medium flex items-center space-x-2">
+                  <span className={getMembershipColor(user?.membershipType || 'regular')}>
+                    @{user?.username}
+                  </span>
+                  <Badge variant={user?.membershipType === 'premium' ? 'default' : 'secondary'} className="text-xs">
+                    {user?.membershipType}
+                  </Badge>
+                </p>
+                <p className="text-xs text-muted-foreground">{user?.email}</p>
+              </div>
+            </Link>
             <Button variant="ghost" size="icon" onClick={handleLogout}>
               <LogOut className="w-4 h-4" />
             </Button>
