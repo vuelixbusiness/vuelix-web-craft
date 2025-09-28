@@ -43,6 +43,7 @@ interface Campaign {
   budget: number;
   end_date: string;
   artist_id: string;
+  isJoined?: boolean;
   profiles?: {
     display_name?: string;
   } | null;
@@ -125,6 +126,19 @@ const CampaignManagement = () => {
           return acc;
         }, {} as Record<string, number>) || {};
 
+        // Check user participation if logged in
+        let userParticipations: any[] = [];
+        if (user) {
+          const { data: userParticipationsData } = await supabase
+            .from('campaign_participations')
+            .select('campaign_id')
+            .eq('creator_id', user.id)
+            .in('campaign_id', campaignIds)
+            .in('status', ['approved', 'joined', 'live', 'submitted']);
+          
+          userParticipations = userParticipationsData || [];
+        }
+
         // Fetch artist profiles for campaigns
         const artistIds = [...new Set(campaignsData.map(c => c.artist_id))];
         const { data: profilesData, error: profilesError } = await supabase
@@ -146,6 +160,7 @@ const CampaignManagement = () => {
             ...campaign,
             description: campaign.instructions,
             profiles: profilesData?.find(p => p.user_id === campaign.artist_id) || null,
+            isJoined: userParticipations.some(p => p.campaign_id === campaign.id),
             redeemed,
             availableBudget,
             budgetUsedPercentage
@@ -373,6 +388,7 @@ const CampaignManagement = () => {
                   variant="creator-available"
                   showJoinButton={true}
                   showPlayButton={true}
+                  isJoined={campaign.isJoined}
                   onJoinCampaign={(campaign) => navigate(`/campaign/${campaign.id}/join`)}
                   onAudioToggle={toggleAudio}
                   isPlaying={currentlyPlaying === campaign.id}
