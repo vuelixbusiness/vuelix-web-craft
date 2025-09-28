@@ -224,6 +224,32 @@ export default function CampaignJoin() {
       }
 
       console.log("Successfully joined campaign:", data);
+
+      // Get user profile for activity message
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('username, display_name')
+        .eq('user_id', user.id)
+        .single();
+
+      // Create campaign activity record
+      await supabase
+        .from('campaign_activities')
+        .insert({
+          campaign_id: campaign.id,
+          user_id: user.id,
+          activity_type: 'creator_joined',
+          title: 'New Creator Joined',
+          message: `Creator @${profile?.username || 'unknown'} joined the campaign`,
+          priority: 'medium',
+          metadata: {
+            creator_id: user.id,
+            creator_username: profile?.username,
+            creator_display_name: profile?.display_name,
+            participation_id: data.id
+          }
+        });
+
       toast({
         title: "Success!",
         description: "Successfully joined campaign!",
