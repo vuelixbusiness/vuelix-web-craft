@@ -223,21 +223,15 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
       )}
 
       {/* Main Content Grid - Two columns on desktop */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Media Assets, References, and Participants */}
-        <div className="lg:col-span-3 space-y-6">
-          {/* Media Assets Section - Smaller */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2">
-              <CampaignMediaAssetsPanel 
-                campaign={campaign} 
-                mediaAssets={mediaAssets} 
-                isLoading={false} 
-              />
-            </div>
-          </div>
+        <div className="lg:col-span-2 space-y-6">
+          <CampaignMediaAssetsPanel 
+            campaign={campaign} 
+            mediaAssets={mediaAssets} 
+            isLoading={false} 
+          />
           
-          {/* References and Participants - Full Width */}
           <CampaignReferencesBox 
             referenceLinks={campaign.reference_links} 
           />
