@@ -88,7 +88,13 @@ export function ArtistCampaignHubLayout({
     
     switch (activeSection) {
       case "overview":
-        return <CampaignOverviewSection campaign={campaign} mediaAssets={mediaAssets} />;
+        // Mock participation for artists (campaign owners) to unlock all features
+        const mockParticipation = {
+          id: 'owner',
+          status: 'owner',
+          created_at: campaign.created_at
+        };
+        return <CampaignOverviewSection campaign={campaign} mediaAssets={mediaAssets} participation={mockParticipation} />;
       case "rules":
         return <RulesSection campaign={campaign} />;
       case "rewards":
@@ -116,7 +122,12 @@ export function ArtistCampaignHubLayout({
       case "updates":
         return <UpdatesSection campaign={campaign} />;
       default:
-        return <CampaignOverviewSection campaign={campaign} mediaAssets={mediaAssets} />;
+        const defaultMockParticipation = {
+          id: 'owner',
+          status: 'owner',
+          created_at: campaign.created_at
+        };
+        return <CampaignOverviewSection campaign={campaign} mediaAssets={mediaAssets} participation={defaultMockParticipation} />;
     }
   };
 

@@ -283,40 +283,52 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                   <CheckCircle className="h-4 w-4 text-green-600 mr-2" />
                   <CardTitle className="text-sm font-medium">Campaign Status</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <Badge variant="outline" className="capitalize">
-                      {participation.status}
-                    </Badge>
-                    <p className="text-xs text-muted-foreground">
-                      Joined on {new Date(participation.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                </CardContent>
+                 <CardContent>
+                   <div className="space-y-2">
+                     <Badge variant="outline" className="capitalize">
+                       {participation.status === 'owner' ? 'Campaign Owner' : participation.status}
+                     </Badge>
+                     <p className="text-xs text-muted-foreground">
+                       {participation.status === 'owner' 
+                         ? `Created on ${new Date(participation.created_at).toLocaleDateString()}`
+                         : `Joined on ${new Date(participation.created_at).toLocaleDateString()}`
+                       }
+                     </p>
+                   </div>
+                 </CardContent>
               </Card>
             )}
           </div>
 
 
-          {/* Participation Status */}
-          {participation && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Your Participation</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Joined on {new Date(participation.created_at).toLocaleDateString()}</p>
-                    <p className="text-sm text-muted-foreground">Current status: {participation.status}</p>
-                  </div>
-                  <Badge variant="outline" className="capitalize">
-                    {participation.status}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+           {/* Participation Status */}
+           {participation && (
+             <Card>
+               <CardHeader>
+                 <CardTitle>
+                   {participation.status === 'owner' ? 'Campaign Owner' : 'Your Participation'}
+                 </CardTitle>
+               </CardHeader>
+               <CardContent>
+                 <div className="flex items-center justify-between">
+                   <div>
+                     <p className="font-medium">
+                       {participation.status === 'owner' 
+                         ? `Created on ${new Date(participation.created_at).toLocaleDateString()}`
+                         : `Joined on ${new Date(participation.created_at).toLocaleDateString()}`
+                       }
+                     </p>
+                     <p className="text-sm text-muted-foreground">
+                       Current status: {participation.status === 'owner' ? 'Campaign Owner' : participation.status}
+                     </p>
+                   </div>
+                   <Badge variant="outline" className="capitalize">
+                     {participation.status === 'owner' ? 'Owner' : participation.status}
+                   </Badge>
+                 </div>
+               </CardContent>
+             </Card>
+           )}
         </div>
       </div>
 
