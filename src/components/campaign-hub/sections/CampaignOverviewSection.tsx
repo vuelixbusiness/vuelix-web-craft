@@ -152,9 +152,9 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                     {campaign.vip_max_payout && campaign.vip_max_payout !== campaign.max_payout && (
                       <div className="flex items-center gap-2">
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
-                        <span className="text-sm">
+                        <Badge variant="outline" className="text-xs text-primary border-primary">
                           VIP Max ${campaign.vip_max_payout} payout
-                        </span>
+                        </Badge>
                         <Crown className="h-4 w-4 text-primary" />
                       </div>
                     )}
