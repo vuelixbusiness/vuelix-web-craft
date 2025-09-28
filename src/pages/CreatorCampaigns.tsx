@@ -274,7 +274,7 @@ const CreatorCampaigns = () => {
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
                             <DollarSign className="w-4 h-4 text-green-500" />
-                            <span className="font-medium">
+                            <span className="font-medium text-sm">
                               ${campaign.payout_rate} per 1,000 Views
                             </span>
                           </div>

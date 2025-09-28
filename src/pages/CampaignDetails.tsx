@@ -342,7 +342,7 @@ const CampaignDetails = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Payout Rate</label>
-                  <p className="font-medium">{formatCurrency(campaign.payout_rate)} per 1,000 Views</p>
+                  <p className="font-medium text-sm">{formatCurrency(campaign.payout_rate)} per 1,000 Views</p>
                 </div>
               </div>
               
