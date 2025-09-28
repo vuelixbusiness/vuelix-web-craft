@@ -16,6 +16,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
+  loginWithUsernameOrEmail: (usernameOrEmail: string, password: string) => Promise<boolean>;
   login: (email: string, password: string) => Promise<boolean>;
   signup: (email: string, password: string, name: string, username: string, userType: 'creator' | 'artist') => Promise<boolean>;
   signInWithGoogle: (userType: 'creator' | 'artist') => Promise<{ success: boolean; error?: string }>;
@@ -214,6 +215,68 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const isEmailFormat = (input: string): boolean => {
+    return input.includes('@') && input.includes('.');
+  };
+
+  const resolveUsernameToEmail = async (username: string): Promise<string | null> => {
+    try {
+      const { data, error } = await supabase.functions.invoke('resolve-username', {
+        body: { username }
+      });
+
+      if (error) {
+        console.error('Error resolving username:', error);
+        return null;
+      }
+
+      return data?.email || null;
+    } catch (error) {
+      console.error('Error resolving username:', error);
+      return null;
+    }
+  };
+
+  const loginWithUsernameOrEmail = async (usernameOrEmail: string, password: string): Promise<boolean> => {
+    setIsLoading(true);
+    
+    try {
+      let emailToUse = usernameOrEmail;
+
+      // If it's not an email format, try to resolve username to email
+      if (!isEmailFormat(usernameOrEmail)) {
+        const resolvedEmail = await resolveUsernameToEmail(usernameOrEmail);
+        
+        if (!resolvedEmail) {
+          console.error('Username not found or could not resolve to email');
+          setIsLoading(false);
+          return false;
+        }
+        
+        emailToUse = resolvedEmail;
+      }
+
+      // Proceed with normal email login
+      const { error } = await supabase.auth.signInWithPassword({
+        email: emailToUse,
+        password,
+      });
+
+      if (error) {
+        console.error('Login error:', error);
+        setIsLoading(false);
+        return false;
+      }
+
+      setIsLoading(false);
+      return true;
+    } catch (error) {
+      console.error('Login error:', error);
+      setIsLoading(false);
+      return false;
+    }
+  };
+
   const login = async (email: string, password: string): Promise<boolean> => {
     setIsLoading(true);
     
@@ -402,7 +465,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, signInWithGoogle, signInWithMicrosoft, logout, refreshUserProfile, isLoading }}>
+    <AuthContext.Provider value={{ user, loginWithUsernameOrEmail, login, signup, signInWithGoogle, signInWithMicrosoft, logout, refreshUserProfile, isLoading }}>
       {children}
     </AuthContext.Provider>
   );

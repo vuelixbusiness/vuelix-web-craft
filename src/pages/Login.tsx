@@ -12,12 +12,12 @@ import { useToast } from "@/hooks/use-toast";
 import vuelixLogo from "@/assets/vuelix-logo-v.png";
 const Login = () => {
   const [userType, setUserType] = useState<'creator' | 'artist'>('creator');
-  const [email, setEmail] = useState('');
+  const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const {
-    login,
+    loginWithUsernameOrEmail,
     signInWithGoogle,
     signInWithMicrosoft,
     isLoading
@@ -28,7 +28,7 @@ const Login = () => {
   } = useToast();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
+    if (!usernameOrEmail || !password) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -36,7 +36,7 @@ const Login = () => {
       });
       return;
     }
-    const success = await login(email, password);
+    const success = await loginWithUsernameOrEmail(usernameOrEmail, password);
     if (success) {
       toast({
         title: "Welcome back!",
@@ -46,9 +46,12 @@ const Login = () => {
       // Redirect to dashboard after successful login
       navigate('/dashboard');
     } else {
+      const isEmail = usernameOrEmail.includes('@');
       toast({
         title: "Login failed",
-        description: "Please check your credentials and try again",
+        description: isEmail 
+          ? "Please check your email and password and try again"
+          : "Username not found or incorrect password. Please try again",
         variant: "destructive"
       });
     }
@@ -126,8 +129,8 @@ const Login = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="Enter your email" value={email} onChange={e => setEmail(e.target.value)} required />
+                <Label htmlFor="usernameOrEmail">Email or Username</Label>
+                <Input id="usernameOrEmail" type="text" placeholder="Enter your email or username" value={usernameOrEmail} onChange={e => setUsernameOrEmail(e.target.value)} required />
               </div>
 
               <div className="space-y-2">
