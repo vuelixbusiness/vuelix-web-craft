@@ -66,6 +66,19 @@ interface Submission {
   } | null;
 }
 
+interface UniqueParticipant {
+  creator_id: string;
+  join_date: string;
+  submission_count: number;
+  platforms: string[];
+  primary_platform: string;
+  profiles: {
+    username: string;
+    display_name: string | null;
+    avatar_url: string | null;
+  } | null;
+}
+
 interface ArtistCampaignHubLayoutProps {
   campaign: Campaign;
   mediaAssets?: MediaAsset[];
@@ -83,6 +96,36 @@ export function ArtistCampaignHubLayout({
 }: ArtistCampaignHubLayoutProps) {
   const [activeSection, setActiveSection] = useState<CampaignSectionType>("overview");
 
+  // Helper function to transform submissions into unique participants
+  const transformToParticipants = (submissions: Submission[]): UniqueParticipant[] => {
+    const participantMap = new Map<string, UniqueParticipant>();
+    
+    submissions.forEach(submission => {
+      const creatorId = submission.creator_id;
+      
+      if (participantMap.has(creatorId)) {
+        const existing = participantMap.get(creatorId)!;
+        existing.submission_count++;
+        if (!existing.platforms.includes(submission.platform)) {
+          existing.platforms.push(submission.platform);
+        }
+      } else {
+        participantMap.set(creatorId, {
+          creator_id: creatorId,
+          join_date: submission.created_at,
+          submission_count: 1,
+          platforms: [submission.platform],
+          primary_platform: submission.platform,
+          profiles: submission.profiles
+        });
+      }
+    });
+    
+    return Array.from(participantMap.values()).sort((a, b) => 
+      new Date(b.join_date).getTime() - new Date(a.join_date).getTime()
+    );
+  };
+
   const renderActiveSection = () => {
     // Artists have access to all sections, no locking logic needed
     
@@ -94,7 +137,12 @@ export function ArtistCampaignHubLayout({
           status: 'owner',
           created_at: campaign.created_at
         };
-        return <CampaignOverviewSection campaign={campaign} mediaAssets={mediaAssets} participation={mockParticipation} />;
+        return <CampaignOverviewSection 
+          campaign={campaign} 
+          mediaAssets={mediaAssets} 
+          participation={mockParticipation}
+          participants={transformToParticipants(submissions)}
+        />;
       case "rules":
         return <RulesSection campaign={campaign} />;
       case "rewards":
@@ -127,7 +175,12 @@ export function ArtistCampaignHubLayout({
           status: 'owner',
           created_at: campaign.created_at
         };
-        return <CampaignOverviewSection campaign={campaign} mediaAssets={mediaAssets} participation={defaultMockParticipation} />;
+        return <CampaignOverviewSection 
+          campaign={campaign} 
+          mediaAssets={mediaAssets} 
+          participation={defaultMockParticipation}
+          participants={transformToParticipants(submissions)}
+        />;
     }
   };
 

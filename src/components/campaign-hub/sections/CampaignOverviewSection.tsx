@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { CampaignMediaAssetsPanel } from "../CampaignMediaAssetsPanel";
 import { CampaignReferencesBox } from "../CampaignReferencesBox";
+import { CampaignParticipantsBox } from "../CampaignParticipantsBox";
 import { FaTiktok, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 
 import { formatCurrency } from "@/lib/utils";
@@ -46,11 +47,24 @@ interface MediaAsset {
   created_at: string;
 }
 
+interface UniqueParticipant {
+  creator_id: string;
+  join_date: string;
+  submission_count: number;
+  platforms: string[];
+  primary_platform: string;
+  profiles: {
+    username: string;
+    display_name: string | null;
+    avatar_url: string | null;
+  } | null;
+}
 
 interface CampaignOverviewSectionProps {
   campaign: Campaign;
   participation?: Participation;
   mediaAssets?: MediaAsset[];
+  participants?: UniqueParticipant[];
   onJoinCampaign?: (campaign: Campaign) => void;
 }
 
@@ -70,7 +84,7 @@ const platformNames: Record<string, string> = {
   spotify: "Spotify"
 };
 
-export function CampaignOverviewSection({ campaign, participation, mediaAssets = [], onJoinCampaign }: CampaignOverviewSectionProps) {
+export function CampaignOverviewSection({ campaign, participation, mediaAssets = [], participants = [], onJoinCampaign }: CampaignOverviewSectionProps) {
   const budgetSpent = (campaign.budget || 0) * 0.65; // Mock data
   const daysRemaining = campaign.end_date 
     ? Math.max(0, Math.ceil((new Date(campaign.end_date).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
@@ -297,6 +311,13 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                    </div>
                  </CardContent>
               </Card>
+            )}
+
+            {/* Campaign Participants Box - Only show for artists/owners */}
+            {participation?.status === 'owner' && (
+              <CampaignParticipantsBox 
+                participants={participants}
+              />
             )}
           </div>
 
