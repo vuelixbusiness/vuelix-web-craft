@@ -18,9 +18,11 @@ import {
 
 interface ActivityItem {
   id: string;
-  type: string;
+  activity_type: string;
+  title: string;
   message: string;
-  timestamp: string;
+  created_at: string;
+  priority: string;
   metadata?: any;
 }
 
@@ -36,84 +38,26 @@ const activityIcons = {
   views_updated: <Eye className="w-4 h-4 text-blue-500" />,
   trending: <TrendingUp className="w-4 h-4 text-orange-600" />,
   message: <MessageSquare className="w-4 h-4 text-purple-600" />,
+  campaign_updated: <TrendingUp className="w-4 h-4 text-blue-600" />,
+  campaign_paused: <Clock className="w-4 h-4 text-yellow-600" />,
+  campaign_resumed: <CheckCircle className="w-4 h-4 text-green-600" />,
+  campaign_terminated: <Bell className="w-4 h-4 text-red-600" />,
   default: <Bell className="w-4 h-4 text-muted-foreground" />
 };
 
 const activityColors = {
-  submission_approved: "border-l-green-500 bg-green-50",
-  milestone_reached: "border-l-yellow-500 bg-yellow-50", 
-  payout_processed: "border-l-green-500 bg-green-50",
-  creator_joined: "border-l-blue-500 bg-blue-50",
-  views_updated: "border-l-blue-500 bg-blue-50",
-  trending: "border-l-orange-500 bg-orange-50",
-  message: "border-l-purple-500 bg-purple-50",
-  default: "border-l-gray-300 bg-gray-50"
-};
-
-// Mock activity data - in a real app this would come from a database
-const generateMockActivities = (campaignId: string, userId?: string): ActivityItem[] => {
-  const now = new Date();
-  const activities: ActivityItem[] = [];
-
-  // User-specific activities
-  if (userId) {
-    activities.push(
-      {
-        id: '1',
-        type: 'submission_approved',
-        message: 'Your submission has been approved! 🎉',
-        timestamp: new Date(now.getTime() - 2 * 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: '2', 
-        type: 'views_updated',
-        message: 'Your video gained 1,234 new views (+15% from yesterday)',
-        timestamp: new Date(now.getTime() - 4 * 60 * 60 * 1000).toISOString()
-      },
-      {
-        id: '3',
-        type: 'milestone_reached', 
-        message: 'Congratulations! You reached 10K views milestone',
-        timestamp: new Date(now.getTime() - 6 * 60 * 60 * 1000).toISOString()
-      }
-    );
-  }
-
-  // Campaign-wide activities
-  activities.push(
-    {
-      id: '4',
-      type: 'creator_joined',
-      message: '15 new creators joined this campaign today',
-      timestamp: new Date(now.getTime() - 8 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: '5',
-      type: 'trending',
-      message: 'This campaign is trending! #1 in Hip-Hop category',
-      timestamp: new Date(now.getTime() - 12 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: '6',
-      type: 'payout_processed',
-      message: '$2,500 in payouts processed to creators today',
-      timestamp: new Date(now.getTime() - 18 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: '7',
-      type: 'creator_joined',
-      message: 'Campaign reached 250 participating creators!',
-      timestamp: new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString()
-    },
-    {
-      id: '8',
-      type: 'milestone_reached',
-      message: 'Campaign surpassed 1M total views across all submissions',
-      timestamp: new Date(now.getTime() - 36 * 60 * 60 * 1000).toISOString()
-    }
-  );
-
-  return activities.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  submission_approved: "border-l-green-500 bg-green-50 dark:bg-green-950/20",
+  milestone_reached: "border-l-yellow-500 bg-yellow-50 dark:bg-yellow-950/20", 
+  payout_processed: "border-l-green-500 bg-green-50 dark:bg-green-950/20",
+  creator_joined: "border-l-blue-500 bg-blue-50 dark:bg-blue-950/20",
+  views_updated: "border-l-blue-500 bg-blue-50 dark:bg-blue-950/20",
+  trending: "border-l-orange-500 bg-orange-50 dark:bg-orange-950/20",
+  message: "border-l-purple-500 bg-purple-50 dark:bg-purple-950/20",
+  campaign_updated: "border-l-blue-500 bg-blue-50 dark:bg-blue-950/20",
+  campaign_paused: "border-l-yellow-500 bg-yellow-50 dark:bg-yellow-950/20",
+  campaign_resumed: "border-l-green-500 bg-green-50 dark:bg-green-950/20",
+  campaign_terminated: "border-l-red-500 bg-red-50 dark:bg-red-950/20",
+  default: "border-l-gray-300 bg-gray-50 dark:bg-gray-950/20"
 };
 
 export default function ActivityFeed({ campaignId }: ActivityFeedProps) {
@@ -122,11 +66,48 @@ export default function ActivityFeed({ campaignId }: ActivityFeedProps) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // In a real implementation, this would fetch from a database
-    const mockActivities = generateMockActivities(campaignId, user?.id);
-    setActivities(mockActivities);
-    setIsLoading(false);
+    fetchActivities();
+    
+    // Set up real-time subscription for campaign activities
+    const channel = supabase
+      .channel('campaign-activities-feed')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'campaign_activities',
+          filter: `campaign_id=eq.${campaignId}`
+        },
+        (payload) => {
+          const newActivity = payload.new as ActivityItem;
+          setActivities(prev => [newActivity, ...prev.slice(0, 49)]);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [campaignId, user?.id]);
+
+  const fetchActivities = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('campaign_activities')
+        .select('*')
+        .eq('campaign_id', campaignId)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      setActivities(data || []);
+    } catch (error) {
+      console.error('Error fetching activities:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const formatTimeAgo = (timestamp: string): string => {
     const now = new Date();
@@ -185,32 +166,40 @@ export default function ActivityFeed({ campaignId }: ActivityFeedProps) {
       <CardContent>
         <ScrollArea className="h-[400px] w-full">
           <div className="space-y-3">
-            {activities.map((activity) => {
-              const icon = activityIcons[activity.type as keyof typeof activityIcons] || activityIcons.default;
-              const colorClass = activityColors[activity.type as keyof typeof activityColors] || activityColors.default;
-              
-              return (
-                <div
-                  key={activity.id}
-                  className={`flex items-start gap-3 p-3 rounded-lg border-l-4 ${colorClass} transition-all hover:shadow-sm`}
-                >
-                  <div className="flex-shrink-0 mt-0.5">
-                    {icon}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground leading-relaxed">
-                      {activity.message}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Clock className="w-3 h-3 text-muted-foreground" />
-                      <span className="text-xs text-muted-foreground">
-                        {formatTimeAgo(activity.timestamp)}
-                      </span>
+            {activities.length === 0 && !isLoading ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Bell className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No activities yet</p>
+                <p className="text-sm">Campaign activities will appear here</p>
+              </div>
+            ) : (
+              activities.map((activity) => {
+                const icon = activityIcons[activity.activity_type as keyof typeof activityIcons] || activityIcons.default;
+                const colorClass = activityColors[activity.activity_type as keyof typeof activityColors] || activityColors.default;
+                
+                return (
+                  <div
+                    key={activity.id}
+                    className={`flex items-start gap-3 p-3 rounded-lg border-l-4 ${colorClass} transition-all hover:shadow-sm`}
+                  >
+                    <div className="flex-shrink-0 mt-0.5">
+                      {icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground leading-relaxed">
+                        {activity.message}
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Clock className="w-3 h-3 text-muted-foreground" />
+                        <span className="text-xs text-muted-foreground">
+                          {formatTimeAgo(activity.created_at)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         </ScrollArea>
         

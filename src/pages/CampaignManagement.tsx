@@ -175,6 +175,25 @@ export default function CampaignManagement() {
 
       if (error) throw error;
 
+      // Create activity log for status change
+      const statusMessages = {
+        'active': 'Campaign has been resumed and is now accepting new participants',
+        'paused': 'Campaign has been paused temporarily - existing participants can still submit content',
+        'terminated': 'Campaign has been terminated and is no longer active'
+      };
+
+      await supabase
+        .from('campaign_activities')
+        .insert({
+          campaign_id: campaign.id,
+          user_id: user?.id,
+          activity_type: `campaign_${newStatus}`,
+          title: `Campaign ${newStatus === 'active' ? 'Resumed' : newStatus === 'paused' ? 'Paused' : 'Terminated'}`,
+          message: statusMessages[newStatus as keyof typeof statusMessages] || `Campaign status changed to ${newStatus}`,
+          priority: newStatus === 'terminated' ? 'high' : 'medium',
+          metadata: { previous_status: campaign.status, new_status: newStatus }
+        });
+
       setCampaign({ ...campaign, status: newStatus });
       
       toast({
@@ -270,6 +289,50 @@ export default function CampaignManagement() {
         .eq('id', campaign.id);
 
       if (error) throw error;
+
+      // Track what was changed for activity log
+      const changes = [];
+      if (campaign.title !== updatedData.title) changes.push('title');
+      if (campaign.song_title !== updatedData.song_title) changes.push('song title');
+      if (campaign.budget !== updatedData.budget) changes.push('budget');
+      if (campaign.payout_rate !== updatedData.payout_rate) changes.push('payout rate');
+      if (campaign.instructions !== updatedData.instructions) changes.push('instructions');
+      if (campaign.rules !== updatedData.rules) changes.push('rules');
+      if (coverArtFile) changes.push('cover art');
+      if (audioFile) changes.push('audio track');
+
+      // Create activity log for campaign update
+      if (changes.length > 0) {
+        const changeText = changes.length === 1 
+          ? changes[0] 
+          : changes.length === 2 
+          ? `${changes[0]} and ${changes[1]}` 
+          : `${changes.slice(0, -1).join(', ')}, and ${changes[changes.length - 1]}`;
+        
+        await supabase
+          .from('campaign_activities')
+          .insert({
+            campaign_id: campaign.id,
+            user_id: user?.id,
+            activity_type: 'campaign_updated',
+            title: 'Campaign Details Updated',
+            message: `Campaign ${changeText} ${changes.length === 1 ? 'has' : 'have'} been updated by the artist`,
+            priority: 'medium',
+            metadata: { 
+              changes: changes,
+              previous_values: {
+                title: campaign.title,
+                budget: campaign.budget,
+                payout_rate: campaign.payout_rate
+              },
+              new_values: {
+                title: updatedData.title,
+                budget: updatedData.budget,
+                payout_rate: updatedData.payout_rate
+              }
+            }
+          });
+      }
 
       setCampaign({ ...campaign, ...updatedData });
       setEditModalOpen(false);

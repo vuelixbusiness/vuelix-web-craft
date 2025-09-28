@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      campaign_activities: {
+        Row: {
+          activity_type: string
+          campaign_id: string
+          created_at: string
+          id: string
+          message: string
+          metadata: Json | null
+          priority: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          campaign_id: string
+          created_at?: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          priority?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          campaign_id?: string
+          created_at?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          priority?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       campaign_participations: {
         Row: {
           campaign_id: string
