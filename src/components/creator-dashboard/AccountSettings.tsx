@@ -118,8 +118,29 @@ const AccountSettings = () => {
     }
   };
 
+  const validateUsername = (username: string): string | null => {
+    if (!username.trim()) return "Username is required";
+    if (username.length < 3) return "Username must be at least 3 characters";
+    if (username.length > 20) return "Username must be 20 characters or less";
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      return "Username can only contain letters, numbers, and underscores";
+    }
+    return null;
+  };
+
   const updateProfile = async () => {
     if (!user?.id) return;
+
+    // Validate username before attempting to save
+    const usernameError = validateUsername(profile.username);
+    if (usernameError) {
+      toast({
+        title: "Invalid Username",
+        description: usernameError,
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
       setIsLoading(true);
@@ -133,17 +154,26 @@ const AccountSettings = () => {
         })
         .eq('user_id', user.id);
 
-      if (error) throw error;
+      if (error) {
+        // Handle specific constraint violations
+        if (error.message.includes('username_format')) {
+          throw new Error('Username can only contain letters, numbers, and underscores');
+        }
+        if (error.message.includes('username_length')) {
+          throw new Error('Username must be between 3 and 20 characters');
+        }
+        throw error;
+      }
 
       toast({
         title: "Success",
         description: "Profile updated successfully",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating profile:', error);
       toast({
         title: "Error",
-        description: "Failed to update profile",
+        description: error.message || "Failed to update profile",
         variant: "destructive",
       });
     } finally {
@@ -267,8 +297,17 @@ const AccountSettings = () => {
                     id="username"
                     value={profile.username}
                     onChange={(e) => setProfile(prev => ({ ...prev, username: e.target.value }))}
-                    placeholder="@username"
+                    placeholder="username"
+                    className={validateUsername(profile.username) ? "border-destructive" : ""}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    3-20 characters, letters, numbers, and underscores only
+                  </p>
+                  {validateUsername(profile.username) && (
+                    <p className="text-xs text-destructive">
+                      {validateUsername(profile.username)}
+                    </p>
+                  )}
                 </div>
               </div>
 
