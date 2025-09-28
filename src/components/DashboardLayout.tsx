@@ -13,7 +13,6 @@ interface DashboardLayoutProps {
 }
 
 const navigationItems = [
-  { label: 'Profile', path: '/profile', icon: User },
   { label: 'Wallet', path: '/wallet', icon: Wallet },
   { label: 'Artist', path: '/artist', icon: Music },
   { label: 'Creator', path: '/creator', icon: Users },
@@ -85,7 +84,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <div className="flex items-center space-x-3">
               <ThemeToggle />
               <NotificationBell />
-              <div className="flex items-center space-x-3">
+              <Link to="/profile" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
                 <Avatar className="w-8 h-8">
                   <AvatarImage src={user?.avatar} alt={user?.name} />
                   <AvatarFallback className="text-xs">
@@ -96,7 +95,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <p className="text-sm font-medium text-foreground">@{user?.username}</p>
                   <p className="text-xs text-muted-foreground capitalize">{user?.membershipType || 'Regular'}</p>
                 </div>
-              </div>
+              </Link>
               <Button variant="ghost" size="sm" onClick={handleLogout}>
                 <LogOut className="w-4 h-4" />
               </Button>
