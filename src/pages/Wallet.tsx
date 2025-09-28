@@ -173,6 +173,32 @@ const Wallet = () => {
     .filter(t => t.type === 'reward')
     .reduce((sum, t) => sum + t.amount, 0);
 
+  // Determine if transaction is a credit (money in) or debit (money out)
+  const getTransactionType = (transactionType: string) => {
+    const creditTypes = ['reward', 'payout', 'refund', 'bonus'];
+    const debitTypes = ['payment', 'membership', 'withdrawal', 'fee'];
+    
+    if (creditTypes.includes(transactionType.toLowerCase())) {
+      return 'credit';
+    } else if (debitTypes.includes(transactionType.toLowerCase())) {
+      return 'debit';
+    }
+    // Default to credit for unknown types (can be adjusted based on business logic)
+    return 'credit';
+  };
+
+  const getTransactionDisplay = (transaction: Transaction) => {
+    const type = getTransactionType(transaction.type);
+    const isCredit = type === 'credit';
+    
+    return {
+      isCredit,
+      sign: isCredit ? '+' : '-',
+      color: isCredit ? 'text-green-500' : 'text-red-500',
+      amount: Math.abs(transaction.amount) // Always show absolute value, sign is handled separately
+    };
+  };
+
   const balanceCards = [
     {
       title: 'Available Balance',
@@ -365,25 +391,45 @@ const Wallet = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {transactions.map((transaction, index) => (
-                    <div key={index} className="flex items-center justify-between p-4 border border-border rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center">
-                          <TrendingUp className="w-5 h-5 text-primary-foreground" />
+                  {transactions.map((transaction, index) => {
+                    const display = getTransactionDisplay(transaction);
+                    return (
+                      <div key={index} className="flex items-center justify-between p-4 border border-border rounded-lg">
+                        <div className="flex items-center space-x-3">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                            display.isCredit ? 'bg-green-500/20' : 'bg-red-500/20'
+                          }`}>
+                            <TrendingUp className={`w-5 h-5 ${display.color}`} />
+                          </div>
+                          <div>
+                            <p className="font-medium capitalize">
+                              {transaction.type.replace('_', ' ')} - {formatCurrency(display.amount)}
+                            </p>
+                            <p className="text-sm text-muted-foreground">
+                              {new Date(transaction.created_at).toLocaleDateString('en-US', {
+                                year: 'numeric',
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit'
+                              })}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium">{transaction.type} - {formatCurrency(transaction.amount)}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {new Date(transaction.created_at).toLocaleDateString()}
+                        <div className="text-right">
+                          <p className={`font-medium ${display.color}`}>
+                            {display.sign}{formatCurrency(display.amount)}
                           </p>
+                          <Badge 
+                            variant={transaction.status === 'completed' ? 'default' : 'secondary'} 
+                            className="text-xs"
+                          >
+                            {transaction.status}
+                          </Badge>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="font-medium text-green-500">+{formatCurrency(transaction.amount)}</p>
-                        <Badge variant="secondary" className="text-xs">{transaction.status}</Badge>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
