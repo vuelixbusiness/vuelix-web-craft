@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -64,12 +65,12 @@ interface Participation {
 const CampaignManagement = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('available');
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [participations, setParticipations] = useState<Participation[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState<string>("");
-  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -372,7 +373,7 @@ const CampaignManagement = () => {
                   variant="creator-available"
                   showJoinButton={true}
                   showPlayButton={true}
-                  onJoinCampaign={(campaign) => setSelectedCampaign(campaign as any)}
+                  onJoinCampaign={(campaign) => navigate(`/campaign/${campaign.id}/join`)}
                   onAudioToggle={toggleAudio}
                   isPlaying={currentlyPlaying === campaign.id}
                 />
