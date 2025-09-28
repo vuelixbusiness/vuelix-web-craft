@@ -25,6 +25,7 @@ import CampaignDetails from "@/pages/CampaignDetails";
 import CampaignManagement from "@/pages/CampaignManagement";
 import CampaignJoin from "@/pages/CampaignJoin";
 import Chat from "./pages/Chat";
+import Messages from "./pages/Messages";
 import Notifications from "./pages/Notifications";
 import Support from "./pages/Support";
 import Friends from "./pages/Friends";
@@ -129,6 +130,11 @@ const App = () => (
               <Route path="/chat" element={
                 <ProtectedRoute>
                   <Chat />
+                </ProtectedRoute>
+              } />
+              <Route path="/messages" element={
+                <ProtectedRoute>
+                  <Messages />
                 </ProtectedRoute>
               } />
               <Route path="*" element={<NotFound />} />

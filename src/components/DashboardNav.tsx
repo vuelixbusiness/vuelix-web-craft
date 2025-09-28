@@ -74,9 +74,9 @@ const DashboardNav = ({ dashboardType }: DashboardNavProps) => {
               Friends
             </Link>
             <Button variant="ghost" size="sm" asChild>
-              <Link to="/chat">
+              <Link to="/messages">
                 <MessageCircle className="w-4 h-4 mr-2" />
-                Chat
+                Messages
               </Link>
             </Button>
           </div>
