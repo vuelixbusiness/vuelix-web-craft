@@ -662,7 +662,7 @@ const ArtistDashboard = () => {
                                   onClick={() => navigate(`/artist/campaign/${campaign.id}`)}
                                 >
                                   <BarChart3 className="w-4 h-4 mr-2" />
-                                  View Analytics
+                                  View Campaign
                                 </Button>
                                {(displayCampaign.status === 'Active' || displayCampaign.status === 'Paused') && (
                                  <Button 
