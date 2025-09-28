@@ -141,15 +141,21 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                         </Badge>
                       )}
                     </div>
-                    {(campaign.max_payout || campaign.vip_max_payout) && (
+                    {campaign.max_payout && (
                       <div className="flex items-center gap-2">
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">
-                          Max ${campaign.vip_max_payout || campaign.max_payout} payout
+                          Max ${campaign.max_payout} payout
                         </span>
-                        {campaign.vip_max_payout && (!campaign.max_payout || campaign.vip_max_payout > campaign.max_payout) && (
-                          <Crown className="h-4 w-4 text-yellow-400" />
-                        )}
+                      </div>
+                    )}
+                    {campaign.vip_max_payout && campaign.vip_max_payout !== campaign.max_payout && (
+                      <div className="flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <span className="text-sm">
+                          VIP Max ${campaign.vip_max_payout} payout
+                        </span>
+                        <Crown className="h-4 w-4 text-yellow-400" />
                       </div>
                     )}
                     {daysRemaining !== null && (
