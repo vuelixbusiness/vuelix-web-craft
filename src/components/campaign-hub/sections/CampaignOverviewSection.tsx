@@ -136,7 +136,7 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                         ${campaign.payout_rate} {campaign.payout_type === 'per_view' ? 'per 1K views' : 'per submission'}
                       </span>
                       {campaign.vip_bonus && (
-                        <Badge variant="outline" className="text-xs">
+                        <Badge variant="outline" className="text-xs text-primary border-primary">
                           +${campaign.vip_bonus} VIP bonus
                         </Badge>
                       )}
