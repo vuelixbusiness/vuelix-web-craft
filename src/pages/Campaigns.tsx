@@ -29,6 +29,7 @@ interface Campaign {
   budget: number;
   end_date: string;
   artist_id: string;
+  isJoined?: boolean;
   profiles?: {
     display_name?: string;
   } | null;
@@ -97,10 +98,23 @@ const Campaigns = () => {
 
       console.log('👤 Profiles query result:', { profilesData, profilesError });
 
+      // Check user participation if logged in
+      let participationData: any[] = [];
+      if (user) {
+        const { data: userParticipations } = await supabase
+          .from('campaign_participations')
+          .select('campaign_id')
+          .eq('creator_id', user.id)
+          .in('campaign_id', campaignsData.map(c => c.id));
+        
+        participationData = userParticipations || [];
+      }
+
       // Merge the data
       const campaignsWithProfiles = campaignsData.map(campaign => ({
         ...campaign,
         description: campaign.instructions,
+        isJoined: participationData.some(p => p.campaign_id === campaign.id),
         profiles: profilesData?.find(p => p.user_id === campaign.artist_id) || null
       }));
 
@@ -201,9 +215,9 @@ const Campaigns = () => {
     );
   });
 
-  const handleCampaignClick = (campaignId?: string) => {
+  const handleCampaignClick = (campaign: Campaign) => {
     if (user) {
-      navigate(`/campaign/${campaignId}/join`);
+      navigate(`/campaign/${campaign.id}/join`);
     } else {
       navigate('/login');
     }
@@ -301,13 +315,14 @@ const Campaigns = () => {
             </Card>
           ) : (
             filteredCampaigns.map((campaign) => (
-              <div key={campaign.id} onClick={() => handleCampaignClick(campaign.id)} className="cursor-pointer">
+              <div key={campaign.id} onClick={() => handleCampaignClick(campaign)} className="cursor-pointer">
                 <CampaignCard
                   campaign={campaign}
                   variant="creator-available"
                   showJoinButton={true}
                   showPlayButton={true}
-                  onJoinCampaign={() => handleCampaignClick(campaign.id)}
+                  isJoined={campaign.isJoined}
+                  onJoinCampaign={() => handleCampaignClick(campaign)}
                   onAudioToggle={toggleAudio}
                   isPlaying={currentlyPlaying === campaign.id}
                 />

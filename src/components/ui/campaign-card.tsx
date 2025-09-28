@@ -66,6 +66,7 @@ interface CampaignCardProps {
   variant?: 'artist' | 'creator-available' | 'creator-joined' | 'creator-submission';
   showJoinButton?: boolean;
   showPlayButton?: boolean;
+  isJoined?: boolean;
   onJoinCampaign?: (campaign: Campaign) => void;
   onCampaignClick?: (campaign: Campaign) => void;
   onAudioToggle?: (campaignId: string, songUrl: string) => void;
@@ -78,6 +79,7 @@ const CampaignCard = ({
   variant = 'creator-available',
   showJoinButton = false,
   showPlayButton = true,
+  isJoined = false,
   onJoinCampaign,
   onCampaignClick,
   onAudioToggle,
@@ -426,9 +428,13 @@ const CampaignCard = ({
                       {showJoinButton && (
                         <Button 
                           onClick={() => onJoinCampaign?.(campaign)} 
-                          className="ml-auto bg-gradient-primary hover:bg-gradient-primary/90"
+                          className={`ml-auto ${
+                            isJoined 
+                              ? "bg-secondary text-secondary-foreground hover:bg-secondary/80" 
+                              : "bg-gradient-primary hover:bg-gradient-primary/90"
+                          }`}
                         >
-                          Join Campaign
+                          {isJoined ? "View Campaign" : "Join Campaign"}
                         </Button>
                       )}
                     </div>
