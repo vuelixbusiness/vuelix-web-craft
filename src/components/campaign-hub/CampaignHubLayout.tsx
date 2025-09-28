@@ -68,24 +68,23 @@ function CampaignHubLayoutContent({
   const [activeSection, setActiveSection] = useState<CampaignSectionType>("overview");
   const { sectionUpdates, markSectionAsUpdated, markSectionAsRead } = useSectionUpdates();
 
+  // Create wrapper for communication section updates
+  const handleMessageSent = useCallback(() => {
+    markSectionAsUpdated("communication");
+  }, [markSectionAsUpdated]);
+
   // Handle section changes and mark as read
   const handleSectionChange = useCallback((section: CampaignSectionType) => {
     setActiveSection(section);
     markSectionAsRead(section);
   }, [markSectionAsRead]);
 
-  // Simulate triggering updates for demo purposes
-  useEffect(() => {
-    // This would normally be triggered by real events like new messages, submissions, etc.
-    const interval = setInterval(() => {
-      // Randomly mark communication section as updated to simulate new messages
-      if (Math.random() > 0.95) {
-        markSectionAsUpdated("communication");
-      }
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [markSectionAsUpdated]);
+  // Connect onSubmissionComplete to trigger section updates
+  const handleSubmissionComplete = useCallback(() => {
+    markSectionAsUpdated("submissions");
+    markSectionAsUpdated("overview");
+    onSubmissionComplete?.();
+  }, [markSectionAsUpdated, onSubmissionComplete]);
 
   const renderActiveSection = () => {
     const isLocked = !participation && ["submissions", "communication", "updates", "rewards"].includes(activeSection);
@@ -123,9 +122,9 @@ function CampaignHubLayoutContent({
       case "rewards":
         return <RewardsSection campaign={campaign} participation={participation} />;
       case "submissions":
-        return <SubmissionsSection campaign={campaign} onSubmissionComplete={onSubmissionComplete} />;
+        return <SubmissionsSection campaign={campaign} onSubmissionComplete={handleSubmissionComplete} />;
       case "communication":
-        return <CommunicationSection campaign={campaign} />;
+        return <CommunicationSection campaign={campaign} onMessageSent={handleMessageSent} />;
       case "updates":
         return <UpdatesSection campaign={campaign} />;
       default:

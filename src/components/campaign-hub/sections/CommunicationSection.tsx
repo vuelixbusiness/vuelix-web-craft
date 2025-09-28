@@ -21,8 +21,9 @@ interface Campaign {
 
 interface CommunicationSectionProps {
   campaign: Campaign;
+  onMessageSent?: () => void;
 }
 
-export function CommunicationSection({ campaign }: CommunicationSectionProps) {
-  return <CampaignChat campaign={campaign} />;
+export function CommunicationSection({ campaign, onMessageSent }: CommunicationSectionProps) {
+  return <CampaignChat campaign={campaign} onMessageSent={onMessageSent} />;
 }

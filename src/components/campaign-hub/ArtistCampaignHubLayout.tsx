@@ -90,16 +90,41 @@ function ArtistCampaignHubContent({
   const [activeSection, setActiveSection] = useState<CampaignSectionType>("overview");
   const { sectionUpdates, markSectionAsUpdated, markSectionAsRead } = useSectionUpdates();
   
-  // Track submissions changes
-  const [prevSubmissionsLength, setPrevSubmissionsLength] = useState(submissions.length);
+  // Track submissions changes with proper state comparison
+  const [prevSubmissions, setPrevSubmissions] = useState<Submission[]>(submissions);
   
   useEffect(() => {
-    if (submissions.length > prevSubmissionsLength) {
+    // Check for new submissions
+    if (submissions.length > prevSubmissions.length) {
       markSectionAsUpdated("submissions");
-      markSectionAsUpdated("overview"); // Update overview when new submissions arrive
+      markSectionAsUpdated("overview");
     }
-    setPrevSubmissionsLength(submissions.length);
-  }, [submissions.length, prevSubmissionsLength, markSectionAsUpdated]);
+    
+    // Check for status changes in existing submissions
+    const statusChanged = submissions.some(submission => {
+      const prevSubmission = prevSubmissions.find(prev => prev.id === submission.id);
+      return prevSubmission && prevSubmission.status !== submission.status;
+    });
+    
+    if (statusChanged) {
+      markSectionAsUpdated("submissions");
+      markSectionAsUpdated("overview");
+    }
+    
+    setPrevSubmissions(submissions);
+  }, [submissions, prevSubmissions, markSectionAsUpdated]);
+
+  // Create wrapper for onSubmissionUpdate to trigger section updates
+  const handleSubmissionUpdate = useCallback(() => {
+    markSectionAsUpdated("submissions");
+    markSectionAsUpdated("overview");
+    onSubmissionUpdate?.();
+  }, [markSectionAsUpdated, onSubmissionUpdate]);
+
+  // Create wrapper for communication section updates
+  const handleMessageSent = useCallback(() => {
+    markSectionAsUpdated("communication");
+  }, [markSectionAsUpdated]);
 
   // Handle section changes and mark as read
   const handleSectionChange = useCallback((section: CampaignSectionType) => {
@@ -172,12 +197,12 @@ function ArtistCampaignHubContent({
               submissions={submissions} 
               campaignId={campaign.id}
               isArtist={true}
-              onSubmissionUpdate={onSubmissionUpdate}
+              onSubmissionUpdate={handleSubmissionUpdate}
             />
           </div>
         );
       case "communication":
-        return <CommunicationSection campaign={campaign} />;
+        return <CommunicationSection campaign={campaign} onMessageSent={handleMessageSent} />;
       case "updates":
         return <UpdatesSection campaign={campaign} />;
       default:

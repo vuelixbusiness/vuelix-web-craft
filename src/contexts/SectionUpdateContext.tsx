@@ -40,39 +40,65 @@ interface SectionUpdateProviderProps {
 }
 
 export function SectionUpdateProvider({ children, campaignId }: SectionUpdateProviderProps) {
-  const [sectionUpdates, setSectionUpdates] = useState<SectionUpdates>({
-    overview: false,
-    rules: false,
-    submissions: false,
-    communication: false,
-    updates: false,
-    rewards: false,
-  });
-
-  const markSectionAsUpdated = useCallback((section: CampaignSectionType) => {
-    setSectionUpdates(prev => ({
-      ...prev,
-      [section]: true
-    }));
-  }, []);
-
-  const markSectionAsRead = useCallback((section: CampaignSectionType) => {
-    setSectionUpdates(prev => ({
-      ...prev,
-      [section]: false
-    }));
-  }, []);
-
-  const clearAllUpdates = useCallback(() => {
-    setSectionUpdates({
+  // Load initial state from localStorage with campaign-specific key
+  const getInitialState = (): SectionUpdates => {
+    try {
+      const stored = localStorage.getItem(`sectionUpdates_${campaignId}`);
+      if (stored) {
+        return JSON.parse(stored);
+      }
+    } catch (error) {
+      console.error('Failed to load section updates from localStorage:', error);
+    }
+    return {
       overview: false,
       rules: false,
       submissions: false,
       communication: false,
       updates: false,
       rewards: false,
+    };
+  };
+
+  const [sectionUpdates, setSectionUpdates] = useState<SectionUpdates>(getInitialState);
+
+  const markSectionAsUpdated = useCallback((section: CampaignSectionType) => {
+    setSectionUpdates(prev => {
+      const newState = {
+        ...prev,
+        [section]: true
+      };
+      // Persist to localStorage
+      localStorage.setItem(`sectionUpdates_${campaignId}`, JSON.stringify(newState));
+      return newState;
     });
-  }, []);
+  }, [campaignId]);
+
+  const markSectionAsRead = useCallback((section: CampaignSectionType) => {
+    setSectionUpdates(prev => {
+      const newState = {
+        ...prev,
+        [section]: false
+      };
+      // Persist to localStorage
+      localStorage.setItem(`sectionUpdates_${campaignId}`, JSON.stringify(newState));
+      return newState;
+    });
+  }, [campaignId]);
+
+  const clearAllUpdates = useCallback(() => {
+    const clearedState = {
+      overview: false,
+      rules: false,
+      submissions: false,
+      communication: false,
+      updates: false,
+      rewards: false,
+    };
+    setSectionUpdates(clearedState);
+    // Persist to localStorage
+    localStorage.setItem(`sectionUpdates_${campaignId}`, JSON.stringify(clearedState));
+  }, [campaignId]);
 
   const value = {
     sectionUpdates,

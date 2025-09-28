@@ -45,9 +45,10 @@ interface ChatParticipant {
 
 interface CampaignChatProps {
   campaign: Campaign;
+  onMessageSent?: () => void;
 }
 
-export function CampaignChat({ campaign }: CampaignChatProps) {
+export function CampaignChat({ campaign, onMessageSent }: CampaignChatProps) {
   const location = useLocation();
   const { user, isLoading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState("group");
@@ -320,6 +321,8 @@ export function CampaignChat({ campaign }: CampaignChatProps) {
       setNewMessage("");
       // Reload messages to show the new one
       loadMessages(activeRoomId);
+      // Trigger section update callback
+      onMessageSent?.();
     } catch (error) {
       console.error('Error sending message:', error);
       toast({
