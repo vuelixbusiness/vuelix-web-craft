@@ -98,9 +98,6 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <Card className="relative">
-            <div className="absolute top-4 right-4">
-              <DollarSign className="h-5 w-5 text-primary" />
-            </div>
             <CardContent className="p-6">
               <div className="flex items-start gap-6">
                 <Avatar className="h-24 w-24 rounded-xl">
