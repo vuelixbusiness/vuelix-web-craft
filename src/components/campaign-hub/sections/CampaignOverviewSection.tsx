@@ -123,12 +123,15 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
           return;
         }
 
-        // Calculate approval rate
-        const totalSubmissions = participations.length;
+        // Calculate approval rate - only count reviewed submissions, default to 100%
+        const reviewedSubmissions = participations.filter(p => 
+          p.status === 'approved' || p.status === 'live' || p.status === 'rejected'
+        );
         const approvedSubmissions = participations.filter(p => 
           p.status === 'approved' || p.status === 'live'
-        ).length;
-        const calculatedApprovalRate = totalSubmissions > 0 ? (approvedSubmissions / totalSubmissions) * 100 : 0;
+        );
+        const calculatedApprovalRate = reviewedSubmissions.length > 0 ? 
+          (approvedSubmissions.length / reviewedSubmissions.length) * 100 : 100;
         setApprovalRate(calculatedApprovalRate);
 
         // Calculate average response time for processed submissions
