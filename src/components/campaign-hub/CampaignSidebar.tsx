@@ -193,7 +193,11 @@ export function CampaignSidebar({
                           {/* Update Indicator */}
                           {!isLocked && sectionUpdates[item.id] && (
                             <div className="absolute -top-1 -right-1 animate-pulse">
-                              <Circle className="h-2 w-2 fill-destructive text-destructive" />
+                              <Circle className={`h-2 w-2 ${
+                                item.id === "submissions" 
+                                  ? "fill-primary text-primary" 
+                                  : "fill-destructive text-destructive"
+                              }`} />
                             </div>
                           )}
                       </div>
