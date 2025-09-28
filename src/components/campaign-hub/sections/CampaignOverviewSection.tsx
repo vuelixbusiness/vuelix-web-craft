@@ -147,7 +147,7 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                         <span className="text-sm">
                           Max ${campaign.vip_max_payout || campaign.max_payout} payout
                         </span>
-                        {campaign.vip_max_payout && (
+                        {campaign.vip_max_payout && (!campaign.max_payout || campaign.vip_max_payout > campaign.max_payout) && (
                           <Crown className="h-4 w-4 text-yellow-400" />
                         )}
                       </div>
