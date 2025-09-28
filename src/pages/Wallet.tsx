@@ -231,7 +231,7 @@ const Wallet = () => {
           </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
               <Button 
                 className="h-12 bg-gradient-primary hover:opacity-90 transition-smooth"
                 onClick={() => setShowPayoutForm(true)}
@@ -249,10 +249,6 @@ const Wallet = () => {
               <Button variant="outline" className="h-12">
                 <CreditCard className="w-4 h-4 mr-2" />
                 Payment History
-              </Button>
-              <Button variant="outline" className="h-12">
-                <TrendingUp className="w-4 h-4 mr-2" />
-                Earnings Report
               </Button>
             </div>
 
