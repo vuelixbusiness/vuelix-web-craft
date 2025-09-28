@@ -414,25 +414,14 @@ export default function CampaignManagement() {
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="title">Campaign Title</Label>
-                      <Input
-                        id="title"
-                        value={editForm.title}
-                        onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                        placeholder="Enter campaign title"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="song_title">Song Title</Label>
-                      <Input
-                        id="song_title"
-                        value={editForm.song_title}
-                        onChange={(e) => setEditForm({ ...editForm, song_title: e.target.value })}
-                        placeholder="Enter song title"
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="song_title">Song Title</Label>
+                    <Input
+                      id="song_title"
+                      value={editForm.song_title}
+                      onChange={(e) => setEditForm({ ...editForm, song_title: e.target.value })}
+                      placeholder="Enter song title"
+                    />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
