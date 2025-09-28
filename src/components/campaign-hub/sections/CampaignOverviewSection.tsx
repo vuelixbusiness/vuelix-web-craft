@@ -155,7 +155,7 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                         <span className="text-sm">
                           VIP Max ${campaign.vip_max_payout} payout
                         </span>
-                        <Crown className="h-4 w-4 text-yellow-400" />
+                        <Crown className="h-4 w-4 text-primary" />
                       </div>
                     )}
                     {daysRemaining !== null && (
