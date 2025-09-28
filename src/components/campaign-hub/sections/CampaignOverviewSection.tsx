@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { CampaignMediaAssetsPanel } from "../CampaignMediaAssetsPanel";
 import { CampaignReferencesBox } from "../CampaignReferencesBox";
+import { FaTiktok, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 
 import { formatCurrency } from "@/lib/utils";
 
@@ -53,11 +54,11 @@ interface CampaignOverviewSectionProps {
   onJoinCampaign?: (campaign: Campaign) => void;
 }
 
-const platformIcons: Record<string, string> = {
-  tiktok: "🎵",
-  youtube: "📺", 
-  instagram: "📷",
-  twitter: "🐦",
+const platformIcons = {
+  tiktok: <FaTiktok className="w-4 h-4" />,
+  instagram: <FaInstagram className="w-4 h-4" />,
+  youtube: <FaYoutube className="w-4 h-4" />,
+  twitter: <FaTwitter className="w-4 h-4" />,
   spotify: "🎧"
 };
 
@@ -107,7 +108,7 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                       )}
                       {campaign.platforms.map((platform) => (
                         <Badge key={platform} variant="outline" className="flex items-center gap-1">
-                          <span className="text-sm">{platformIcons[platform] || "📱"}</span>
+                          {platformIcons[platform as keyof typeof platformIcons] || "📱"}
                           <span>{platformNames[platform] || platform}</span>
                         </Badge>
                       ))}
