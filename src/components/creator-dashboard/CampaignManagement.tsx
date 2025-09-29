@@ -389,6 +389,7 @@ const CampaignManagement = () => {
                   showJoinButton={true}
                   showPlayButton={true}
                   isJoined={campaign.isJoined}
+                  onCampaignClick={(campaign) => navigate(`/campaign/${campaign.id}/overview`)}
                   onJoinCampaign={(campaign) => navigate(`/campaign/${campaign.id}/join`)}
                   onAudioToggle={toggleAudio}
                   isPlaying={currentlyPlaying === campaign.id}
