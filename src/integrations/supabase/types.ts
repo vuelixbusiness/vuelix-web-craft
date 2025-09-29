@@ -624,6 +624,10 @@ export type Database = {
           display_name: string | null
           id: string
           membership_type: Database["public"]["Enums"]["membership_type"]
+          paypal_account_status: string | null
+          paypal_email: string | null
+          stripe_account_id: string | null
+          stripe_account_status: string | null
           updated_at: string
           user_id: string
           user_type: string
@@ -636,6 +640,10 @@ export type Database = {
           display_name?: string | null
           id?: string
           membership_type?: Database["public"]["Enums"]["membership_type"]
+          paypal_account_status?: string | null
+          paypal_email?: string | null
+          stripe_account_id?: string | null
+          stripe_account_status?: string | null
           updated_at?: string
           user_id: string
           user_type: string
@@ -648,6 +656,10 @@ export type Database = {
           display_name?: string | null
           id?: string
           membership_type?: Database["public"]["Enums"]["membership_type"]
+          paypal_account_status?: string | null
+          paypal_email?: string | null
+          stripe_account_id?: string | null
+          stripe_account_status?: string | null
           updated_at?: string
           user_id?: string
           user_type?: string

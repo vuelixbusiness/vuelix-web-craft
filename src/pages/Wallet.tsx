@@ -113,50 +113,31 @@ const Wallet = () => {
 
   const handlePayoutRequest = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user?.id || isSubmittingPayout) return;
-
-    // Check if user is authenticated
+    
     if (!user) {
       toast({
-        title: "Authentication Required",
-        description: "Please log in to request a payout",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Validate profile exists
-    try {
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (profileError || !profile) {
-        console.error('Profile validation error:', profileError);
-        toast({
-          title: "Profile Error",
-          description: "Your profile is not properly set up. Please try logging out and back in.",
-          variant: "destructive",
-        });
-        return;
-      }
-    } catch (error) {
-      console.error('Profile check failed:', error);
-      toast({
         title: "Error",
-        description: "Unable to verify your profile. Please try again.",
+        description: "You must be logged in to request a payout",
         variant: "destructive",
       });
       return;
     }
 
+    // Validate payout amount
     const amount = parseFloat(payoutAmount);
     if (isNaN(amount) || amount <= 0) {
       toast({
-        title: "Error",
-        description: "Please enter a valid amount",
+        title: "Invalid Amount",
+        description: "Please enter a valid payout amount",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (amount < 5) {
+      toast({
+        title: "Minimum Amount Required",
+        description: "Minimum payout amount is $5.00",
         variant: "destructive",
       });
       return;
@@ -164,67 +145,123 @@ const Wallet = () => {
 
     if (amount > availableBalance) {
       toast({
-        title: "Error",
-        description: `Amount exceeds available balance of $${availableBalance.toFixed(2)}`,
+        title: "Insufficient Balance",
+        description: "Payout amount exceeds available balance",
         variant: "destructive",
       });
       return;
     }
-
-    if (!payoutMethod) {
-      toast({
-        title: "Error",
-        description: "Please select a payout method",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsSubmittingPayout(true);
 
     try {
-      const { data, error } = await supabase
+      // Check if user has a profile first
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, user_id, stripe_account_status, paypal_account_status')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError || !profile) {
+        toast({
+          title: "Profile Required",
+          description: "Please complete your profile setup first",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Check if payment method is connected
+      if (payoutMethod === 'stripe' && profile.stripe_account_status !== 'connected') {
+        toast({
+          title: "Payment Method Required",
+          description: "Please connect your Stripe account first in Payment Methods",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (payoutMethod === 'paypal' && profile.paypal_account_status !== 'connected') {
+        toast({
+          title: "Payment Method Required", 
+          description: "Please connect your PayPal account first in Payment Methods",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Ensure user has a wallet
+      let { data: wallet, error: walletError } = await supabase
+        .from('wallets')
+        .select('*')
+        .eq('user_id', user.id)
+        .single();
+
+      if (walletError && walletError.code === 'PGRST116') {
+        // Wallet doesn't exist, create one
+        const { data: newWallet, error: createError } = await supabase
+          .from('wallets')
+          .insert({
+            user_id: user.id,
+            balance: 100.00, // Initial balance for testing
+            currency: 'USD'
+          })
+          .select()
+          .single();
+
+        if (createError) {
+          console.error('Error creating wallet:', createError);
+          toast({
+            title: "Error",
+            description: "Failed to create wallet. Please try again.",
+            variant: "destructive",
+          });
+          return;
+        }
+        wallet = newWallet;
+      } else if (walletError) {
+        console.error('Error fetching wallet:', walletError);
+        toast({
+          title: "Error",
+          description: "Failed to access wallet information",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { error } = await supabase
         .from('payout_requests')
         .insert({
           user_id: user.id,
           amount: amount,
           method: payoutMethod,
           status: 'requested'
-        })
-        .select()
-        .single();
+        });
 
       if (error) {
-        console.error('Payout request error:', error);
-        throw error;
+        console.error('Error creating payout request:', error);
+        toast({
+          title: "Error",
+          description: `Failed to create payout request: ${error.message}`,
+          variant: "destructive",
+        });
+        return;
       }
 
-      setPayoutRequests(prev => [data, ...prev]);
-      setPayoutAmount("");
-      setPayoutMethod("");
-      setShowPayoutForm(false);
-      
       toast({
         title: "Success",
-        description: "Payout request submitted successfully!",
+        description: "Payout request submitted successfully",
       });
-    } catch (error: any) {
-      console.error('Payout request failed:', error);
-      
-      let errorMessage = "Failed to submit payout request";
-      if (error?.code === '23503') {
-        errorMessage = "Profile validation failed. Please contact support.";
-      } else if (error?.message) {
-        errorMessage = error.message;
-      }
-      
+
+      setPayoutAmount('');
+      setPayoutMethod('stripe');
+      setShowPayoutForm(false);
+      fetchData(); // Refresh data
+    } catch (error) {
+      console.error('Error submitting payout request:', error);
       toast({
         title: "Error",
-        description: errorMessage,
+        description: "An unexpected error occurred",
         variant: "destructive",
       });
-    } finally {
-      setIsSubmittingPayout(false);
     }
   };
 
@@ -476,9 +513,8 @@ const Wallet = () => {
                           <SelectValue placeholder="Select method" />
                         </SelectTrigger>
                         <SelectContent>
+                          <SelectItem value="stripe">Stripe</SelectItem>
                           <SelectItem value="paypal">PayPal</SelectItem>
-                          <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                          <SelectItem value="crypto">Cryptocurrency</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
