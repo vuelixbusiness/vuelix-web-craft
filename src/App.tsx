@@ -30,6 +30,8 @@ import CampaignJoin from "@/pages/CampaignJoin";
 import Chat from "./pages/Chat";
 import Messages from "./pages/Messages";
 import PaymentMethods from "./pages/PaymentMethods";
+import StripeCallback from "./pages/StripeCallback";
+import PaypalCallback from "./pages/PaypalCallback";
 import Notifications from "./pages/Notifications";
 import Support from "./pages/Support";
 import Friends from "./pages/Friends";
@@ -103,6 +105,8 @@ const App = () => (
                   <PaymentMethods />
                 </ProtectedRoute>
               } />
+              <Route path="/stripe-callback" element={<StripeCallback />} />
+              <Route path="/paypal-callback" element={<PaypalCallback />} />
               
               {/* Legacy/Specialized Routes */}
               <Route path="/artist" element={

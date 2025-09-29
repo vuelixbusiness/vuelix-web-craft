@@ -22,6 +22,7 @@ const PaymentMethodsManager = () => {
   const [loading, setLoading] = useState(true);
   const [paypalEmail, setPaypalEmail] = useState('');
   const [updating, setUpdating] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -54,31 +55,30 @@ const PaymentMethodsManager = () => {
   };
 
   const connectStripe = async () => {
-    // In a real implementation, this would redirect to Stripe Connect
-    // For now, we'll simulate the connection
     setUpdating(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          stripe_account_status: 'connected',
-          stripe_account_id: 'acct_' + Math.random().toString(36).substring(2, 15)
-        })
-        .eq('user_id', user?.id);
+      const { data, error } = await supabase.functions.invoke('stripe-connect-oauth', {
+        headers: {
+          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        },
+      });
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Stripe account connected successfully",
-      });
-      
-      fetchPaymentMethods();
+      if (data?.url) {
+        // Redirect to Stripe Connect OAuth
+        window.open(data.url, '_blank');
+        
+        toast({
+          title: "Redirecting to Stripe",
+          description: "Please complete the connection process in the new tab",
+        });
+      }
     } catch (error) {
-      console.error('Error connecting Stripe:', error);
+      console.error('Error initiating Stripe connection:', error);
       toast({
         title: "Error",
-        description: "Failed to connect Stripe account",
+        description: "Failed to initiate Stripe connection",
         variant: "destructive",
       });
     } finally {
@@ -86,43 +86,55 @@ const PaymentMethodsManager = () => {
     }
   };
 
-  const updatePaypalEmail = async () => {
-    if (!paypalEmail || !paypalEmail.includes('@')) {
-      toast({
-        title: "Invalid Email",
-        description: "Please enter a valid PayPal email address",
-        variant: "destructive",
-      });
-      return;
-    }
-
+  const connectPaypal = async () => {
     setUpdating(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({
-          paypal_email: paypalEmail,
-          paypal_account_status: 'connected'
-        })
-        .eq('user_id', user?.id);
+      const { data, error } = await supabase.functions.invoke('paypal-oauth', {
+        headers: {
+          Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+        },
+      });
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "PayPal account updated successfully",
-      });
-      
-      fetchPaymentMethods();
+      if (data?.url) {
+        // Redirect to PayPal OAuth
+        window.open(data.url, '_blank');
+        
+        toast({
+          title: "Redirecting to PayPal",
+          description: "Please complete the connection process in the new tab",
+        });
+      }
     } catch (error) {
-      console.error('Error updating PayPal:', error);
+      console.error('Error initiating PayPal connection:', error);
       toast({
         title: "Error",
-        description: "Failed to update PayPal account",
+        description: "Failed to initiate PayPal connection",
         variant: "destructive",
       });
     } finally {
       setUpdating(false);
+    }
+  };
+
+  const refreshPaymentMethods = async () => {
+    setRefreshing(true);
+    try {
+      await fetchPaymentMethods();
+      toast({
+        title: "Refreshed",
+        description: "Payment method status updated",
+      });
+    } catch (error) {
+      console.error('Error refreshing payment methods:', error);
+      toast({
+        title: "Error",
+        description: "Failed to refresh payment methods",
+        variant: "destructive",
+      });
+    } finally {
+      setRefreshing(false);
     }
   };
 
@@ -132,9 +144,18 @@ const PaymentMethodsManager = () => {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold">Payment Methods</h2>
-        <p className="text-muted-foreground">Connect your payment accounts to receive payouts</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold">Payment Methods</h2>
+          <p className="text-muted-foreground">Connect your payment accounts to receive payouts</p>
+        </div>
+        <Button 
+          variant="outline" 
+          onClick={refreshPaymentMethods} 
+          disabled={refreshing}
+        >
+          {refreshing ? 'Refreshing...' : 'Refresh Status'}
+        </Button>
       </div>
 
       {/* Stripe Connect */}
@@ -192,23 +213,11 @@ const PaymentMethodsManager = () => {
                 </span>
               )}
             </div>
-            <div className="flex gap-2">
-              <div className="flex-1">
-                <Label htmlFor="paypal-email">PayPal Email</Label>
-                <Input
-                  id="paypal-email"
-                  type="email"
-                  value={paypalEmail}
-                  onChange={(e) => setPaypalEmail(e.target.value)}
-                  placeholder="your-email@example.com"
-                />
-              </div>
-              <div className="flex items-end">
-                <Button onClick={updatePaypalEmail} disabled={updating}>
-                  {updating ? 'Updating...' : 'Update'}
-                </Button>
-              </div>
-            </div>
+            {paymentMethods?.paypal_account_status !== 'connected' && (
+              <Button onClick={connectPaypal} disabled={updating}>
+                {updating ? 'Connecting...' : 'Connect PayPal'}
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
