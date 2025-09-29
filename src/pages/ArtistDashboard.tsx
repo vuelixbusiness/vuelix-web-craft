@@ -494,7 +494,14 @@ const ArtistDashboard = () => {
                         const progressPercentage = displayCampaign.budget > 0 ? (totalCommitted / displayCampaign.budget) * 100 : 0;
                       
                       return (
-                        <Card key={campaign.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-[1.02] min-h-[400px]">
+                        <Card key={campaign.id} className="relative overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-[1.02] min-h-[400px]">
+                          {/* Notification Indicator */}
+                          {notificationData.campaignUpdates[campaign.id] && 
+                           (notificationData.campaignUpdates[campaign.id].newSubmissions > 0 ||
+                            notificationData.campaignUpdates[campaign.id].statusChanges > 0 ||
+                            notificationData.campaignUpdates[campaign.id].newMessages > 0) && (
+                            <div className="absolute top-2 right-2 z-10 w-3 h-3 bg-destructive rounded-full border-2 border-background shadow-lg animate-pulse" />
+                          )}
                           {/* Header Section with Cover Art */}
                           <div className="relative h-32 bg-gradient-to-r from-primary/10 to-primary/20 flex items-center p-6">
                             {/* Campaign Cover Art */}
