@@ -285,15 +285,15 @@ const Campaigns = () => {
           <Card className="bg-card border-border">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Average Max Earning
+                Average Payout
               </CardTitle>
               <DollarSign className="w-5 h-5 text-stat-green" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">
-                ${isLoading ? '...' : campaigns.length > 0 ? (campaigns.reduce((sum, c) => sum + c.max_payout, 0) / campaigns.length).toFixed(2) : '0.00'}
+                ${isLoading ? '...' : campaigns.length > 0 ? (campaigns.reduce((sum, c) => sum + c.payout_rate, 0) / campaigns.length).toFixed(2) : '0.00'}
               </div>
-              <p className="text-xs text-muted-foreground">Potential per campaign</p>
+              <p className="text-xs text-muted-foreground">Per qualified view</p>
             </CardContent>
           </Card>
 
