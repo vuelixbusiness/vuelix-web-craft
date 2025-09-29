@@ -50,6 +50,27 @@ const Wallet = () => {
   const [isSubmittingPayout, setIsSubmittingPayout] = useState(false);
   const payoutFormRef = useRef<HTMLDivElement>(null);
 
+  // Available balance calculation
+  const availableBalance = wallet?.balance || 0;
+  const pendingEarnings = payoutRequests
+    .filter(req => req.status === 'requested')
+    .reduce((sum, req) => sum + req.amount, 0);
+  const totalEarned = transactions
+    .filter(t => t.type === 'reward')
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  // Debug state changes
+  useEffect(() => {
+    console.log('💳 Wallet state update:', {
+      showPayoutForm,
+      availableBalance,
+      wallet: wallet?.balance,
+      userExists: !!user?.id,
+      transactionsCount: transactions.length,
+      payoutRequestsCount: payoutRequests.length
+    });
+  }, [showPayoutForm, availableBalance, wallet, user, transactions.length, payoutRequests.length]);
+
   const fetchData = async () => {
     if (!user?.id) return;
 
@@ -188,14 +209,6 @@ const Wallet = () => {
   // Use demo transactions for UI preview, fallback to real transactions
   const displayTransactions = transactions.length > 0 ? transactions : demoTransactions;
 
-  const availableBalance = wallet?.balance || 0;
-  const pendingEarnings = payoutRequests
-    .filter(req => req.status === 'requested')
-    .reduce((sum, req) => sum + req.amount, 0);
-  const totalEarned = transactions
-    .filter(t => t.type === 'reward')
-    .reduce((sum, t) => sum + t.amount, 0);
-
   // Determine if transaction is a credit (money in) or debit (money out)
   const getTransactionType = (transactionType: string) => {
     const creditTypes = ['reward', 'payout', 'refund', 'bonus'];
@@ -284,13 +297,39 @@ const Wallet = () => {
               <Button 
                 className="h-12 bg-gradient-primary hover:opacity-90 transition-smooth"
                 onClick={() => {
+                  console.log('🔥 PAYOUT BUTTON CLICKED!');
+                  console.log('Current state:', { 
+                    showPayoutForm, 
+                    availableBalance, 
+                    user: user?.id,
+                    isDisabled: availableBalance <= 0 
+                  });
+                  
+                  if (availableBalance <= 0) {
+                    console.log('❌ Button disabled due to zero balance');
+                    toast({
+                      title: "Insufficient Balance",
+                      description: "You need a positive balance to request a payout",
+                      variant: "destructive",
+                    });
+                    return;
+                  }
+
+                  console.log('✅ Setting showPayoutForm to true');
                   setShowPayoutForm(true);
+                  
                   // Smooth scroll to form after a brief delay to allow render
                   setTimeout(() => {
-                    payoutFormRef.current?.scrollIntoView({ 
-                      behavior: 'smooth', 
-                      block: 'start' 
-                    });
+                    console.log('📍 Attempting to scroll to form, formRef exists:', !!payoutFormRef.current);
+                    if (payoutFormRef.current) {
+                      payoutFormRef.current.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                      });
+                      console.log('✅ Scrolled to form successfully');
+                    } else {
+                      console.log('❌ Form ref not found');
+                    }
                   }, 100);
                 }}
                 disabled={availableBalance <= 0}
@@ -307,7 +346,11 @@ const Wallet = () => {
             </div>
 
             {/* Payout Request Form */}
-            {showPayoutForm && (
+            {(() => {
+              console.log('🎯 CHECKING PAYOUT FORM RENDER - showPayoutForm is:', showPayoutForm);
+              if (showPayoutForm) {
+                console.log('✅ RENDERING PAYOUT FORM');
+                return (
               <Card 
                 ref={payoutFormRef}
                 className="mb-8 border-2 border-primary/20 shadow-glow animate-in slide-in-from-top-4 duration-300"
@@ -439,7 +482,12 @@ const Wallet = () => {
                   </form>
                 </CardContent>
               </Card>
-            )}
+                );
+              } else {
+                console.log('❌ PAYOUT FORM NOT RENDERED - showPayoutForm is:', showPayoutForm);
+                return null;
+              }
+            })()}
 
             {/* Payout Requests */}
             {payoutRequests.length > 0 && (
