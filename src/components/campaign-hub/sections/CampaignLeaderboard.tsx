@@ -73,7 +73,7 @@ export function CampaignLeaderboard({ campaign }: CampaignLeaderboardProps) {
           created_at
         `)
         .eq('campaign_id', campaign.id)
-        .in('status', ['joined', 'approved', 'live', 'submitted'])
+        .in('status', ['joined', 'approved'])
         .order('payout_amount', { ascending: false })
         .order('created_at', { ascending: true }) // Earlier join date ranks higher for ties
         .limit(50); // Increased limit to show more participants
