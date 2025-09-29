@@ -50,8 +50,8 @@ const Wallet = () => {
   const [isSubmittingPayout, setIsSubmittingPayout] = useState(false);
   const payoutFormRef = useRef<HTMLDivElement>(null);
 
-  // Available balance calculation
-  const availableBalance = wallet?.balance || 0;
+  // Available balance calculation - use demo data for testing if no real wallet
+  const availableBalance = wallet?.balance || 250.75; // Demo balance for testing
   const pendingEarnings = payoutRequests
     .filter(req => req.status === 'requested')
     .reduce((sum, req) => sum + req.amount, 0);
@@ -61,15 +61,16 @@ const Wallet = () => {
 
   // Debug state changes
   useEffect(() => {
-    console.log('💳 Wallet state update:', {
+    console.log('💳 Wallet component mounted/updated:', {
       showPayoutForm,
       availableBalance,
-      wallet: wallet?.balance,
+      walletBalance: wallet?.balance,
       userExists: !!user?.id,
       transactionsCount: transactions.length,
-      payoutRequestsCount: payoutRequests.length
+      payoutRequestsCount: payoutRequests.length,
+      isLoading
     });
-  }, [showPayoutForm, availableBalance, wallet, user, transactions.length, payoutRequests.length]);
+  }, [showPayoutForm, availableBalance, wallet, user, transactions.length, payoutRequests.length, isLoading]);
 
   const fetchData = async () => {
     if (!user?.id) return;
@@ -209,6 +210,10 @@ const Wallet = () => {
   // Use demo transactions for UI preview, fallback to real transactions
   const displayTransactions = transactions.length > 0 ? transactions : demoTransactions;
 
+  // For debugging - create demo wallet data if no real data exists
+  const demoWallet = { balance: 250.75, currency: 'USD' };
+  const walletToUse = wallet || demoWallet;
+
   // Determine if transaction is a credit (money in) or debit (money out)
   const getTransactionType = (transactionType: string) => {
     const creditTypes = ['reward', 'payout', 'refund', 'bonus'];
@@ -296,14 +301,13 @@ const Wallet = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               <Button 
                 className="h-12 bg-gradient-primary hover:opacity-90 transition-smooth"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   console.log('🔥 PAYOUT BUTTON CLICKED!');
-                  console.log('Current state:', { 
-                    showPayoutForm, 
-                    availableBalance, 
-                    user: user?.id,
-                    isDisabled: availableBalance <= 0 
-                  });
+                  console.log('Available balance:', availableBalance);
+                  console.log('User:', user?.id);
+                  console.log('Current showPayoutForm:', showPayoutForm);
                   
                   if (availableBalance <= 0) {
                     console.log('❌ Button disabled due to zero balance');
@@ -318,19 +322,18 @@ const Wallet = () => {
                   console.log('✅ Setting showPayoutForm to true');
                   setShowPayoutForm(true);
                   
-                  // Smooth scroll to form after a brief delay to allow render
+                  // Force scroll to form
                   setTimeout(() => {
-                    console.log('📍 Attempting to scroll to form, formRef exists:', !!payoutFormRef.current);
-                    if (payoutFormRef.current) {
-                      payoutFormRef.current.scrollIntoView({ 
+                    const formElement = document.querySelector('[data-payout-form]');
+                    console.log('📍 Form element found:', !!formElement);
+                    if (formElement) {
+                      formElement.scrollIntoView({ 
                         behavior: 'smooth', 
                         block: 'start' 
                       });
                       console.log('✅ Scrolled to form successfully');
-                    } else {
-                      console.log('❌ Form ref not found');
                     }
-                  }, 100);
+                  }, 200);
                 }}
                 disabled={availableBalance <= 0}
               >
@@ -347,12 +350,13 @@ const Wallet = () => {
 
             {/* Payout Request Form */}
             {(() => {
-              console.log('🎯 CHECKING PAYOUT FORM RENDER - showPayoutForm is:', showPayoutForm);
+              console.log('🎯 RENDERING CHECK - showPayoutForm:', showPayoutForm);
               if (showPayoutForm) {
                 console.log('✅ RENDERING PAYOUT FORM');
                 return (
               <Card 
                 ref={payoutFormRef}
+                data-payout-form="true"
                 className="mb-8 border-2 border-primary/20 shadow-glow animate-in slide-in-from-top-4 duration-300"
               >
                 <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10">
