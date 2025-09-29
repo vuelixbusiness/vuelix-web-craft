@@ -666,11 +666,10 @@ const ArtistDashboard = () => {
                                  >
                                    <BarChart3 className="w-4 h-4 mr-2" />
                                    View Campaign
-                                   {notificationData.campaignUpdates[campaign.id] && (
-                                     notificationData.campaignUpdates[campaign.id].newSubmissions > 0 ||
+                                   {notificationData.campaignUpdates[campaign.id] && 
+                                    (notificationData.campaignUpdates[campaign.id].newSubmissions > 0 ||
                                      notificationData.campaignUpdates[campaign.id].statusChanges > 0 ||
-                                     notificationData.campaignUpdates[campaign.id].newMessages > 0
-                                   ) && (
+                                     notificationData.campaignUpdates[campaign.id].newMessages > 0) && (
                                      <div className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full border border-background" />
                                    )}
                                  </Button>
