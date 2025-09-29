@@ -65,7 +65,7 @@ const ArtistDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { markArtistDashboardVisited } = useArtistNotifications();
+  const { markArtistDashboardVisited, notificationData, clearCampaignNotifications } = useArtistNotifications();
   const [activeProfile, setActiveProfile] = useState<DashboardProfile>('campaigns');
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -655,15 +655,25 @@ const ArtistDashboard = () => {
                              
                              {/* Action Buttons */}
                              <div className="flex space-x-3 pt-2">
-                                <Button 
-                                  variant="outline" 
-                                  size="default" 
-                                  className="flex-1"
-                                  onClick={() => navigate(`/artist/campaign/${campaign.id}`)}
-                                >
-                                  <BarChart3 className="w-4 h-4 mr-2" />
-                                  View Campaign
-                                </Button>
+                                 <Button 
+                                   variant="outline" 
+                                   size="default" 
+                                   className="flex-1 relative"
+                                   onClick={() => {
+                                     clearCampaignNotifications(campaign.id);
+                                     navigate(`/artist/campaign/${campaign.id}`);
+                                   }}
+                                 >
+                                   <BarChart3 className="w-4 h-4 mr-2" />
+                                   View Campaign
+                                   {notificationData.campaignUpdates[campaign.id] && (
+                                     notificationData.campaignUpdates[campaign.id].newSubmissions > 0 ||
+                                     notificationData.campaignUpdates[campaign.id].statusChanges > 0 ||
+                                     notificationData.campaignUpdates[campaign.id].newMessages > 0
+                                   ) && (
+                                     <div className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full border border-background" />
+                                   )}
+                                 </Button>
                                {(displayCampaign.status === 'Active' || displayCampaign.status === 'Paused') && (
                                  <Button 
                                    size="default" 
