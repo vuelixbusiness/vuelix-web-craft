@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useArtistNotifications } from "@/contexts/ArtistNotificationContext";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -68,6 +69,7 @@ const statusColors: { [key: string]: string } = {
 const ArtistCampaignList = ({ campaigns, isLoading, currentlyPlaying, onToggleAudio, onDeleteCampaign }: ArtistCampaignListProps) => {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { notificationData, clearCampaignNotifications } = useArtistNotifications();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [sortBy, setSortBy] = useState("created_at");
@@ -298,8 +300,15 @@ const ArtistCampaignList = ({ campaigns, isLoading, currentlyPlaying, onToggleAu
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
+                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 relative">
                               <MoreHorizontal className="w-4 h-4" />
+                              {notificationData.campaignUpdates[campaign.id] && (
+                                notificationData.campaignUpdates[campaign.id].newSubmissions > 0 ||
+                                notificationData.campaignUpdates[campaign.id].statusChanges > 0 ||
+                                notificationData.campaignUpdates[campaign.id].newMessages > 0
+                              ) && (
+                                <div className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full border border-background" />
+                              )}
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
@@ -307,9 +316,22 @@ const ArtistCampaignList = ({ campaigns, isLoading, currentlyPlaying, onToggleAu
                               <Edit className="w-4 h-4 mr-2" />
                               Edit Campaign
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => navigate(`/campaign-details/${campaign.id}`)}>
+                            <DropdownMenuItem 
+                              onClick={() => {
+                                clearCampaignNotifications(campaign.id);
+                                navigate(`/campaign-details/${campaign.id}`);
+                              }}
+                              className="relative"
+                            >
                               <Eye className="w-4 h-4 mr-2" />
                               View Details
+                              {notificationData.campaignUpdates[campaign.id] && (
+                                notificationData.campaignUpdates[campaign.id].newSubmissions > 0 ||
+                                notificationData.campaignUpdates[campaign.id].statusChanges > 0 ||
+                                notificationData.campaignUpdates[campaign.id].newMessages > 0
+                              ) && (
+                                <div className="absolute -top-1 -right-1 w-2 h-2 bg-destructive rounded-full border border-background" />
+                              )}
                             </DropdownMenuItem>
                             {campaign.status === 'terminated' && onDeleteCampaign && (
                               <AlertDialog>
