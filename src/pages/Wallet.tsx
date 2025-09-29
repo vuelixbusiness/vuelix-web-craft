@@ -48,7 +48,6 @@ const Wallet = () => {
   const [payoutAmount, setPayoutAmount] = useState("");
   const [payoutMethod, setPayoutMethod] = useState("");
   const [isSubmittingPayout, setIsSubmittingPayout] = useState(false);
-  const payoutFormRef = useRef<HTMLDivElement>(null);
 
   // Available balance calculation - use demo data for testing if no real wallet
   const availableBalance = wallet?.balance || 250.75; // Demo balance for testing
@@ -58,19 +57,6 @@ const Wallet = () => {
   const totalEarned = transactions
     .filter(t => t.type === 'reward')
     .reduce((sum, t) => sum + t.amount, 0);
-
-  // Debug state changes
-  useEffect(() => {
-    console.log('💳 Wallet component mounted/updated:', {
-      showPayoutForm,
-      availableBalance,
-      walletBalance: wallet?.balance,
-      userExists: !!user?.id,
-      transactionsCount: transactions.length,
-      payoutRequestsCount: payoutRequests.length,
-      isLoading
-    });
-  }, [showPayoutForm, availableBalance, wallet, user, transactions.length, payoutRequests.length, isLoading]);
 
   const fetchData = async () => {
     if (!user?.id) return;
@@ -129,11 +115,57 @@ const Wallet = () => {
     e.preventDefault();
     if (!user?.id || isSubmittingPayout) return;
 
+    // Check if user is authenticated
+    if (!user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to request a payout",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate profile exists
+    try {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError || !profile) {
+        console.error('Profile validation error:', profileError);
+        toast({
+          title: "Profile Error",
+          description: "Your profile is not properly set up. Please try logging out and back in.",
+          variant: "destructive",
+        });
+        return;
+      }
+    } catch (error) {
+      console.error('Profile check failed:', error);
+      toast({
+        title: "Error",
+        description: "Unable to verify your profile. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const amount = parseFloat(payoutAmount);
     if (isNaN(amount) || amount <= 0) {
       toast({
         title: "Error",
         description: "Please enter a valid amount",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (amount > availableBalance) {
+      toast({
+        title: "Error",
+        description: `Amount exceeds available balance of $${availableBalance.toFixed(2)}`,
         variant: "destructive",
       });
       return;
@@ -162,7 +194,10 @@ const Wallet = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Payout request error:', error);
+        throw error;
+      }
 
       setPayoutRequests(prev => [data, ...prev]);
       setPayoutAmount("");
@@ -173,10 +208,19 @@ const Wallet = () => {
         title: "Success",
         description: "Payout request submitted successfully!",
       });
-    } catch (error) {
+    } catch (error: any) {
+      console.error('Payout request failed:', error);
+      
+      let errorMessage = "Failed to submit payout request";
+      if (error?.code === '23503') {
+        errorMessage = "Profile validation failed. Please contact support.";
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: "Error",
-        description: "Failed to submit payout request",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -209,10 +253,6 @@ const Wallet = () => {
 
   // Use demo transactions for UI preview, fallback to real transactions
   const displayTransactions = transactions.length > 0 ? transactions : demoTransactions;
-
-  // For debugging - create demo wallet data if no real data exists
-  const demoWallet = { balance: 250.75, currency: 'USD' };
-  const walletToUse = wallet || demoWallet;
 
   // Determine if transaction is a credit (money in) or debit (money out)
   const getTransactionType = (transactionType: string) => {
@@ -264,6 +304,31 @@ const Wallet = () => {
     },
   ];
 
+  if (!user) {
+    return (
+      <DashboardLayout>
+        <div className="container mx-auto px-6 py-8">
+          <div className="max-w-6xl mx-auto">
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold mb-2">Wallet</h1>
+              <p className="text-muted-foreground">Please log in to access your wallet</p>
+            </div>
+            <Card className="p-8 text-center">
+              <AlertCircle className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
+              <h2 className="text-xl font-semibold mb-2">Authentication Required</h2>
+              <p className="text-muted-foreground mb-4">
+                You need to be logged in to access your wallet and manage your earnings.
+              </p>
+              <Button asChild>
+                <Link to="/login">Log In</Link>
+              </Button>
+            </Card>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="container mx-auto px-6 py-8">
@@ -297,325 +362,264 @@ const Wallet = () => {
             })}
           </div>
 
-            {/* Quick Actions */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              <Button 
-                className="h-12 bg-gradient-primary hover:opacity-90 transition-smooth"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log('🔥 PAYOUT BUTTON CLICKED!');
-                  console.log('Available balance:', availableBalance);
-                  console.log('User:', user?.id);
-                  console.log('Current showPayoutForm:', showPayoutForm);
-                  
-                  if (availableBalance <= 0) {
-                    console.log('❌ Button disabled due to zero balance');
-                    toast({
-                      title: "Insufficient Balance",
-                      description: "You need a positive balance to request a payout",
-                      variant: "destructive",
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            <Button 
+              className="h-12 bg-gradient-primary hover:opacity-90 transition-smooth"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                if (!user) {
+                  toast({
+                    title: "Authentication Required",
+                    description: "Please log in to request a payout",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+                
+                if (availableBalance <= 0) {
+                  toast({
+                    title: "Insufficient Balance",
+                    description: "You need a positive balance to request a payout",
+                    variant: "destructive",
+                  });
+                  return;
+                }
+                
+                setShowPayoutForm(true);
+                
+                // Scroll to form
+                setTimeout(() => {
+                  const formElement = document.querySelector('[data-payout-form]');
+                  if (formElement) {
+                    formElement.scrollIntoView({ 
+                      behavior: 'smooth', 
+                      block: 'start' 
                     });
-                    return;
                   }
+                }, 200);
+              }}
+              disabled={!user || availableBalance <= 0}
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Request Payout
+            </Button>
+            <Button variant="outline" className="h-12" asChild>
+              <Link to="/payment-methods">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Payment Method
+              </Link>
+            </Button>
+          </div>
 
-                  console.log('✅ Setting showPayoutForm to true');
-                  setShowPayoutForm(true);
-                  
-                  // Force scroll to form
-                  setTimeout(() => {
-                    const formElement = document.querySelector('[data-payout-form]');
-                    console.log('📍 Form element found:', !!formElement);
-                    if (formElement) {
-                      formElement.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'start' 
-                      });
-                      console.log('✅ Scrolled to form successfully');
-                    }
-                  }, 200);
-                }}
-                disabled={availableBalance <= 0}
-              >
-                <Download className="w-4 h-4 mr-2" />
-                Request Payout
-              </Button>
-              <Button variant="outline" className="h-12" asChild>
-                <Link to="/payment-methods">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Payment Method
-                </Link>
-              </Button>
-            </div>
-
-            {/* Payout Request Form */}
-            {(() => {
-              console.log('🎯 RENDERING CHECK - showPayoutForm:', showPayoutForm);
-              if (showPayoutForm) {
-                console.log('✅ RENDERING PAYOUT FORM');
-                return (
-              <Card 
-                ref={payoutFormRef}
-                data-payout-form="true"
-                className="mb-8 border-2 border-primary/20 shadow-glow animate-in slide-in-from-top-4 duration-300"
-              >
-                <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="flex items-center gap-2">
-                      <Download className="w-5 h-5 text-primary" />
-                      Request Payout
-                    </CardTitle>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowPayoutForm(false)}
-                      className="h-8 w-8 p-0"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Request a withdrawal from your available balance of {formatCurrency(availableBalance)}
-                  </p>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <form onSubmit={handlePayoutRequest} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="space-y-2">
-                        <Label htmlFor="amount" className="text-sm font-medium">
-                          Amount to withdraw
-                        </Label>
-                        <div className="relative">
-                          <Input
-                            id="amount"
-                            type="number"
-                            step="0.01"
-                            min="0.01"
-                            max={availableBalance}
-                            value={payoutAmount}
-                            onChange={(e) => setPayoutAmount(e.target.value)}
-                            placeholder="0.00"
-                            className="text-lg h-12 pl-8"
-                            required
-                          />
-                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
-                            $
-                          </span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Maximum: {formatCurrency(availableBalance)}
-                        </p>
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="method" className="text-sm font-medium">
-                          Payment Method
-                        </Label>
-                        <Select value={payoutMethod} onValueChange={setPayoutMethod} required>
-                          <SelectTrigger className="h-12">
-                            <SelectValue placeholder="Choose how to receive payment" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="paypal">
-                              <div className="flex items-center gap-2">
-                                <CreditCard className="w-4 h-4" />
-                                PayPal
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="bank_transfer">
-                              <div className="flex items-center gap-2">
-                                <WalletIcon className="w-4 h-4" />
-                                Bank Transfer
-                              </div>
-                            </SelectItem>
-                            <SelectItem value="crypto">
-                              <div className="flex items-center gap-2">
-                                <TrendingUp className="w-4 h-4" />
-                                Cryptocurrency
-                              </div>
-                            </SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    
-                    <div className="bg-muted/50 p-4 rounded-lg border">
-                      <div className="flex items-start gap-2">
-                        <AlertCircle className="w-4 h-4 text-muted-foreground mt-0.5" />
-                        <div className="text-sm text-muted-foreground">
-                          <p className="font-medium mb-1">Processing time:</p>
-                          <ul className="space-y-1 text-xs">
-                            <li>• PayPal: 1-2 business days</li>
-                            <li>• Bank Transfer: 3-5 business days</li>
-                            <li>• Cryptocurrency: Within 24 hours</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between pt-4 border-t">
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        onClick={() => {
-                          setShowPayoutForm(false);
-                          setPayoutAmount("");
-                          setPayoutMethod("");
-                        }}
-                        disabled={isSubmittingPayout}
-                        className="min-w-[100px]"
-                      >
-                        Cancel
-                      </Button>
-                      <Button 
-                        type="submit" 
-                        disabled={isSubmittingPayout || !payoutAmount || !payoutMethod}
-                        className="min-w-[150px] bg-gradient-primary hover:opacity-90"
-                      >
-                        {isSubmittingPayout ? (
-                          <>
-                            <Clock className="w-4 h-4 mr-2 animate-spin" />
-                            Processing...
-                          </>
-                        ) : (
-                          <>
-                            <Send className="w-4 h-4 mr-2" />
-                            Submit Request
-                          </>
-                        )}
-                      </Button>
-                    </div>
-                  </form>
-                </CardContent>
-              </Card>
-                );
-              } else {
-                console.log('❌ PAYOUT FORM NOT RENDERED - showPayoutForm is:', showPayoutForm);
-                return null;
-              }
-            })()}
-
-            {/* Payout Requests */}
-            {payoutRequests.length > 0 && (
-              <Card className="mb-8">
-                <CardHeader>
-                  <CardTitle>Recent Payout Requests</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {payoutRequests.slice(0, 3).map((request) => (
-                      <div key={request.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center">
-                            <Download className="w-5 h-5 text-primary-foreground" />
-                          </div>
-                          <div>
-                            <p className="font-medium">{formatCurrency(request.amount)} via {request.method}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {new Date(request.created_at).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                        <Badge variant={request.status === 'completed' ? 'default' : 'secondary'}>
-                          {request.status}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-          {/* Transaction History */}
-          <Card className="shadow-soft">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <WalletIcon className="w-5 h-5 text-primary" />
-                <span>Transaction History</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {displayTransactions.length === 0 ? (
-                <div className="text-center py-12">
-                  <WalletIcon className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No transactions yet</h3>
-                  <p className="text-muted-foreground mb-6">
-                    Start participating in campaigns to earn and see your transactions here.
-                  </p>
-                  <Button asChild>
-                    <a href="/campaigns">Browse Campaigns</a>
+          {/* Payout Request Form */}
+          {showPayoutForm && (
+            <Card 
+              data-payout-form="true"
+              className="mb-8 border-2 border-primary/20 shadow-glow animate-in slide-in-from-top-4 duration-300"
+            >
+              <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Download className="w-5 h-5 text-primary" />
+                    Request Payout
+                  </CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowPayoutForm(false)}
+                    className="h-8 w-8 p-0"
+                  >
+                    <X className="w-4 h-4" />
                   </Button>
                 </div>
-              ) : (
-                <div className="max-h-96 overflow-y-auto space-y-4 pr-2">
-                  {displayTransactions.map((transaction, index) => {
-                    const display = getTransactionDisplay(transaction);
-                    return (
-                      <div key={index} className="flex items-center justify-between p-4 border border-border rounded-lg">
-                        <div className="flex items-center space-x-3">
-                          <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                            display.isCredit ? 'bg-green-500/20' : 'bg-red-500/20'
-                          }`}>
-                            <TrendingUp className={`w-5 h-5 ${display.color}`} />
-                          </div>
-                          <div>
-                            <p className="font-medium capitalize">
-                              {transaction.type.replace('_', ' ')} - {formatCurrency(display.amount)}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {new Date(transaction.created_at).toLocaleDateString('en-US', {
-                                year: 'numeric',
-                                month: 'short',
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </p>
-                          </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Request a withdrawal from your available balance of {formatCurrency(availableBalance)}
+                </p>
+              </CardHeader>
+              <CardContent className="pt-6">
+                <form onSubmit={handlePayoutRequest} className="space-y-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="amount" className="text-sm font-medium">
+                        Amount to withdraw
+                      </Label>
+                      <div className="relative">
+                        <Input
+                          id="amount"
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          max={availableBalance}
+                          value={payoutAmount}
+                          onChange={(e) => setPayoutAmount(e.target.value)}
+                          placeholder="0.00"
+                          className="pl-8"
+                        />
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                          $
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Maximum: {formatCurrency(availableBalance)}
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="method" className="text-sm font-medium">
+                        Payout method
+                      </Label>
+                      <Select value={payoutMethod} onValueChange={setPayoutMethod}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select method" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="paypal">PayPal</SelectItem>
+                          <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                          <SelectItem value="crypto">Cryptocurrency</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end space-x-4">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowPayoutForm(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      disabled={isSubmittingPayout}
+                      className="bg-gradient-primary hover:opacity-90"
+                    >
+                      {isSubmittingPayout ? (
+                        <>
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                          Processing...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4 mr-2" />
+                          Submit Request
+                        </>
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Recent Payout Requests */}
+          {payoutRequests.length > 0 && (
+            <Card className="mb-8">
+              <CardHeader>
+                <CardTitle>Recent Payout Requests</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {payoutRequests.slice(0, 5).map((request) => (
+                    <div
+                      key={request.id}
+                      className="flex items-center justify-between p-4 bg-muted/50 rounded-lg"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="flex-shrink-0">
+                          <Download className="w-5 h-5 text-muted-foreground" />
                         </div>
-                        <div className="text-right">
-                          <p className={`font-medium ${display.color}`}>
-                            {display.sign}{formatCurrency(display.amount)}
+                        <div>
+                          <p className="font-medium">{formatCurrency(request.amount)}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {request.method} • {new Date(request.created_at).toLocaleDateString()}
                           </p>
-                          <Badge 
-                            variant={transaction.status === 'completed' ? 'default' : 'secondary'} 
-                            className="text-xs"
-                          >
-                            {transaction.status}
-                          </Badge>
                         </div>
                       </div>
-                    );
-                  })}
+                      <Badge
+                        variant={
+                          request.status === 'completed'
+                            ? 'default'
+                            : request.status === 'requested'
+                            ? 'secondary'
+                            : 'destructive'
+                        }
+                      >
+                        {request.status}
+                      </Badge>
+                    </div>
+                  ))}
                 </div>
-              )}
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Transaction History */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Transaction History</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {displayTransactions.map((transaction) => {
+                  const display = getTransactionDisplay(transaction);
+                  return (
+                    <div
+                      key={transaction.id}
+                      className="flex items-center justify-between p-4 bg-muted/50 rounded-lg"
+                    >
+                      <div className="flex items-center space-x-4">
+                        <div className="flex-shrink-0">
+                          <CreditCard className="w-5 h-5 text-muted-foreground" />
+                        </div>
+                        <div>
+                          <p className="font-medium capitalize">{transaction.type}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(transaction.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className={`font-medium ${display.color}`}>
+                          {display.sign}{formatCurrency(display.amount)}
+                        </p>
+                        <Badge
+                          variant={
+                            transaction.status === 'completed'
+                              ? 'default'
+                              : transaction.status === 'pending'
+                              ? 'secondary'
+                              : 'destructive'
+                          }
+                        >
+                          {transaction.status}
+                        </Badge>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </CardContent>
           </Card>
 
           {/* Payment Methods */}
-          <Card className="mt-6 shadow-soft">
+          <Card className="mt-8">
             <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <CreditCard className="w-5 h-5 text-primary" />
-                  <span>Payment Methods</span>
-                </div>
-                <Button variant="outline" size="sm" asChild>
-                  <Link to="/payment-methods">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Add Method
-                  </Link>
-                </Button>
-              </CardTitle>
+              <CardTitle>Payment Methods</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Manage your payment methods for receiving payouts
+              </p>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-8">
-                <CreditCard className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground mb-4">
-                  No payment methods added yet. Add a payment method to receive your earnings.
-                </p>
-                <Button variant="outline" asChild>
-                  <Link to="/payment-methods">Add Payment Method</Link>
-                </Button>
-              </div>
+              <Button variant="outline" asChild>
+                <Link to="/payment-methods">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Manage Payment Methods
+                </Link>
+              </Button>
             </CardContent>
           </Card>
         </div>
