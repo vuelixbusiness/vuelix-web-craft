@@ -423,7 +423,7 @@ const CampaignManagement = () => {
                 } as any}
                  variant="creator-joined"
                  showPlayButton={true}
-                 onCampaignClick={(campaign) => navigate(`/campaign/${campaign.id}/overview`)}
+                 onCampaignClick={(campaign) => navigate(`/campaign/${campaign.id}/join`)}
                  onAudioToggle={toggleAudio}
                  isPlaying={currentlyPlaying === participation.campaign_id}
               />
@@ -456,6 +456,7 @@ const CampaignManagement = () => {
                 } as any}
                 variant="creator-submission"
                 showPlayButton={true}
+                onCampaignClick={(campaign) => navigate(`/campaign/${campaign.id}/join`)}
                 onAudioToggle={toggleAudio}
                 isPlaying={currentlyPlaying === participation.campaign_id}
               />
