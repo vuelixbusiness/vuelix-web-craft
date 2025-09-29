@@ -291,9 +291,9 @@ const Campaigns = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">
-                ${isLoading ? '...' : campaigns.length > 0 ? (campaigns.reduce((sum, c) => sum + c.payout_rate, 0) / campaigns.length).toFixed(3) : '0.00'}
+                ${isLoading ? '...' : campaigns.length > 0 ? (campaigns.reduce((sum, c) => sum + c.max_payout, 0) / campaigns.length).toFixed(2) : '0.00'}
               </div>
-              <p className="text-xs text-muted-foreground">Per qualified view</p>
+              <p className="text-xs text-muted-foreground">Maximum earning potential</p>
             </CardContent>
           </Card>
 
