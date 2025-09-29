@@ -423,7 +423,12 @@ const CampaignManagement = () => {
                 } as any}
                  variant="creator-joined"
                  showPlayButton={true}
-                 onCampaignClick={(campaign) => navigate(`/campaign/${campaign.id}/join`)}
+                 onCampaignClick={(campaign) => {
+                   console.log('Joined campaign clicked:', campaign);
+                   console.log('Campaign ID:', campaign?.id);
+                   console.log('Navigating to:', `/campaign/${campaign.id}/join`);
+                   navigate(`/campaign/${campaign.id}/join`);
+                 }}
                  onAudioToggle={toggleAudio}
                  isPlaying={currentlyPlaying === participation.campaign_id}
               />
