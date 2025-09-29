@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/utils";
-import { Wallet as WalletIcon, TrendingUp, Download, Plus, CreditCard, Clock, Send, AlertCircle } from "lucide-react";
+import { Wallet as WalletIcon, TrendingUp, Download, Plus, CreditCard, Clock, Send, AlertCircle, X } from "lucide-react";
 
 interface Transaction {
   id: string;
@@ -48,6 +48,7 @@ const Wallet = () => {
   const [payoutAmount, setPayoutAmount] = useState("");
   const [payoutMethod, setPayoutMethod] = useState("");
   const [isSubmittingPayout, setIsSubmittingPayout] = useState(false);
+  const payoutFormRef = useRef<HTMLDivElement>(null);
 
   const fetchData = async () => {
     if (!user?.id) return;
@@ -282,7 +283,16 @@ const Wallet = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
               <Button 
                 className="h-12 bg-gradient-primary hover:opacity-90 transition-smooth"
-                onClick={() => setShowPayoutForm(true)}
+                onClick={() => {
+                  setShowPayoutForm(true);
+                  // Smooth scroll to form after a brief delay to allow render
+                  setTimeout(() => {
+                    payoutFormRef.current?.scrollIntoView({ 
+                      behavior: 'smooth', 
+                      block: 'start' 
+                    });
+                  }, 100);
+                }}
                 disabled={availableBalance <= 0}
               >
                 <Download className="w-4 h-4 mr-2" />
@@ -298,47 +308,125 @@ const Wallet = () => {
 
             {/* Payout Request Form */}
             {showPayoutForm && (
-              <Card className="mb-8">
-                <CardHeader>
-                  <CardTitle>Request Payout</CardTitle>
+              <Card 
+                ref={payoutFormRef}
+                className="mb-8 border-2 border-primary/20 shadow-glow animate-in slide-in-from-top-4 duration-300"
+              >
+                <CardHeader className="bg-gradient-to-r from-primary/5 to-primary/10">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2">
+                      <Download className="w-5 h-5 text-primary" />
+                      Request Payout
+                    </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowPayoutForm(false)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Request a withdrawal from your available balance of {formatCurrency(availableBalance)}
+                  </p>
                 </CardHeader>
-                <CardContent>
-                  <form onSubmit={handlePayoutRequest} className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <CardContent className="pt-6">
+                  <form onSubmit={handlePayoutRequest} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-2">
-                        <Label htmlFor="amount">Amount</Label>
-                        <Input
-                          id="amount"
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          max={availableBalance}
-                          value={payoutAmount}
-                          onChange={(e) => setPayoutAmount(e.target.value)}
-                          placeholder="0.00"
-                          required
-                        />
+                        <Label htmlFor="amount" className="text-sm font-medium">
+                          Amount to withdraw
+                        </Label>
+                        <div className="relative">
+                          <Input
+                            id="amount"
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            max={availableBalance}
+                            value={payoutAmount}
+                            onChange={(e) => setPayoutAmount(e.target.value)}
+                            placeholder="0.00"
+                            className="text-lg h-12 pl-8"
+                            required
+                          />
+                          <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                            $
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Maximum: {formatCurrency(availableBalance)}
+                        </p>
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="method">Payment Method</Label>
+                        <Label htmlFor="method" className="text-sm font-medium">
+                          Payment Method
+                        </Label>
                         <Select value={payoutMethod} onValueChange={setPayoutMethod} required>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select method" />
+                          <SelectTrigger className="h-12">
+                            <SelectValue placeholder="Choose how to receive payment" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="paypal">PayPal</SelectItem>
-                            <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
-                            <SelectItem value="crypto">Cryptocurrency</SelectItem>
+                            <SelectItem value="paypal">
+                              <div className="flex items-center gap-2">
+                                <CreditCard className="w-4 h-4" />
+                                PayPal
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="bank_transfer">
+                              <div className="flex items-center gap-2">
+                                <WalletIcon className="w-4 h-4" />
+                                Bank Transfer
+                              </div>
+                            </SelectItem>
+                            <SelectItem value="crypto">
+                              <div className="flex items-center gap-2">
+                                <TrendingUp className="w-4 h-4" />
+                                Cryptocurrency
+                              </div>
+                            </SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-4">
-                      <Button type="submit" disabled={isSubmittingPayout}>
+                    
+                    <div className="bg-muted/50 p-4 rounded-lg border">
+                      <div className="flex items-start gap-2">
+                        <AlertCircle className="w-4 h-4 text-muted-foreground mt-0.5" />
+                        <div className="text-sm text-muted-foreground">
+                          <p className="font-medium mb-1">Processing time:</p>
+                          <ul className="space-y-1 text-xs">
+                            <li>• PayPal: 1-2 business days</li>
+                            <li>• Bank Transfer: 3-5 business days</li>
+                            <li>• Cryptocurrency: Within 24 hours</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between pt-4 border-t">
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        onClick={() => {
+                          setShowPayoutForm(false);
+                          setPayoutAmount("");
+                          setPayoutMethod("");
+                        }}
+                        disabled={isSubmittingPayout}
+                        className="min-w-[100px]"
+                      >
+                        Cancel
+                      </Button>
+                      <Button 
+                        type="submit" 
+                        disabled={isSubmittingPayout || !payoutAmount || !payoutMethod}
+                        className="min-w-[150px] bg-gradient-primary hover:opacity-90"
+                      >
                         {isSubmittingPayout ? (
                           <>
                             <Clock className="w-4 h-4 mr-2 animate-spin" />
-                            Submitting...
+                            Processing...
                           </>
                         ) : (
                           <>
@@ -346,13 +434,6 @@ const Wallet = () => {
                             Submit Request
                           </>
                         )}
-                      </Button>
-                      <Button 
-                        type="button" 
-                        variant="outline" 
-                        onClick={() => setShowPayoutForm(false)}
-                      >
-                        Cancel
                       </Button>
                     </div>
                   </form>
