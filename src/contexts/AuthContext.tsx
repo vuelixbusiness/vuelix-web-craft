@@ -12,6 +12,9 @@ interface User {
   membershipType: 'regular' | 'premium';
   avatar?: string;
   bio?: string;
+  location?: string | null;
+  banner_url?: string | null;
+  portfolio_links?: any;
 }
 
 interface AuthContextType {
@@ -172,7 +175,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               type: newProfile.user_type as 'creator' | 'artist',
               membershipType: newProfile.membership_type as 'regular' | 'premium',
               avatar: newProfile.avatar_url,
-              bio: newProfile.bio
+              bio: newProfile.bio,
+              location: newProfile.location ?? undefined,
+              banner_url: newProfile.banner_url ?? undefined,
+              portfolio_links: newProfile.portfolio_links ?? undefined
             });
           }
         } else {
@@ -195,7 +201,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           type: profile.user_type as 'creator' | 'artist',
           membershipType: profile.membership_type as 'regular' | 'premium',
           avatar: profile.avatar_url,
-          bio: profile.bio
+          bio: profile.bio,
+          location: profile.location ?? undefined,
+          banner_url: profile.banner_url ?? undefined,
+          portfolio_links: profile.portfolio_links ?? undefined
         });
       }
     } catch (error) {

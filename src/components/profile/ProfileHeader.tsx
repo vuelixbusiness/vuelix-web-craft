@@ -1,0 +1,135 @@
+import { useState } from 'react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Camera, MapPin, Link as LinkIcon, Eye, EyeOff, ExternalLink } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useAvatarUpload } from "@/hooks/useAvatarUpload";
+import { useNavigate } from "react-router-dom";
+
+interface ProfileHeaderProps {
+  onEditProfile: () => void;
+  isPublicVisible: boolean;
+  onToggleVisibility: () => void;
+}
+
+export function ProfileHeader({ onEditProfile, isPublicVisible, onToggleVisibility }: ProfileHeaderProps) {
+  const { user } = useAuth();
+  const { triggerFileInput, isUploading } = useAvatarUpload();
+  const navigate = useNavigate();
+
+  return (
+    <div className="relative mb-8">
+      {/* Banner Image */}
+      <div className="relative h-48 bg-gradient-primary rounded-xl overflow-hidden">
+        {user?.banner_url ? (
+          <img src={user.banner_url} alt="Profile banner" className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gradient-hero" />
+        )}
+        <Button
+          size="sm"
+          variant="secondary"
+          className="absolute top-4 right-4"
+          onClick={triggerFileInput}
+          disabled={isUploading}
+        >
+          <Camera className="w-4 h-4 mr-2" />
+          Change Banner
+        </Button>
+      </div>
+
+      {/* Profile Info */}
+      <div className="relative px-6 pb-6">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between -mt-16">
+          {/* Avatar & Basic Info */}
+          <div className="flex flex-col md:flex-row md:items-end gap-4 mb-4 md:mb-0">
+            <div className="relative">
+              <Avatar className="w-32 h-32 border-4 border-background shadow-elegant">
+                <AvatarImage src={user?.avatar} alt={user?.name} />
+                <AvatarFallback className="text-3xl">
+                  {user?.name?.slice(0, 2).toUpperCase() || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <Button
+                size="icon"
+                variant="secondary"
+                className="absolute bottom-0 right-0 rounded-full w-10 h-10 shadow-soft"
+                onClick={triggerFileInput}
+                disabled={isUploading}
+              >
+                <Camera className="w-4 h-4" />
+              </Button>
+            </div>
+
+            <div className="space-y-2">
+              <div>
+                <h1 className="text-3xl font-bold">{user?.name || 'User'}</h1>
+                <p className="text-muted-foreground">@{user?.username}</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Badge variant={user?.membershipType === 'premium' ? 'default' : 'secondary'}>
+                  {user?.membershipType} Member
+                </Badge>
+                <Badge variant="outline" className="capitalize">
+                  {user?.type}
+                </Badge>
+              </div>
+            </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onToggleVisibility}
+            >
+              {isPublicVisible ? <Eye className="w-4 h-4 mr-2" /> : <EyeOff className="w-4 h-4 mr-2" />}
+              {isPublicVisible ? 'Public' : 'Private'}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(`/user/${user?.username}`)}
+            >
+              <ExternalLink className="w-4 h-4 mr-2" />
+              View Public Profile
+            </Button>
+            <Button size="sm" onClick={onEditProfile}>
+              Edit Profile
+            </Button>
+          </div>
+        </div>
+
+        {/* Bio & Location */}
+        <div className="mt-6 space-y-3">
+          {user?.bio && (
+            <p className="text-muted-foreground max-w-2xl">{user.bio}</p>
+          )}
+          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+            {user?.location && (
+              <div className="flex items-center gap-1">
+                <MapPin className="w-4 h-4" />
+                <span>{user.location}</span>
+              </div>
+            )}
+            {user?.portfolio_links && Array.isArray(user.portfolio_links) && user.portfolio_links.length > 0 && (
+              <div className="flex items-center gap-1">
+                <LinkIcon className="w-4 h-4" />
+                <a 
+                  href={user.portfolio_links[0] as string} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="hover:text-primary transition-smooth"
+                >
+                  Portfolio
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
