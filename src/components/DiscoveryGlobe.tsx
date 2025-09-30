@@ -1,62 +1,134 @@
-import { useRef, useEffect, useState } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls } from '@react-three/drei';
+import { useRef, useEffect } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import ThreeGlobe from 'three-globe';
+import * as satellite from 'satellite.js';
+// @ts-ignore - TrackballControls types
+import { TrackballControls } from 'three-stdlib';
 
-interface GlobePoint {
-  lat: number;
-  lng: number;
-  size: number;
-  color: string;
+const EARTH_RADIUS_KM = 6371; // km
+const TIME_STEP = 1.5 * 1000; // per frame
+
+interface SatelliteData {
+  satrec: any;
+  name: string;
+  lat?: number;
+  lng?: number;
+  alt?: number;
+}
+
+function Controls() {
+  const { camera, gl } = useThree();
+  const controlsRef = useRef<TrackballControls>();
+
+  useEffect(() => {
+    const controls = new TrackballControls(camera, gl.domElement);
+    controls.minDistance = 101;
+    controls.rotateSpeed = 5;
+    controls.zoomSpeed = 0.8;
+    controlsRef.current = controls;
+
+    return () => {
+      controls.dispose();
+    };
+  }, [camera, gl]);
+
+  useFrame(() => {
+    controlsRef.current?.update();
+  });
+
+  return null;
 }
 
 function Globe() {
   const globeRef = useRef<any>();
-  const [globeData, setGlobeData] = useState<GlobePoint[]>([]);
+  const timeRef = useRef<Date>(new Date());
+  const satDataRef = useRef<SatelliteData[]>([]);
 
   useEffect(() => {
-    // Generate random points representing campaigns/users around the world
-    const points: GlobePoint[] = [];
-    const colors = ['#8b5cf6', '#06b6d4', '#ec4899', '#f59e0b', '#10b981'];
-    
-    for (let i = 0; i < 300; i++) {
-      points.push({
-        lat: (Math.random() - 0.5) * 180,
-        lng: (Math.random() - 0.5) * 360,
-        size: Math.random() * 0.5 + 0.1,
-        color: colors[Math.floor(Math.random() * colors.length)]
-      });
-    }
-    setGlobeData(points);
-
     // Initialize globe
     const globe = new ThreeGlobe()
-      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-dark.jpg')
-      .bumpImageUrl('//unpkg.com/three-globe/example/img/earth-topology.png')
-      .pointsData(points)
-      .pointAltitude('size')
-      .pointColor('color')
-      .pointRadius(0.5);
+      .globeImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg')
+      .particleLat('lat')
+      .particleLng('lng')
+      .particleAltitude('alt')
+      .particlesSize(2);
 
-    globe.scale.set(1.8, 1.8, 1.8);
-    
+    // Load satellite icon texture
+    new THREE.TextureLoader().load('/sat-icon.png', (texture) => {
+      texture.colorSpace = THREE.SRGBColorSpace;
+      globe.particlesTexture(texture);
+    });
+
     if (globeRef.current) {
       globeRef.current.add(globe);
     }
+
+    // Load TLE data
+    fetch('/space-track-leo.txt')
+      .then((r) => r.text())
+      .then((rawData) => {
+        const tleData = rawData
+          .replace(/\r/g, '')
+          .split(/\n(?=[^12])/)
+          .map((tle) => tle.split('\n'));
+        
+        const satData = tleData
+          .map(([name, ...tle]) => ({
+            satrec: satellite.twoline2satrec(tle[0], tle[1]),
+            name: name.trim().replace(/^0 /, ''),
+          }))
+          // exclude those that can't be propagated
+          .filter((d) => !!satellite.propagate(d.satrec, new Date())?.position);
+
+        satDataRef.current = satData;
+      });
+
+    return () => {
+      if (globeRef.current) {
+        globeRef.current.remove(globe);
+      }
+    };
   }, []);
 
-  useFrame(({ clock }) => {
-    if (globeRef.current) {
-      globeRef.current.rotation.y = clock.getElapsedTime() * 0.05;
+  useFrame(() => {
+    if (!globeRef.current || satDataRef.current.length === 0) return;
+
+    // Update time
+    timeRef.current = new Date(+timeRef.current + TIME_STEP);
+
+    // Update satellite positions
+    const gmst = satellite.gstime(timeRef.current);
+    satDataRef.current.forEach((d) => {
+      const eci = satellite.propagate(d.satrec, timeRef.current);
+      if (eci?.position) {
+        const gdPos = satellite.eciToGeodetic(eci.position, gmst);
+        d.lat = satellite.radiansToDegrees(gdPos.latitude);
+        d.lng = satellite.radiansToDegrees(gdPos.longitude);
+        d.alt = gdPos.height / EARTH_RADIUS_KM;
+      } else {
+        // explicitly handle invalid position
+        d.lat = NaN;
+        d.lng = NaN;
+        d.alt = NaN;
+      }
+    });
+
+    // Update globe with valid satellites
+    const validSats = satDataRef.current.filter(
+      (d) => !isNaN(d.lat!) && !isNaN(d.lng!) && !isNaN(d.alt!)
+    );
+    
+    const globe = globeRef.current.children[0];
+    if (globe && globe.particlesData) {
+      globe.particlesData(validSats);
     }
   });
 
   return (
     <group ref={globeRef}>
-      <ambientLight intensity={0.3} />
-      <directionalLight position={[5, 3, 5]} intensity={1} />
-      <pointLight position={[-10, -10, -10]} intensity={0.5} color="#4338ca" />
+      <ambientLight intensity={Math.PI} color="#cccccc" />
+      <directionalLight intensity={0.6 * Math.PI} color="#ffffff" />
     </group>
   );
 }
@@ -65,20 +137,13 @@ export function DiscoveryGlobe() {
   return (
     <div className="w-full h-full min-h-[400px] lg:min-h-[600px]">
       <Canvas
-        camera={{ position: [0, 0, 300], fov: 45 }}
-        gl={{ antialias: true, alpha: true }}
-        dpr={[1, 2]}
+        camera={{ position: [0, 0, 400], fov: 75 }}
+        gl={{ antialias: true, alpha: false }}
+        dpr={[1, Math.min(2, window.devicePixelRatio)]}
       >
-        <color attach="background" args={['hsl(var(--background))']} />
+        <color attach="background" args={['#000000']} />
         <Globe />
-        <OrbitControls
-          enableZoom={true}
-          enablePan={false}
-          minDistance={200}
-          maxDistance={500}
-          autoRotate={false}
-          rotateSpeed={0.5}
-        />
+        <Controls />
       </Canvas>
     </div>
   );
