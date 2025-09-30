@@ -316,8 +316,8 @@ const CampaignManagement = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="available">Available</TabsTrigger>
-          <TabsTrigger value="active">Joined campaigns ({getUniqueCampaigns().length})</TabsTrigger>
-          <TabsTrigger value="submissions">Submissions ({participations.length})</TabsTrigger>
+          <TabsTrigger value="active">Joined campaigns (<span className="text-purple-400">{getUniqueCampaigns().length}</span>)</TabsTrigger>
+          <TabsTrigger value="submissions">Submissions (<span className="text-purple-400">{participations.length}</span>)</TabsTrigger>
           <TabsTrigger value="completed">Completed</TabsTrigger>
         </TabsList>
 
