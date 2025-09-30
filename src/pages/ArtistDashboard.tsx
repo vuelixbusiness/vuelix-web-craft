@@ -575,7 +575,7 @@ const ArtistDashboard = () => {
                             <div className="bg-secondary/30 rounded-lg p-4 space-y-3">
                               <div className="flex items-center justify-between">
                                 <h4 className="font-semibold text-lg flex items-center">
-                                  <DollarSign className="w-5 h-5 mr-2 text-primary" />
+                                  <DollarSign className="w-5 h-5 mr-2 text-green-500" />
                                   Engagement Pot
                                 </h4>
                                 <span className="text-sm text-muted-foreground">
