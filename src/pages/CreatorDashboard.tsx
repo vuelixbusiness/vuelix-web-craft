@@ -12,6 +12,37 @@ import {
   Settings
 } from "lucide-react";
 
+const profileConfigs = [
+  { 
+    id: 'management', 
+    label: 'Campaign Manager', 
+    icon: Music, 
+    color: 'text-blue-500',
+    component: CampaignManagement
+  },
+  { 
+    id: 'analytics', 
+    label: 'Analytics Hub', 
+    icon: BarChart3, 
+    color: 'text-green-500',
+    component: AnalyticsHub
+  },
+  { 
+    id: 'creators', 
+    label: 'Social Hub', 
+    icon: Users, 
+    color: 'text-purple-500',
+    component: ArtistRelations
+  },
+  { 
+    id: 'settings', 
+    label: 'Account Settings', 
+    icon: Settings, 
+    color: 'text-gray-500',
+    component: AccountSettings
+  }
+];
+
 const CreatorDashboard = () => {
   const [activeTab, setActiveTab] = useState('management');
 
@@ -29,39 +60,29 @@ const CreatorDashboard = () => {
         {/* Main Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-8">
-            <TabsTrigger value="management" className="flex items-center gap-2">
-              <Music className="w-4 h-4" />
-              <span className="hidden sm:inline">Campaign Manager</span>
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              <span className="hidden sm:inline">Analytics Hub</span>
-            </TabsTrigger>
-            <TabsTrigger value="creators" className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              <span className="hidden sm:inline">Social Hub</span>
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="flex items-center gap-2">
-              <Settings className="w-4 h-4" />
-              <span className="hidden sm:inline">Account Settings</span>
-            </TabsTrigger>
+            {profileConfigs.map((config) => {
+              const IconComponent = config.icon;
+              return (
+                <TabsTrigger 
+                  key={config.id} 
+                  value={config.id} 
+                  className="flex items-center gap-2"
+                >
+                  <IconComponent className={`w-4 h-4 ${config.color}`} />
+                  <span className="hidden sm:inline">{config.label}</span>
+                </TabsTrigger>
+              );
+            })}
           </TabsList>
 
-          <TabsContent value="management" className="space-y-6">
-            <CampaignManagement />
-          </TabsContent>
-
-          <TabsContent value="analytics" className="space-y-6">
-            <AnalyticsHub />
-          </TabsContent>
-
-          <TabsContent value="creators" className="space-y-6">
-            <ArtistRelations />
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-6">
-            <AccountSettings />
-          </TabsContent>
+          {profileConfigs.map((config) => {
+            const Component = config.component;
+            return (
+              <TabsContent key={config.id} value={config.id} className="space-y-6">
+                <Component />
+              </TabsContent>
+            );
+          })}
         </Tabs>
       </div>
     </DashboardLayout>
