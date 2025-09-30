@@ -70,6 +70,13 @@ function Globe() {
     }
   }, [arcsData]);
 
+  // Rotate globe continuously
+  useFrame(() => {
+    if (globeRef.current) {
+      globeRef.current.rotation.y += 0.002;
+    }
+  });
+
   return (
     <>
       <ambientLight intensity={Math.PI * 1.5} color="#f0f8ff" />
@@ -83,7 +90,7 @@ export function DiscoveryGlobe() {
   return (
     <div className="w-full h-full min-h-[400px] lg:min-h-[600px] relative">
       <Canvas
-        camera={{ position: [0, 0, 400], fov: 75 }}
+        camera={{ position: [0, 0, 300], fov: 75 }}
         gl={{ antialias: true, alpha: false }}
         dpr={[1, Math.min(2, window.devicePixelRatio)]}
       >
