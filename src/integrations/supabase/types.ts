@@ -619,13 +619,18 @@ export type Database = {
       profiles: {
         Row: {
           avatar_url: string | null
+          banner_url: string | null
           bio: string | null
           created_at: string
           display_name: string | null
+          engagement_score: number | null
           id: string
+          location: string | null
           membership_type: Database["public"]["Enums"]["membership_type"]
           paypal_account_status: string | null
           paypal_email: string | null
+          portfolio_links: Json | null
+          public_visibility: boolean | null
           stripe_account_id: string | null
           stripe_account_status: string | null
           updated_at: string
@@ -635,13 +640,18 @@ export type Database = {
         }
         Insert: {
           avatar_url?: string | null
+          banner_url?: string | null
           bio?: string | null
           created_at?: string
           display_name?: string | null
+          engagement_score?: number | null
           id?: string
+          location?: string | null
           membership_type?: Database["public"]["Enums"]["membership_type"]
           paypal_account_status?: string | null
           paypal_email?: string | null
+          portfolio_links?: Json | null
+          public_visibility?: boolean | null
           stripe_account_id?: string | null
           stripe_account_status?: string | null
           updated_at?: string
@@ -651,13 +661,18 @@ export type Database = {
         }
         Update: {
           avatar_url?: string | null
+          banner_url?: string | null
           bio?: string | null
           created_at?: string
           display_name?: string | null
+          engagement_score?: number | null
           id?: string
+          location?: string | null
           membership_type?: Database["public"]["Enums"]["membership_type"]
           paypal_account_status?: string | null
           paypal_email?: string | null
+          portfolio_links?: Json | null
+          public_visibility?: boolean | null
           stripe_account_id?: string | null
           stripe_account_status?: string | null
           updated_at?: string
@@ -746,6 +761,186 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_achievements: {
+        Row: {
+          badge_description: string | null
+          badge_name: string
+          badge_type: string
+          earned_at: string
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          badge_description?: string | null
+          badge_name: string
+          badge_type: string
+          earned_at?: string
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          badge_description?: string | null
+          badge_name?: string
+          badge_type?: string
+          earned_at?: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_content_showcase: {
+        Row: {
+          content_type: string
+          created_at: string
+          description: string | null
+          display_order: number | null
+          featured: boolean | null
+          id: string
+          media_url: string
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content_type: string
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          featured?: boolean | null
+          id?: string
+          media_url: string
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          featured?: boolean | null
+          id?: string
+          media_url?: string
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_endorsements: {
+        Row: {
+          comment: string | null
+          created_at: string
+          endorsed_id: string
+          endorser_id: string
+          id: string
+          rating: number
+          updated_at: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          endorsed_id: string
+          endorser_id: string
+          id?: string
+          rating: number
+          updated_at?: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          endorsed_id?: string
+          endorser_id?: string
+          id?: string
+          rating?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_followers: {
+        Row: {
+          created_at: string
+          followed_id: string
+          follower_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          followed_id: string
+          follower_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          followed_id?: string
+          follower_id?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      user_partnerships: {
+        Row: {
+          created_at: string
+          id: string
+          partner_id: string
+          partnership_type: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          partner_id: string
+          partnership_type?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          partner_id?: string
+          partnership_type?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_skills: {
+        Row: {
+          created_at: string
+          id: string
+          skill_level: string
+          skill_name: string
+          user_id: string
+          verified_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          skill_level?: string
+          skill_name: string
+          user_id: string
+          verified_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          skill_level?: string
+          skill_name?: string
+          user_id?: string
+          verified_by?: string | null
+        }
+        Relationships: []
       }
       view_tracking_logs: {
         Row: {
