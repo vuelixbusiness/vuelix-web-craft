@@ -1,49 +1,70 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { formatCurrency } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 import { 
-  Heart,
-  Search,
-  Star,
-  DollarSign,
-  Music,
-  Users,
-  TrendingUp,
   MessageCircle,
-  Calendar
+  Users,
+  Send,
+  Music,
+  Hash
 } from "lucide-react";
 
-interface Artist {
+interface Campaign {
   id: string;
-  display_name: string;
-  username: string;
-  avatar_url?: string;
-  bio?: string;
-  collaborations: number;
-  totalEarnings: number;
-  genres: string[];
-  avgRating: number;
-  lastCollaboration?: string;
+  title: string;
+  song_title: string;
+  artist_id: string;
+  cover_art_url?: string;
+  genre?: string;
+  status: string;
+  artist_profile?: {
+    display_name: string;
+    username: string;
+    avatar_url?: string;
+  };
 }
 
-interface Collaboration {
+interface Profile {
+  user_id: string;
+  username: string;
+  display_name: string;
+  avatar_url?: string;
+  membership_type: string;
+}
+
+interface Friendship {
   id: string;
-  campaign_id: string;
-  artist_id: string;
-  earnings: number;
-  views: number;
+  requester_id: string;
+  addressee_id: string;
+  status: string;
+  requester_profile?: Profile;
+  addressee_profile?: Profile;
+}
+
+interface ChatRoom {
+  id: string;
+  name: string;
+  room_type: string;
+  other_user?: Profile;
+}
+
+interface Message {
+  id: string;
+  content: string;
+  sender_id: string;
+  room_id: string;
   created_at: string;
-  campaigns: {
-    song_title: string;
-    genre: string;
-  };
-  profiles: {
+  sender?: {
+    username: string;
     display_name: string;
     avatar_url?: string;
   };
@@ -51,145 +72,285 @@ interface Collaboration {
 
 const ArtistRelations = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState('favorites');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [artists, setArtists] = useState<Artist[]>([]);
-  const [collaborations, setCollaborations] = useState<Collaboration[]>([]);
-  const [recommendedArtists, setRecommendedArtists] = useState<Artist[]>([]);
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const [activeTab, setActiveTab] = useState('campaigns');
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Campaign chats state
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  
+  // Messages state
+  const [friends, setFriends] = useState<Friendship[]>([]);
+  const [chatRooms, setChatRooms] = useState<ChatRoom[]>([]);
+  const [selectedRoom, setSelectedRoom] = useState<ChatRoom | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [newMessage, setNewMessage] = useState('');
 
-  const fetchCollaborations = async () => {
+  // Fetch campaigns user has access to
+  const fetchCampaigns = async () => {
+    if (!user?.id) return;
+
+    try {
+      // Fetch campaigns where user is a participant
+      const { data: participations, error: partError } = await supabase
+        .from('campaign_participations')
+        .select('campaign_id')
+        .eq('creator_id', user.id)
+        .in('status', ['joined', 'approved', 'live', 'submitted']);
+
+      if (partError) throw partError;
+
+      const campaignIds = participations?.map(p => p.campaign_id) || [];
+
+      // Also fetch campaigns where user is the artist
+      const { data: artistCampaigns, error: artistError } = await supabase
+        .from('campaigns')
+        .select('id')
+        .eq('artist_id', user.id);
+
+      if (artistError) throw artistError;
+
+      const allCampaignIds = [...campaignIds, ...(artistCampaigns?.map(c => c.id) || [])];
+
+      if (allCampaignIds.length === 0) {
+        setCampaigns([]);
+        return;
+      }
+
+      // Fetch campaign details
+      const { data: campaignData, error: campaignError } = await supabase
+        .from('campaigns')
+        .select(`
+          id,
+          title,
+          song_title,
+          artist_id,
+          cover_art_url,
+          genre,
+          status
+        `)
+        .in('id', allCampaignIds);
+
+      if (campaignError) throw campaignError;
+
+      // Fetch artist profiles
+      const artistIds = [...new Set(campaignData?.map(c => c.artist_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, username, avatar_url')
+        .in('user_id', artistIds);
+
+      const campaignsWithProfiles = campaignData?.map(campaign => ({
+        ...campaign,
+        artist_profile: profiles?.find(p => p.user_id === campaign.artist_id)
+      })) || [];
+
+      setCampaigns(campaignsWithProfiles as Campaign[]);
+    } catch (error) {
+      console.error('Error fetching campaigns:', error);
+    }
+  };
+
+  // Fetch friendships
+  const fetchFriendships = async () => {
     if (!user?.id) return;
 
     try {
       const { data, error } = await supabase
-        .from('campaign_participations')
-        .select(`
-          id,
-          campaign_id,
-          payout_amount,
-          current_views,
-          created_at,
-          campaigns (
-            song_title,
-            genre,
-            artist_id,
-            profiles!campaigns_artist_id_fkey (
-              display_name,
-              avatar_url
-            )
-          )
-        `)
-        .eq('creator_id', user.id)
-        .eq('status', 'approved');
+        .from('friendships')
+        .select('*')
+        .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
+        .eq('status', 'accepted');
 
       if (error) throw error;
 
-      const collaborationsData = (data || []).map(item => ({
-        id: item.id,
-        campaign_id: item.campaign_id,
-        artist_id: item.campaigns?.artist_id || '',
-        earnings: item.payout_amount || 0,
-        views: item.current_views || 0,
-        created_at: item.created_at,
-        campaigns: {
-          song_title: item.campaigns?.song_title || 'Unknown Song',
-          genre: item.campaigns?.genre || 'Unknown'
-        },
-        profiles: {
-          display_name: item.campaigns?.profiles?.[0]?.display_name || 'Unknown Artist',
-          avatar_url: item.campaigns?.profiles?.[0]?.avatar_url
-        }
-      }));
+      const userIds = data?.flatMap(f => [f.requester_id, f.addressee_id]) || [];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, username, display_name, avatar_url, membership_type')
+        .in('user_id', userIds);
 
-      setCollaborations(collaborationsData);
+      const friendshipsWithProfiles = data?.map(friendship => ({
+        ...friendship,
+        requester_profile: profiles?.find(p => p.user_id === friendship.requester_id),
+        addressee_profile: profiles?.find(p => p.user_id === friendship.addressee_id)
+      })) || [];
 
-      // Process artist data from collaborations
-      const artistStats = collaborationsData.reduce((acc, collab) => {
-        const artistId = collab.artist_id;
-        if (!acc[artistId]) {
-          acc[artistId] = {
-            id: artistId,
-            display_name: Array.isArray(collab.profiles) ? collab.profiles[0]?.display_name || 'Unknown Artist' : collab.profiles?.display_name || 'Unknown Artist',
-            username: (Array.isArray(collab.profiles) ? collab.profiles[0]?.display_name || 'unknown' : collab.profiles?.display_name || 'unknown').toLowerCase().replace(/\s+/g, ''),
-            avatar_url: Array.isArray(collab.profiles) ? collab.profiles[0]?.avatar_url : collab.profiles?.avatar_url,
-            collaborations: 0,
-            totalEarnings: 0,
-            genres: new Set<string>(),
-            avgRating: 4.5 + Math.random() * 0.5, // Mock rating
-            lastCollaboration: collab.created_at
-          };
-        }
-        
-        acc[artistId].collaborations += 1;
-        acc[artistId].totalEarnings += collab.earnings;
-        acc[artistId].genres.add(collab.campaigns.genre);
-        
-        // Update last collaboration if this one is more recent
-        if (new Date(collab.created_at) > new Date(acc[artistId].lastCollaboration || '')) {
-          acc[artistId].lastCollaboration = collab.created_at;
-        }
-        
-        return acc;
-      }, {} as Record<string, any>);
-
-      const artistsData = Object.values(artistStats).map(artist => ({
-        ...artist,
-        genres: Array.from(artist.genres)
-      })) as Artist[];
-
-      setArtists(artistsData);
-
-      // Generate recommended artists (mock data)
-      const mockRecommended: Artist[] = [
-        {
-          id: 'rec-1',
-          display_name: 'Rising Pop Star',
-          username: 'risingpopstar',
-          collaborations: 0,
-          totalEarnings: 0,
-          genres: ['Pop', 'Dance'],
-          avgRating: 4.8,
-          bio: 'Up-and-coming pop artist with viral hits'
-        },
-        {
-          id: 'rec-2',
-          display_name: 'Indie Vibes',
-          username: 'indievibes',
-          collaborations: 0,
-          totalEarnings: 0,
-          genres: ['Indie', 'Alternative'],
-          avgRating: 4.6,
-          bio: 'Creating authentic indie music with meaningful lyrics'
-        },
-        {
-          id: 'rec-3',
-          display_name: 'Hip Hop Fusion',
-          username: 'hiphopfusion',
-          collaborations: 0,
-          totalEarnings: 0,
-          genres: ['Hip Hop', 'R&B'],
-          avgRating: 4.7,
-          bio: 'Blending classic hip hop with modern R&B influences'
-        }
-      ];
-
-      setRecommendedArtists(mockRecommended);
-
+      setFriends(friendshipsWithProfiles as Friendship[]);
     } catch (error) {
-      console.error('Error fetching collaborations:', error);
+      console.error('Error fetching friendships:', error);
+    }
+  };
+
+  // Fetch chat rooms
+  const fetchChatRooms = async () => {
+    if (!user?.id) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('chat_rooms')
+        .select('*')
+        .eq('room_type', 'direct_message');
+
+      if (error) throw error;
+
+      const roomsWithProfiles = await Promise.all(
+        (data || []).map(async (room) => {
+          const { data: members } = await supabase
+            .from('chat_room_members')
+            .select('user_id')
+            .eq('room_id', room.id);
+
+          const otherUserId = members?.find(m => m.user_id !== user.id)?.user_id;
+          
+          if (otherUserId) {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('user_id, username, display_name, avatar_url, membership_type')
+              .eq('user_id', otherUserId)
+              .single();
+
+            return {
+              ...room,
+              other_user: profile as Profile
+            };
+          }
+
+          return room;
+        })
+      );
+
+      setChatRooms(roomsWithProfiles);
+    } catch (error) {
+      console.error('Error fetching chat rooms:', error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const filteredArtists = artists.filter(artist =>
-    artist.display_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    artist.genres.some(genre => genre.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // Fetch messages for selected room
+  const fetchMessages = useCallback(async (roomId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('room_id', roomId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      const senderIds = [...new Set(data?.map(m => m.sender_id))];
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, username, display_name, avatar_url')
+        .in('user_id', senderIds);
+
+      const messagesWithSenders = data?.map(message => ({
+        ...message,
+        sender: profiles?.find(p => p.user_id === message.sender_id)
+      })) || [];
+
+      setMessages(messagesWithSenders as Message[]);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
+  }, []);
+
+  // Send message
+  const sendMessage = async () => {
+    if (!newMessage.trim() || !selectedRoom) return;
+
+    try {
+      const { error } = await supabase
+        .from('messages')
+        .insert({
+          content: newMessage,
+          sender_id: user?.id,
+          room_id: selectedRoom.id,
+          message_type: 'text'
+        });
+
+      if (error) throw error;
+
+      setNewMessage('');
+      await fetchMessages(selectedRoom.id);
+    } catch (error) {
+      console.error('Error sending message:', error);
+    }
+  };
+
+  // Start direct message
+  const startDirectMessage = async (otherUserId: string) => {
+    try {
+      const existingRoom = chatRooms.find(room => room.other_user?.user_id === otherUserId);
+      
+      if (existingRoom) {
+        setSelectedRoom(existingRoom);
+        await fetchMessages(existingRoom.id);
+        return;
+      }
+
+      const { data: roomData, error: roomError } = await supabase
+        .from('chat_rooms')
+        .insert({
+          name: `dm_${user?.id}_${otherUserId}`,
+          room_type: 'direct_message',
+          created_by: user?.id
+        })
+        .select()
+        .single();
+
+      if (roomError) throw roomError;
+
+      const { error: membersError } = await supabase
+        .from('chat_room_members')
+        .insert([
+          { room_id: roomData.id, user_id: user?.id },
+          { room_id: roomData.id, user_id: otherUserId }
+        ]);
+
+      if (membersError) throw membersError;
+
+      await fetchChatRooms();
+      
+      const friendship = friends.find(f => 
+        f.requester_id === otherUserId || f.addressee_id === otherUserId
+      );
+      
+      const otherUserProfile = friendship?.requester_id === otherUserId 
+        ? friendship.requester_profile 
+        : friendship?.addressee_profile;
+
+      const newRoom = {
+        ...roomData,
+        other_user: otherUserProfile
+      };
+      
+      setSelectedRoom(newRoom as ChatRoom);
+    } catch (error) {
+      console.error('Error starting direct message:', error);
+      toast({
+        title: "Error",
+        description: "Failed to start conversation.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getFriendProfile = (friendship: Friendship): Profile | undefined => {
+    return friendship.requester_id === user?.id 
+      ? friendship.addressee_profile 
+      : friendship.requester_profile;
+  };
 
   useEffect(() => {
-    fetchCollaborations();
+    if (user?.id) {
+      fetchCampaigns();
+      fetchFriendships();
+      fetchChatRooms();
+    }
   }, [user?.id]);
 
   if (isLoading) {
@@ -201,210 +362,229 @@ const ArtistRelations = () => {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold">Social Hub</h2>
-          <p className="text-muted-foreground">Connect and collaborate with artists in your network</p>
+          <p className="text-muted-foreground">Campaign communications and personal messages</p>
         </div>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="favorites">Favorites</TabsTrigger>
-          <TabsTrigger value="history">History ({collaborations.length})</TabsTrigger>
-          <TabsTrigger value="recommended">Recommended</TabsTrigger>
-          <TabsTrigger value="messages">Messages</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="campaigns">
+            <Hash className="w-4 h-4 mr-2" />
+            Campaign Chats
+          </TabsTrigger>
+          <TabsTrigger value="messages">
+            <MessageCircle className="w-4 h-4 mr-2" />
+            Messages
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="favorites" className="space-y-6">
-          {/* Search */}
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input
-              placeholder="Search artists..."
-              className="pl-10"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-
-          {/* Favorite Artists */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredArtists
-              .sort((a, b) => b.totalEarnings - a.totalEarnings)
-              .slice(0, 6)
-              .map((artist) => (
-              <Card key={artist.id} className="hover:shadow-lg transition-smooth">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center text-white font-semibold">
-                        {artist.display_name.charAt(0)}
-                      </div>
-                      <div>
-                        <CardTitle className="text-lg">{artist.display_name}</CardTitle>
-                        <CardDescription>@{artist.username}</CardDescription>
-                      </div>
-                    </div>
-                    <Button size="icon" variant="ghost">
-                      <Heart className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Rating */}
-                  <div className="flex items-center space-x-2">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="font-medium">{artist.avgRating.toFixed(1)}</span>
-                  </div>
-
-                  {/* Stats */}
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-muted-foreground">Collaborations</p>
-                      <p className="font-semibold">{artist.collaborations}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Total Earned</p>
-                      <p className="font-semibold text-green-600">{formatCurrency(artist.totalEarnings)}</p>
-                    </div>
-                  </div>
-
-                  {/* Genres */}
-                  <div className="flex flex-wrap gap-1">
-                    {artist.genres.slice(0, 3).map((genre) => (
-                      <Badge key={genre} variant="outline" className="text-xs">
-                        {genre}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  {/* Last Collaboration */}
-                  {artist.lastCollaboration && (
-                    <p className="text-xs text-muted-foreground">
-                      Last worked: {new Date(artist.lastCollaboration).toLocaleDateString()}
-                    </p>
-                  )}
-
-                  <div className="flex gap-2">
-                    <Button size="sm" className="flex-1">
-                      <MessageCircle className="w-4 h-4 mr-2" />
-                      Message
-                    </Button>
-                    <Button size="sm" variant="outline">
-                      View Profile
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {filteredArtists.length === 0 && (
+        {/* Campaign Chats Tab */}
+        <TabsContent value="campaigns" className="space-y-6">
+          {campaigns.length === 0 ? (
             <Card>
               <CardContent className="p-8 text-center">
-                <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-medium mb-2">No favorite artists yet</h3>
+                <Music className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium mb-2">No Campaign Chats</h3>
                 <p className="text-muted-foreground">
-                  Start collaborating with artists to build your network!
+                  Join campaigns to access their group chats and communicate with other participants.
                 </p>
               </CardContent>
             </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {campaigns.map((campaign) => (
+                <Card key={campaign.id} className="hover:shadow-lg transition-smooth cursor-pointer"
+                  onClick={() => navigate(`/campaigns/${campaign.id}`)}>
+                  <CardHeader>
+                    <div className="flex items-center space-x-3">
+                      {campaign.cover_art_url ? (
+                        <img 
+                          src={campaign.cover_art_url} 
+                          alt={campaign.title}
+                          className="w-12 h-12 rounded-lg object-cover"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-gradient-primary rounded-lg flex items-center justify-center">
+                          <Music className="w-6 h-6 text-white" />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <CardTitle className="text-base truncate">{campaign.song_title}</CardTitle>
+                        <CardDescription className="truncate">
+                          by {campaign.artist_profile?.display_name || 'Unknown Artist'}
+                        </CardDescription>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {campaign.genre && (
+                      <Badge variant="outline">{campaign.genre}</Badge>
+                    )}
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">Status</span>
+                      <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'}>
+                        {campaign.status}
+                      </Badge>
+                    </div>
+                    <Button className="w-full" size="sm">
+                      <MessageCircle className="w-4 h-4 mr-2" />
+                      Open Chat
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
         </TabsContent>
 
-        <TabsContent value="history" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {collaborations.map((collaboration) => (
-              <Card key={collaboration.id}>
-                <CardHeader>
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gradient-primary rounded-full flex items-center justify-center text-white font-semibold">
-                      {collaboration.profiles.display_name.charAt(0)}
-                    </div>
-                    <div>
-                      <CardTitle className="text-base">{collaboration.campaigns.song_title}</CardTitle>
-                      <CardDescription>by {collaboration.profiles.display_name}</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="text-muted-foreground">Views</p>
-                      <p className="font-semibold">{collaboration.views.toLocaleString()}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Earned</p>
-                      <p className="font-semibold text-green-600">{formatCurrency(collaboration.earnings)}</p>
-                    </div>
-                  </div>
-                  <Badge variant="outline">{collaboration.campaigns.genre}</Badge>
-                  <p className="text-xs text-muted-foreground">
-                    <Calendar className="w-3 h-3 inline mr-1" />
-                    {new Date(collaboration.created_at).toLocaleDateString()}
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="recommended" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {recommendedArtists.map((artist) => (
-              <Card key={artist.id} className="hover:shadow-lg transition-smooth">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-12 h-12 bg-gradient-primary rounded-full flex items-center justify-center text-white font-semibold">
-                        {artist.display_name.charAt(0)}
-                      </div>
-                      <div>
-                        <CardTitle className="text-lg">{artist.display_name}</CardTitle>
-                        <CardDescription>@{artist.username}</CardDescription>
-                      </div>
-                    </div>
-                    <Badge variant="secondary" className="text-xs">
-                      <TrendingUp className="w-3 h-3 mr-1" />
-                      Trending
-                    </Badge>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <span className="font-medium">{artist.avgRating.toFixed(1)}</span>
-                    <span className="text-sm text-muted-foreground">rating</span>
-                  </div>
-
-                  <p className="text-sm text-muted-foreground">{artist.bio}</p>
-
-                  <div className="flex flex-wrap gap-1">
-                    {artist.genres.map((genre) => (
-                      <Badge key={genre} variant="outline" className="text-xs">
-                        {genre}
-                      </Badge>
-                    ))}
-                  </div>
-
-                  <Button className="w-full">
-                    <Music className="w-4 h-4 mr-2" />
-                    Follow Artist
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </TabsContent>
-
+        {/* Messages Tab */}
         <TabsContent value="messages" className="space-y-6">
-          <Card>
-            <CardContent className="p-8 text-center">
-              <MessageCircle className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-medium mb-2">Direct Messages Coming Soon</h3>
-              <p className="text-muted-foreground">
-                Chat directly with artists to discuss collaborations and build relationships.
-              </p>
-            </CardContent>
-          </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Friends List */}
+            <Card className="lg:col-span-1">
+              <CardHeader>
+                <CardTitle className="text-lg">Friends</CardTitle>
+                <CardDescription>Your direct messages</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ScrollArea className="h-[500px]">
+                  {friends.length === 0 ? (
+                    <div className="text-center text-muted-foreground py-8">
+                      <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                      <p className="text-sm">No friends yet</p>
+                      <p className="text-xs">Add friends to start messaging!</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {friends.map((friendship) => {
+                        const profile = getFriendProfile(friendship);
+                        return (
+                          <div
+                            key={friendship.id}
+                            className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                              selectedRoom?.other_user?.user_id === profile?.user_id
+                                ? 'bg-primary/10 border border-primary/20'
+                                : 'hover:bg-muted/50'
+                            }`}
+                            onClick={() => {
+                              if (profile?.user_id) {
+                                startDirectMessage(profile.user_id);
+                              }
+                            }}
+                          >
+                            <div className="flex items-center space-x-3">
+                              <Avatar className="h-8 w-8">
+                                <AvatarImage src={profile?.avatar_url} />
+                                <AvatarFallback>
+                                  {profile?.display_name?.slice(0, 2).toUpperCase() || 
+                                   profile?.username?.slice(0, 2).toUpperCase()}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1 min-w-0">
+                                <p className="text-sm font-medium truncate">
+                                  {profile?.display_name || profile?.username}
+                                </p>
+                                <p className="text-xs text-muted-foreground truncate">
+                                  @{profile?.username}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </ScrollArea>
+              </CardContent>
+            </Card>
+
+            {/* Chat Area */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                {selectedRoom && selectedRoom.other_user ? (
+                  <div className="flex items-center space-x-3">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={selectedRoom.other_user.avatar_url} />
+                      <AvatarFallback>
+                        {selectedRoom.other_user.display_name?.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <CardTitle className="text-lg">
+                        {selectedRoom.other_user.display_name}
+                      </CardTitle>
+                      <CardDescription>@{selectedRoom.other_user.username}</CardDescription>
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <CardTitle className="text-lg">Messages</CardTitle>
+                    <CardDescription>Select a friend to start chatting</CardDescription>
+                  </div>
+                )}
+              </CardHeader>
+              <CardContent>
+                {selectedRoom ? (
+                  <div className="space-y-4">
+                    <ScrollArea className="h-[400px] border rounded-lg p-4">
+                      {messages.length === 0 ? (
+                        <div className="text-center text-muted-foreground py-8">
+                          <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p className="text-sm">No messages yet</p>
+                          <p className="text-xs">Start the conversation!</p>
+                        </div>
+                      ) : (
+                        <div className="space-y-4">
+                          {messages.map((message) => (
+                            <div
+                              key={message.id}
+                              className={`flex ${
+                                message.sender_id === user?.id ? 'justify-end' : 'justify-start'
+                              }`}
+                            >
+                              <div
+                                className={`max-w-[70%] rounded-lg p-3 ${
+                                  message.sender_id === user?.id
+                                    ? 'bg-primary text-primary-foreground'
+                                    : 'bg-muted'
+                                }`}
+                              >
+                                <p className="text-sm">{message.content}</p>
+                                <p className="text-xs opacity-70 mt-1">
+                                  {new Date(message.created_at).toLocaleTimeString([], {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </ScrollArea>
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Type a message..."
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                      />
+                      <Button onClick={sendMessage} size="icon">
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="h-[460px] flex items-center justify-center text-muted-foreground">
+                    <div className="text-center">
+                      <MessageCircle className="h-16 w-16 mx-auto mb-4 opacity-50" />
+                      <p>Select a friend to view your conversation</p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
       </Tabs>
     </div>
