@@ -7,7 +7,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 const Discover = () => {
   return (
     <DashboardLayout>
-      <div className="relative min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-background overflow-hidden">
+      <div className="relative min-h-screen bg-gradient-to-b from-red-950 via-red-900 to-red-800 overflow-hidden">
         {/* Ambient glow effects */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-accent/10 via-transparent to-transparent pointer-events-none" />

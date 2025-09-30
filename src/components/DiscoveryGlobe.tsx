@@ -86,7 +86,7 @@ export function DiscoveryGlobe() {
         gl={{ antialias: true, alpha: false }}
         dpr={[1, Math.min(2, window.devicePixelRatio)]}
       >
-        <color attach="background" args={['#000000']} />
+        <color attach="background" args={['#450a0a']} />
         <Globe />
         <Controls />
       </Canvas>
