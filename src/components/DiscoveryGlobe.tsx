@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState, createContext, useContext } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import ThreeGlobe from 'three-globe';
@@ -6,7 +6,9 @@ import ThreeGlobe from 'three-globe';
 import { TrackballControls } from 'three-stdlib';
 import { useGlobeData } from '@/hooks/useGlobeData';
 
-function Controls() {
+const InteractionContext = createContext({ isInteracting: false });
+
+function Controls({ onInteractionChange }: { onInteractionChange: (isInteracting: boolean) => void }) {
   const { camera, gl } = useThree();
   const controlsRef = useRef<TrackballControls>();
 
@@ -17,10 +19,22 @@ function Controls() {
     controls.zoomSpeed = 0.8;
     controlsRef.current = controls;
 
+    const handleStart = () => onInteractionChange(true);
+    const handleEnd = () => onInteractionChange(false);
+
+    gl.domElement.addEventListener('mousedown', handleStart);
+    gl.domElement.addEventListener('mouseup', handleEnd);
+    gl.domElement.addEventListener('touchstart', handleStart);
+    gl.domElement.addEventListener('touchend', handleEnd);
+
     return () => {
+      gl.domElement.removeEventListener('mousedown', handleStart);
+      gl.domElement.removeEventListener('mouseup', handleEnd);
+      gl.domElement.removeEventListener('touchstart', handleStart);
+      gl.domElement.removeEventListener('touchend', handleEnd);
       controls.dispose();
     };
-  }, [camera, gl]);
+  }, [camera, gl, onInteractionChange]);
 
   useFrame(() => {
     controlsRef.current?.update();
@@ -29,7 +43,7 @@ function Controls() {
   return null;
 }
 
-function Globe() {
+function Globe({ isInteracting }: { isInteracting: boolean }) {
   const { scene } = useThree();
   const globeRef = useRef<any>();
   const { data: arcsData } = useGlobeData();
@@ -70,10 +84,10 @@ function Globe() {
     }
   }, [arcsData]);
 
-  // Rotate globe continuously
+  // Rotate globe continuously when not interacting
   useFrame(() => {
-    if (globeRef.current) {
-      globeRef.current.rotation.y += 0.002;
+    if (globeRef.current && !isInteracting) {
+      globeRef.current.rotation.y += 0.003;
     }
   });
 
@@ -87,6 +101,8 @@ function Globe() {
 }
 
 export function DiscoveryGlobe() {
+  const [isInteracting, setIsInteracting] = useState(false);
+
   return (
     <div className="w-full h-full min-h-[400px] lg:min-h-[600px] relative">
       <Canvas
@@ -95,8 +111,8 @@ export function DiscoveryGlobe() {
         dpr={[1, Math.min(2, window.devicePixelRatio)]}
       >
         <color attach="background" args={['#1e1b3b']} />
-        <Globe />
-        <Controls />
+        <Globe isInteracting={isInteracting} />
+        <Controls onInteractionChange={setIsInteracting} />
       </Canvas>
     </div>
   );
