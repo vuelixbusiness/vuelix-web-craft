@@ -754,7 +754,7 @@ export default function CampaignManagement() {
             <div className="flex items-center gap-3">
               <Calendar className="w-8 h-8 text-primary" />
               <div>
-                <p className="text-2xl font-bold">{formatCurrency(campaign.budget)}</p>
+                <p className="text-2xl font-bold text-green-600">{formatCurrency(campaign.budget)}</p>
                 <p className="text-sm text-muted-foreground">Total Budget</p>
               </div>
             </div>

@@ -1146,7 +1146,7 @@ const ArtistCampaignFlow = () => {
                           </div>
                           <div className="border-t pt-1 mt-2 flex justify-between font-medium">
                             <span>Available to Creators:</span>
-                            <span className="text-primary">{formatCurrency(campaignData.budget || 0)}</span>
+                            <span className="text-green-600">{formatCurrency(campaignData.budget || 0)}</span>
                           </div>
                         </div>
                       </CardContent>

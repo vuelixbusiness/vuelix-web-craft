@@ -283,7 +283,7 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
               
               <div className="space-y-3">
                 <div>
-                  <p className="text-2xl font-bold text-primary">
+                  <p className="text-2xl font-bold text-green-600">
                     {formatCurrency(availableBudget)}
                   </p>
                   <p className="text-xs text-muted-foreground">Available</p>

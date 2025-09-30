@@ -586,7 +586,7 @@ const ArtistDashboard = () => {
                               
                               <div className="space-y-2">
                                 <div className="flex justify-between items-baseline">
-                                  <span className="text-2xl font-bold text-primary">
+                                  <span className="text-2xl font-bold text-green-600">
                                     {formatCurrency(availableBudget)}
                                   </span>
                                   <span className="text-sm text-muted-foreground">
