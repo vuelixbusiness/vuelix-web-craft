@@ -200,8 +200,8 @@ const ArtistRelations = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Artist Relations</h2>
-          <p className="text-muted-foreground">Manage relationships with artists you've worked with</p>
+          <h2 className="text-2xl font-bold">Social Hub</h2>
+          <p className="text-muted-foreground">Connect and collaborate with artists in your network</p>
         </div>
       </div>
 

@@ -320,8 +320,8 @@ const ArtistDashboard = () => {
       color: "text-green-500"
     },
     creators: {
-      title: "Creator Relations",
-      description: "Manage creator partnerships",
+      title: "Social Hub",
+      description: "Connect and collaborate with creators",
       icon: Users,
       color: "text-purple-500"
     },

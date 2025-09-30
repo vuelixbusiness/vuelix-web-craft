@@ -39,7 +39,7 @@ const CreatorDashboard = () => {
             </TabsTrigger>
             <TabsTrigger value="creators" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
-              <span className="hidden sm:inline">Creator Relations</span>
+              <span className="hidden sm:inline">Social Hub</span>
             </TabsTrigger>
             <TabsTrigger value="settings" className="flex items-center gap-2">
               <Settings className="w-4 h-4" />
