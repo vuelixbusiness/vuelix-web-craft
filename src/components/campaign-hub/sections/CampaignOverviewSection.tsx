@@ -276,9 +276,9 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                   <PotIcon className="w-5 h-5" />
                   <span className="font-semibold">Engagement Pot</span>
                 </div>
-                <span className="text-sm text-muted-foreground">
-                  {budgetUsedPercentage.toFixed(1)}% used
-                </span>
+              <span className="text-sm text-red-600">
+                {budgetUsedPercentage.toFixed(1)}% used
+              </span>
               </div>
               
               <div className="space-y-3">
@@ -302,9 +302,9 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                   <Progress value={budgetUsedPercentage} className="h-3" />
                   {budgetUsedPercentage > 15 && (
                     <div className="text-center">
-                      <span className="text-xs font-medium">
-                        {budgetUsedPercentage.toFixed(1)}%
-                      </span>
+                    <span className="text-xs font-medium text-red-600">
+                      {budgetUsedPercentage.toFixed(1)}%
+                    </span>
                     </div>
                   )}
                 </div>

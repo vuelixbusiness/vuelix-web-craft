@@ -579,7 +579,7 @@ const ArtistDashboard = () => {
                                   <PotIcon className="w-5 h-5 mr-2" />
                                   Engagement Pot
                                 </h4>
-                                <span className="text-sm text-muted-foreground">
+                                <span className="text-sm text-red-600">
                                   {progressPercentage.toFixed(1)}% used
                                 </span>
                               </div>
@@ -622,9 +622,9 @@ const ArtistDashboard = () => {
                                      className="h-3 bg-secondary"
                                    />
                                    <div className="absolute inset-0 flex items-center justify-center">
-                                     <span className="text-xs font-medium text-primary-foreground">
-                                       {progressPercentage > 15 ? `${progressPercentage.toFixed(0)}%` : ''}
-                                     </span>
+                                      <span className="text-xs font-medium text-red-600">
+                                        {progressPercentage > 15 ? `${progressPercentage.toFixed(0)}%` : ''}
+                                      </span>
                                    </div>
                                  </div>
                                </div>

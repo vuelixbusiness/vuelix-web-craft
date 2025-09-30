@@ -308,7 +308,7 @@ const CampaignCard = ({
                 <PotIcon className="w-5 h-5" />
                 <span className="font-semibold">Engagement Pot</span>
               </div>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-sm text-red-600">
                 {campaign.budgetUsedPercentage?.toFixed(1) || '0.0'}% used
               </span>
             </div>
@@ -334,7 +334,7 @@ const CampaignCard = ({
                 <Progress value={campaign.budgetUsedPercentage || 0} className="h-3" />
                 {(campaign.budgetUsedPercentage || 0) > 15 && (
                   <div className="text-center">
-                    <span className="text-xs font-medium">
+                    <span className="text-xs font-medium text-red-600">
                       {campaign.budgetUsedPercentage?.toFixed(1) || '0.0'}%
                     </span>
                   </div>
