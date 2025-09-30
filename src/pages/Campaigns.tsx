@@ -32,6 +32,7 @@ interface Campaign {
   isJoined?: boolean;
   profiles?: {
     display_name?: string;
+    username?: string;
   } | null;
 }
 
@@ -93,7 +94,7 @@ const Campaigns = () => {
 
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('user_id, display_name')
+        .select('user_id, display_name, username')
         .in('user_id', artistIds);
 
       console.log('👤 Profiles query result:', { profilesData, profilesError });

@@ -6,6 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/utils";
 import RunningTimer from "@/components/RunningTimer";
+import { ClickableUsername } from "@/components/ui/clickable-username";
 import { 
   Play, 
   Pause, 
@@ -47,6 +48,7 @@ interface Campaign {
   rules?: string;
   profiles?: {
     display_name?: string;
+    username?: string;
   } | null;
   actualSpent?: number;
   totalViews?: number;
@@ -206,9 +208,19 @@ const CampaignCard = ({
             </div>
 
             {/* Artist Name */}
-            <p className="text-muted-foreground text-sm mb-3">
-              by {campaign.profiles?.display_name || campaign.title || "Unknown Artist"}
-            </p>
+            <div className="text-muted-foreground text-sm mb-3">
+              by{' '}
+              {campaign.profiles?.username ? (
+                <ClickableUsername 
+                  username={campaign.profiles.username}
+                  displayName={campaign.profiles.display_name}
+                  showAt={false}
+                  className="text-muted-foreground hover:text-primary"
+                />
+              ) : (
+                <span>{campaign.profiles?.display_name || campaign.title || "Unknown Artist"}</span>
+              )}
+            </div>
 
             {/* Platforms & Genre */}
             <div className="flex flex-wrap gap-2 mb-4">
