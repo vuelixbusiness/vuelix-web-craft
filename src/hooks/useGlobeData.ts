@@ -28,13 +28,19 @@ export const useGlobeData = () => {
   return useQuery({
     queryKey: ['globe-satellites'],
     queryFn: async () => {
+      console.log('🛰️ Fetching globe data...');
+      
       // Fetch creators and artists
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('user_id, display_name, username, user_type')
         .in('user_type', ['creator', 'artist']);
 
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        console.error('❌ Error fetching profiles:', profilesError);
+        throw profilesError;
+      }
+      console.log('✅ Profiles fetched:', profiles?.length, profiles);
 
       // Fetch active campaigns
       const { data: campaigns, error: campaignsError } = await supabase
@@ -42,7 +48,11 @@ export const useGlobeData = () => {
         .select('id, title')
         .eq('status', 'active');
 
-      if (campaignsError) throw campaignsError;
+      if (campaignsError) {
+        console.error('❌ Error fetching campaigns:', campaignsError);
+        throw campaignsError;
+      }
+      console.log('✅ Campaigns fetched:', campaigns?.length, campaigns);
 
       const satellites: SatelliteEntity[] = [];
 
@@ -79,6 +89,7 @@ export const useGlobeData = () => {
         });
       });
 
+      console.log('🎯 Total satellites generated:', satellites.length, satellites);
       return satellites;
     },
     staleTime: 30000, // Refetch every 30 seconds

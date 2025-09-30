@@ -44,7 +44,7 @@ function Globe() {
       .particleLng('lng')
       .particleAltitude('alt')
       .particlesColor('color')
-      .particlesSize(4);
+      .particlesSize(8);
 
     // Load satellite icon texture
     new THREE.TextureLoader().load('/sat-icon.png', (texture) => {
@@ -66,6 +66,7 @@ function Globe() {
   // Update satellites when data loads
   useEffect(() => {
     if (satellites && globeRef.current) {
+      console.log('🌍 Setting satellites on globe:', satellites.length, satellites);
       satDataRef.current = satellites;
       const globe = globeRef.current.children[0];
       if (globe && globe.particlesData) {
@@ -103,8 +104,19 @@ function Globe() {
 }
 
 export function DiscoveryGlobe() {
+  const { isLoading, error } = useGlobeData();
+
+  if (error) {
+    console.error('🚨 Globe error:', error);
+  }
+
   return (
-    <div className="w-full h-full min-h-[400px] lg:min-h-[600px]">
+    <div className="w-full h-full min-h-[400px] lg:min-h-[600px] relative">
+      {isLoading && (
+        <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+          <div className="text-white">Loading satellites...</div>
+        </div>
+      )}
       <Canvas
         camera={{ position: [0, 0, 400], fov: 75 }}
         gl={{ antialias: true, alpha: false }}
