@@ -46,40 +46,58 @@ function Globe({ time }: { time: Date }) {
   const satDataRef = useRef<SatelliteData[]>([]);
 
   useEffect(() => {
-    // Initialize globe
+    // Initialize globe with larger particles and bright color
     const globe = new ThreeGlobe()
       .globeImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg')
       .particleLat('lat')
       .particleLng('lng')
       .particleAltitude('alt')
-      .particlesSize(2);
+      .particleColor(() => '#00ff00')  // Bright green fallback
+      .particlesSize(12);  // Much larger for visibility
 
-    // Load satellite icon texture
-    new THREE.TextureLoader().load('/sat-icon.png', (texture) => {
-      texture.colorSpace = THREE.SRGBColorSpace;
-      globe.particlesTexture(texture);
-    });
+    // Load satellite icon texture with error handling
+    new THREE.TextureLoader().load(
+      '/sat-icon.png',
+      (texture) => {
+        texture.colorSpace = THREE.SRGBColorSpace;
+        globe.particlesTexture(texture);
+        console.log('✅ Satellite texture loaded successfully');
+      },
+      undefined,
+      (error) => {
+        console.warn('⚠️ Satellite texture failed to load, using color fallback:', error);
+      }
+    );
 
     if (globeRef.current) {
       globeRef.current.add(globe);
     }
 
     // Load fresh TLE data from CelesTrak
+    console.log('📡 Fetching TLE data from CelesTrak...');
     fetch('https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle')
       .then(r => r.text())
       .then(rawData => {
+        console.log('📦 Raw TLE data received, length:', rawData.length);
         const tleData = rawData.replace(/\r/g, '').split(/\n(?=[^12])/).map(tle => tle.split('\n'));
-        const satData = tleData.map(([name, tle1, tle2]) => ({
-          satrec: satellite.twoline2satrec(tle1, tle2),
-          name: name.trim().replace(/^0 /, '')
-        }))
-        // exclude those that can't be propagated
-        .filter(d => !!satellite.propagate(d.satrec, new Date())?.position);
+        console.log('📋 TLE entries parsed:', tleData.length);
+        
+        const satData = tleData
+          .map(([name, tle1, tle2]) => {
+            if (!name || !tle1 || !tle2) return null;
+            return {
+              satrec: satellite.twoline2satrec(tle1, tle2),
+              name: name.trim().replace(/^0 /, '')
+            };
+          })
+          .filter(d => d && !!satellite.propagate(d.satrec, new Date())?.position)
+          .slice(0, 100);  // Limit to first 100 for better performance
 
         satDataRef.current = satData;
-        console.log('🛰️ Loaded satellites from CelesTrak:', satData.length);
+        console.log('🛰️ Satellites loaded and ready:', satData.length);
+        console.log('📍 Sample satellite:', satData[0]?.name);
       })
-      .catch(err => console.error('Error loading TLE data from CelesTrak:', err));
+      .catch(err => console.error('❌ Error loading TLE data from CelesTrak:', err));
 
     return () => {
       if (globeRef.current) {
@@ -99,7 +117,8 @@ function Globe({ time }: { time: Date }) {
         const gdPos = satellite.eciToGeodetic(eci.position, gmst);
         d.lat = satellite.radiansToDegrees(gdPos.latitude);
         d.lng = satellite.radiansToDegrees(gdPos.longitude);
-        d.alt = gdPos.height / EARTH_RADIUS_KM;
+        // Scale altitude to be more visible (min 0.01, scale up by 5%)
+        d.alt = 0.01 + (gdPos.height / EARTH_RADIUS_KM) * 0.05;
       }
     });
 
