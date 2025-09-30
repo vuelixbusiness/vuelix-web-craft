@@ -59,6 +59,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('🚪 User signed out');
       }
       
+      // Don't clear user state on INITIAL_SESSION - wait for actual session check
+      if (event === 'INITIAL_SESSION') {
+        console.log('⏳ Initial session event - waiting for session check...');
+        return;
+      }
+      
       if (session) {
         console.log('✅ Session exists, fetching profile...');
         // Defer Supabase calls with setTimeout to prevent deadlocks
@@ -81,10 +87,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             window.location.href = "/dashboard";
           }, 100);
         }
-      } else {
-        console.log('❌ No session, clearing user state');
+      } else if (event === 'SIGNED_OUT') {
+        // Only clear user on explicit sign out
+        console.log('❌ User signed out, clearing state');
         setUser(null);
-        setIsLoading(false); // Set loading false when no session
+        setIsLoading(false);
         
         // Handle redirects for unauthenticated users
         if (window.location.pathname.includes('dashboard')) {
@@ -108,16 +115,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return;
         }
         
-        console.log('📋 Initial session check:', session ? 'Session found' : 'No session');
-        
-        // Don't fetch profile here - let onAuthStateChange handle it
-        // This prevents race conditions between initial check and auth state changes
-        if (!session?.user) {
-          console.log('🚫 No user in session');
+        if (session?.user) {
+          console.log('📋 Initial session check: ✅ Session found!', {
+            userId: session.user.id,
+            email: session.user.email
+          });
+          // Fetch profile immediately since we have a valid session
+          await fetchUserProfile(session.user);
+        } else {
+          console.log('📋 Initial session check: ❌ No session');
           setUser(null);
           setIsLoading(false);
         }
-        // If session exists, onAuthStateChange will handle the profile fetch and redirects
       } catch (error) {
         console.error('❌ Error in checkInitialAuth:', error);
         setIsLoading(false);
