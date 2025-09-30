@@ -7,7 +7,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { formatCurrency } from "@/lib/utils";
 import { 
   TrendingUp, 
-  DollarSign, 
   Eye, 
   Heart,
   PlayCircle,
@@ -15,6 +14,7 @@ import {
   Target,
   BarChart3
 } from "lucide-react";
+import PotIcon from "@/components/ui/pot-icon";
 import { FaTiktok, FaInstagram, FaYoutube } from "react-icons/fa";
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -199,7 +199,7 @@ const AnalyticsHub = () => {
                 <p className="text-sm text-muted-foreground">Total Earnings</p>
                 <p className="text-2xl font-bold">{formatCurrency(analyticsData.totalEarnings)}</p>
               </div>
-              <DollarSign className="w-8 h-8 text-green-500" />
+              <PotIcon className="w-8 h-8" />
             </div>
           </CardContent>
         </Card>
@@ -263,7 +263,7 @@ const AnalyticsHub = () => {
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <DollarSign className="w-5 h-5" />
+                  <PotIcon className="w-5 h-5" />
                   <span>Monthly Earnings</span>
                 </CardTitle>
               </CardHeader>

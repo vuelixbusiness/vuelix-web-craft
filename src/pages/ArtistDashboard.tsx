@@ -7,7 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useArtistNotifications } from "@/contexts/ArtistNotificationContext";
-import { Plus, Music, Users, TrendingUp, Play, Pause, Eye, Heart, BarChart3, MessageCircle, Settings, Star, DollarSign } from "lucide-react";
+import { Plus, Music, Users, TrendingUp, Play, Pause, Eye, Heart, BarChart3, MessageCircle, Settings, Star } from "lucide-react";
+import PotIcon from "@/components/ui/pot-icon";
 import { FaTiktok, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -575,7 +576,7 @@ const ArtistDashboard = () => {
                             <div className="bg-secondary/30 rounded-lg p-4 space-y-3">
                               <div className="flex items-center justify-between">
                                 <h4 className="font-semibold text-lg flex items-center">
-                                  <DollarSign className="w-5 h-5 mr-2 text-green-500" />
+                                  <PotIcon className="w-5 h-5 mr-2" />
                                   Engagement Pot
                                 </h4>
                                 <span className="text-sm text-muted-foreground">
@@ -761,7 +762,7 @@ const ArtistDashboard = () => {
                         <p className="text-sm text-muted-foreground">ROI</p>
                         <p className="text-2xl font-bold">156%</p>
                       </div>
-                      <DollarSign className="w-8 h-8 text-green-600" />
+                      <PotIcon className="w-8 h-8" />
                     </div>
                   </CardContent>
                 </Card>

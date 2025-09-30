@@ -15,12 +15,12 @@ import {
   Search, 
   Filter, 
   PlayCircle, 
-  DollarSign, 
   Eye, 
   Music,
   Calendar,
   Target
 } from "lucide-react";
+import PotIcon from "@/components/ui/pot-icon";
 import { FaTiktok, FaInstagram, FaYoutube } from "react-icons/fa";
 
 interface Campaign {
@@ -179,7 +179,7 @@ const CreatorCampaigns = () => {
               {[
                 { key: 'browse', label: 'Browse Campaigns', icon: Search },
                 { key: 'my-videos', label: 'My Videos', icon: PlayCircle },
-                { key: 'earnings', label: 'Earnings', icon: DollarSign }
+                { key: 'earnings', label: 'Earnings', icon: PotIcon }
               ].map(({ key, label, icon: Icon }) => (
                 <button
                   key={key}
@@ -295,7 +295,7 @@ const CreatorCampaigns = () => {
                         {/* Payout Info */}
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
-                            <DollarSign className="w-4 h-4 text-green-500" />
+                            <PotIcon className="w-4 h-4" />
                             <span className="font-medium text-sm">
                               ${campaign.payout_rate} per 1,000 Views
                             </span>
@@ -373,7 +373,7 @@ const CreatorCampaigns = () => {
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <DollarSign className="w-5 h-5 text-green-500" />
+                    <PotIcon className="w-5 h-5" />
                     <span>Earnings Dashboard</span>
                   </CardTitle>
                   <CardDescription>

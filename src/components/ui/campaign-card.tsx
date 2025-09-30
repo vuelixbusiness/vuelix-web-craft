@@ -12,7 +12,6 @@ import {
   Pause, 
   Eye, 
   Heart, 
-  DollarSign, 
   TrendingUp, 
   PlayCircle,
   Calendar,
@@ -22,6 +21,7 @@ import {
   ExternalLink,
   Music
 } from "lucide-react";
+import PotIcon from "@/components/ui/pot-icon";
 import { FaTiktok, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 import vuelixLogo from "@/assets/vuelix-logo-official.png";
 
@@ -254,7 +254,7 @@ const CampaignCard = ({
             {variant === 'artist' && (
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="text-center p-3 bg-secondary/20 rounded-lg">
-                  <DollarSign className="w-5 h-5 mx-auto text-green-500 mb-1" />
+                  <PotIcon className="w-5 h-5 mx-auto mb-1" />
                   <p className="text-xs text-muted-foreground">Budget</p>
                   <p className="font-semibold text-sm">${campaign.budget?.toLocaleString() || '0'}</p>
                 </div>
@@ -305,7 +305,7 @@ const CampaignCard = ({
           <div className="bg-secondary/30 rounded-lg px-4 py-4 mb-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
-                <DollarSign className="w-5 h-5 text-green-500" />
+                <PotIcon className="w-5 h-5" />
                 <span className="font-semibold">Engagement Pot</span>
               </div>
               <span className="text-sm text-muted-foreground">

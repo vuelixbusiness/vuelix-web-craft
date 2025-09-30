@@ -8,7 +8,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { formatCurrency } from "@/lib/utils";
 import { 
   PlayCircle, 
-  DollarSign, 
   Eye, 
   Heart,
   TrendingUp,
@@ -18,6 +17,7 @@ import {
   Calendar,
   Target
 } from "lucide-react";
+import PotIcon from "@/components/ui/pot-icon";
 import { FaTiktok, FaInstagram, FaYoutube } from "react-icons/fa";
 
 interface Campaign {
@@ -194,7 +194,7 @@ const YourCampaigns = () => {
                 <p className="text-sm text-muted-foreground">Total Earnings</p>
                 <p className="text-2xl font-bold">{formatCurrency(stats.totalEarnings)}</p>
               </div>
-              <DollarSign className="w-8 h-8 text-green-500" />
+              <PotIcon className="w-8 h-8" />
             </div>
           </CardContent>
         </Card>
@@ -313,7 +313,7 @@ const YourCampaigns = () => {
 
         <Card className="hover:shadow-lg transition-smooth cursor-pointer">
           <CardContent className="p-6 text-center">
-            <DollarSign className="w-12 h-12 mx-auto text-green-500 mb-4" />
+            <PotIcon className="w-12 h-12 mx-auto mb-4" />
             <h3 className="font-semibold mb-2">Earnings Report</h3>
             <p className="text-sm text-muted-foreground mb-4">
               Check your earnings and request payouts

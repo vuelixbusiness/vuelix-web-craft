@@ -1,4 +1,5 @@
-import { Calendar, DollarSign, Users, TrendingUp, Clock, Crown, Lock, CheckCircle } from "lucide-react";
+import { Calendar, Users, TrendingUp, Clock, Crown, Lock, CheckCircle } from "lucide-react";
+import PotIcon from "@/components/ui/pot-icon";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -222,7 +223,7 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                   
                   <div className="flex items-center gap-6">
                     <div className="flex items-center gap-2">
-                      <DollarSign className="h-4 w-4 text-muted-foreground" />
+                      <PotIcon className="h-4 w-4 text-muted-foreground" />
                       <span className="font-medium text-sm">
                         ${campaign.payout_rate} per 1,000 Views
                       </span>
@@ -234,7 +235,7 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                     </div>
                     {campaign.max_payout && (
                       <div className="flex items-center gap-2">
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <PotIcon className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">
                           Max ${campaign.max_payout} payout
                         </span>
@@ -242,7 +243,7 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                     )}
                     {campaign.vip_max_payout && campaign.vip_max_payout !== campaign.max_payout && (
                       <div className="flex items-center gap-2">
-                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <PotIcon className="h-4 w-4 text-muted-foreground" />
                         <Badge variant="outline" className="text-xs text-primary border-primary">
                           VIP Max ${campaign.vip_max_payout} payout
                         </Badge>
@@ -272,7 +273,7 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
             <div className="bg-secondary/30 rounded-lg px-4 py-4">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center space-x-2">
-                  <DollarSign className="w-5 h-5 text-green-500" />
+                  <PotIcon className="w-5 h-5" />
                   <span className="font-semibold">Engagement Pot</span>
                 </div>
                 <span className="text-sm text-muted-foreground">
