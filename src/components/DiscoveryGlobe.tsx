@@ -2,20 +2,11 @@ import { useRef, useEffect } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import ThreeGlobe from 'three-globe';
-import * as satellite from 'satellite.js';
 // @ts-ignore - TrackballControls types
 import { TrackballControls } from 'three-stdlib';
+import { useGlobeData, type SatelliteEntity } from '@/hooks/useGlobeData';
 
-const EARTH_RADIUS_KM = 6371; // km
-const TIME_STEP = 1.5 * 1000; // per frame
-
-interface SatelliteData {
-  satrec: any;
-  name: string;
-  lat?: number;
-  lng?: number;
-  alt?: number;
-}
+const TIME_STEP = 0.0001; // Slow orbital rotation per frame
 
 function Controls() {
   const { camera, gl } = useThree();
@@ -42,8 +33,8 @@ function Controls() {
 
 function Globe() {
   const globeRef = useRef<any>();
-  const timeRef = useRef<Date>(new Date());
-  const satDataRef = useRef<SatelliteData[]>([]);
+  const satDataRef = useRef<SatelliteEntity[]>([]);
+  const { data: satellites, isLoading } = useGlobeData();
 
   useEffect(() => {
     // Initialize globe
@@ -52,7 +43,8 @@ function Globe() {
       .particleLat('lat')
       .particleLng('lng')
       .particleAltitude('alt')
-      .particlesSize(2);
+      .particlesColor('color')
+      .particlesSize(4);
 
     // Load satellite icon texture
     new THREE.TextureLoader().load('/sat-icon.png', (texture) => {
@@ -64,26 +56,6 @@ function Globe() {
       globeRef.current.add(globe);
     }
 
-    // Load TLE data
-    fetch('/space-track-leo.txt')
-      .then((r) => r.text())
-      .then((rawData) => {
-        const tleData = rawData
-          .replace(/\r/g, '')
-          .split(/\n(?=[^12])/)
-          .map((tle) => tle.split('\n'));
-        
-        const satData = tleData
-          .map(([name, ...tle]) => ({
-            satrec: satellite.twoline2satrec(tle[0], tle[1]),
-            name: name.trim().replace(/^0 /, ''),
-          }))
-          // exclude those that can't be propagated
-          .filter((d) => !!satellite.propagate(d.satrec, new Date())?.position);
-
-        satDataRef.current = satData;
-      });
-
     return () => {
       if (globeRef.current) {
         globeRef.current.remove(globe);
@@ -91,37 +63,34 @@ function Globe() {
     };
   }, []);
 
+  // Update satellites when data loads
+  useEffect(() => {
+    if (satellites && globeRef.current) {
+      satDataRef.current = satellites;
+      const globe = globeRef.current.children[0];
+      if (globe && globe.particlesData) {
+        globe.particlesData(satellites);
+      }
+    }
+  }, [satellites]);
+
   useFrame(() => {
     if (!globeRef.current || satDataRef.current.length === 0) return;
 
-    // Update time
-    timeRef.current = new Date(+timeRef.current + TIME_STEP);
-
-    // Update satellite positions
-    const gmst = satellite.gstime(timeRef.current);
-    satDataRef.current.forEach((d) => {
-      const eci = satellite.propagate(d.satrec, timeRef.current);
-      if (eci?.position) {
-        const gdPos = satellite.eciToGeodetic(eci.position, gmst);
-        d.lat = satellite.radiansToDegrees(gdPos.latitude);
-        d.lng = satellite.radiansToDegrees(gdPos.longitude);
-        d.alt = gdPos.height / EARTH_RADIUS_KM;
-      } else {
-        // explicitly handle invalid position
-        d.lat = NaN;
-        d.lng = NaN;
-        d.alt = NaN;
-      }
+    // Simple orbital motion - increment longitude
+    satDataRef.current.forEach((sat, i) => {
+      // Each satellite orbits at slightly different speed
+      const speed = TIME_STEP * (1 + i * 0.1);
+      sat.lng += speed;
+      
+      // Wrap around at 180/-180
+      if (sat.lng > 180) sat.lng = -180;
     });
 
-    // Update globe with valid satellites
-    const validSats = satDataRef.current.filter(
-      (d) => !isNaN(d.lat!) && !isNaN(d.lng!) && !isNaN(d.alt!)
-    );
-    
+    // Update globe particles
     const globe = globeRef.current.children[0];
     if (globe && globe.particlesData) {
-      globe.particlesData(validSats);
+      globe.particlesData([...satDataRef.current]);
     }
   });
 
