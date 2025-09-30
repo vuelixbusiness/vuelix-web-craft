@@ -146,7 +146,17 @@ const PublicProfile = () => {
   };
 
   const handleFollow = async () => {
-    if (!currentUser || !profile) return;
+    if (!currentUser) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to follow users",
+        variant: "destructive",
+      });
+      navigate('/login');
+      return;
+    }
+
+    if (!profile) return;
 
     try {
       if (isFollowing) {
@@ -182,7 +192,17 @@ const PublicProfile = () => {
   };
 
   const handlePartnerRequest = async () => {
-    if (!currentUser || !profile) return;
+    if (!currentUser) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to send partnership requests",
+        variant: "destructive",
+      });
+      navigate('/login');
+      return;
+    }
+
+    if (!profile) return;
 
     try {
       const { error } = await supabase
@@ -212,6 +232,15 @@ const PublicProfile = () => {
   };
 
   const handleMessage = () => {
+    if (!currentUser) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to send messages",
+        variant: "destructive",
+      });
+      navigate('/login');
+      return;
+    }
     navigate(`/messages?user=${profile?.user_id}`);
   };
 
@@ -266,39 +295,37 @@ const PublicProfile = () => {
                   </div>
 
                   {/* Action Buttons */}
-                  {currentUser && (
-                    <div className="flex flex-wrap gap-2">
-                      <Button
-                        onClick={handleFollow}
-                        variant={isFollowing ? "outline" : "default"}
-                      >
-                        {isFollowing ? (
-                          <>
-                            <UserCheck className="w-4 h-4 mr-2" />
-                            Following
-                          </>
-                        ) : (
-                          <>
-                            <UserPlus className="w-4 h-4 mr-2" />
-                            Follow
-                          </>
-                        )}
-                      </Button>
-                      <Button onClick={handleMessage} variant="outline">
-                        <MessageSquare className="w-4 h-4 mr-2" />
-                        Message
-                      </Button>
-                      {!isPartner && (
-                        <Button onClick={handlePartnerRequest} variant="outline">
-                          <Handshake className="w-4 h-4 mr-2" />
-                          Partner Request
-                        </Button>
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      onClick={handleFollow}
+                      variant={isFollowing ? "outline" : "default"}
+                    >
+                      {isFollowing ? (
+                        <>
+                          <UserCheck className="w-4 h-4 mr-2" />
+                          Following
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="w-4 h-4 mr-2" />
+                          {currentUser ? 'Follow' : 'Login to Follow'}
+                        </>
                       )}
-                      <Button variant="ghost" size="icon">
-                        <Share2 className="w-4 h-4" />
+                    </Button>
+                    <Button onClick={handleMessage} variant="outline">
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      Message
+                    </Button>
+                    {!isPartner && (
+                      <Button onClick={handlePartnerRequest} variant="outline">
+                        <Handshake className="w-4 h-4 mr-2" />
+                        Partner Request
                       </Button>
-                    </div>
-                  )}
+                    )}
+                    <Button variant="ghost" size="icon">
+                      <Share2 className="w-4 h-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Bio & Details */}
