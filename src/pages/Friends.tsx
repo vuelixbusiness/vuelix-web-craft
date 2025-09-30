@@ -19,6 +19,7 @@ import {
   MessageSquare,
   TrendingUp
 } from "lucide-react";
+import { ClickableUsername } from "@/components/ui/clickable-username";
 
 interface Profile {
   user_id: string;
@@ -299,7 +300,10 @@ const Friends = () => {
                               </Avatar>
                               <div className="flex-1">
                                 <h3 className="font-medium">{profile.display_name || profile.username}</h3>
-                                <p className="text-sm text-muted-foreground">@{profile.username}</p>
+                                <ClickableUsername
+                                  username={profile.username}
+                                  className="text-sm text-muted-foreground"
+                                />
                                 <div className="flex items-center space-x-2 mt-1">
                                   <Badge variant="secondary" className="text-xs">
                                     {profile.user_type}
@@ -369,7 +373,10 @@ const Friends = () => {
                                 </Avatar>
                                 <div>
                                   <h3 className="font-medium">{profile.display_name || profile.username}</h3>
-                                  <p className="text-sm text-muted-foreground">@{profile.username}</p>
+                                  <ClickableUsername
+                                    username={profile.username}
+                                    className="text-sm text-muted-foreground"
+                                  />
                                   <div className="flex items-center space-x-2 mt-1">
                                     <Badge variant="secondary" className="text-xs">
                                       {profile.user_type}
@@ -478,7 +485,10 @@ const Friends = () => {
                                 </Avatar>
                                 <div>
                                   <h3 className="font-medium">{profile.display_name || profile.username}</h3>
-                                  <p className="text-sm text-muted-foreground">@{profile.username}</p>
+                                  <ClickableUsername
+                                    username={profile.username}
+                                    className="text-sm text-muted-foreground"
+                                  />
                                   <div className="flex items-center space-x-2 mt-1">
                                     <Badge variant="secondary" className="text-xs">
                                       {profile.user_type}

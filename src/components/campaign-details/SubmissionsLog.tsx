@@ -12,6 +12,7 @@ import { Eye, Heart, ExternalLink, Download, Search, Filter, MoreVertical, Check
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { SubmissionManagementDialogs } from './SubmissionManagementDialogs';
+import { ClickableUsername } from '@/components/ui/clickable-username';
 
 interface Submission {
   id: string;
@@ -346,12 +347,16 @@ const SubmissionsLog = ({ submissions, campaignId, isArtist, onSubmissionUpdate 
                           </Avatar>
                           <div className="flex items-center gap-2">
                             <div>
-                              <p className="font-medium">
-                                {submission.profiles?.display_name || submission.profiles?.username || 'Unknown User'}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                @{submission.profiles?.username || 'unknown'}
-                              </p>
+                              <ClickableUsername
+                                username={submission.profiles?.username || ''}
+                                displayName={submission.profiles?.display_name}
+                                showAt={false}
+                                className="font-medium"
+                              />
+                              <ClickableUsername
+                                username={submission.profiles?.username || ''}
+                                className="text-xs text-muted-foreground block"
+                              />
                             </div>
                             {submission.status === 'pending' && (
                               <div className="flex items-center gap-1 px-2 py-1 bg-orange-100 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 rounded-full">

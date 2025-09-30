@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { ClickableUsername } from '@/components/ui/clickable-username';
 
 interface Submission {
   id: string;
@@ -74,9 +75,12 @@ export const SubmissionManagementDialogs = ({
           <div className="space-y-4">
             <div>
               <Label>Creator</Label>
-              <p className="text-sm text-muted-foreground">
-                @{dialogState.submission?.profiles?.username}
-              </p>
+              <div className="text-sm text-muted-foreground">
+                <ClickableUsername
+                  username={dialogState.submission?.profiles?.username || ''}
+                  className="text-sm text-muted-foreground"
+                />
+              </div>
             </div>
             <div>
               <Label>Current Payout</Label>
@@ -117,9 +121,12 @@ export const SubmissionManagementDialogs = ({
           <div className="space-y-4">
             <div>
               <Label>Creator</Label>
-              <p className="text-sm text-muted-foreground">
-                @{dialogState.submission?.profiles?.username}
-              </p>
+              <div className="text-sm text-muted-foreground">
+                <ClickableUsername
+                  username={dialogState.submission?.profiles?.username || ''}
+                  className="text-sm text-muted-foreground"
+                />
+              </div>
             </div>
             <div>
               <Label htmlFor="note">Note</Label>

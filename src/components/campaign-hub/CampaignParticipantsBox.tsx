@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ClickableUsername } from "@/components/ui/clickable-username";
 
 interface UniqueParticipant {
   creator_id: string;
@@ -68,9 +69,12 @@ export function CampaignParticipantsBox({ participants, onViewAll }: CampaignPar
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    {participant.profiles?.display_name || participant.profiles?.username}
-                  </p>
+                  <ClickableUsername
+                    username={participant.profiles?.username || ''}
+                    displayName={participant.profiles?.display_name}
+                    showAt={false}
+                    className="text-sm font-medium truncate block"
+                  />
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-xs">
                       {participant.primary_platform}

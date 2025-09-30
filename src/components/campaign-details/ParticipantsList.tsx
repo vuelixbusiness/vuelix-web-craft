@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { MessageCircle, User } from 'lucide-react';
+import { ClickableUsername } from '@/components/ui/clickable-username';
 
 interface UniqueParticipant {
   creator_id: string;
@@ -72,12 +73,16 @@ const ParticipantsList = ({ participants }: ParticipantsListProps) => {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="font-medium">
-                            {participant.profiles?.display_name || participant.profiles?.username}
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            @{participant.profiles?.username}
-                          </p>
+                          <ClickableUsername
+                            username={participant.profiles?.username || ''}
+                            displayName={participant.profiles?.display_name}
+                            showAt={false}
+                            className="font-medium"
+                          />
+                          <ClickableUsername
+                            username={participant.profiles?.username || ''}
+                            className="text-sm text-muted-foreground block"
+                          />
                         </div>
                       </div>
                     </TableCell>

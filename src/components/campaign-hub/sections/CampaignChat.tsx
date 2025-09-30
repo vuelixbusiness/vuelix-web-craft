@@ -12,6 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { ClickableUsername } from "@/components/ui/clickable-username";
 
 interface Campaign {
   id: string;
@@ -448,9 +449,12 @@ export function CampaignChat({ campaign, onMessageSent }: CampaignChatProps) {
                 
                 <div className="flex-1 max-w-[80%]">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-sm font-medium">
-                      {message.sender_profile?.display_name || message.sender_profile?.username}
-                    </span>
+                    <ClickableUsername
+                      username={message.sender_profile?.username || ''}
+                      displayName={message.sender_profile?.display_name}
+                      showAt={false}
+                      className="text-sm font-medium"
+                    />
                     {isArtist(message.sender_id) && (
                       <Badge variant="default" className="text-xs">Artist</Badge>
                     )}

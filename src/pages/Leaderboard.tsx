@@ -5,6 +5,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import Navigation from "@/components/Navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { Trophy, Crown, Medal, TrendingUp, Users, DollarSign } from "lucide-react";
+import { ClickableUsername } from "@/components/ui/clickable-username";
 
 const Leaderboard = () => {
   const { user } = useAuth();
@@ -153,7 +154,10 @@ const Leaderboard = () => {
                   </Avatar>
                   
                   <h3 className="text-lg font-bold mb-1">{creator.name}</h3>
-                  <p className="text-white/80 text-sm mb-3">@{creator.username}</p>
+                  <ClickableUsername
+                    username={creator.username}
+                    className="text-white/80 text-sm mb-3 block"
+                  />
                   
                   <div className="space-y-1 text-sm">
                     <div className="font-semibold">${creator.total_earnings.toLocaleString()}</div>
@@ -208,7 +212,10 @@ const Leaderboard = () => {
                       
                       <div>
                         <h4 className="font-medium">{creator.name}</h4>
-                        <p className="text-sm text-muted-foreground">@{creator.username}</p>
+                        <ClickableUsername
+                          username={creator.username}
+                          className="text-sm text-muted-foreground"
+                        />
                       </div>
                     </div>
                     

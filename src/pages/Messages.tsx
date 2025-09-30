@@ -27,6 +27,7 @@ import {
   UserX
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { ClickableUsername } from '@/components/ui/clickable-username';
 
 interface Profile {
   user_id: string;
@@ -547,12 +548,16 @@ const Messages = () => {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="text-sm font-medium">
-                            {profile?.display_name || profile?.username}
-                          </p>
-                          <p className={`text-xs ${getMembershipColor(profile?.membership_type || 'regular')}`}>
-                            @{profile?.username}
-                          </p>
+                          <ClickableUsername
+                            username={profile?.username || ''}
+                            displayName={profile?.display_name}
+                            showAt={false}
+                            className="text-sm font-medium block"
+                          />
+                          <ClickableUsername
+                            username={profile?.username || ''}
+                            className={`text-xs ${getMembershipColor(profile?.membership_type || 'regular')}`}
+                          />
                         </div>
                       </div>
                       <MessageCircle className="h-4 w-4 text-muted-foreground" />
@@ -599,12 +604,16 @@ const Messages = () => {
                           </AvatarFallback>
                         </Avatar>
                         <div>
-                          <p className="text-sm font-medium">
-                            {profile.display_name || profile.username}
-                          </p>
-                          <p className={`text-xs ${getMembershipColor(profile.membership_type)}`}>
-                            @{profile.username}
-                          </p>
+                          <ClickableUsername
+                            username={profile.username}
+                            displayName={profile.display_name}
+                            showAt={false}
+                            className="text-sm font-medium block"
+                          />
+                          <ClickableUsername
+                            username={profile.username}
+                            className={`text-xs ${getMembershipColor(profile.membership_type)}`}
+                          />
                         </div>
                       </div>
                       
@@ -690,9 +699,10 @@ const Messages = () => {
                     <h3 className="font-semibold">
                       {selectedRoom.other_user?.display_name || selectedRoom.other_user?.username}
                     </h3>
-                    <p className={`text-xs ${getMembershipColor(selectedRoom.other_user?.membership_type || 'regular')}`}>
-                      @{selectedRoom.other_user?.username}
-                    </p>
+                    <ClickableUsername
+                      username={selectedRoom.other_user?.username || ''}
+                      className={`text-xs ${getMembershipColor(selectedRoom.other_user?.membership_type || 'regular')}`}
+                    />
                   </div>
                 </div>
                 
@@ -719,9 +729,12 @@ const Messages = () => {
                                  message.sender?.username?.slice(0, 2).toUpperCase()}
                               </AvatarFallback>
                             </Avatar>
-                            <span className={`text-xs font-medium ${getMembershipColor(message.sender?.membership_type || 'regular')}`}>
-                              {message.sender?.display_name || message.sender?.username}
-                            </span>
+                            <ClickableUsername
+                              username={message.sender?.username || ''}
+                              displayName={message.sender?.display_name}
+                              showAt={false}
+                              className={`text-xs font-medium ${getMembershipColor(message.sender?.membership_type || 'regular')}`}
+                            />
                             <span className="text-xs text-muted-foreground">
                               {new Date(message.created_at).toLocaleTimeString()}
                             </span>
