@@ -52,7 +52,7 @@ function Globe({ time }: { time: Date }) {
       .particleLat('lat')
       .particleLng('lng')
       .particleAltitude('alt')
-      .particleColor(() => '#00ff00')  // Bright green fallback
+      .particlesColor(() => '#00ff00')  // Bright green fallback
       .particlesSize(12);  // Much larger for visibility
 
     // Load satellite icon texture with error handling
