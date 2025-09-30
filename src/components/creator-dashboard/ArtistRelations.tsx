@@ -394,7 +394,7 @@ const ArtistRelations = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {campaigns.map((campaign) => (
                 <Card key={campaign.id} className="hover:shadow-lg transition-smooth cursor-pointer"
-                  onClick={() => navigate(`/campaigns/${campaign.id}`)}>
+                  onClick={() => navigate(`/campaign/${campaign.id}/join#communication`)}>
                   <CardHeader>
                     <div className="flex items-center space-x-3">
                       {campaign.cover_art_url ? (

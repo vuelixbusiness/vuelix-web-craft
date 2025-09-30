@@ -68,6 +68,15 @@ function CampaignHubLayoutContent({
   const [activeSection, setActiveSection] = useState<CampaignSectionType>("overview");
   const { sectionUpdates, markSectionAsUpdated, markSectionAsRead } = useSectionUpdates();
 
+  // Check URL hash on mount to set active section
+  useEffect(() => {
+    const hash = window.location.hash.replace('#', '');
+    if (hash && ['overview', 'rules', 'rewards', 'submissions', 'communication', 'updates'].includes(hash)) {
+      setActiveSection(hash as CampaignSectionType);
+      markSectionAsRead(hash as CampaignSectionType);
+    }
+  }, [markSectionAsRead]);
+
   // Create wrapper for communication section updates
   const handleMessageSent = useCallback(() => {
     markSectionAsUpdated("communication");
