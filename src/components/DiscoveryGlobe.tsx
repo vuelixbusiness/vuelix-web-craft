@@ -37,9 +37,9 @@ function Globe() {
   useEffect(() => {
     console.log('🌍 Initializing Arcs Globe...');
     
-    // Initialize globe with arcs
+    // Initialize globe with arcs - daytime texture for bright appearance
     const globe = new ThreeGlobe()
-      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-night.jpg')
+      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
       .arcsData([])
       .arcColor('color')
       .arcDashLength(0.4)
@@ -72,8 +72,9 @@ function Globe() {
 
   return (
     <>
-      <ambientLight intensity={Math.PI} color="#cccccc" />
-      <directionalLight intensity={0.6 * Math.PI} color="#ffffff" position={[5, 3, 5]} />
+      <ambientLight intensity={Math.PI * 1.5} color="#f0f8ff" />
+      <directionalLight intensity={Math.PI * 1.2} color="#ffffff" position={[10, 5, 5]} />
+      <directionalLight intensity={Math.PI * 0.3} color="#ffffff" position={[-5, -3, -5]} />
     </>
   );
 }
@@ -86,7 +87,7 @@ export function DiscoveryGlobe() {
         gl={{ antialias: true, alpha: false }}
         dpr={[1, Math.min(2, window.devicePixelRatio)]}
       >
-        <color attach="background" args={['#2d1b69']} />
+        <color attach="background" args={['#1a237e']} />
         <Globe />
         <Controls />
       </Canvas>
