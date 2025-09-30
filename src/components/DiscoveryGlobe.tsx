@@ -8,6 +8,39 @@ import { useGlobeData } from '@/hooks/useGlobeData';
 
 const InteractionContext = createContext({ isInteracting: false });
 
+// Continent centers for distributing user dots
+const CONTINENTS = [
+  { name: 'North America', lat: 45.0, lng: -100.0 },
+  { name: 'South America', lat: -15.0, lng: -60.0 },
+  { name: 'Europe', lat: 54.0, lng: 15.0 },
+  { name: 'Africa', lat: 0.0, lng: 20.0 },
+  { name: 'Asia', lat: 30.0, lng: 100.0 },
+  { name: 'Oceania', lat: -25.0, lng: 140.0 },
+  { name: 'Antarctica', lat: -80.0, lng: 0.0 },
+];
+
+// Generate 5 user points around each continent
+function generateUserPoints() {
+  const points: any[] = [];
+  
+  CONTINENTS.forEach(continent => {
+    for (let i = 0; i < 5; i++) {
+      // Add some randomness around the continent center (±15 degrees)
+      const latOffset = (Math.random() - 0.5) * 30;
+      const lngOffset = (Math.random() - 0.5) * 30;
+      
+      points.push({
+        lat: continent.lat + latOffset,
+        lng: continent.lng + lngOffset,
+        size: 0.6 + Math.random() * 0.4, // Random size between 0.6 and 1.0
+        color: '#00ffff', // Bright cyan color
+      });
+    }
+  });
+  
+  return points;
+}
+
 function Controls({ onInteractionChange }: { onInteractionChange: (isInteracting: boolean) => void }) {
   const { camera, gl } = useThree();
   const controlsRef = useRef<TrackballControls>();
@@ -51,7 +84,10 @@ function Globe({ isInteracting }: { isInteracting: boolean }) {
   useEffect(() => {
     console.log('🌍 Initializing Arcs Globe...');
     
-    // Initialize globe with arcs - daytime texture for bright appearance
+    // Generate user points
+    const userPoints = generateUserPoints();
+    
+    // Initialize globe with arcs and user points
     const globe = new ThreeGlobe()
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
       .arcsData([])
@@ -59,9 +95,14 @@ function Globe({ isInteracting }: { isInteracting: boolean }) {
       .arcDashLength(0.4)
       .arcDashGap(4)
       .arcDashInitialGap(() => Math.random() * 5)
-      .arcDashAnimateTime(1000);
+      .arcDashAnimateTime(1000)
+      // Configure user points
+      .pointsData(userPoints)
+      .pointColor('color')
+      .pointAltitude(0.015)
+      .pointRadius('size');
 
-    console.log('🌍 ThreeGlobe instance created');
+    console.log('🌍 ThreeGlobe instance created with', userPoints.length, 'user points');
 
     // Add globe to scene
     scene.add(globe);
