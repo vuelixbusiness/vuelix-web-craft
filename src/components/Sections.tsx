@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const HowItWorks = () => {
   return (
-    <section id="how-it-works" className="py-24 bg-background">
+    <section id="how-it-works" className="py-24 bg-gradient-to-b from-purple-50 to-purple-100">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -117,7 +117,7 @@ const ForArtists = () => {
   ];
 
   return (
-    <section id="for-artists" className="py-24 bg-gradient-secondary">
+    <section id="for-artists" className="py-24 bg-gradient-to-b from-purple-100 to-purple-200">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -180,7 +180,7 @@ const ForCreators = () => {
   ];
 
   return (
-    <section id="for-creators" className="py-24 bg-background">
+    <section id="for-creators" className="py-24 bg-gradient-to-b from-purple-50 to-white">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">

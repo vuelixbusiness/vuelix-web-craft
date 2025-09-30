@@ -247,8 +247,8 @@ const Campaigns = () => {
   const campaignsContent = (
     <div className="relative container mx-auto px-6 py-8">
       {/* Ambient glow effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-accent/10 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-500/20 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-purple-300/10 via-transparent to-transparent pointer-events-none" />
       
       <div className="relative z-10">
       <div className="max-w-6xl mx-auto">
@@ -386,10 +386,10 @@ const Campaigns = () => {
   }
 
   return (
-    <div className="relative min-h-screen bg-gradient-to-b from-red-950 via-red-900 to-red-800 overflow-hidden">
+    <div className="relative min-h-screen bg-gradient-to-b from-purple-950 via-purple-900 to-purple-800 overflow-hidden">
       {/* Ambient glow effects */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-accent/10 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-500/20 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-purple-300/10 via-transparent to-transparent pointer-events-none" />
       
       <Navigation />
       <div className="pt-20 relative z-10">
