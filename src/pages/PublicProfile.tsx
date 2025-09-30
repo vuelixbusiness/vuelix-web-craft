@@ -146,7 +146,16 @@ const PublicProfile = () => {
   };
 
   const handleFollow = async () => {
-    if (!currentUser) {
+    // Debug: Check both context user and direct Supabase session
+    console.log('🔍 handleFollow called');
+    console.log('👤 currentUser from context:', currentUser);
+    
+    // Check Supabase session directly
+    const { data: { session } } = await supabase.auth.getSession();
+    console.log('🔐 Supabase session:', session?.user?.id);
+    
+    if (!currentUser && !session) {
+      console.log('❌ No user - redirecting to login');
       toast({
         title: "Authentication Required",
         description: "Please log in to follow users",
@@ -156,30 +165,60 @@ const PublicProfile = () => {
       return;
     }
 
-    if (!profile) return;
+    if (!profile) {
+      console.log('❌ No profile data');
+      return;
+    }
+
+    // Use session user ID if context user is missing
+    const userId = currentUser?.id || session?.user?.id;
+    console.log('Using user ID:', userId);
 
     try {
       if (isFollowing) {
+        console.log('🔄 Unfollowing user...');
+        console.log('Delete params:', { follower_id: userId, followed_id: profile.user_id });
+        
         const { error } = await supabase
           .from('user_followers')
           .delete()
-          .eq('follower_id', currentUser.id)
+          .eq('follower_id', userId)
           .eq('followed_id', profile.user_id);
-        
-        if (error) throw error;
+
+        if (error) {
+          console.error('❌ Unfollow error:', error);
+          throw error;
+        }
         setIsFollowing(false);
-        toast({ title: "Unfollowed successfully" });
+        console.log('✅ Unfollowed successfully');
+        toast({
+          title: "Unfollowed",
+          description: `You are no longer following ${profile.display_name}`,
+        });
       } else {
-        const { error } = await supabase
+        console.log('🔄 Following user...');
+        console.log('Insert params:', { follower_id: userId, followed_id: profile.user_id });
+        
+        const { data, error } = await supabase
           .from('user_followers')
           .insert({
-            follower_id: currentUser.id,
+            follower_id: userId,
             followed_id: profile.user_id,
-          });
-        
-        if (error) throw error;
+          })
+          .select();
+
+        console.log('Insert result:', { data, error });
+
+        if (error) {
+          console.error('❌ Follow error:', error);
+          throw error;
+        }
         setIsFollowing(true);
-        toast({ title: "Following successfully" });
+        console.log('✅ Followed successfully');
+        toast({
+          title: "Following",
+          description: `You are now following ${profile.display_name}`,
+        });
       }
     } catch (error: any) {
       console.error('Error toggling follow:', error);
