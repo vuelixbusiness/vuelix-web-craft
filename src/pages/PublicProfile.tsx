@@ -58,8 +58,14 @@ const PublicProfile = () => {
     }
 
     fetchProfileData();
-    checkRelationships();
   }, [username, currentUser, isOwnProfile]);
+
+  // Check relationships after profile is loaded
+  useEffect(() => {
+    if (profile && currentUser) {
+      checkRelationships();
+    }
+  }, [profile?.user_id, currentUser?.id]);
 
   const fetchProfileData = async () => {
     try {
@@ -110,29 +116,32 @@ const PublicProfile = () => {
 
       setIsFollowing(!!followData);
 
-      // Check if friends (mutual following)
+      // Check if friends - properly check both directions
       const { data: friendData } = await supabase
         .from('friendships')
         .select('id')
-        .or(`requester_id.eq.${currentUser.id},addressee_id.eq.${currentUser.id}`)
-        .or(`requester_id.eq.${profile.user_id},addressee_id.eq.${profile.user_id}`)
+        .or(`and(requester_id.eq.${currentUser.id},addressee_id.eq.${profile.user_id}),and(requester_id.eq.${profile.user_id},addressee_id.eq.${currentUser.id})`)
         .eq('status', 'accepted')
         .maybeSingle();
 
       setIsFriend(!!friendData);
 
-      // Check if partner
+      // Check if partner - properly check both directions
       const { data: partnerData } = await supabase
         .from('user_partnerships')
         .select('id')
-        .or(`user_id.eq.${currentUser.id},partner_id.eq.${currentUser.id}`)
-        .or(`user_id.eq.${profile.user_id},partner_id.eq.${profile.user_id}`)
+        .or(`and(user_id.eq.${currentUser.id},partner_id.eq.${profile.user_id}),and(user_id.eq.${profile.user_id},partner_id.eq.${currentUser.id})`)
         .eq('status', 'accepted')
         .maybeSingle();
 
       setIsPartner(!!partnerData);
     } catch (error) {
       console.error('Error checking relationships:', error);
+      toast({
+        title: "Warning",
+        description: "Could not load relationship status",
+        variant: "destructive",
+      });
     }
   };
 
@@ -141,30 +150,32 @@ const PublicProfile = () => {
 
     try {
       if (isFollowing) {
-        await supabase
+        const { error } = await supabase
           .from('user_followers')
           .delete()
           .eq('follower_id', currentUser.id)
           .eq('followed_id', profile.user_id);
         
+        if (error) throw error;
         setIsFollowing(false);
         toast({ title: "Unfollowed successfully" });
       } else {
-        await supabase
+        const { error } = await supabase
           .from('user_followers')
           .insert({
             follower_id: currentUser.id,
             followed_id: profile.user_id,
           });
         
+        if (error) throw error;
         setIsFollowing(true);
         toast({ title: "Following successfully" });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error toggling follow:', error);
       toast({
         title: "Error",
-        description: "Failed to update follow status",
+        description: error.message || "Failed to update follow status",
         variant: "destructive",
       });
     }
@@ -174,7 +185,7 @@ const PublicProfile = () => {
     if (!currentUser || !profile) return;
 
     try {
-      await supabase
+      const { error } = await supabase
         .from('user_partnerships')
         .insert({
           user_id: currentUser.id,
@@ -183,15 +194,18 @@ const PublicProfile = () => {
           partnership_type: 'collaboration',
         });
 
+      if (error) throw error;
+
       toast({
         title: "Partnership Request Sent",
         description: "Your partnership request has been sent",
       });
-    } catch (error) {
+      setIsPartner(true);
+    } catch (error: any) {
       console.error('Error sending partnership request:', error);
       toast({
         title: "Error",
-        description: "Failed to send partnership request",
+        description: error.message || "Failed to send partnership request",
         variant: "destructive",
       });
     }
