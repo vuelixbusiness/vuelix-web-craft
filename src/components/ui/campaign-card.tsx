@@ -134,12 +134,28 @@ const CampaignCard = ({
     >
       {/* Payout Rate Box - Top Right Corner */}
       {variant === 'creator-available' && (
-        <div className="absolute top-4 right-4 z-10">
-          <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground px-3 py-2 rounded-xl shadow-lg">
-            <p className="text-xs font-medium opacity-90">Payout Rate</p>
-            <p className="text-sm font-bold">
-              {formatPayoutForBox(campaign.payout_rate, campaign.payout_type)}
-            </p>
+        <div className="absolute top-4 right-4 z-10 group">
+          <div className="relative overflow-hidden rounded-2xl border border-yellow-600/30 bg-gradient-to-br from-yellow-50 via-amber-50 to-yellow-100 dark:from-yellow-950/40 dark:via-amber-950/30 dark:to-yellow-900/20 p-4 shadow-[0_8px_24px_-6px_rgba(234,179,8,0.3)] transition-all duration-300 hover:shadow-[0_12px_32px_-8px_rgba(234,179,8,0.5)] hover:scale-105">
+            {/* Subtle glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            
+            {/* Content */}
+            <div className="relative flex items-center space-x-3">
+              {/* Animated Coin Icon */}
+              <div className="flex-shrink-0 animate-pulse">
+                <PotIcon className="w-8 h-8 drop-shadow-lg" />
+              </div>
+              
+              {/* Text Content */}
+              <div className="flex flex-col">
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-yellow-700 dark:text-yellow-400/90 mb-0.5">
+                  Payout Rate
+                </p>
+                <p className="text-base font-bold text-yellow-900 dark:text-yellow-200 leading-tight">
+                  {formatPayoutForBox(campaign.payout_rate, campaign.payout_type)}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       )}

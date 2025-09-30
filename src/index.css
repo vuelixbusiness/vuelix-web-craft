@@ -41,9 +41,12 @@ All colors MUST be HSL.
     --gradient-secondary: linear-gradient(135deg, hsl(260 20% 96%), hsl(280 20% 98%));
     --gradient-hero: linear-gradient(135deg, hsl(260 84% 64%), hsl(290 84% 68%), hsl(320 84% 72%));
     --gradient-background: linear-gradient(135deg, hsl(260 20% 98%), hsl(280 15% 97%), hsl(300 25% 95%));
+    --gradient-gold: linear-gradient(135deg, hsl(45 100% 51%), hsl(38 92% 50%));
+    --gradient-gold-subtle: linear-gradient(135deg, hsl(48 100% 88%), hsl(45 100% 80%));
     
     --shadow-elegant: 0 10px 30px -10px hsl(250 84% 64% / 0.2);
     --shadow-soft: 0 4px 20px -4px hsl(250 20% 20% / 0.1);
+    --shadow-gold: 0 8px 24px -6px hsl(45 100% 51% / 0.4);
     
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -100,9 +103,12 @@ All colors MUST be HSL.
     --gradient-secondary: linear-gradient(135deg, hsl(220 15% 15%), hsl(220 15% 18%));
     --gradient-hero: linear-gradient(135deg, hsl(260 84% 64%), hsl(290 84% 68%), hsl(320 84% 72%));
     --gradient-background: linear-gradient(135deg, hsl(220 15% 7%), hsl(220 15% 9%));
+    --gradient-gold: linear-gradient(135deg, hsl(45 90% 45%), hsl(38 85% 42%));
+    --gradient-gold-subtle: linear-gradient(135deg, hsl(45 80% 35%), hsl(38 75% 32%));
     
     --shadow-elegant: 0 10px 30px -10px hsl(260 84% 64% / 0.3);
     --shadow-soft: 0 4px 20px -4px hsl(220 15% 5% / 0.4);
+    --shadow-gold: 0 8px 24px -6px hsl(45 90% 45% / 0.5);
     
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
