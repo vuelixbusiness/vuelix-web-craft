@@ -359,13 +359,6 @@ const ArtistRelations = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Social Hub</h2>
-          <p className="text-muted-foreground">Campaign communications and personal messages</p>
-        </div>
-      </div>
-
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="campaigns">

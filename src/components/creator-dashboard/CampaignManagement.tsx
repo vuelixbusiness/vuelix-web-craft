@@ -313,13 +313,6 @@ const CampaignManagement = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold">Campaign Management</h2>
-          <p className="text-muted-foreground">Browse, join, and track your campaigns</p>
-        </div>
-      </div>
-
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="available">Available</TabsTrigger>
