@@ -36,6 +36,7 @@ import PaypalCallback from "./pages/PaypalCallback";
 import Notifications from "./pages/Notifications";
 import Support from "./pages/Support";
 import Friends from "./pages/Friends";
+import PublicProfile from "./pages/PublicProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -102,6 +103,7 @@ const App = () => (
                   <Friends />
                 </ProtectedRoute>
               } />
+              <Route path="/user/:username" element={<PublicProfile />} />
               <Route path="/payment-methods" element={
                 <ProtectedRoute>
                   <PaymentMethods />
