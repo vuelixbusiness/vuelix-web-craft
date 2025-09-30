@@ -4,10 +4,7 @@ import { Button } from "@/components/ui/button";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
-import { TrendingUp, Users, Music, Trophy, Wallet, User, Globe } from "lucide-react";
-import { DiscoveryGlobe } from "@/components/DiscoveryGlobe";
-import { Suspense } from "react";
-import { Skeleton } from "@/components/ui/skeleton";
+import { TrendingUp, Users, Music, Trophy, Wallet, User } from "lucide-react";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -48,24 +45,6 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-
-        {/* Discovery Section */}
-        <Card className="mb-12 bg-card border-border overflow-hidden">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center space-x-3 text-xl text-foreground">
-              <Globe className="w-6 h-6 text-primary" />
-              <span>Discover Global Campaigns</span>
-            </CardTitle>
-            <p className="text-sm text-muted-foreground mt-2">
-              Explore music campaigns from creators around the world
-            </p>
-          </CardHeader>
-          <CardContent>
-            <Suspense fallback={<Skeleton className="w-full h-[400px] lg:h-[600px]" />}>
-              <DiscoveryGlobe />
-            </Suspense>
-          </CardContent>
-        </Card>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">

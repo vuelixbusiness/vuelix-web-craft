@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, User, Wallet, Music, Users, Trophy, BarChart3, Home, Circle } from 'lucide-react';
+import { LogOut, User, Wallet, Music, Users, Trophy, BarChart3, Home, Circle, Globe } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import NotificationBell from '@/components/NotificationBell';
 import { useArtistNotifications } from '@/contexts/ArtistNotificationContext';
@@ -18,6 +18,7 @@ const navigationItems = [
   { label: 'Artist', path: '/artist', icon: Music },
   { label: 'Creator', path: '/creator', icon: Users },
   { label: 'Campaigns', path: '/campaigns', icon: BarChart3 },
+  { label: 'Discover', path: '/discover', icon: Globe },
   { label: 'Leaderboard', path: '/leaderboard', icon: Trophy },
 ];
 

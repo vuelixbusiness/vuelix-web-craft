@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Wallet from "./pages/Wallet";
 import Campaigns from "./pages/Campaigns";
+import Discover from "./pages/Discover";
 import Leaderboard from "./pages/Leaderboard";
 import CreatorCampaigns from "./pages/CreatorCampaigns";
 import CreatorFlow from "./pages/CreatorFlow";
@@ -69,6 +70,7 @@ const App = () => (
                 </ProtectedRoute>
               } />
               <Route path="/campaigns" element={<Campaigns />} />
+              <Route path="/discover" element={<Discover />} />
               <Route path="/campaign/:id" element={
                 <ProtectedRoute>
                   <CampaignDetails />
