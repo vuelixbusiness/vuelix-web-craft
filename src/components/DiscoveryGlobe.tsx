@@ -42,18 +42,24 @@ function Controls() {
 }
 
 function Globe({ time }: { time: Date }) {
+  const { scene } = useThree();
   const globeRef = useRef<any>();
   const satDataRef = useRef<SatelliteData[]>([]);
+  const [isGlobeReady, setIsGlobeReady] = useState(false);
 
   useEffect(() => {
+    console.log('🌍 Initializing ThreeGlobe...');
+    
     // Initialize globe with larger particles and bright color
     const globe = new ThreeGlobe()
-      .globeImageUrl('//cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg')
+      .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
       .particleLat('lat')
       .particleLng('lng')
       .particleAltitude('alt')
-      .particlesColor(() => '#00ff00')  // Bright green fallback
-      .particlesSize(12);  // Much larger for visibility
+      .particlesColor(() => '#00ff00')  // Bright green for visibility
+      .particlesSize(8);  // Large particles for visibility
+
+    console.log('🌍 ThreeGlobe instance created:', globe);
 
     // Load satellite icon texture with error handling
     new THREE.TextureLoader().load(
@@ -69,9 +75,11 @@ function Globe({ time }: { time: Date }) {
       }
     );
 
-    if (globeRef.current) {
-      globeRef.current.add(globe);
-    }
+    // Add globe to scene directly
+    scene.add(globe);
+    globeRef.current = globe;
+    setIsGlobeReady(true);
+    console.log('✅ Globe added to scene');
 
     // Load fresh TLE data from CelesTrak
     console.log('📡 Fetching TLE data from CelesTrak...');
@@ -95,19 +103,22 @@ function Globe({ time }: { time: Date }) {
 
         satDataRef.current = satData;
         console.log('🛰️ Satellites loaded and ready:', satData.length);
-        console.log('📍 Sample satellite:', satData[0]?.name);
+        if (satData.length > 0) {
+          console.log('📍 Sample satellites:', satData.slice(0, 3).map(s => s.name));
+        }
       })
       .catch(err => console.error('❌ Error loading TLE data from CelesTrak:', err));
 
     return () => {
+      console.log('🧹 Cleaning up globe');
       if (globeRef.current) {
-        globeRef.current.remove(globe);
+        scene.remove(globeRef.current);
       }
     };
-  }, []);
+  }, [scene]);
 
   useFrame(() => {
-    if (!globeRef.current || satDataRef.current.length === 0) return;
+    if (!globeRef.current || !isGlobeReady || satDataRef.current.length === 0) return;
 
     // Update satellite positions based on time
     const gmst = satellite.gstime(time);
@@ -123,17 +134,16 @@ function Globe({ time }: { time: Date }) {
     });
 
     // Update globe particles
-    const globe = globeRef.current.children[0];
-    if (globe && globe.particlesData) {
-      globe.particlesData([...satDataRef.current]);
+    if (globeRef.current && globeRef.current.particlesData) {
+      globeRef.current.particlesData([...satDataRef.current]);
     }
   });
 
   return (
-    <group ref={globeRef}>
+    <>
       <ambientLight intensity={Math.PI} color="#cccccc" />
-      <directionalLight intensity={0.6 * Math.PI} color="#ffffff" />
-    </group>
+      <directionalLight intensity={0.6 * Math.PI} color="#ffffff" position={[5, 3, 5]} />
+    </>
   );
 }
 
