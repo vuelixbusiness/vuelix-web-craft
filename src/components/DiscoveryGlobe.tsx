@@ -64,8 +64,8 @@ function Globe({ time }: { time: Date }) {
       globeRef.current.add(globe);
     }
 
-    // Load TLE data
-    fetch('/space-track-leo.txt')
+    // Load fresh TLE data from CelesTrak
+    fetch('https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle')
       .then(r => r.text())
       .then(rawData => {
         const tleData = rawData.replace(/\r/g, '').split(/\n(?=[^12])/).map(tle => tle.split('\n'));
@@ -77,9 +77,9 @@ function Globe({ time }: { time: Date }) {
         .filter(d => !!satellite.propagate(d.satrec, new Date())?.position);
 
         satDataRef.current = satData;
-        console.log('🛰️ Loaded satellites:', satData.length);
+        console.log('🛰️ Loaded satellites from CelesTrak:', satData.length);
       })
-      .catch(err => console.error('Error loading TLE data:', err));
+      .catch(err => console.error('Error loading TLE data from CelesTrak:', err));
 
     return () => {
       if (globeRef.current) {
