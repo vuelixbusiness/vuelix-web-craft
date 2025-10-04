@@ -8,7 +8,22 @@ import { useGlobeData } from '@/hooks/useGlobeData';
 
 const InteractionContext = createContext({ isInteracting: false });
 
-// Continent centers for distributing user dots
+// User categories with exact colors from Figma design
+const USER_CATEGORIES = [
+  { name: "Artists", color: "#0047AB", icon: "🎵" },
+  { name: "Content Creators", color: "#FF3B30", icon: "🎥" },
+  { name: "Producers", color: "#4DA6FF", icon: "🎹" },
+  { name: "DJs", color: "#20C997", icon: "🎚️" },
+  { name: "Visual Creatives", color: "#C8A2C8", icon: "🎨" },
+  { name: "Fans", color: "#8A2BE2", icon: "🙌" },
+  { name: "Collectives / Groups", color: "#8B6914", icon: "👥" },
+  { name: "Record Labels", color: "#ADFF2F", icon: "🏢" },
+  { name: "Brands", color: "#FFD700", icon: "🤝" },
+  { name: "Studios (Audio + Visual)", color: "#800000", icon: "🎙️" },
+  { name: "Festivals & Events", color: "#FF69B4", icon: "🎪" }
+];
+
+// Continent centers for distributing category dots globally
 const CONTINENTS = [
   { name: 'North America', lat: 45.0, lng: -100.0 },
   { name: 'South America', lat: -15.0, lng: -60.0 },
@@ -19,21 +34,30 @@ const CONTINENTS = [
   { name: 'Antarctica', lat: -80.0, lng: 0.0 },
 ];
 
-// Generate 5 user points around each continent
-function generateUserPoints() {
+// Generate 3-5 points per category, distributed across continents
+function generateCategoryPoints() {
   const points: any[] = [];
   
-  CONTINENTS.forEach(continent => {
-    for (let i = 0; i < 5; i++) {
-      // Add some randomness around the continent center (±15 degrees)
-      const latOffset = (Math.random() - 0.5) * 30;
-      const lngOffset = (Math.random() - 0.5) * 30;
+  USER_CATEGORIES.forEach(category => {
+    // Generate 3-5 points per category for variety
+    const numPoints = 3 + Math.floor(Math.random() * 3);
+    
+    for (let i = 0; i < numPoints; i++) {
+      // Pick a random continent for global distribution
+      const continent = CONTINENTS[Math.floor(Math.random() * CONTINENTS.length)];
+      
+      // Add randomness around the continent center (±20 degrees)
+      const latOffset = (Math.random() - 0.5) * 40;
+      const lngOffset = (Math.random() - 0.5) * 40;
       
       points.push({
         lat: continent.lat + latOffset,
         lng: continent.lng + lngOffset,
-        size: 0.6 + Math.random() * 0.4, // Random size between 0.6 and 1.0
-        color: '#00ffff', // Bright cyan color
+        size: 0.7 + Math.random() * 0.5, // Random size between 0.7 and 1.2
+        color: category.color,
+        category: category.name,
+        icon: category.icon,
+        label: `${category.icon} ${category.name}`
       });
     }
   });
@@ -82,12 +106,12 @@ function Globe({ isInteracting }: { isInteracting: boolean }) {
   const { data: arcsData } = useGlobeData();
 
   useEffect(() => {
-    console.log('🌍 Initializing Arcs Globe...');
+    console.log('🌍 Initializing Category-Based Globe...');
     
-    // Generate user points
-    const userPoints = generateUserPoints();
+    // Generate category points
+    const categoryPoints = generateCategoryPoints();
     
-    // Initialize globe with arcs and user points
+    // Initialize globe with arcs and category points
     const globe = new ThreeGlobe()
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
       .arcsData([])
@@ -96,13 +120,13 @@ function Globe({ isInteracting }: { isInteracting: boolean }) {
       .arcDashGap(4)
       .arcDashInitialGap(() => Math.random() * 5)
       .arcDashAnimateTime(1000)
-      // Configure user points
-      .pointsData(userPoints)
+      // Configure category points
+      .pointsData(categoryPoints)
       .pointColor('color')
-      .pointAltitude(0.015)
+      .pointAltitude(0.02)
       .pointRadius('size');
 
-    console.log('🌍 ThreeGlobe instance created with', userPoints.length, 'user points');
+    console.log('🌍 ThreeGlobe instance created with', categoryPoints.length, 'category points');
 
     // Add globe to scene
     scene.add(globe);
