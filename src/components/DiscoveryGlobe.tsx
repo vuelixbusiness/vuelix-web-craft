@@ -4,7 +4,9 @@ import * as THREE from 'three';
 import ThreeGlobe from 'three-globe';
 // @ts-ignore - TrackballControls types
 import { TrackballControls } from 'three-stdlib';
+import { useNavigate } from 'react-router-dom';
 import { useGlobeData } from '@/hooks/useGlobeData';
+import { useGlobeUserData } from '@/hooks/useGlobeUserData';
 
 const InteractionContext = createContext({ isInteracting: false });
 
@@ -34,9 +36,10 @@ const CONTINENTS = [
   { name: 'Antarctica', lat: -80.0, lng: 0.0 },
 ];
 
-// Generate 3-5 points per category, distributed across continents
-function generateCategoryPoints() {
+// Map real users to category points distributed across continents
+function generateCategoryPoints(users: any[] = []) {
   const points: any[] = [];
+  let userIndex = 0;
   
   USER_CATEGORIES.forEach(category => {
     // Generate 3-5 points per category for variety
@@ -50,6 +53,10 @@ function generateCategoryPoints() {
       const latOffset = (Math.random() - 0.5) * 40;
       const lngOffset = (Math.random() - 0.5) * 40;
       
+      // Get the next real user (cycle through if needed)
+      const user = users[userIndex % users.length];
+      userIndex++;
+      
       points.push({
         lat: continent.lat + latOffset,
         lng: continent.lng + lngOffset,
@@ -57,7 +64,9 @@ function generateCategoryPoints() {
         color: category.color,
         category: category.name,
         icon: category.icon,
-        label: `${category.icon} ${category.name}`
+        label: user ? `${category.icon} ${user.display_name || user.username} (@${user.username})` : `${category.icon} ${category.name}`,
+        username: user?.username,
+        userId: user?.user_id,
       });
     }
   });
@@ -100,16 +109,20 @@ function Controls({ onInteractionChange }: { onInteractionChange: (isInteracting
   return null;
 }
 
-function Globe({ isInteracting }: { isInteracting: boolean }) {
-  const { scene } = useThree();
+function Globe({ isInteracting, onPointClick }: { isInteracting: boolean; onPointClick: (point: any) => void }) {
+  const { scene, camera, gl } = useThree();
   const globeRef = useRef<any>();
+  const pointsRef = useRef<any[]>([]);
+  const raycaster = useRef(new THREE.Raycaster());
   const { data: arcsData } = useGlobeData();
+  const { data: users = [] } = useGlobeUserData();
 
   useEffect(() => {
     console.log('🌍 Initializing Category-Based Globe...');
     
-    // Generate category points
-    const categoryPoints = generateCategoryPoints();
+    // Generate category points with real user data
+    const categoryPoints = generateCategoryPoints(users);
+    pointsRef.current = categoryPoints;
     
     // Initialize globe with arcs and category points
     const globe = new ThreeGlobe()
@@ -133,13 +146,61 @@ function Globe({ isInteracting }: { isInteracting: boolean }) {
     globeRef.current = globe;
     console.log('✅ Globe added to scene');
 
+    // Handle clicks on points
+    const handleClick = (event: MouseEvent) => {
+      if (!globeRef.current) return;
+
+      const rect = gl.domElement.getBoundingClientRect();
+      const mouse = new THREE.Vector2(
+        ((event.clientX - rect.left) / rect.width) * 2 - 1,
+        -((event.clientY - rect.top) / rect.height) * 2 + 1
+      );
+
+      raycaster.current.setFromCamera(mouse, camera);
+      const intersects = raycaster.current.intersectObjects(globeRef.current.children, true);
+
+      if (intersects.length > 0) {
+        // Find the closest point to the intersection
+        const intersectPoint = intersects[0].point;
+        let closestPoint = null;
+        let minDistance = Infinity;
+
+        pointsRef.current.forEach(point => {
+          if (!point.username) return;
+          
+          // Convert lat/lng to 3D coordinates
+          const phi = (90 - point.lat) * (Math.PI / 180);
+          const theta = (point.lng + 180) * (Math.PI / 180);
+          const radius = 100 + 2; // Globe radius + point altitude
+          
+          const x = -(radius * Math.sin(phi) * Math.cos(theta));
+          const y = radius * Math.cos(phi);
+          const z = radius * Math.sin(phi) * Math.sin(theta);
+          
+          const distance = intersectPoint.distanceTo(new THREE.Vector3(x, y, z));
+          
+          if (distance < minDistance && distance < 10) { // Within 10 units
+            minDistance = distance;
+            closestPoint = point;
+          }
+        });
+
+        if (closestPoint) {
+          onPointClick(closestPoint);
+        }
+      }
+    };
+
+    gl.domElement.addEventListener('click', handleClick);
+
     return () => {
       console.log('🧹 Cleaning up globe');
+      gl.domElement.removeEventListener('click', handleClick);
       if (globeRef.current) {
         scene.remove(globeRef.current);
       }
     };
-  }, [scene]);
+  }, [scene, users, onPointClick, camera, gl]);
 
   // Update arcs when data changes
   useEffect(() => {
@@ -167,6 +228,13 @@ function Globe({ isInteracting }: { isInteracting: boolean }) {
 
 export function DiscoveryGlobe() {
   const [isInteracting, setIsInteracting] = useState(false);
+  const navigate = useNavigate();
+
+  const handlePointClick = (point: any) => {
+    if (point.username) {
+      navigate(`/user/${point.username}`);
+    }
+  };
 
   return (
     <div className="w-full h-full min-h-[400px] lg:min-h-[600px] relative">
@@ -176,7 +244,7 @@ export function DiscoveryGlobe() {
         dpr={[1, Math.min(2, window.devicePixelRatio)]}
       >
         <color attach="background" args={['#1e1b3b']} />
-        <Globe isInteracting={isInteracting} />
+        <Globe isInteracting={isInteracting} onPointClick={handlePointClick} />
         <Controls onInteractionChange={setIsInteracting} />
       </Canvas>
     </div>
