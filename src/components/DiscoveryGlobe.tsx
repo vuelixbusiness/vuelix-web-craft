@@ -80,7 +80,8 @@ function Controls({ onInteractionChange }: { onInteractionChange: (isInteracting
 
   useEffect(() => {
     const controls = new TrackballControls(camera, gl.domElement);
-    controls.minDistance = 101;
+    controls.minDistance = 150;
+    controls.maxDistance = 450;
     controls.rotateSpeed = 2;
     controls.zoomSpeed = 0.8;
     controlsRef.current = controls;
