@@ -109,7 +109,7 @@ function Controls({ onInteractionChange }: { onInteractionChange: (isInteracting
   return null;
 }
 
-function Globe({ isInteracting, onPointClick }: { isInteracting: boolean; onPointClick: (point: any) => void }) {
+function Globe({ isInteracting }: { isInteracting: boolean }) {
   const { scene, camera, gl } = useThree();
   const globeRef = useRef<any>();
   const pointsRef = useRef<any[]>([]);
@@ -146,61 +146,13 @@ function Globe({ isInteracting, onPointClick }: { isInteracting: boolean; onPoin
     globeRef.current = globe;
     console.log('✅ Globe added to scene');
 
-    // Handle clicks on points
-    const handleClick = (event: MouseEvent) => {
-      if (!globeRef.current) return;
-
-      const rect = gl.domElement.getBoundingClientRect();
-      const mouse = new THREE.Vector2(
-        ((event.clientX - rect.left) / rect.width) * 2 - 1,
-        -((event.clientY - rect.top) / rect.height) * 2 + 1
-      );
-
-      raycaster.current.setFromCamera(mouse, camera);
-      const intersects = raycaster.current.intersectObjects(globeRef.current.children, true);
-
-      if (intersects.length > 0) {
-        // Find the closest point to the intersection
-        const intersectPoint = intersects[0].point;
-        let closestPoint = null;
-        let minDistance = Infinity;
-
-        pointsRef.current.forEach(point => {
-          if (!point.username) return;
-          
-          // Convert lat/lng to 3D coordinates
-          const phi = (90 - point.lat) * (Math.PI / 180);
-          const theta = (point.lng + 180) * (Math.PI / 180);
-          const radius = 100 + 2; // Globe radius + point altitude
-          
-          const x = -(radius * Math.sin(phi) * Math.cos(theta));
-          const y = radius * Math.cos(phi);
-          const z = radius * Math.sin(phi) * Math.sin(theta);
-          
-          const distance = intersectPoint.distanceTo(new THREE.Vector3(x, y, z));
-          
-          if (distance < minDistance && distance < 10) { // Within 10 units
-            minDistance = distance;
-            closestPoint = point;
-          }
-        });
-
-        if (closestPoint) {
-          onPointClick(closestPoint);
-        }
-      }
-    };
-
-    gl.domElement.addEventListener('click', handleClick);
-
     return () => {
       console.log('🧹 Cleaning up globe');
-      gl.domElement.removeEventListener('click', handleClick);
       if (globeRef.current) {
         scene.remove(globeRef.current);
       }
     };
-  }, [scene, users, onPointClick, camera, gl]);
+  }, [scene, users]);
 
   // Update arcs when data changes
   useEffect(() => {
@@ -228,13 +180,6 @@ function Globe({ isInteracting, onPointClick }: { isInteracting: boolean; onPoin
 
 export function DiscoveryGlobe() {
   const [isInteracting, setIsInteracting] = useState(false);
-  const navigate = useNavigate();
-
-  const handlePointClick = (point: any) => {
-    if (point.username) {
-      navigate(`/user/${point.username}`);
-    }
-  };
 
   return (
     <div className="w-full h-full min-h-[400px] lg:min-h-[600px] relative">
@@ -244,7 +189,7 @@ export function DiscoveryGlobe() {
         dpr={[1, Math.min(2, window.devicePixelRatio)]}
       >
         <color attach="background" args={['#1e1b3b']} />
-        <Globe isInteracting={isInteracting} onPointClick={handlePointClick} />
+        <Globe isInteracting={isInteracting} />
         <Controls onInteractionChange={setIsInteracting} />
       </Canvas>
     </div>
