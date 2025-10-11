@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { UserRole, RoleConfig } from '@/config/roleConfig';
-import YourCampaigns from '../creator-dashboard/YourCampaigns';
+import CreatorCampaignList from '../CreatorCampaignList';
 import ArtistYourCampaigns from '../creator-dashboard/ArtistYourCampaigns';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
@@ -12,7 +12,36 @@ interface CampaignManagerHubProps {
 
 export const CampaignManagerHub = ({ role, roleConfig }: CampaignManagerHubProps) => {
   const [showJoinedCampaigns, setShowJoinedCampaigns] = useState(false);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const { canManage } = roleConfig.campaignActions;
+
+  // Audio control
+  const handleToggleAudio = (id: string, songUrl: string) => {
+    if (!audioRef.current) return;
+
+    if (currentlyPlaying === id) {
+      audioRef.current.pause();
+      setCurrentlyPlaying(null);
+    } else {
+      if (currentlyPlaying) {
+        audioRef.current.pause();
+      }
+      audioRef.current.src = songUrl;
+      audioRef.current.play();
+      setCurrentlyPlaying(id);
+    }
+  };
+
+  // Cleanup audio when component unmounts
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+    };
+  }, []);
 
   return (
     <div className="space-y-6">
@@ -49,12 +78,25 @@ export const CampaignManagerHub = ({ role, roleConfig }: CampaignManagerHubProps
 
       {/* Conditional Rendering Based on Toggle */}
       {showJoinedCampaigns ? (
-        <YourCampaigns />
+        <CreatorCampaignList 
+          currentlyPlaying={currentlyPlaying}
+          onToggleAudio={handleToggleAudio}
+        />
       ) : canManage ? (
         <ArtistYourCampaigns />
       ) : (
-        <YourCampaigns />
+        <CreatorCampaignList 
+          currentlyPlaying={currentlyPlaying}
+          onToggleAudio={handleToggleAudio}
+        />
       )}
+
+      {/* Audio element for song previews */}
+      <audio
+        ref={audioRef}
+        onEnded={() => setCurrentlyPlaying(null)}
+        onError={() => setCurrentlyPlaying(null)}
+      />
     </div>
   );
 };
