@@ -13,6 +13,7 @@ export type UserRole =
   | 'event_organizer';
 
 export type DashboardModule = 
+  | 'profile'
   | 'campaign_manager'
   | 'analytics_hub'
   | 'social_hub'
@@ -29,6 +30,7 @@ export interface RoleConfig {
   icon: LucideIcon;
   color: string;
   modules: {
+    profile: ModuleVisibility;
     campaign_manager: ModuleVisibility;
     analytics_hub: ModuleVisibility;
     social_hub: ModuleVisibility;
@@ -48,6 +50,10 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     icon: Music,
     color: "text-primary",
     modules: {
+      profile: {
+        visible: true,
+        features: ['content_showcase', 'campaigns_created', 'portfolio', 'shop', 'events']
+      },
       campaign_manager: { 
         visible: true,
         features: ['create_campaign', 'manage_campaigns', 'view_submissions']
@@ -74,6 +80,10 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     icon: Users,
     color: "text-accent",
     modules: {
+      profile: {
+        visible: true,
+        features: ['content_showcase', 'campaigns_participated', 'portfolio']
+      },
       campaign_manager: { 
         visible: true,
         features: ['browse_campaigns', 'join_campaigns', 'manage_submissions']
@@ -100,6 +110,10 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     icon: Disc,
     color: "text-pink-500",
     modules: {
+      profile: {
+        visible: true,
+        features: ['content_showcase', 'campaigns_created', 'campaigns_participated', 'portfolio', 'events']
+      },
       campaign_manager: { 
         visible: true,
         features: ['browse_campaigns', 'create_campaign', 'join_campaigns']
@@ -126,6 +140,10 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     icon: Radio,
     color: "text-green-500",
     modules: {
+      profile: {
+        visible: true,
+        features: ['content_showcase', 'campaigns_created', 'campaigns_participated', 'portfolio', 'shop']
+      },
       campaign_manager: { 
         visible: true,
         features: ['browse_campaigns', 'create_campaign', 'licensing']
@@ -152,6 +170,10 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     icon: Palette,
     color: "text-orange-500",
     modules: {
+      profile: {
+        visible: true,
+        features: ['content_showcase', 'campaigns_participated', 'portfolio']
+      },
       campaign_manager: { 
         visible: true,
         features: ['browse_campaigns', 'join_campaigns', 'portfolio_showcase']
@@ -178,6 +200,10 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     icon: Building,
     color: "text-cyan-500",
     modules: {
+      profile: {
+        visible: true,
+        features: ['content_showcase', 'campaigns_created', 'shop']
+      },
       campaign_manager: { 
         visible: true,
         features: ['create_campaign', 'manage_campaigns', 'partnership_management']
@@ -204,6 +230,10 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     icon: Music,
     color: "text-red-500",
     modules: {
+      profile: {
+        visible: true,
+        features: ['content_showcase', 'campaigns_created', 'portfolio', 'shop']
+      },
       campaign_manager: { 
         visible: true,
         features: ['create_campaign', 'manage_campaigns', 'artist_roster']
@@ -230,6 +260,10 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     icon: Users,
     color: "text-indigo-500",
     modules: {
+      profile: {
+        visible: true,
+        features: ['content_showcase', 'campaigns_created', 'campaigns_participated', 'portfolio', 'events']
+      },
       campaign_manager: { 
         visible: true,
         features: ['create_campaign', 'manage_campaigns', 'group_coordination']
@@ -256,6 +290,10 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     icon: Users,
     color: "text-yellow-500",
     modules: {
+      profile: {
+        visible: true,
+        features: ['content_showcase', 'campaigns_created', 'campaigns_participated', 'portfolio', 'events']
+      },
       campaign_manager: { 
         visible: true,
         features: ['create_campaign', 'join_campaigns', 'member_management']
@@ -282,6 +320,10 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
     icon: Calendar,
     color: "text-teal-500",
     modules: {
+      profile: {
+        visible: true,
+        features: ['content_showcase', 'campaigns_created', 'events']
+      },
       campaign_manager: { 
         visible: true,
         features: ['create_campaign', 'event_promotion', 'ticket_integration']

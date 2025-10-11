@@ -63,11 +63,15 @@ interface Participation {
   campaigns: Campaign;
 }
 
-const CampaignManagement = () => {
+interface CampaignManagementProps {
+  hideAvailableTab?: boolean;
+}
+
+const CampaignManagement = ({ hideAvailableTab = false }: CampaignManagementProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('available');
+  const [activeTab, setActiveTab] = useState(hideAvailableTab ? 'active' : 'available');
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [participations, setParticipations] = useState<Participation[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -277,6 +281,15 @@ const CampaignManagement = () => {
     return matchesSearch && matchesPlatform;
   });
 
+  const visibleTabs = [
+    { value: 'available', label: 'Available', hidden: hideAvailableTab },
+    { value: 'active', label: `Joined campaigns (${getUniqueCampaigns().length})`, hidden: false },
+    { value: 'submissions', label: `Submissions (${participations.length})`, hidden: false },
+    { value: 'completed', label: 'Completed', hidden: false }
+  ].filter(tab => !tab.hidden);
+
+  const gridCols = visibleTabs.length;
+
   // Audio control functions
   const toggleAudio = (campaignId: string, songUrl: string) => {
     if (!audioRef.current) return;
@@ -314,83 +327,86 @@ const CampaignManagement = () => {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="available">Available</TabsTrigger>
-          <TabsTrigger value="active">Joined campaigns (<span className="text-purple-400">{getUniqueCampaigns().length}</span>)</TabsTrigger>
-          <TabsTrigger value="submissions">Submissions (<span className="text-purple-400">{participations.length}</span>)</TabsTrigger>
-          <TabsTrigger value="completed">Completed</TabsTrigger>
+        <TabsList className={`grid w-full grid-cols-${gridCols}`}>
+          {visibleTabs.map(tab => (
+            <TabsTrigger key={tab.value} value={tab.value}>
+              {tab.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
-        <TabsContent value="available" className="space-y-6">
-          {/* Search and Filters */}
-          <div className="flex gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-              <Input
-                placeholder="Search campaigns..."
-                className="pl-10"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <Button variant="outline">
-              <Filter className="w-4 h-4 mr-2" />
-              Filters
-            </Button>
-          </div>
-
-          {/* Platform Filters */}
-          <div className="flex flex-wrap gap-2">
-            <Badge
-              variant={selectedPlatform === '' ? 'default' : 'outline'}
-              className="cursor-pointer"
-              onClick={() => setSelectedPlatform('')}
-            >
-              All Platforms
-            </Badge>
-            {['tiktok', 'instagram', 'youtube'].map((platform) => (
-              <Badge
-                key={platform}
-                variant={selectedPlatform === platform ? 'default' : 'outline'}
-                className="cursor-pointer flex items-center space-x-1"
-                onClick={() => setSelectedPlatform(platform)}
-              >
-                {platformIcons[platform as keyof typeof platformIcons]}
-                <span>{platformNames[platform as keyof typeof platformNames]}</span>
-              </Badge>
-            ))}
-          </div>
-
-          {/* Available Campaigns Grid */}
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <Card key={i} className="animate-pulse">
-                  <CardContent className="p-6">
-                    <div className="h-20 bg-secondary rounded" />
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {filteredCampaigns.map((campaign) => (
-                <CampaignCard
-                  key={campaign.id}
-                  campaign={campaign}
-                  variant="creator-available"
-                  showJoinButton={true}
-                  showPlayButton={true}
-                  isJoined={campaign.isJoined}
-                  onCampaignClick={(campaign) => navigate(`/campaign/${campaign.id}/join`)}
-                  onJoinCampaign={(campaign) => navigate(`/campaign/${campaign.id}/join`)}
-                  onAudioToggle={toggleAudio}
-                  isPlaying={currentlyPlaying === campaign.id}
+        {!hideAvailableTab && (
+          <TabsContent value="available" className="space-y-6">
+            {/* Search and Filters */}
+            <div className="flex gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                <Input
+                  placeholder="Search campaigns..."
+                  className="pl-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
+              </div>
+              <Button variant="outline">
+                <Filter className="w-4 h-4 mr-2" />
+                Filters
+              </Button>
+            </div>
+
+            {/* Platform Filters */}
+            <div className="flex flex-wrap gap-2">
+              <Badge
+                variant={selectedPlatform === '' ? 'default' : 'outline'}
+                className="cursor-pointer"
+                onClick={() => setSelectedPlatform('')}
+              >
+                All Platforms
+              </Badge>
+              {['tiktok', 'instagram', 'youtube'].map((platform) => (
+                <Badge
+                  key={platform}
+                  variant={selectedPlatform === platform ? 'default' : 'outline'}
+                  className="cursor-pointer flex items-center space-x-1"
+                  onClick={() => setSelectedPlatform(platform)}
+                >
+                  {platformIcons[platform as keyof typeof platformIcons]}
+                  <span>{platformNames[platform as keyof typeof platformNames]}</span>
+                </Badge>
               ))}
             </div>
-          )}
-        </TabsContent>
+
+            {/* Available Campaigns Grid */}
+            {isLoading ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <Card key={i} className="animate-pulse">
+                    <CardContent className="p-6">
+                      <div className="h-20 bg-secondary rounded" />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {filteredCampaigns.map((campaign) => (
+                  <CampaignCard
+                    key={campaign.id}
+                    campaign={campaign}
+                    variant="creator-available"
+                    showJoinButton={true}
+                    showPlayButton={true}
+                    isJoined={campaign.isJoined}
+                    onCampaignClick={(campaign) => navigate(`/campaign/${campaign.id}/join`)}
+                    onJoinCampaign={(campaign) => navigate(`/campaign/${campaign.id}/join`)}
+                    onAudioToggle={toggleAudio}
+                    isPlaying={currentlyPlaying === campaign.id}
+                  />
+                ))}
+              </div>
+            )}
+          </TabsContent>
+        )}
 
         <TabsContent value="active" className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

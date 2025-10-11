@@ -5,19 +5,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import DashboardLayout from "@/components/DashboardLayout";
 import { useRoleManagement } from "@/hooks/useRoleManagement";
 import { getRoleConfig, UserRole } from "@/config/roleConfig";
-import { Music, BarChart3, Users, Settings } from "lucide-react";
+import { User, Music, BarChart3, Users, Settings } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import ProfileHub from "@/components/dashboard-hubs/ProfileHub";
 import CampaignManagerHub from "@/components/dashboard-hubs/CampaignManagerHub";
 import AnalyticsHub from "@/components/dashboard-hubs/AnalyticsHub";
 import SocialHub from "@/components/dashboard-hubs/SocialHub";
 import AccountSettingsHub from "@/components/dashboard-hubs/AccountSettingsHub";
 
-type DashboardTab = 'campaign_manager' | 'analytics_hub' | 'social_hub' | 'account_settings';
+type DashboardTab = 'profile' | 'campaign_manager' | 'analytics_hub' | 'social_hub' | 'account_settings';
 
 const UnifiedDashboard = () => {
   const { activeRole, availableRoles, switchRole, isLoading } = useRoleManagement();
-  const [activeTab, setActiveTab] = useState<DashboardTab>('campaign_manager');
+  const [activeTab, setActiveTab] = useState<DashboardTab>('profile');
 
   if (isLoading || !activeRole) {
     return (
@@ -35,6 +36,13 @@ const UnifiedDashboard = () => {
   const IconComponent = roleConfig.icon;
 
   const tabs = [
+    {
+      id: 'profile' as DashboardTab,
+      label: 'Profile',
+      component: ProfileHub,
+      icon: User,
+      visible: roleConfig.modules.profile.visible
+    },
     {
       id: 'campaign_manager' as DashboardTab,
       label: 'Campaign Manager',

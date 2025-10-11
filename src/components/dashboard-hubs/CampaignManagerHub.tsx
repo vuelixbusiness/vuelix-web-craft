@@ -11,9 +11,9 @@ export const CampaignManagerHub = ({ role, roleConfig }: CampaignManagerHubProps
   const features = roleConfig.modules.campaign_manager.features || [];
   const { canCreate, canJoin, canManage } = roleConfig.campaignActions;
 
-  // Artists and similar roles see campaign management
+  // Artists and similar roles see campaign management (without Available tab)
   if (canManage && features.includes('manage_campaigns')) {
-    return <CampaignManagement />;
+    return <CampaignManagement hideAvailableTab />;
   }
 
   // Creators and similar roles see campaign browsing
