@@ -210,8 +210,24 @@ export function MapboxGlobe() {
   return (
     <div className="w-full h-full min-h-[400px] lg:min-h-[600px] relative rounded-lg overflow-hidden">
       {!mapboxToken ? (
-        <div className="absolute inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm">
-          <p className="text-muted-foreground">Loading globe...</p>
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm p-8 text-center">
+          <div className="max-w-md space-y-4">
+            <div className="text-4xl mb-2">🗺️</div>
+            <h3 className="text-lg font-semibold text-foreground">Mapbox Token Required</h3>
+            <p className="text-sm text-muted-foreground">
+              To display the interactive globe, please add your Mapbox public token:
+            </p>
+            <ol className="text-xs text-left text-muted-foreground space-y-2 bg-muted/50 p-4 rounded-lg">
+              <li>1. Go to <a href="https://mapbox.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">mapbox.com</a> and create a free account</li>
+              <li>2. Copy your public token from the Tokens section</li>
+              <li>3. In Lovable, go to Project → Settings → Secrets</li>
+              <li>4. Add a new secret named <code className="bg-background px-1 rounded">MAPBOX_PUBLIC_TOKEN</code></li>
+              <li>5. Paste your token and save</li>
+            </ol>
+            <p className="text-xs text-muted-foreground italic">
+              The globe will appear automatically once the token is added.
+            </p>
+          </div>
         </div>
       ) : (
         <>
