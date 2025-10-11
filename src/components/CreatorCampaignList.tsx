@@ -68,6 +68,7 @@ const CreatorCampaignList = ({ currentlyPlaying, onToggleAudio }: CreatorCampaig
   const navigate = useNavigate();
   const [participations, setParticipations] = useState<Participation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [platformFilter, setPlatformFilter] = useState("all");
@@ -89,9 +90,16 @@ const CreatorCampaignList = ({ currentlyPlaying, onToggleAudio }: CreatorCampaig
   const fetchParticipations = async () => {
     try {
       setIsLoading(true);
+      setError(null);
       console.log('📡 [CreatorCampaignList] Starting fetch with user ID:', user?.id);
+
+      if (!user?.id) {
+        setError('User not authenticated');
+        console.error('❌ [CreatorCampaignList] No user ID available');
+        return;
+      }
       
-      const { data, error } = await supabase
+      const { data, error: queryError } = await supabase
         .from('campaign_participations')
         .select(`
           id,
@@ -115,38 +123,39 @@ const CreatorCampaignList = ({ currentlyPlaying, onToggleAudio }: CreatorCampaig
             )
           )
         `)
-        .eq('creator_id', user?.id)
+        .eq('creator_id', user.id)
         .order('created_at', { ascending: false });
 
-      console.log('📥 [CreatorCampaignList] Raw query response:', { data, error });
+      console.log('📥 [CreatorCampaignList] Raw query response:', { data, error: queryError });
       console.log('📥 [CreatorCampaignList] Number of records returned:', data?.length || 0);
 
-      if (error) {
-        console.error('❌ [CreatorCampaignList] Query error:', error);
-        throw error;
+      if (queryError) {
+        console.error('❌ [CreatorCampaignList] Query error:', queryError);
+        setError(`Database error: ${queryError.message}`);
+        throw queryError;
       }
       
-      // TEMPORARILY DISABLED: Filter out campaigns where the user is also the artist
       let filteredData = (data as any[]) || [];
-      console.log('🔄 [CreatorCampaignList] Data (NO FILTERING APPLIED):', filteredData);
-      console.log('🔄 [CreatorCampaignList] Current user ID:', user?.id);
+      console.log('🔄 [CreatorCampaignList] Data fetched:', filteredData);
+      console.log('🔄 [CreatorCampaignList] Current user ID:', user.id);
       
       // Log each participation for debugging
       filteredData.forEach((participation) => {
         console.log(`🔍 [CreatorCampaignList] Participation ${participation.id}:`, {
           campaignId: participation.campaign_id,
           artistId: participation.campaigns.artist_id,
-          currentUserId: user?.id,
-          isOwnCampaign: participation.campaigns.artist_id === user?.id,
+          currentUserId: user.id,
           status: participation.status
         });
       });
       
-      console.log('✅ [CreatorCampaignList] Total participations (unfiltered):', filteredData.length);
+      console.log('✅ [CreatorCampaignList] Total participations:', filteredData.length);
       
       setParticipations(filteredData);
-    } catch (error) {
-      console.error('❌ [CreatorCampaignList] Error fetching participations:', error);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      console.error('❌ [CreatorCampaignList] Error fetching participations:', err);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
       console.log('🏁 [CreatorCampaignList] Fetch complete');
@@ -275,18 +284,40 @@ const CreatorCampaignList = ({ currentlyPlaying, onToggleAudio }: CreatorCampaig
                 <TableRow>
                   <TableCell colSpan={7} className="text-center py-10">
                     <Music className="w-12 h-12 mx-auto mb-4 text-muted-foreground/50" />
-                    <p className="text-muted-foreground">
-                      {searchTerm || statusFilter !== "all" || platformFilter !== "all" ? 
-                        "No campaigns match your filters" : 
-                        "No campaigns joined yet"}
-                    </p>
-                    {!searchTerm && statusFilter === "all" && platformFilter === "all" && (
-                      <Button 
-                        className="mt-4"
-                        onClick={() => navigate('/campaigns')}
-                      >
-                        Browse Campaigns
-                      </Button>
+                    {error ? (
+                      <>
+                        <p className="text-destructive font-medium mb-2">Error loading campaigns</p>
+                        <p className="text-sm text-muted-foreground mb-4">{error}</p>
+                        <Button onClick={fetchParticipations}>
+                          Try Again
+                        </Button>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-muted-foreground">
+                          {searchTerm || statusFilter !== "all" || platformFilter !== "all" ? 
+                            "No campaigns match your filters" : 
+                            "No campaigns joined yet"}
+                        </p>
+                        <p className="text-xs text-muted-foreground/70 mt-2">
+                          User ID: {user?.id || 'Not logged in'}
+                        </p>
+                        {!searchTerm && statusFilter === "all" && platformFilter === "all" && (
+                          <div className="flex gap-2 justify-center mt-4">
+                            <Button 
+                              variant="outline"
+                              onClick={fetchParticipations}
+                            >
+                              Refresh
+                            </Button>
+                            <Button 
+                              onClick={() => navigate('/campaigns')}
+                            >
+                              Browse Campaigns
+                            </Button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </TableCell>
                 </TableRow>
