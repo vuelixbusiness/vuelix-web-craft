@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Music2, Eye, TrendingUp, Users } from "lucide-react";
+import { Music2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Campaign {
@@ -22,7 +22,6 @@ interface ProfileCampaignsProps {
 
 export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
   const [createdCampaigns, setCreatedCampaigns] = useState<Campaign[]>([]);
-  const [participatedCampaigns, setParticipatedCampaigns] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -46,31 +45,7 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
 
       const { data: created } = await createdQuery;
 
-      // Fetch campaigns participated in
-      let participatedQuery = supabase
-        .from('campaign_participations')
-        .select(`
-          *,
-          campaigns:campaign_id (
-            id,
-            title,
-            song_title,
-            cover_art_url,
-            status,
-            created_at
-          )
-        `)
-        .eq('creator_id', userId)
-        .order('created_at', { ascending: false });
-
-      if (limit) {
-        participatedQuery = participatedQuery.limit(limit);
-      }
-
-      const { data: participated } = await participatedQuery;
-
       setCreatedCampaigns(created || []);
-      setParticipatedCampaigns(participated || []);
     } catch (error) {
       console.error('Error fetching campaigns:', error);
     } finally {
@@ -93,7 +68,7 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
   return (
     <div className="space-y-6">
       {/* Campaigns Created */}
-      {createdCampaigns.length > 0 && (
+      {createdCampaigns.length > 0 ? (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -138,67 +113,11 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
             </div>
           </CardContent>
         </Card>
-      )}
-
-      {/* Campaigns Participated */}
-      {participatedCampaigns.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5" />
-              Campaigns Participated
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {participatedCampaigns.map((participation) => {
-                const campaign = participation.campaigns;
-                if (!campaign) return null;
-                
-                return (
-                  <div
-                    key={participation.id}
-                    className="flex items-center gap-4 p-3 border border-border rounded-lg hover:shadow-soft transition-smooth"
-                  >
-                    {campaign.cover_art_url ? (
-                      <img
-                        src={campaign.cover_art_url}
-                        alt={campaign.title}
-                        className="w-16 h-16 rounded object-cover"
-                      />
-                    ) : (
-                      <div className="w-16 h-16 rounded bg-primary/10 flex items-center justify-center">
-                        <Music2 className="w-6 h-6 text-primary/50" />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-medium truncate">{campaign.title}</h4>
-                      <p className="text-sm text-muted-foreground truncate">
-                        {campaign.song_title}
-                      </p>
-                      <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Eye className="w-3 h-3" />
-                          {participation.current_views || 0} views
-                        </div>
-                        <Badge variant="outline" className="text-xs">
-                          {participation.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {createdCampaigns.length === 0 && participatedCampaigns.length === 0 && (
+      ) : (
         <Card>
           <CardContent className="p-6">
             <p className="text-muted-foreground text-center">
-              No campaign activity yet
+              No campaigns created yet
             </p>
           </CardContent>
         </Card>
