@@ -74,14 +74,23 @@ const CreatorCampaignList = ({ currentlyPlaying, onToggleAudio }: CreatorCampaig
   const [sortBy, setSortBy] = useState("created_at");
 
   useEffect(() => {
+    console.log('🔍 [CreatorCampaignList] useEffect triggered');
+    console.log('🔍 [CreatorCampaignList] user:', user);
+    console.log('🔍 [CreatorCampaignList] user?.id:', user?.id);
+    
     if (user?.id) {
+      console.log('✅ [CreatorCampaignList] User ID exists, fetching participations...');
       fetchParticipations();
+    } else {
+      console.log('❌ [CreatorCampaignList] No user ID, skipping fetch');
     }
   }, [user?.id]);
 
   const fetchParticipations = async () => {
     try {
       setIsLoading(true);
+      console.log('📡 [CreatorCampaignList] Starting fetch with user ID:', user?.id);
+      
       const { data, error } = await supabase
         .from('campaign_participations')
         .select(`
@@ -109,23 +118,49 @@ const CreatorCampaignList = ({ currentlyPlaying, onToggleAudio }: CreatorCampaig
         .eq('creator_id', user?.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      console.log('📥 [CreatorCampaignList] Raw query response:', { data, error });
+      console.log('📥 [CreatorCampaignList] Number of records returned:', data?.length || 0);
+
+      if (error) {
+        console.error('❌ [CreatorCampaignList] Query error:', error);
+        throw error;
+      }
       
       // Filter out campaigns where the user is also the artist
       let filteredData = (data as any[]) || [];
+      console.log('🔄 [CreatorCampaignList] Data before filtering:', filteredData);
+      console.log('🔄 [CreatorCampaignList] Current user ID for filter:', user?.id);
+      
       filteredData = filteredData.filter(
-        (participation) => participation.campaigns.artist_id !== user?.id
+        (participation) => {
+          const isOwnCampaign = participation.campaigns.artist_id === user?.id;
+          console.log(`🔍 [CreatorCampaignList] Participation ${participation.id}:`, {
+            campaignId: participation.campaign_id,
+            artistId: participation.campaigns.artist_id,
+            currentUserId: user?.id,
+            isOwnCampaign,
+            willBeFiltered: isOwnCampaign
+          });
+          return !isOwnCampaign;
+        }
       );
+      
+      console.log('✅ [CreatorCampaignList] Data after filtering:', filteredData);
+      console.log('✅ [CreatorCampaignList] Number of participations after filter:', filteredData.length);
       
       setParticipations(filteredData);
     } catch (error) {
-      console.error('Error fetching participations:', error);
+      console.error('❌ [CreatorCampaignList] Error fetching participations:', error);
     } finally {
       setIsLoading(false);
+      console.log('🏁 [CreatorCampaignList] Fetch complete');
     }
   };
 
   // Filter and sort participations
+  console.log('🎯 [CreatorCampaignList] Rendering with participations:', participations);
+  console.log('🎯 [CreatorCampaignList] Filters:', { searchTerm, statusFilter, platformFilter, sortBy });
+  
   const filteredParticipations = participations
     .filter(participation => {
       const matchesSearch = participation.campaigns.song_title.toLowerCase().includes(searchTerm.toLowerCase()) ||
