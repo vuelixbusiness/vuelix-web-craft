@@ -126,27 +126,23 @@ const CreatorCampaignList = ({ currentlyPlaying, onToggleAudio }: CreatorCampaig
         throw error;
       }
       
-      // Filter out campaigns where the user is also the artist
+      // TEMPORARILY DISABLED: Filter out campaigns where the user is also the artist
       let filteredData = (data as any[]) || [];
-      console.log('🔄 [CreatorCampaignList] Data before filtering:', filteredData);
-      console.log('🔄 [CreatorCampaignList] Current user ID for filter:', user?.id);
+      console.log('🔄 [CreatorCampaignList] Data (NO FILTERING APPLIED):', filteredData);
+      console.log('🔄 [CreatorCampaignList] Current user ID:', user?.id);
       
-      filteredData = filteredData.filter(
-        (participation) => {
-          const isOwnCampaign = participation.campaigns.artist_id === user?.id;
-          console.log(`🔍 [CreatorCampaignList] Participation ${participation.id}:`, {
-            campaignId: participation.campaign_id,
-            artistId: participation.campaigns.artist_id,
-            currentUserId: user?.id,
-            isOwnCampaign,
-            willBeFiltered: isOwnCampaign
-          });
-          return !isOwnCampaign;
-        }
-      );
+      // Log each participation for debugging
+      filteredData.forEach((participation) => {
+        console.log(`🔍 [CreatorCampaignList] Participation ${participation.id}:`, {
+          campaignId: participation.campaign_id,
+          artistId: participation.campaigns.artist_id,
+          currentUserId: user?.id,
+          isOwnCampaign: participation.campaigns.artist_id === user?.id,
+          status: participation.status
+        });
+      });
       
-      console.log('✅ [CreatorCampaignList] Data after filtering:', filteredData);
-      console.log('✅ [CreatorCampaignList] Number of participations after filter:', filteredData.length);
+      console.log('✅ [CreatorCampaignList] Total participations (unfiltered):', filteredData.length);
       
       setParticipations(filteredData);
     } catch (error) {
