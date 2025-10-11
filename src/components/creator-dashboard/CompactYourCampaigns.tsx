@@ -14,14 +14,20 @@ interface Campaign {
   current_views: number;
   current_likes: number;
   payout_amount: number;
+  campaign_id: string;
   campaigns: {
     song_title: string;
     cover_art_url: string;
     genre: string;
+    artist_id: string;
   };
 }
 
-const CompactYourCampaigns = () => {
+interface CompactYourCampaignsProps {
+  excludeOwnCampaigns?: boolean;
+}
+
+const CompactYourCampaigns = ({ excludeOwnCampaigns = false }: CompactYourCampaignsProps) => {
   const { user } = useAuth();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,7 +36,7 @@ const CompactYourCampaigns = () => {
     if (user?.id) {
       fetchCampaigns();
     }
-  }, [user?.id]);
+  }, [user?.id, excludeOwnCampaigns]);
 
   const fetchCampaigns = async () => {
     try {
@@ -43,18 +49,30 @@ const CompactYourCampaigns = () => {
           current_views,
           current_likes,
           payout_amount,
+          campaign_id,
           campaigns (
             song_title,
             cover_art_url,
-            genre
+            genre,
+            artist_id
           )
         `)
         .eq('creator_id', user?.id)
         .order('created_at', { ascending: false })
-        .limit(5);
+        .limit(50);
 
       if (error) throw error;
-      setCampaigns(data || []);
+      
+      let filteredData = data || [];
+      
+      // Filter out campaigns where the user is also the artist
+      if (excludeOwnCampaigns) {
+        filteredData = filteredData.filter(
+          (participation) => participation.campaigns.artist_id !== user?.id
+        );
+      }
+      
+      setCampaigns(filteredData.slice(0, 5));
     } catch (error) {
       console.error('Error fetching campaigns:', error);
     } finally {

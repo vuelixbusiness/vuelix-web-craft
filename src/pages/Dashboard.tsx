@@ -159,7 +159,7 @@ const Dashboard = () => {
             <CardContent>
               {canManage ? (
                 showJoinedCampaigns ? (
-                  <CompactYourCampaigns />
+                  <CompactYourCampaigns excludeOwnCampaigns={true} />
                 ) : (
                   <CompactArtistCampaigns />
                 )
