@@ -1,6 +1,6 @@
 import { UserRole, RoleConfig } from '@/config/roleConfig';
 import YourCampaigns from '../creator-dashboard/YourCampaigns';
-import CampaignManagement from '../creator-dashboard/CampaignManagement';
+import ArtistYourCampaigns from '../creator-dashboard/ArtistYourCampaigns';
 
 interface CampaignManagerHubProps {
   role: UserRole;
@@ -11,9 +11,9 @@ export const CampaignManagerHub = ({ role, roleConfig }: CampaignManagerHubProps
   const features = roleConfig.modules.campaign_manager.features || [];
   const { canCreate, canJoin, canManage } = roleConfig.campaignActions;
 
-  // Artists and similar roles see campaign management (without Available tab)
+  // Artists and similar roles see their created campaigns
   if (canManage && features.includes('manage_campaigns')) {
-    return <CampaignManagement hideAvailableTab />;
+    return <ArtistYourCampaigns />;
   }
 
   // Creators and similar roles see campaign browsing
