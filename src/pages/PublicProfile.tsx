@@ -437,12 +437,12 @@ const PublicProfile = () => {
             <ProfileCampaigns userId={profile.user_id} />
           </TabsContent>
 
-          <TabsContent value="content">
-            <ProfileContentShowcase userId={profile.user_id} />
-          </TabsContent>
-
           <TabsContent value="achievements">
             <ProfileAchievements userId={profile.user_id} />
+          </TabsContent>
+
+          <TabsContent value="content">
+            <ProfileContentShowcase userId={profile.user_id} />
           </TabsContent>
 
           <TabsContent value="skills">
