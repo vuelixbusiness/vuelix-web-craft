@@ -1,13 +1,27 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
+import { useRoleManagement } from "@/hooks/useRoleManagement";
+import YourCampaigns from "@/components/creator-dashboard/YourCampaigns";
+import ArtistYourCampaigns from "@/components/creator-dashboard/ArtistYourCampaigns";
 import { Link } from "react-router-dom";
-import { TrendingUp, Users, Music, Trophy, Wallet, User } from "lucide-react";
+import { TrendingUp, Users, Music, Trophy, Wallet, User, Briefcase } from "lucide-react";
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { activeRole } = useRoleManagement();
+  const [showJoinedCampaigns, setShowJoinedCampaigns] = useState(false);
+  
+  // Check if user can manage campaigns based on their role config
+  const canManage = activeRole ? 
+    (activeRole === 'artist' || activeRole === 'dj' || activeRole === 'producer' || 
+     activeRole === 'brand' || activeRole === 'record_label' || activeRole === 'music_group' || 
+     activeRole === 'collective' || activeRole === 'event_organizer') : false;
 
   const quickStats = [
     { label: 'Total Earnings', value: '$0.00', icon: Wallet, color: 'text-stat-green' },
@@ -92,26 +106,71 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Recent Activity */}
-        <Card className="bg-card border-border">
-          <CardHeader className="pb-4">
-            <CardTitle className="flex items-center space-x-3 text-xl text-foreground">
-              <TrendingUp className="w-6 h-6 text-stat-purple" />
-              <span>Recent Activity</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center py-8">
-              <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-              <p className="text-sm text-muted-foreground mb-4">
-                No recent activity yet. Start participating in campaigns to see your progress here!
-              </p>
-              <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                <Link to="/campaigns">Browse Campaigns</Link>
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Bottom Section - Recent Activity + My Campaigns */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Recent Activity */}
+          <Card className="bg-card border-border">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex items-center space-x-3 text-xl text-foreground">
+                <TrendingUp className="w-6 h-6 text-stat-purple" />
+                <span>Recent Activity</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8">
+                <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-sm text-muted-foreground mb-4">
+                  No recent activity yet. Start participating in campaigns to see your progress here!
+                </p>
+                <Button asChild className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                  <Link to="/campaigns">Browse Campaigns</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* My Campaigns */}
+          <Card className="bg-card border-border">
+            <CardHeader className="pb-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="flex items-center space-x-3 text-xl text-foreground">
+                  <Briefcase className="w-6 h-6 text-stat-blue" />
+                  <span>My Campaigns</span>
+                </CardTitle>
+                
+                {/* Toggle Switch - Only for artists/managers */}
+                {canManage && (
+                  <div className="flex items-center space-x-2">
+                    <Label htmlFor="dashboard-campaign-toggle" className="text-sm text-muted-foreground">
+                      Created
+                    </Label>
+                    <Switch
+                      id="dashboard-campaign-toggle"
+                      checked={showJoinedCampaigns}
+                      onCheckedChange={setShowJoinedCampaigns}
+                    />
+                    <Label htmlFor="dashboard-campaign-toggle" className="text-sm text-muted-foreground">
+                      Joined
+                    </Label>
+                  </div>
+                )}
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="max-h-96 overflow-y-auto">
+                {canManage ? (
+                  showJoinedCampaigns ? (
+                    <YourCampaigns />
+                  ) : (
+                    <ArtistYourCampaigns />
+                  )
+                ) : (
+                  <YourCampaigns />
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     </DashboardLayout>
   );
