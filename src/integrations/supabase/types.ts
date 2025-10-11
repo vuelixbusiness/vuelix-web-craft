@@ -621,11 +621,15 @@ export type Database = {
           avatar_url: string | null
           banner_url: string | null
           bio: string | null
+          city: string | null
+          country: string | null
           created_at: string
           display_name: string | null
           engagement_score: number | null
           id: string
+          latitude: number | null
           location: string | null
+          longitude: number | null
           membership_type: Database["public"]["Enums"]["membership_type"]
           paypal_account_status: string | null
           paypal_email: string | null
@@ -642,11 +646,15 @@ export type Database = {
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string
           display_name?: string | null
           engagement_score?: number | null
           id?: string
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           membership_type?: Database["public"]["Enums"]["membership_type"]
           paypal_account_status?: string | null
           paypal_email?: string | null
@@ -663,11 +671,15 @@ export type Database = {
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
+          city?: string | null
+          country?: string | null
           created_at?: string
           display_name?: string | null
           engagement_score?: number | null
           id?: string
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
           membership_type?: Database["public"]["Enums"]["membership_type"]
           paypal_account_status?: string | null
           paypal_email?: string | null

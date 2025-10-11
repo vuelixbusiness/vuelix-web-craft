@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
+import { LocationSetupDialog } from "@/components/LocationSetupDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { Music, Video, Eye, EyeOff, ArrowLeft } from "lucide-react";
@@ -20,7 +21,9 @@ const Signup = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
-  const { signup, signInWithGoogle, signInWithMicrosoft, isLoading } = useAuth();
+  const [showLocationDialog, setShowLocationDialog] = useState(false);
+  const [newUserId, setNewUserId] = useState<string | null>(null);
+  const { signup, signInWithGoogle, signInWithMicrosoft, isLoading, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -80,8 +83,11 @@ const Signup = () => {
         description: `Account created successfully as ${userType}`,
       });
       
-      // Redirect based on user type
-      navigate(userType === 'creator' ? '/creator-dashboard' : '/artist-dashboard');
+      // Show location setup dialog
+      if (user?.id) {
+        setNewUserId(user.id);
+        setShowLocationDialog(true);
+      }
     } else {
       toast({
         title: "Signup failed",
@@ -89,6 +95,12 @@ const Signup = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleLocationComplete = () => {
+    setShowLocationDialog(false);
+    // Redirect based on user type
+    navigate(userType === 'creator' ? '/creator-dashboard' : '/artist-dashboard');
   };
 
   const handleGoogleSignIn = async () => {
@@ -337,6 +349,14 @@ const Signup = () => {
             </div>
           </CardContent>
         </Card>
+
+        {showLocationDialog && newUserId && (
+          <LocationSetupDialog
+            open={showLocationDialog}
+            userId={newUserId}
+            onComplete={handleLocationComplete}
+          />
+        )}
       </div>
     </div>
   );

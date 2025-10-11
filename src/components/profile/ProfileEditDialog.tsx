@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { LocationSelector, CITY_LOCATIONS } from "@/components/LocationSelector";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -22,16 +23,49 @@ export function ProfileEditDialog({ open, onClose }: ProfileEditDialogProps) {
     username: '',
     bio: '',
     location: '',
+    city: '',
+    country: '',
+    latitude: null as number | null,
+    longitude: null as number | null,
   });
 
   useEffect(() => {
     if (user && open) {
-      setFormData({
-        name: user.name || '',
-        username: user.username || '',
-        bio: user.bio || '',
-        location: user.location || '',
-      });
+      // Fetch full profile data including location fields
+      const fetchProfile = async () => {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('display_name, username, bio, city, country, latitude, longitude')
+          .eq('user_id', user.id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching profile:', error);
+          return;
+        }
+
+        // Find matching location key if city and country exist
+        let locationKey = '';
+        if (data.city && data.country) {
+          locationKey = Object.keys(CITY_LOCATIONS).find(key => {
+            const loc = CITY_LOCATIONS[key as keyof typeof CITY_LOCATIONS];
+            return loc.city === data.city && loc.country === data.country;
+          }) || '';
+        }
+
+        setFormData({
+          name: data.display_name || '',
+          username: data.username || '',
+          bio: data.bio || '',
+          location: locationKey,
+          city: data.city || '',
+          country: data.country || '',
+          latitude: data.latitude,
+          longitude: data.longitude,
+        });
+      };
+
+      fetchProfile();
     }
   }, [user, open]);
 
@@ -46,7 +80,10 @@ export function ProfileEditDialog({ open, onClose }: ProfileEditDialogProps) {
           display_name: formData.name,
           username: formData.username,
           bio: formData.bio,
-          location: formData.location,
+          city: formData.city,
+          country: formData.country,
+          latitude: formData.latitude,
+          longitude: formData.longitude,
         })
         .eq('user_id', user.id);
 
@@ -96,15 +133,21 @@ export function ProfileEditDialog({ open, onClose }: ProfileEditDialogProps) {
               placeholder="Enter your username"
             />
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
-            <Input
-              id="location"
-              value={formData.location}
-              onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
-              placeholder="City, Country"
-            />
-          </div>
+          <LocationSelector
+            value={formData.location}
+            onLocationChange={(location) => {
+              setFormData(prev => ({
+                ...prev,
+                city: location.city,
+                country: location.country,
+                latitude: location.lat,
+                longitude: location.lng,
+                location: `${location.city}, ${location.country}`
+              }));
+            }}
+            label="Location (for globe display)"
+            placeholder="Select your city to appear on the globe"
+          />
           <div className="space-y-2">
             <Label htmlFor="bio">Bio</Label>
             <Textarea

@@ -1,78 +1,35 @@
 import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { useGlobeUserData } from '@/hooks/useGlobeUserData';
 import { supabase } from '@/integrations/supabase/client';
 
-// User categories with exact colors from Figma design
-const USER_CATEGORIES = [
-  { name: "Artists", color: "#0047AB", icon: "🎵" },
-  { name: "Content Creators", color: "#FF3B30", icon: "🎥" },
-  { name: "Producers", color: "#4DA6FF", icon: "🎹" },
-  { name: "DJs", color: "#20C997", icon: "🎚️" },
-  { name: "Visual Creatives", color: "#C8A2C8", icon: "🎨" },
-  { name: "Fans", color: "#8A2BE2", icon: "🙌" },
-  { name: "Collectives / Groups", color: "#8B6914", icon: "👥" },
-  { name: "Record Labels", color: "#ADFF2F", icon: "🏢" },
-  { name: "Brands", color: "#FFD700", icon: "🤝" },
-  { name: "Studios (Audio + Visual)", color: "#800000", icon: "🎙️" },
-  { name: "Festivals & Events", color: "#FF69B4", icon: "🎪" }
-];
+// User categories with colors based on membership and user type
+const USER_CATEGORIES = {
+  vip: { color: '#FFD700', icon: '⭐', label: 'VIP' },
+  artist: { color: '#FF3B30', icon: '🎵', label: 'Artist' },
+  creator: { color: '#4DA6FF', icon: '🎨', label: 'Creator' },
+  regular: { color: '#8B5CF6', icon: '👤', label: 'User' }
+};
 
-// Continent centers for distributing category dots globally
-const CONTINENTS = [
-  { name: 'North America', lat: 45.0, lng: -100.0 },
-  { name: 'South America', lat: -15.0, lng: -60.0 },
-  { name: 'Europe', lat: 54.0, lng: 15.0 },
-  { name: 'Africa', lat: 0.0, lng: 20.0 },
-  { name: 'Asia', lat: 30.0, lng: 100.0 },
-  { name: 'Oceania', lat: -25.0, lng: 140.0 },
-  { name: 'Antarctica', lat: -80.0, lng: 0.0 },
-];
-
-// Map real users to category points distributed across continents
-function generateCategoryPoints(users: any[] = []) {
-  const points: any[] = [];
-  let userIndex = 0;
-  
-  USER_CATEGORIES.forEach(category => {
-    // Generate 3-5 points per category for variety
-    const numPoints = 3 + Math.floor(Math.random() * 3);
-    
-    for (let i = 0; i < numPoints; i++) {
-      // Pick a random continent for global distribution
-      const continent = CONTINENTS[Math.floor(Math.random() * CONTINENTS.length)];
-      
-      // Add randomness around the continent center (±20 degrees)
-      const latOffset = (Math.random() - 0.5) * 40;
-      const lngOffset = (Math.random() - 0.5) * 40;
-      
-      // Get the next real user (cycle through if needed)
-      const user = users[userIndex % users.length];
-      userIndex++;
-      
-      points.push({
-        lat: continent.lat + latOffset,
-        lng: continent.lng + lngOffset,
-        color: category.color,
-        category: category.name,
-        icon: category.icon,
-        label: user ? `${category.icon} ${user.display_name || user.username} (@${user.username})` : `${category.icon} ${category.name}`,
-        username: user?.username,
-        userId: user?.user_id,
-      });
-    }
-  });
-  
-  return points;
+interface UserLocation {
+  id: string;
+  username: string;
+  display_name: string;
+  user_type: string;
+  membership_type: string;
+  latitude: number;
+  longitude: number;
+  city?: string;
+  country?: string;
 }
 
 export function MapboxGlobe() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
-  const { data: users = [] } = useGlobeUserData();
+  const markers = useRef<mapboxgl.Marker[]>([]);
   const [isInteracting, setIsInteracting] = useState(false);
   const [mapboxToken, setMapboxToken] = useState<string | null>(null);
+  const [userLocations, setUserLocations] = useState<UserLocation[]>([]);
   const rotationInterval = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch Mapbox token from edge function
@@ -89,10 +46,51 @@ export function MapboxGlobe() {
     fetchToken();
   }, []);
 
+  // Fetch user locations from database
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken) return;
+    const fetchUserLocations = async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, username, display_name, user_type, membership_type, latitude, longitude, city, country')
+        .not('latitude', 'is', null)
+        .not('longitude', 'is', null);
 
-    // Initialize map with globe projection
+      if (error) {
+        console.error('Error fetching user locations:', error);
+        return;
+      }
+
+      setUserLocations(data || []);
+    };
+
+    fetchUserLocations();
+
+    // Set up realtime subscription for location updates
+    const channel = supabase
+      .channel('profile-locations')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles',
+          filter: 'latitude=not.is.null'
+        },
+        () => {
+          fetchUserLocations();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  // Initialize map
+  useEffect(() => {
+    if (!mapContainer.current || !mapboxToken || map.current) return;
+
     mapboxgl.accessToken = mapboxToken;
     
     map.current = new mapboxgl.Map({
@@ -122,44 +120,6 @@ export function MapboxGlobe() {
         'horizon-blend': 0.1,
         'space-color': 'rgb(15, 13, 30)',
         'star-intensity': 0.6,
-      });
-
-      // Add category points as markers
-      const categoryPoints = generateCategoryPoints(users);
-      categoryPoints.forEach((point) => {
-        // Create custom marker element
-        const el = document.createElement('div');
-        el.className = 'custom-marker';
-        el.style.backgroundColor = point.color;
-        el.style.width = '12px';
-        el.style.height = '12px';
-        el.style.borderRadius = '50%';
-        el.style.border = '2px solid rgba(255, 255, 255, 0.8)';
-        el.style.cursor = 'pointer';
-        el.style.boxShadow = `0 0 10px ${point.color}`;
-        el.style.transition = 'transform 0.2s';
-        
-        el.addEventListener('mouseenter', () => {
-          el.style.transform = 'scale(1.5)';
-        });
-        
-        el.addEventListener('mouseleave', () => {
-          el.style.transform = 'scale(1)';
-        });
-
-        // Add marker to map
-        const marker = new mapboxgl.Marker(el)
-          .setLngLat([point.lng, point.lat])
-          .setPopup(
-            new mapboxgl.Popup({ offset: 25, closeButton: false })
-              .setHTML(`
-                <div style="padding: 8px; background: rgba(30, 27, 59, 0.95); color: white; border-radius: 8px;">
-                  <strong>${point.label}</strong><br/>
-                  <span style="color: ${point.color};">${point.category}</span>
-                </div>
-              `)
-          )
-          .addTo(map.current!);
       });
     });
 
@@ -205,7 +165,82 @@ export function MapboxGlobe() {
       }
       map.current?.remove();
     };
-  }, [users, mapboxToken]);
+  }, [mapboxToken]);
+
+  // Add markers for user locations
+  useEffect(() => {
+    if (!map.current || userLocations.length === 0) return;
+
+    // Clear existing markers
+    markers.current.forEach(marker => marker.remove());
+    markers.current = [];
+
+    // Add new markers for each user
+    userLocations.forEach((user) => {
+      if (!map.current) return;
+
+      // Determine category based on membership type (VIP) or user type
+      const category = user.membership_type === 'vip' ? 'vip' : user.user_type;
+      const categoryInfo = USER_CATEGORIES[category as keyof typeof USER_CATEGORIES] || USER_CATEGORIES.regular;
+      
+      // Create custom marker element
+      const el = document.createElement('div');
+      el.className = 'custom-marker';
+      el.style.backgroundColor = categoryInfo.color;
+      el.style.width = '10px';
+      el.style.height = '10px';
+      el.style.borderRadius = '50%';
+      el.style.border = '2px solid rgba(255, 255, 255, 0.9)';
+      el.style.cursor = 'pointer';
+      el.style.transition = 'all 0.3s ease';
+      el.style.boxShadow = `0 0 8px ${categoryInfo.color}`;
+
+      // Add hover effect
+      el.addEventListener('mouseenter', () => {
+        el.style.transform = 'scale(1.8)';
+        el.style.boxShadow = `0 0 20px ${categoryInfo.color}`;
+      });
+
+      el.addEventListener('mouseleave', () => {
+        el.style.transform = 'scale(1)';
+        el.style.boxShadow = `0 0 8px ${categoryInfo.color}`;
+      });
+
+      // Create popup with user info
+      const locationText = user.city && user.country 
+        ? `${user.city}, ${user.country}`
+        : user.country || 'Location set';
+
+      const popup = new mapboxgl.Popup({ 
+        offset: 15,
+        closeButton: false,
+        className: 'globe-popup'
+      }).setHTML(`
+        <div style="padding: 10px; font-family: system-ui; color: #fff; background: rgba(30, 27, 59, 0.95); border-radius: 8px;">
+          <div style="font-weight: 600; font-size: 14px; margin-bottom: 6px;">
+            ${categoryInfo.icon} @${user.username}
+          </div>
+          <div style="font-size: 12px; color: #ddd; margin-bottom: 2px;">
+            ${user.display_name || 'No display name'}
+          </div>
+          <div style="font-size: 11px; color: #aaa;">
+            📍 ${locationText}
+          </div>
+          <div style="font-size: 10px; color: ${categoryInfo.color}; margin-top: 4px;">
+            ${categoryInfo.label}
+          </div>
+        </div>
+      `);
+
+      // Create and add marker
+      const marker = new mapboxgl.Marker(el)
+        .setLngLat([user.longitude, user.latitude])
+        .setPopup(popup)
+        .addTo(map.current);
+
+      markers.current.push(marker);
+    });
+  }, [userLocations]);
 
   return (
     <div className="w-full h-full min-h-[400px] lg:min-h-[600px] relative rounded-lg overflow-hidden">
@@ -215,17 +250,7 @@ export function MapboxGlobe() {
             <div className="text-4xl mb-2">🗺️</div>
             <h3 className="text-lg font-semibold text-foreground">Mapbox Token Required</h3>
             <p className="text-sm text-muted-foreground">
-              To display the interactive globe, please add your Mapbox public token:
-            </p>
-            <ol className="text-xs text-left text-muted-foreground space-y-2 bg-muted/50 p-4 rounded-lg">
-              <li>1. Go to <a href="https://mapbox.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">mapbox.com</a> and create a free account</li>
-              <li>2. Copy your public token from the Tokens section</li>
-              <li>3. In Lovable, go to Project → Settings → Secrets</li>
-              <li>4. Add a new secret named <code className="bg-background px-1 rounded">MAPBOX_PUBLIC_TOKEN</code></li>
-              <li>5. Paste your token and save</li>
-            </ol>
-            <p className="text-xs text-muted-foreground italic">
-              The globe will appear automatically once the token is added.
+              To display the interactive globe, please add your Mapbox public token.
             </p>
           </div>
         </div>
@@ -233,8 +258,8 @@ export function MapboxGlobe() {
         <>
           <div ref={mapContainer} className="absolute inset-0" />
           <div className="absolute top-4 left-4 bg-background/80 backdrop-blur-sm p-3 rounded-lg text-sm text-foreground z-10">
-            <p className="font-semibold">🌍 Interactive Globe</p>
-            <p className="text-xs opacity-80">Zoom to street level • Click markers for details</p>
+            <p className="font-semibold">🌍 Global Community</p>
+            <p className="text-xs opacity-80">{userLocations.length} users worldwide • Click markers for details</p>
           </div>
         </>
       )}
