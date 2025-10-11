@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Music2 } from "lucide-react";
@@ -21,6 +22,7 @@ interface ProfileCampaignsProps {
 }
 
 export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
+  const navigate = useNavigate();
   const [createdCampaigns, setCreatedCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -81,7 +83,8 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
               {createdCampaigns.map((campaign) => (
                 <div
                   key={campaign.id}
-                  className="border border-border rounded-lg overflow-hidden hover:shadow-soft transition-smooth"
+                  onClick={() => navigate(`/artist/campaign/${campaign.id}`)}
+                  className="border border-border rounded-lg overflow-hidden hover:shadow-soft transition-smooth cursor-pointer"
                 >
                   {campaign.cover_art_url ? (
                     <img
