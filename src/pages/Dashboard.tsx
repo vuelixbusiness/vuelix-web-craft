@@ -7,8 +7,8 @@ import { Label } from "@/components/ui/label";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRoleManagement } from "@/hooks/useRoleManagement";
-import YourCampaigns from "@/components/creator-dashboard/YourCampaigns";
-import ArtistYourCampaigns from "@/components/creator-dashboard/ArtistYourCampaigns";
+import CompactYourCampaigns from "@/components/creator-dashboard/CompactYourCampaigns";
+import CompactArtistCampaigns from "@/components/creator-dashboard/CompactArtistCampaigns";
 import { Link } from "react-router-dom";
 import { TrendingUp, Users, Music, Trophy, Wallet, User, Briefcase } from "lucide-react";
 
@@ -157,17 +157,15 @@ const Dashboard = () => {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="max-h-96 overflow-y-auto">
-                {canManage ? (
-                  showJoinedCampaigns ? (
-                    <YourCampaigns />
-                  ) : (
-                    <ArtistYourCampaigns />
-                  )
+              {canManage ? (
+                showJoinedCampaigns ? (
+                  <CompactYourCampaigns />
                 ) : (
-                  <YourCampaigns />
-                )}
-              </div>
+                  <CompactArtistCampaigns />
+                )
+              ) : (
+                <CompactYourCampaigns />
+              )}
             </CardContent>
           </Card>
         </div>
