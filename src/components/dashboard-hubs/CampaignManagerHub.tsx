@@ -53,7 +53,7 @@ export const CampaignManagerHub = ({ role, roleConfig }: CampaignManagerHubProps
           </Label>
           <p className="text-sm text-muted-foreground">
             {showJoinedCampaigns 
-              ? "View campaigns you've joined as a creator"
+              ? "View campaigns you've joined"
               : "View campaigns you've created"
             }
           </p>
