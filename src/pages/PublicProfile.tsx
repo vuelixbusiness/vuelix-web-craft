@@ -418,43 +418,58 @@ const PublicProfile = () => {
         <ProfileSocialStats userId={profile.user_id} />
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="overview" className="max-w-6xl mx-auto mt-8">
+        <Tabs defaultValue="content" className="max-w-6xl mx-auto mt-8">
             <TabsList className="grid w-full grid-cols-5">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-              <TabsTrigger value="achievements">Achievements</TabsTrigger>
               <TabsTrigger value="content">Content</TabsTrigger>
-              <TabsTrigger value="skills">Skills</TabsTrigger>
+              <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+              <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+              <TabsTrigger value="shop">Shop</TabsTrigger>
+              <TabsTrigger value="events">Events</TabsTrigger>
             </TabsList>
 
-          <TabsContent value="overview" className="space-y-6 mt-6">
-            <ProfileAchievements userId={profile.user_id} featured />
-            <ProfileCampaigns userId={profile.user_id} limit={6} />
-            <ProfileContentShowcase userId={profile.user_id} featured />
+          <TabsContent value="content">
+            <ProfileContentShowcase userId={profile.user_id} />
           </TabsContent>
 
           <TabsContent value="campaigns">
             <ProfileCampaigns userId={profile.user_id} />
           </TabsContent>
 
-          <TabsContent value="achievements">
-            <ProfileAchievements userId={profile.user_id} />
-          </TabsContent>
-
-          <TabsContent value="content">
-            <ProfileContentShowcase userId={profile.user_id} />
-          </TabsContent>
-
-          <TabsContent value="skills">
+          <TabsContent value="portfolio">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Award className="w-5 h-5" />
-                  Skills & Expertise
-                </CardTitle>
+                <CardTitle>Portfolio</CardTitle>
               </CardHeader>
               <CardContent>
-                <ProfileSkills userId={profile.user_id} />
+                <p className="text-muted-foreground text-center py-8">
+                  Portfolio section coming soon
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="shop">
+            <Card>
+              <CardHeader>
+                <CardTitle>Shop</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-center py-8">
+                  Shop section coming soon
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="events">
+            <Card>
+              <CardHeader>
+                <CardTitle>Events</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-center py-8">
+                  Events section coming soon
+                </p>
               </CardContent>
             </Card>
           </TabsContent>

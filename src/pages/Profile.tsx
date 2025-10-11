@@ -3,11 +3,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
-import { ProfileSocialStats } from "@/components/profile/ProfileSocialStats";
-import { ProfileAchievements } from "@/components/profile/ProfileAchievements";
 import { ProfileCampaigns } from "@/components/profile/ProfileCampaigns";
 import { ProfileContentShowcase } from "@/components/profile/ProfileContentShowcase";
-import { ProfileSkills } from "@/components/profile/ProfileSkills";
 import { ProfileEditDialog } from "@/components/profile/ProfileEditDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
@@ -59,25 +56,18 @@ const Profile = () => {
         />
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
+        <Tabs defaultValue="content" className="space-y-6">
           <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-            <TabsTrigger value="achievements">Achievements</TabsTrigger>
             <TabsTrigger value="content">Content</TabsTrigger>
-            <TabsTrigger value="skills">Skills</TabsTrigger>
+            <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+            <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
+            <TabsTrigger value="shop">Shop</TabsTrigger>
+            <TabsTrigger value="events">Events</TabsTrigger>
           </TabsList>
 
-          {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <ProfileSocialStats userId={user.id} />
-            
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <ProfileAchievements userId={user.id} featured />
-              <ProfileCampaigns userId={user.id} limit={3} />
-            </div>
-
-            <ProfileContentShowcase userId={user.id} featured />
+          {/* Content Tab */}
+          <TabsContent value="content">
+            <ProfileContentShowcase userId={user.id} />
           </TabsContent>
 
           {/* Campaigns Tab */}
@@ -85,24 +75,44 @@ const Profile = () => {
             <ProfileCampaigns userId={user.id} />
           </TabsContent>
 
-          {/* Achievements Tab */}
-          <TabsContent value="achievements">
-            <ProfileAchievements userId={user.id} />
-          </TabsContent>
-
-          {/* Content Tab */}
-          <TabsContent value="content">
-            <ProfileContentShowcase userId={user.id} />
-          </TabsContent>
-
-          {/* Skills Tab */}
-          <TabsContent value="skills">
+          {/* Portfolio Tab */}
+          <TabsContent value="portfolio">
             <Card>
               <CardHeader>
-                <CardTitle>Skills & Expertise</CardTitle>
+                <CardTitle>Portfolio</CardTitle>
               </CardHeader>
               <CardContent>
-                <ProfileSkills userId={user.id} />
+                <p className="text-muted-foreground text-center py-8">
+                  Portfolio section coming soon
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Shop Tab */}
+          <TabsContent value="shop">
+            <Card>
+              <CardHeader>
+                <CardTitle>Shop</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-center py-8">
+                  Shop section coming soon
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Events Tab */}
+          <TabsContent value="events">
+            <Card>
+              <CardHeader>
+                <CardTitle>Events</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-muted-foreground text-center py-8">
+                  Events section coming soon
+                </p>
               </CardContent>
             </Card>
           </TabsContent>
