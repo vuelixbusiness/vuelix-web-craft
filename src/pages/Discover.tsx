@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Globe } from "lucide-react";
-import { DiscoveryGlobe } from "@/components/DiscoveryGlobe";
+import { MapboxGlobe } from "@/components/MapboxGlobe";
 import { Skeleton } from "@/components/ui/skeleton";
 import DashboardLayout from "@/components/DashboardLayout";
 
@@ -32,7 +32,7 @@ const Discover = () => {
               <Skeleton className="w-full h-[500px] lg:h-[700px] bg-muted/20" />
             }>
               <div className="h-[500px] lg:h-[700px]">
-                <DiscoveryGlobe />
+                <MapboxGlobe />
               </div>
             </Suspense>
           </div>
