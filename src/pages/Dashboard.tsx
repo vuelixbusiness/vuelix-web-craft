@@ -138,33 +138,27 @@ const Dashboard = () => {
                   <span>My Campaigns</span>
                 </CardTitle>
                 
-                {/* Toggle Switch - Only for artists/managers */}
-                {canManage && (
-                  <div className="flex items-center space-x-2">
-                    <Label htmlFor="dashboard-campaign-toggle" className="text-sm text-muted-foreground">
-                      Created
-                    </Label>
-                    <Switch
-                      id="dashboard-campaign-toggle"
-                      checked={showJoinedCampaigns}
-                      onCheckedChange={setShowJoinedCampaigns}
-                    />
-                    <Label htmlFor="dashboard-campaign-toggle" className="text-sm text-muted-foreground">
-                      Joined
-                    </Label>
-                  </div>
-                )}
+                {/* Toggle Switch - Show for ALL users */}
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="dashboard-campaign-toggle" className="text-sm text-muted-foreground">
+                    Created
+                  </Label>
+                  <Switch
+                    id="dashboard-campaign-toggle"
+                    checked={showJoinedCampaigns}
+                    onCheckedChange={setShowJoinedCampaigns}
+                  />
+                  <Label htmlFor="dashboard-campaign-toggle" className="text-sm text-muted-foreground">
+                    Joined
+                  </Label>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
-              {canManage ? (
-                showJoinedCampaigns ? (
-                  <CompactYourCampaigns excludeOwnCampaigns={true} />
-                ) : (
-                  <CompactArtistCampaigns />
-                )
+              {showJoinedCampaigns ? (
+                <CompactYourCampaigns excludeOwnCampaigns={true} />
               ) : (
-                <CompactYourCampaigns />
+                <CompactArtistCampaigns />
               )}
             </CardContent>
           </Card>

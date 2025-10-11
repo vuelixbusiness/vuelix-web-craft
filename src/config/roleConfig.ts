@@ -99,9 +99,9 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
       account_settings: { visible: true }
     },
     campaignActions: {
-      canCreate: false,
+      canCreate: true,
       canJoin: true,
-      canManage: false
+      canManage: true
     }
   },
   dj: {
@@ -189,9 +189,9 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
       account_settings: { visible: true }
     },
     campaignActions: {
-      canCreate: false,
+      canCreate: true,
       canJoin: true,
-      canManage: false
+      canManage: true
     }
   },
   brand: {
