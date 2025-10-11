@@ -35,6 +35,7 @@ interface Participation {
     cover_art_url: string | null;
     genre: string;
     title: string;
+    artist_id: string;
     profiles: {
       display_name: string;
     } | null;
@@ -99,6 +100,7 @@ const CreatorCampaignList = ({ currentlyPlaying, onToggleAudio }: CreatorCampaig
             cover_art_url,
             genre,
             title,
+            artist_id,
             profiles:profiles!campaigns_artist_id_fkey (
               display_name
             )
@@ -108,7 +110,14 @@ const CreatorCampaignList = ({ currentlyPlaying, onToggleAudio }: CreatorCampaig
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setParticipations((data as any[]) || []);
+      
+      // Filter out campaigns where the user is also the artist
+      let filteredData = (data as any[]) || [];
+      filteredData = filteredData.filter(
+        (participation) => participation.campaigns.artist_id !== user?.id
+      );
+      
+      setParticipations(filteredData);
     } catch (error) {
       console.error('Error fetching participations:', error);
     } finally {
