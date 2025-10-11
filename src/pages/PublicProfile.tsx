@@ -419,13 +419,13 @@ const PublicProfile = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="overview" className="max-w-6xl mx-auto mt-8">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
-            <TabsTrigger value="content">Content</TabsTrigger>
-            <TabsTrigger value="achievements">Achievements</TabsTrigger>
-            <TabsTrigger value="about">About</TabsTrigger>
-          </TabsList>
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
+              <TabsTrigger value="achievements">Achievements</TabsTrigger>
+              <TabsTrigger value="content">Content</TabsTrigger>
+              <TabsTrigger value="skills">Skills</TabsTrigger>
+            </TabsList>
 
           <TabsContent value="overview" className="space-y-6 mt-6">
             <ProfileAchievements userId={profile.user_id} featured />
@@ -445,7 +445,7 @@ const PublicProfile = () => {
             <ProfileAchievements userId={profile.user_id} />
           </TabsContent>
 
-          <TabsContent value="about">
+          <TabsContent value="skills">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
