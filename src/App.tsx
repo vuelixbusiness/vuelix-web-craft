@@ -38,6 +38,7 @@ import Support from "./pages/Support";
 import Friends from "./pages/Friends";
 import PublicProfile from "./pages/PublicProfile";
 import NotFound from "./pages/NotFound";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -104,6 +105,11 @@ const App = () => (
                 </ProtectedRoute>
               } />
               <Route path="/user/:username" element={<PublicProfile />} />
+              <Route path="/settings" element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              } />
               <Route path="/payment-methods" element={
                 <ProtectedRoute>
                   <PaymentMethods />

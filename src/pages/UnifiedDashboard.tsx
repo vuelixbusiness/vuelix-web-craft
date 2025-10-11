@@ -5,16 +5,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import DashboardLayout from "@/components/DashboardLayout";
 import { useRoleManagement } from "@/hooks/useRoleManagement";
 import { getRoleConfig, UserRole } from "@/config/roleConfig";
-import { User, Music, BarChart3, Users, Settings } from "lucide-react";
+import { User, Music, BarChart3, Users } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import ProfileHub from "@/components/dashboard-hubs/ProfileHub";
 import CampaignManagerHub from "@/components/dashboard-hubs/CampaignManagerHub";
 import AnalyticsHub from "@/components/dashboard-hubs/AnalyticsHub";
 import SocialHub from "@/components/dashboard-hubs/SocialHub";
-import AccountSettingsHub from "@/components/dashboard-hubs/AccountSettingsHub";
 
-type DashboardTab = 'profile' | 'campaign_manager' | 'analytics_hub' | 'social_hub' | 'account_settings';
+type DashboardTab = 'profile' | 'campaign_manager' | 'analytics_hub' | 'social_hub';
 
 const UnifiedDashboard = () => {
   const { activeRole, availableRoles, switchRole, isLoading } = useRoleManagement();
@@ -63,13 +62,6 @@ const UnifiedDashboard = () => {
       component: SocialHub,
       icon: Users,
       visible: roleConfig.modules.social_hub.visible
-    },
-    {
-      id: 'account_settings' as DashboardTab,
-      label: 'Account Settings',
-      component: AccountSettingsHub,
-      icon: Settings,
-      visible: roleConfig.modules.account_settings.visible
     }
   ].filter(tab => tab.visible);
 

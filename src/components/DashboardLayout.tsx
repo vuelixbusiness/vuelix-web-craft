@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, Wallet, Trophy, BarChart3, Home, Globe } from 'lucide-react';
+import { LogOut, Wallet, Trophy, BarChart3, Home, Globe, Settings } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import NotificationBell from '@/components/NotificationBell';
 import vuelixLogo from "@/assets/vuelix-logo-v.png";
@@ -76,6 +76,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <div className="flex items-center space-x-3">
               <ThemeToggle />
               <NotificationBell />
+              <Button variant="ghost" size="icon" asChild>
+                <Link to="/settings">
+                  <Settings className="w-5 h-5" />
+                </Link>
+              </Button>
               <Link to="/profile" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
                 <Avatar className="w-8 h-8">
                   <AvatarImage src={user?.avatar} alt={user?.name} />
