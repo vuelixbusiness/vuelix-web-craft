@@ -25,12 +25,17 @@ import {
 import { FaTiktok, FaInstagram, FaYoutube } from "react-icons/fa";
 import { useAvatarUpload } from "@/hooks/useAvatarUpload";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { LocationSelector } from "@/components/LocationSelector";
 
 interface Profile {
   display_name: string;
   username: string;
   bio: string;
   avatar_url?: string;
+  city?: string;
+  country?: string;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 interface NotificationSettings {
@@ -59,7 +64,11 @@ const AccountSettings = () => {
     display_name: '',
     username: '',
     bio: '',
-    avatar_url: ''
+    avatar_url: '',
+    city: '',
+    country: '',
+    latitude: null,
+    longitude: null
   });
 
   const [notifications, setNotifications] = useState<NotificationSettings>({
@@ -110,7 +119,11 @@ const AccountSettings = () => {
           display_name: data.display_name || '',
           username: data.username || '',
           bio: data.bio || '',
-          avatar_url: data.avatar_url || ''
+          avatar_url: data.avatar_url || '',
+          city: data.city || '',
+          country: data.country || '',
+          latitude: data.latitude,
+          longitude: data.longitude
         });
       }
     } catch (error) {
@@ -150,7 +163,11 @@ const AccountSettings = () => {
           display_name: profile.display_name,
           username: profile.username,
           bio: profile.bio,
-          avatar_url: profile.avatar_url
+          avatar_url: profile.avatar_url,
+          city: profile.city,
+          country: profile.country,
+          latitude: profile.latitude,
+          longitude: profile.longitude
         })
         .eq('user_id', user.id);
 
@@ -314,6 +331,21 @@ const AccountSettings = () => {
                   rows={3}
                 />
               </div>
+
+              <LocationSelector
+                value={profile.city && profile.country ? `${profile.city}, ${profile.country}` : ''}
+                onLocationChange={(location) => 
+                  setProfile(prev => ({ 
+                    ...prev, 
+                    city: location.city, 
+                    country: location.country,
+                    latitude: location.lat,
+                    longitude: location.lng
+                  }))
+                }
+                label="Location"
+                placeholder="Select your city"
+              />
 
               <Button onClick={updateProfile} disabled={isLoading}>
                 <Save className="w-4 h-4 mr-2" />
