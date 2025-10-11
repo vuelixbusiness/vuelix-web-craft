@@ -9,7 +9,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ArtistNotificationProvider } from "@/contexts/ArtistNotificationContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
+import UnifiedDashboard from "./pages/UnifiedDashboard";
 import Profile from "./pages/Profile";
 import Wallet from "./pages/Wallet";
 import Campaigns from "./pages/Campaigns";
@@ -54,10 +54,10 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               
-              {/* Main Dashboard System */}
+              {/* Unified Dashboard System */}
               <Route path="/dashboard" element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <UnifiedDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/profile" element={
@@ -112,25 +112,25 @@ const App = () => (
               <Route path="/stripe-callback" element={<StripeCallback />} />
               <Route path="/paypal-callback" element={<PaypalCallback />} />
               
-              {/* Legacy/Specialized Routes */}
+              {/* Legacy Routes - Redirect to Unified Dashboard */}
               <Route path="/artist" element={
                 <ProtectedRoute>
-                  <ArtistDashboard />
+                  <UnifiedDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/creator" element={
                 <ProtectedRoute>
-                  <CreatorDashboard />
+                  <UnifiedDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/artist-dashboard" element={
                 <ProtectedRoute>
-                  <ArtistDashboard />
+                  <UnifiedDashboard />
                 </ProtectedRoute>
               } />
               <Route path="/home" element={
                 <ProtectedRoute>
-                  <CreatorDashboard />
+                  <UnifiedDashboard />
                 </ProtectedRoute>
               } />
               

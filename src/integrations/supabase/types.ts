@@ -915,6 +915,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_primary: boolean | null
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_primary?: boolean | null
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_skills: {
         Row: {
           created_at: string
@@ -1030,11 +1054,22 @@ export type Database = {
         Args: { _room_name: string; _room_type: string; _user_id: string }
         Returns: Json
       }
+      get_primary_role: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       get_user_chat_rooms: {
         Args: { _user_id: string }
         Returns: {
           room_id: string
         }[]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
       }
       is_campaign_participant: {
         Args: { _campaign_id: string; _user_id: string }
@@ -1046,6 +1081,17 @@ export type Database = {
       }
     }
     Enums: {
+      app_role:
+        | "artist"
+        | "creator"
+        | "dj"
+        | "producer"
+        | "visual_creative"
+        | "brand"
+        | "record_label"
+        | "music_group"
+        | "collective"
+        | "event_organizer"
       membership_type: "regular" | "premium"
     }
     CompositeTypes: {
@@ -1174,6 +1220,18 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: [
+        "artist",
+        "creator",
+        "dj",
+        "producer",
+        "visual_creative",
+        "brand",
+        "record_label",
+        "music_group",
+        "collective",
+        "event_organizer",
+      ],
       membership_type: ["regular", "premium"],
     },
   },

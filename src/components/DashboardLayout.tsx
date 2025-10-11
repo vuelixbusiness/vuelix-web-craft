@@ -3,10 +3,9 @@ import { Link, useLocation } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuth } from '@/contexts/AuthContext';
-import { LogOut, User, Wallet, Music, Users, Trophy, BarChart3, Home, Circle, Globe } from 'lucide-react';
+import { LogOut, Wallet, Trophy, BarChart3, Home, Globe } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import NotificationBell from '@/components/NotificationBell';
-import { useArtistNotifications } from '@/contexts/ArtistNotificationContext';
 import vuelixLogo from "@/assets/vuelix-logo-v.png";
 
 interface DashboardLayoutProps {
@@ -14,9 +13,8 @@ interface DashboardLayoutProps {
 }
 
 const navigationItems = [
+  { label: 'User Home', path: '/dashboard', icon: Home },
   { label: 'Wallet', path: '/wallet', icon: Wallet },
-  { label: 'Artist', path: '/artist', icon: Music },
-  { label: 'Creator', path: '/creator', icon: Users },
   { label: 'Campaigns', path: '/campaigns', icon: BarChart3 },
   { label: 'Discover', path: '/discover', icon: Globe },
   { label: 'Leaderboard', path: '/leaderboard', icon: Trophy },
@@ -25,7 +23,6 @@ const navigationItems = [
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const { hasNotifications, markArtistDashboardVisited } = useArtistNotifications();
 
   const handleLogout = async () => {
     await logout();
@@ -62,25 +59,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   <Link
                     key={item.path}
                     to={item.path}
-                    className={`px-3 py-2 rounded-full text-sm font-medium transition-smooth flex items-center space-x-2 relative ${
+                    className={`px-3 py-2 rounded-full text-sm font-medium transition-smooth flex items-center space-x-2 ${
                       isActivePath(item.path)
                         ? 'bg-muted text-foreground'
                         : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                     }`}
-                    onClick={() => {
-                      if (item.path === '/artist') {
-                        markArtistDashboardVisited();
-                      }
-                    }}
                   >
                     <IconComponent className="w-4 h-4" />
                     <span>{item.label}</span>
-                    {/* Artist notification dot */}
-                    {item.path === '/artist' && hasNotifications && (
-                      <div className="absolute -top-1 -right-1 animate-pulse">
-                        <Circle className="h-2 w-2 fill-primary text-primary" />
-                      </div>
-                    )}
                   </Link>
                 );
               })}
@@ -118,25 +104,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`px-3 py-2 rounded-full text-xs font-medium transition-smooth flex items-center space-x-2 relative ${
+                  className={`px-3 py-2 rounded-full text-xs font-medium transition-smooth flex items-center space-x-2 ${
                     isActivePath(item.path)
                       ? 'bg-muted text-foreground'
                       : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
                   }`}
-                  onClick={() => {
-                    if (item.path === '/artist') {
-                      markArtistDashboardVisited();
-                    }
-                  }}
                 >
                   <IconComponent className="w-4 h-4" />
                   <span>{item.label}</span>
-                  {/* Artist notification dot */}
-                  {item.path === '/artist' && hasNotifications && (
-                    <div className="absolute -top-1 -right-1 animate-pulse">
-                      <Circle className="h-2 w-2 fill-primary text-primary" />
-                    </div>
-                  )}
                 </Link>
               );
             })}
