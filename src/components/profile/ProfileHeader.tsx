@@ -23,11 +23,11 @@ export function ProfileHeader({ onEditProfile, isPublicVisible, onToggleVisibili
   return (
     <div className="relative mb-8">
       {/* Banner Image */}
-      <div className="h-48 bg-gradient-primary rounded-xl overflow-hidden">
+      <div className="relative h-48 bg-gradient-primary rounded-xl overflow-hidden">
         {user?.banner_url ? (
-          <img src={user.banner_url} alt="Profile banner" className="w-full h-full object-cover" />
+          <img src={user.banner_url} alt="Profile banner" className="absolute inset-0 w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full bg-gradient-hero" />
+          <div className="absolute inset-0 w-full h-full bg-gradient-hero" />
         )}
       </div>
 
