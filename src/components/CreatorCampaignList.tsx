@@ -82,6 +82,30 @@ const CreatorCampaignList = ({ currentlyPlaying, onToggleAudio }: CreatorCampaig
     if (user?.id) {
       console.log('✅ [CreatorCampaignList] User ID exists, fetching participations...');
       fetchParticipations();
+
+      // Set up real-time subscription for participation changes
+      const channel = supabase
+        .channel('creator-participation-changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*', // Listen to INSERT, UPDATE, DELETE
+            schema: 'public',
+            table: 'campaign_participations',
+            filter: `creator_id=eq.${user.id}`
+          },
+          (payload) => {
+            console.log('🔔 [CreatorCampaignList] Real-time update received:', payload);
+            fetchParticipations(); // Refresh the list
+          }
+        )
+        .subscribe();
+
+      // Cleanup subscription on unmount
+      return () => {
+        console.log('🧹 [CreatorCampaignList] Cleaning up subscription');
+        supabase.removeChannel(channel);
+      };
     } else {
       console.log('❌ [CreatorCampaignList] No user ID, skipping fetch');
     }
