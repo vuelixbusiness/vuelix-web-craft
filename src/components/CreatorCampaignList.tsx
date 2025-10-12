@@ -372,14 +372,27 @@ const CreatorCampaignList = ({ currentlyPlaying, onToggleAudio }: CreatorCampaig
                 </TableRow>
               ) : (
                 filteredParticipations.map((participation) => (
-                  <TableRow key={participation.id} className="hover:bg-muted/50">
+                  <TableRow 
+                    key={participation.id} 
+                    className="hover:bg-muted/50 cursor-pointer"
+                    onClick={() => {
+                      if (['joined', 'approved', 'live', 'submitted'].includes(participation.status)) {
+                        navigate(`/campaign-join/${participation.campaign_id}`);
+                      } else {
+                        navigate(`/campaigns`);
+                      }
+                    }}
+                  >
                     {/* Play Button */}
                     <TableCell>
                       {participation.campaigns.song_url && (
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => onToggleAudio(participation.id, participation.campaigns.song_url!)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleAudio(participation.id, participation.campaigns.song_url!);
+                          }}
                           className="w-8 h-8 p-0"
                         >
                           {currentlyPlaying === participation.id ? 
@@ -463,7 +476,12 @@ const CreatorCampaignList = ({ currentlyPlaying, onToggleAudio }: CreatorCampaig
                     <TableCell>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="w-8 h-8 p-0"
+                            onClick={(e) => e.stopPropagation()}
+                          >
                             <MoreHorizontal className="w-4 h-4" />
                           </Button>
                         </DropdownMenuTrigger>

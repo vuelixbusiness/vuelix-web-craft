@@ -201,14 +201,24 @@ const ArtistCampaignList = ({ campaigns, isLoading, currentlyPlaying, onToggleAu
                   const totalCommitted = (campaign.actualSpent || 0) + (campaign.estimatedPending || 0);
                   
                   return (
-                    <TableRow key={campaign.id} className="hover:bg-muted/50">
+                    <TableRow 
+                      key={campaign.id} 
+                      className="hover:bg-muted/50 cursor-pointer"
+                      onClick={() => {
+                        clearCampaignNotifications(campaign.id);
+                        navigate(`/artist/campaign/${campaign.id}`);
+                      }}
+                    >
                       {/* Play Button */}
                       <TableCell>
                         {campaign.song_url && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => onToggleAudio(campaign.id, campaign.song_url!)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onToggleAudio(campaign.id, campaign.song_url!);
+                            }}
                             className="w-8 h-8 p-0"
                           >
                             {currentlyPlaying === campaign.id ? 
@@ -300,7 +310,12 @@ const ArtistCampaignList = ({ campaigns, isLoading, currentlyPlaying, onToggleAu
                       <TableCell>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm" className="w-8 h-8 p-0 relative">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="w-8 h-8 p-0 relative"
+                              onClick={(e) => e.stopPropagation()}
+                            >
                               <MoreHorizontal className="w-4 h-4" />
                               {notificationData.campaignUpdates[campaign.id] && (
                                 notificationData.campaignUpdates[campaign.id].newSubmissions > 0 ||
