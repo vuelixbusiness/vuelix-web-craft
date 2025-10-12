@@ -306,7 +306,7 @@ const PublicProfile = () => {
         </div>
 
         {/* Profile Header */}
-        <div className="max-w-6xl mx-auto -mt-20 md:-mt-24 px-4 mb-8">
+        <div className="max-w-6xl mx-auto px-4 mb-8">
           <div className="bg-card rounded-lg shadow-elegant p-6">
             <div className="flex flex-col md:flex-row gap-6">
               {/* Avatar */}
