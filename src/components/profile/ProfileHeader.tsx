@@ -23,23 +23,25 @@ export function ProfileHeader({ onEditProfile, isPublicVisible, onToggleVisibili
   return (
     <div className="relative mb-8">
       {/* Banner Image */}
-      <div className="relative h-48 bg-gradient-primary rounded-xl overflow-hidden">
+      <div className="h-48 bg-gradient-primary rounded-xl overflow-hidden">
         {user?.banner_url ? (
           <img src={user.banner_url} alt="Profile banner" className="w-full h-full object-cover absolute inset-0 z-0" />
         ) : (
           <div className="w-full h-full bg-gradient-hero absolute inset-0 z-0" />
         )}
-        <Button
-          size="sm"
-          variant="secondary"
-          className="absolute top-4 right-4 z-10"
-          onClick={triggerBannerInput}
-          disabled={isUploadingBanner}
-        >
-          <Camera className="w-4 h-4 mr-2" />
-          Change Banner
-        </Button>
       </div>
+
+      {/* Change Banner Button */}
+      <Button
+        size="sm"
+        variant="secondary"
+        className="absolute top-4 right-4 z-10"
+        onClick={triggerBannerInput}
+        disabled={isUploadingBanner}
+      >
+        <Camera className="w-4 h-4 mr-2" />
+        Change Banner
+      </Button>
 
       {/* Profile Info */}
       <div className="relative px-6 pb-6 z-20">
