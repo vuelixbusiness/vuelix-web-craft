@@ -1,21 +1,34 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Music2, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import CampaignCard from "@/components/ui/campaign-card";
 
 interface Campaign {
   id: string;
   title: string;
   song_title: string;
+  song_url: string;
   cover_art_url: string;
   status: string;
   created_at: string;
   payout_type: string;
+  payout_rate: number;
+  budget: number;
   platforms: string[];
+  genre: string;
+  profiles?: {
+    display_name?: string;
+    username?: string;
+  } | null;
+  spent?: number;
+  actualSpent?: number;
+  views?: number;
+  totalViews?: number;
+  activeCreators?: number;
 }
 
 interface ProfileCampaignsProps {
@@ -28,6 +41,8 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
   const navigate = useNavigate();
   const [createdCampaigns, setCreatedCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const isOwnProfile = user?.id === userId;
 
@@ -59,6 +74,31 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
       setIsLoading(false);
     }
   };
+
+  const toggleAudio = (campaignId: string, songUrl: string) => {
+    if (!audioRef.current) return;
+
+    if (currentlyPlaying === campaignId) {
+      audioRef.current.pause();
+      setCurrentlyPlaying(null);
+    } else {
+      if (currentlyPlaying) {
+        audioRef.current.pause();
+      }
+      audioRef.current.src = songUrl;
+      audioRef.current.play();
+      setCurrentlyPlaying(campaignId);
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.src = '';
+      }
+    };
+  }, []);
 
   if (isLoading) {
     return (
@@ -95,41 +135,24 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
             )}
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {createdCampaigns.map((campaign) => (
-                <div
+                <CampaignCard
                   key={campaign.id}
-                  onClick={() => navigate(`/artist/campaign/${campaign.id}`)}
-                  className="border border-border rounded-lg overflow-hidden hover:shadow-soft transition-smooth cursor-pointer"
-                >
-                  {campaign.cover_art_url ? (
-                    <img
-                      src={campaign.cover_art_url}
-                      alt={campaign.title}
-                      className="w-full h-40 object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-40 bg-primary/10 flex items-center justify-center">
-                      <Music2 className="w-12 h-12 text-primary/50" />
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <h4 className="font-medium mb-1 truncate">{campaign.title}</h4>
-                    <p className="text-sm text-muted-foreground mb-2 truncate">
-                      {campaign.song_title}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={campaign.status === 'active' ? 'default' : 'secondary'}>
-                        {campaign.status}
-                      </Badge>
-                      <Badge variant="outline" className="text-xs">
-                        {campaign.payout_type}
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
+                  campaign={campaign}
+                  variant="artist"
+                  showPlayButton={true}
+                  onCampaignClick={() => navigate(`/artist/campaign/${campaign.id}`)}
+                  onAudioToggle={toggleAudio}
+                  isPlaying={currentlyPlaying === campaign.id}
+                />
               ))}
             </div>
+            <audio
+              ref={audioRef}
+              onEnded={() => setCurrentlyPlaying(null)}
+              onError={() => setCurrentlyPlaying(null)}
+            />
           </CardContent>
         </Card>
       ) : (
