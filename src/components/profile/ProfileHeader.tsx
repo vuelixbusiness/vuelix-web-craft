@@ -45,7 +45,7 @@ export function ProfileHeader({ onEditProfile, isPublicVisible, onToggleVisibili
 
       {/* Profile Info */}
       <div className="relative px-6 pb-6 z-20 bg-background/95 backdrop-blur-sm rounded-b-xl">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between -mt-16">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between">
           {/* Avatar & Basic Info */}
           <div className="flex flex-col md:flex-row md:items-end gap-4 mb-4 md:mb-0">
             <div className="relative">
