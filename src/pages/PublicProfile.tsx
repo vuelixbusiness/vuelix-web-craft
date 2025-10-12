@@ -404,7 +404,9 @@ const PublicProfile = () => {
         </div>
 
         {/* Social Stats */}
-        <ProfileSocialStats userId={profile.user_id} />
+        <div className="mb-8">
+          <ProfileSocialStats userId={profile.user_id} />
+        </div>
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="content" className="max-w-6xl mx-auto mt-8">

@@ -21,9 +21,9 @@ export function ProfileHeader({ onEditProfile, isPublicVisible, onToggleVisibili
   const navigate = useNavigate();
 
   return (
-    <div className="relative mb-8">
+    <div className="relative">
       {/* Banner Image */}
-      <div className="relative h-48 bg-gradient-primary rounded-xl overflow-hidden">
+      <div className="relative h-48 bg-gradient-primary rounded-xl overflow-hidden mb-6">
         {user?.banner_url ? (
           <img src={user.banner_url} alt="Profile banner" className="absolute inset-0 w-full h-full object-cover" />
         ) : (
@@ -44,7 +44,7 @@ export function ProfileHeader({ onEditProfile, isPublicVisible, onToggleVisibili
       </Button>
 
       {/* Profile Info */}
-      <div className="relative px-6 pb-6 z-20 bg-background/95 backdrop-blur-sm rounded-b-xl">
+      <div className="relative px-6 pb-6 z-20 bg-card rounded-lg shadow-elegant">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between">
           {/* Avatar & Basic Info */}
           <div className="flex flex-col md:flex-row md:items-end gap-4 mb-4 md:mb-0">

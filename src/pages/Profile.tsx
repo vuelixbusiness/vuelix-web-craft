@@ -7,6 +7,7 @@ import { ProfileCampaigns } from "@/components/profile/ProfileCampaigns";
 import { ProfileContentShowcase } from "@/components/profile/ProfileContentShowcase";
 import { ProfilePortfolio } from "@/components/profile/ProfilePortfolio";
 import { ProfileEditDialog } from "@/components/profile/ProfileEditDialog";
+import { ProfileSocialStats } from "@/components/profile/ProfileSocialStats";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -64,6 +65,11 @@ const Profile = () => {
           isPublicVisible={isPublicVisible}
           onToggleVisibility={handleToggleVisibility}
         />
+
+        {/* Social Stats */}
+        <div className="mb-8">
+          <ProfileSocialStats userId={user.id} />
+        </div>
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="content" className="space-y-6">
