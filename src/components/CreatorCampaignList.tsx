@@ -116,10 +116,14 @@ const CreatorCampaignList = ({ currentlyPlaying, onToggleAudio }: CreatorCampaig
       setIsLoading(true);
       setError(null);
       console.log('📡 [CreatorCampaignList] Starting fetch with user ID:', user?.id);
+      console.log('📡 [CreatorCampaignList] User object:', user);
 
       if (!user?.id) {
-        setError('User not authenticated');
+        const errorMsg = 'User not authenticated';
         console.error('❌ [CreatorCampaignList] No user ID available');
+        console.error('❌ [CreatorCampaignList] User state:', user);
+        setError(errorMsg);
+        setIsLoading(false);
         return;
       }
       
@@ -177,8 +181,15 @@ const CreatorCampaignList = ({ currentlyPlaying, onToggleAudio }: CreatorCampaig
       
       setParticipations(filteredData);
     } catch (err) {
+      console.error('❌ [CreatorCampaignList] CATCH BLOCK - Error details:', err);
+      console.error('❌ [CreatorCampaignList] Error type:', typeof err);
+      console.error('❌ [CreatorCampaignList] Error instanceof Error:', err instanceof Error);
+      if (err instanceof Error) {
+        console.error('❌ [CreatorCampaignList] Error message:', err.message);
+        console.error('❌ [CreatorCampaignList] Error stack:', err.stack);
+      }
       const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
-      console.error('❌ [CreatorCampaignList] Error fetching participations:', err);
+      console.error('❌ [CreatorCampaignList] Final error message shown to user:', errorMessage);
       setError(errorMessage);
     } finally {
       setIsLoading(false);
