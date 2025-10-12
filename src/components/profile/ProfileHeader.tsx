@@ -25,14 +25,14 @@ export function ProfileHeader({ onEditProfile, isPublicVisible, onToggleVisibili
       {/* Banner Image */}
       <div className="relative h-48 bg-gradient-primary rounded-xl overflow-hidden">
         {user?.banner_url ? (
-          <img src={user.banner_url} alt="Profile banner" className="w-full h-full object-cover" />
+          <img src={user.banner_url} alt="Profile banner" className="w-full h-full object-cover absolute inset-0 z-0" />
         ) : (
-          <div className="w-full h-full bg-gradient-hero" />
+          <div className="w-full h-full bg-gradient-hero absolute inset-0 z-0" />
         )}
         <Button
           size="sm"
           variant="secondary"
-          className="absolute top-4 right-4"
+          className="absolute top-4 right-4 z-10"
           onClick={triggerBannerInput}
           disabled={isUploadingBanner}
         >
@@ -42,7 +42,7 @@ export function ProfileHeader({ onEditProfile, isPublicVisible, onToggleVisibili
       </div>
 
       {/* Profile Info */}
-      <div className="relative px-6 pb-6">
+      <div className="relative px-6 pb-6 z-20">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between -mt-16">
           {/* Avatar & Basic Info */}
           <div className="flex flex-col md:flex-row md:items-end gap-4 mb-4 md:mb-0">
