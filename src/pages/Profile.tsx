@@ -67,7 +67,7 @@ const Profile = () => {
         />
 
         {/* Social Stats */}
-        <div className="mb-8">
+        <div className="mt-6 mb-8">
           <ProfileSocialStats userId={user.id} />
         </div>
 
