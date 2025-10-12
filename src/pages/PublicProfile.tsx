@@ -286,7 +286,7 @@ const PublicProfile = () => {
 
   return (
     <DashboardLayout>
-      <div className="container mx-auto px-4 py-6">
+      <div className="container mx-auto px-6 py-8 max-w-7xl">
         {/* Banner */}
         <div className="relative h-48 md:h-64 rounded-lg overflow-hidden mb-6 bg-gradient-to-r from-primary/20 to-accent/20">
           {profile.banner_url && (
@@ -295,7 +295,7 @@ const PublicProfile = () => {
         </div>
 
         {/* Profile Header */}
-        <div className="max-w-6xl mx-auto px-4 mb-8">
+        <div className="mb-8">
           <div className="bg-card rounded-lg shadow-elegant p-6">
             <div className="flex flex-col md:flex-row gap-6">
               {/* Avatar */}
@@ -409,7 +409,7 @@ const PublicProfile = () => {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="content" className="max-w-6xl mx-auto mt-8">
+        <Tabs defaultValue="content" className="space-y-6">
             <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="content">Content</TabsTrigger>
               <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
