@@ -28,14 +28,21 @@ export const useRoleManagement = () => {
           const roles = data.map(r => r.role as UserRole);
           setAvailableRoles(roles);
           
-          // Check localStorage for saved preference
-          const savedRole = localStorage.getItem(`active_role_${user.id}`);
+          // Load active role from session metadata (secure) instead of localStorage
+          const { data: { session } } = await supabase.auth.getSession();
+          const savedRole = session?.user?.user_metadata?.active_role;
+          
           if (savedRole && roles.includes(savedRole as UserRole)) {
             setActiveRole(savedRole as UserRole);
           } else {
             // Use primary role or first available role
             const primary = data.find(r => r.is_primary);
-            setActiveRole((primary?.role as UserRole) || roles[0]);
+            const defaultRole = (primary?.role as UserRole) || roles[0];
+            setActiveRole(defaultRole);
+            // Save to session metadata
+            await supabase.auth.updateUser({
+              data: { active_role: defaultRole }
+            });
           }
         } else {
           // Fallback to user type if no roles found
@@ -55,12 +62,33 @@ export const useRoleManagement = () => {
     fetchRoles();
   }, [user?.id, user?.type]);
 
-  const switchRole = (newRole: UserRole) => {
+  const switchRole = async (newRole: UserRole) => {
     if (!availableRoles.includes(newRole)) return;
-    setActiveRole(newRole);
-    if (user?.id) {
-      localStorage.setItem(`active_role_${user.id}`, newRole);
+    
+    // Validate the role exists in database before switching
+    const { data, error } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', user?.id)
+      .eq('role', newRole)
+      .maybeSingle();
+    
+    if (error || !data) {
+      console.error('Invalid role or database error:', error);
+      return;
     }
+    
+    // Store in secure session metadata instead of localStorage
+    const { error: updateError } = await supabase.auth.updateUser({
+      data: { active_role: newRole }
+    });
+    
+    if (updateError) {
+      console.error('Error updating session metadata:', updateError);
+      return;
+    }
+    
+    setActiveRole(newRole);
   };
 
   return { activeRole, availableRoles, switchRole, isLoading };

@@ -109,14 +109,6 @@ export function CampaignChat({ campaign, onMessageSent }: CampaignChatProps) {
         .maybeSingle();
 
       if (!groupRoom) {
-        // Debug access before creating room
-        const { data: debugInfo } = await supabase.rpc('debug_campaign_chat_access', {
-          _user_id: user.id,
-          _room_name: `campaign_${campaign.id}_group`,
-          _room_type: 'campaign_group'
-        });
-        
-        console.log('Group chat access debug:', debugInfo);
 
         // Create group chat room - use authenticated user as creator, RLS will handle access
         const { data: newGroupRoom, error: roomError } = await supabase
@@ -131,7 +123,6 @@ export function CampaignChat({ campaign, onMessageSent }: CampaignChatProps) {
         
         if (roomError) {
           console.error('Error creating group room:', roomError);
-          console.error('Group room debug info:', debugInfo);
           
           toast({
             title: "Access Error",
@@ -175,17 +166,8 @@ export function CampaignChat({ campaign, onMessageSent }: CampaignChatProps) {
           .maybeSingle();
 
         if (!dmRoom) {
-          // Debug access before creating DM room
-          const dmRoomName = `campaign_${campaign.id}_dm_${authUser.id}_${campaign.artist_id}`;
-          const { data: dmDebugInfo } = await supabase.rpc('debug_campaign_chat_access', {
-            _user_id: authUser.id,
-            _room_name: dmRoomName,
-            _room_type: 'campaign_dm'
-          });
-          
-          console.log('DM chat access debug:', dmDebugInfo);
-
           // Create DM room
+          const dmRoomName = `campaign_${campaign.id}_dm_${authUser.id}_${campaign.artist_id}`;
           const { data: newDmRoom, error: dmError } = await supabase
             .from('chat_rooms')
             .insert({
@@ -198,7 +180,6 @@ export function CampaignChat({ campaign, onMessageSent }: CampaignChatProps) {
 
           if (dmError) {
             console.error('Error creating DM room:', dmError);
-            console.error('DM room debug info:', dmDebugInfo);
             
             toast({
               title: "Access Error", 

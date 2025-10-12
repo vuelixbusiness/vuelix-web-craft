@@ -1194,10 +1194,6 @@ export type Database = {
         }
         Returns: string
       }
-      debug_campaign_chat_access: {
-        Args: { _room_name: string; _room_type: string; _user_id: string }
-        Returns: Json
-      }
       get_primary_role: {
         Args: { _user_id: string }
         Returns: Database["public"]["Enums"]["app_role"]
@@ -1213,6 +1209,10 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_campaign_artist: {
+        Args: { _campaign_id: string; _user_id: string }
         Returns: boolean
       }
       is_campaign_participant: {
