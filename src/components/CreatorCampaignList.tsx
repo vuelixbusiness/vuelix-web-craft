@@ -181,15 +181,29 @@ const CreatorCampaignList = ({ currentlyPlaying, onToggleAudio }: CreatorCampaig
       
       setParticipations(filteredData);
     } catch (err) {
-      console.error('❌ [CreatorCampaignList] CATCH BLOCK - Error details:', err);
+      console.error('❌ [CreatorCampaignList] CATCH BLOCK - Full error:', err);
       console.error('❌ [CreatorCampaignList] Error type:', typeof err);
       console.error('❌ [CreatorCampaignList] Error instanceof Error:', err instanceof Error);
+      console.error('❌ [CreatorCampaignList] Error JSON:', JSON.stringify(err, null, 2));
+      
+      let errorMessage = 'Failed to load campaigns';
+      
       if (err instanceof Error) {
+        errorMessage = err.message;
         console.error('❌ [CreatorCampaignList] Error message:', err.message);
         console.error('❌ [CreatorCampaignList] Error stack:', err.stack);
+      } else if (err && typeof err === 'object') {
+        // Handle Supabase error objects
+        const supabaseError = err as any;
+        if (supabaseError.message) {
+          errorMessage = supabaseError.message;
+        } else if (supabaseError.error) {
+          errorMessage = supabaseError.error;
+        }
+        console.error('❌ [CreatorCampaignList] Supabase error details:', supabaseError);
       }
-      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
-      console.error('❌ [CreatorCampaignList] Final error message shown to user:', errorMessage);
+      
+      console.error('❌ [CreatorCampaignList] Final error message:', errorMessage);
       setError(errorMessage);
     } finally {
       setIsLoading(false);
