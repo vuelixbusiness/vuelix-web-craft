@@ -75,19 +75,17 @@ const Signup = () => {
       return;
     }
 
-    const success = await signup(email, password, name, username, userType);
+    const result = await signup(email, password, name, username, userType);
     
-    if (success) {
+    if (result.success && result.userId) {
       toast({
         title: "Welcome to Vuelix!",
         description: `Account created successfully as ${userType}`,
       });
       
       // Show location setup dialog
-      if (user?.id) {
-        setNewUserId(user.id);
-        setShowLocationDialog(true);
-      }
+      setNewUserId(result.userId);
+      setShowLocationDialog(true);
     } else {
       toast({
         title: "Signup failed",

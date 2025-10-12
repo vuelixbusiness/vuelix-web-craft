@@ -21,7 +21,7 @@ interface AuthContextType {
   user: User | null;
   loginWithUsernameOrEmail: (usernameOrEmail: string, password: string) => Promise<boolean>;
   login: (email: string, password: string) => Promise<boolean>;
-  signup: (email: string, password: string, name: string, username: string, userType: 'creator' | 'artist') => Promise<boolean>;
+  signup: (email: string, password: string, name: string, username: string, userType: 'creator' | 'artist') => Promise<{ success: boolean; userId?: string }>;
   signInWithGoogle: (userType: 'creator' | 'artist') => Promise<{ success: boolean; error?: string }>;
   signInWithMicrosoft: (userType: 'creator' | 'artist') => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
@@ -319,7 +319,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signup = async (email: string, password: string, name: string, username: string, userType: 'creator' | 'artist'): Promise<boolean> => {
+  const signup = async (email: string, password: string, name: string, username: string, userType: 'creator' | 'artist'): Promise<{ success: boolean; userId?: string }> => {
     setIsLoading(true);
     
     try {
@@ -347,16 +347,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           status: error.status || 'unknown'
         });
         setIsLoading(false);
-        return false;
+        return { success: false };
       }
 
       console.log('Signup successful, user:', data.user);
       setIsLoading(false);
-      return true;
+      return { success: true, userId: data.user?.id };
     } catch (error) {
       console.error('Signup catch block error:', error);
       setIsLoading(false);
-      return false;
+      return { success: false };
     }
   };
 
