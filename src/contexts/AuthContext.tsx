@@ -8,7 +8,7 @@ interface User {
   email: string;
   name: string;
   username: string;
-  type: 'creator' | 'artist';
+  type: string; // Support all 10 user types
   membershipType: 'regular' | 'premium';
   avatar?: string;
   bio?: string;
@@ -21,9 +21,9 @@ interface AuthContextType {
   user: User | null;
   loginWithUsernameOrEmail: (usernameOrEmail: string, password: string) => Promise<boolean>;
   login: (email: string, password: string) => Promise<boolean>;
-  signup: (email: string, password: string, name: string, username: string, userType: 'creator' | 'artist') => Promise<{ success: boolean; userId?: string }>;
-  signInWithGoogle: (userType: 'creator' | 'artist') => Promise<{ success: boolean; error?: string }>;
-  signInWithMicrosoft: (userType: 'creator' | 'artist') => Promise<{ success: boolean; error?: string }>;
+  signup: (email: string, password: string, name: string, username: string, userType: string) => Promise<{ success: boolean; userId?: string }>;
+  signInWithGoogle: (userType: string) => Promise<{ success: boolean; error?: string }>;
+  signInWithMicrosoft: (userType: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   refreshUserProfile: () => Promise<void>;
   isLoading: boolean;
@@ -176,19 +176,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               membershipType: 'regular'
             });
           } else if (newProfile) {
-            setUser({
-              id: authUser.id,
-              email: authUser.email!,
-              name: newProfile.display_name || authUser.email!,
-              username: newProfile.username,
-              type: newProfile.user_type as 'creator' | 'artist',
-              membershipType: newProfile.membership_type as 'regular' | 'premium',
-              avatar: newProfile.avatar_url,
-              bio: newProfile.bio,
-              location: newProfile.location ?? undefined,
-              banner_url: newProfile.banner_url ?? undefined,
-              portfolio_links: newProfile.portfolio_links ?? undefined
-            });
+          setUser({
+            id: authUser.id,
+            email: authUser.email!,
+            name: newProfile.display_name || authUser.email!,
+            username: newProfile.username,
+            type: newProfile.user_type, // Support all user types
+            membershipType: newProfile.membership_type as 'regular' | 'premium',
+            avatar: newProfile.avatar_url,
+            bio: newProfile.bio,
+            location: newProfile.location ?? undefined,
+            banner_url: newProfile.banner_url ?? undefined,
+            portfolio_links: newProfile.portfolio_links ?? undefined
+          });
           }
         } else {
           // For other errors, set basic user data
@@ -207,7 +207,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           email: authUser.email!,
           name: profile.display_name || authUser.email!,
           username: profile.username,
-          type: profile.user_type as 'creator' | 'artist',
+          type: profile.user_type, // Support all user types
           membershipType: profile.membership_type as 'regular' | 'premium',
           avatar: profile.avatar_url,
           bio: profile.bio,
@@ -319,7 +319,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signup = async (email: string, password: string, name: string, username: string, userType: 'creator' | 'artist'): Promise<{ success: boolean; userId?: string }> => {
+  const signup = async (email: string, password: string, name: string, username: string, userType: string): Promise<{ success: boolean; userId?: string }> => {
     setIsLoading(true);
     
     try {
@@ -360,7 +360,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signInWithGoogle = async (userType: 'creator' | 'artist'): Promise<{ success: boolean; error?: string }> => {
+  const signInWithGoogle = async (userType: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     
     try {
@@ -421,7 +421,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signInWithMicrosoft = async (userType: 'creator' | 'artist'): Promise<{ success: boolean; error?: string }> => {
+  const signInWithMicrosoft = async (userType: string): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     
     try {

@@ -9,7 +9,7 @@ import NotificationBell from "@/components/NotificationBell";
 import vuelixLogo from "@/assets/vuelix-logo-v.png";
 
 interface DashboardNavProps {
-  dashboardType: 'creator' | 'artist';
+  dashboardType: string; // Support all user types
 }
 
 const DashboardNav = ({ dashboardType }: DashboardNavProps) => {
@@ -32,6 +32,18 @@ const DashboardNav = ({ dashboardType }: DashboardNavProps) => {
 
   const isOnSpecializedDashboard = location.pathname.includes('dashboard');
 
+  // Map user types to dashboard categories for display
+  const getDashboardLabel = () => {
+    if (!isOnSpecializedDashboard) return 'Home Dashboard';
+    
+    const artistTypes = ['artist', 'record_label', 'festival_event'];
+    const creatorTypes = ['creator', 'visual_creative', 'dj', 'producer'];
+    
+    if (artistTypes.includes(dashboardType)) return 'Artist Dashboard';
+    if (creatorTypes.includes(dashboardType)) return 'Creator Dashboard';
+    return 'Dashboard';
+  };
+
   const getMembershipColor = (membershipType: 'regular' | 'premium') => {
     return membershipType === 'premium' ? 'text-yellow-400' : 'text-gray-400';
   };
@@ -46,10 +58,7 @@ const DashboardNav = ({ dashboardType }: DashboardNavProps) => {
               <span className="text-xl font-bold">Vuelix</span>
             </Link>
             <Badge variant="secondary" className="hidden md:inline-flex">
-              {isOnSpecializedDashboard 
-                ? (dashboardType === 'creator' ? 'Creator Dashboard' : 'Artist Dashboard')
-                : 'Home Dashboard'
-              }
+              {getDashboardLabel()}
             </Badge>
           </div>
 
