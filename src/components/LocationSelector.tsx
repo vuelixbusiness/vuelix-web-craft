@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 
@@ -63,6 +63,10 @@ export const LocationSelector = ({
   placeholder = "Select your city"
 }: LocationSelectorProps) => {
   const [selectedLocation, setSelectedLocation] = useState<string>(value || '');
+
+  useEffect(() => {
+    setSelectedLocation(value || '');
+  }, [value]);
 
   const handleChange = (locationKey: string) => {
     setSelectedLocation(locationKey);
