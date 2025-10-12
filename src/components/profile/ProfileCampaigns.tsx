@@ -2,8 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Music2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Music2, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface Campaign {
   id: string;
@@ -22,9 +24,12 @@ interface ProfileCampaignsProps {
 }
 
 export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [createdCampaigns, setCreatedCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const isOwnProfile = user?.id === userId;
 
   useEffect(() => {
     fetchCampaigns();
@@ -72,11 +77,22 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
       {/* Campaigns Created */}
       {createdCampaigns.length > 0 ? (
         <Card>
-          <CardHeader>
+          <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Music2 className="w-5 h-5" />
               Campaigns Created
             </CardTitle>
+            {isOwnProfile && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => navigate('/artist-campaign-flow')}
+                className="gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Create Campaign
+              </Button>
+            )}
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -118,8 +134,22 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
         </Card>
       ) : (
         <Card>
-          <CardContent className="p-6">
-            <p className="text-muted-foreground text-center">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Campaigns</CardTitle>
+            {isOwnProfile && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => navigate('/artist-campaign-flow')}
+                className="gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Create Campaign
+              </Button>
+            )}
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground text-center py-8">
               No campaigns created yet
             </p>
           </CardContent>

@@ -1,8 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Play, Image as ImageIcon, Music, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Play, Image as ImageIcon, Music, FileText, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { AddContentDialog } from "./AddContentDialog";
 
 interface ContentItem {
   id: string;
@@ -21,8 +24,12 @@ interface ProfileContentShowcaseProps {
 }
 
 export function ProfileContentShowcase({ userId, featured = false }: ProfileContentShowcaseProps) {
+  const { user } = useAuth();
   const [content, setContent] = useState<ContentItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [dialogOpen, setDialogOpen] = useState(false);
+
+  const isOwnProfile = user?.id === userId;
 
   useEffect(() => {
     fetchContent();
@@ -75,26 +82,57 @@ export function ProfileContentShowcase({ userId, featured = false }: ProfileCont
 
   if (content.length === 0) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Content Showcase</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground text-center py-8">
-            No content showcased yet
-          </p>
-        </CardContent>
-      </Card>
+      <>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Content Showcase</CardTitle>
+            {isOwnProfile && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setDialogOpen(true)}
+                className="gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Add Content
+              </Button>
+            )}
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground text-center py-8">
+              No content showcased yet
+            </p>
+          </CardContent>
+        </Card>
+
+        <AddContentDialog 
+          open={dialogOpen}
+          onClose={() => setDialogOpen(false)}
+          onSuccess={fetchContent}
+        />
+      </>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          {featured ? 'Featured Content' : 'Content Showcase'}
-        </CardTitle>
-      </CardHeader>
+    <>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>
+            {featured ? 'Featured Content' : 'Content Showcase'}
+          </CardTitle>
+          {isOwnProfile && (
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setDialogOpen(true)}
+              className="gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Add Content
+            </Button>
+          )}
+        </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {content.map((item) => {
@@ -137,5 +175,12 @@ export function ProfileContentShowcase({ userId, featured = false }: ProfileCont
         </div>
       </CardContent>
     </Card>
+
+    <AddContentDialog 
+      open={dialogOpen}
+      onClose={() => setDialogOpen(false)}
+      onSuccess={fetchContent}
+    />
+    </>
   );
 }

@@ -5,8 +5,12 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileCampaigns } from "@/components/profile/ProfileCampaigns";
 import { ProfileContentShowcase } from "@/components/profile/ProfileContentShowcase";
+import { ProfilePortfolio } from "@/components/profile/ProfilePortfolio";
 import { ProfileEditDialog } from "@/components/profile/ProfileEditDialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import { AddPortfolioDialog } from "@/components/profile/AddPortfolioDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,7 +18,9 @@ const Profile = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [portfolioDialogOpen, setPortfolioDialogOpen] = useState(false);
   const [isPublicVisible, setIsPublicVisible] = useState(true);
+  const [portfolioKey, setPortfolioKey] = useState(0);
 
   const handleToggleVisibility = async () => {
     if (!user?.id) return;
@@ -41,6 +47,10 @@ const Profile = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handlePortfolioSuccess = () => {
+    setPortfolioKey(prev => prev + 1);
   };
 
   if (!user) return null;
@@ -78,13 +88,20 @@ const Profile = () => {
           {/* Portfolio Tab */}
           <TabsContent value="portfolio">
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>Portfolio</CardTitle>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setPortfolioDialogOpen(true)}
+                  className="gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Project
+                </Button>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground text-center py-8">
-                  Portfolio section coming soon
-                </p>
+                <ProfilePortfolio key={portfolioKey} userId={user.id} />
               </CardContent>
             </Card>
           </TabsContent>
@@ -122,6 +139,13 @@ const Profile = () => {
         <ProfileEditDialog 
           open={editDialogOpen} 
           onClose={() => setEditDialogOpen(false)} 
+        />
+
+        {/* Add Portfolio Dialog */}
+        <AddPortfolioDialog 
+          open={portfolioDialogOpen}
+          onClose={() => setPortfolioDialogOpen(false)}
+          onSuccess={handlePortfolioSuccess}
         />
       </div>
     </DashboardLayout>
