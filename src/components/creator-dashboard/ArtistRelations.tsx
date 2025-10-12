@@ -41,14 +41,6 @@ interface Profile {
   membership_type: string;
 }
 
-interface Friendship {
-  id: string;
-  requester_id: string;
-  addressee_id: string;
-  status: string;
-  requester_profile?: Profile;
-  addressee_profile?: Profile;
-}
 
 interface ChatRoom {
   id: string;
@@ -82,7 +74,6 @@ const ArtistRelations = () => {
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   
   // Messages state
-  const [friends, setFriends] = useState<Friendship[]>([]);
   const [chatRooms, setChatRooms] = useState<ChatRoom[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<ChatRoom | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -153,36 +144,6 @@ const ArtistRelations = () => {
     }
   };
 
-  // Fetch friendships
-  const fetchFriendships = async () => {
-    if (!user?.id) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('friendships')
-        .select('*')
-        .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`)
-        .eq('status', 'accepted');
-
-      if (error) throw error;
-
-      const userIds = data?.flatMap(f => [f.requester_id, f.addressee_id]) || [];
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('user_id, username, display_name, avatar_url, membership_type')
-        .in('user_id', userIds);
-
-      const friendshipsWithProfiles = data?.map(friendship => ({
-        ...friendship,
-        requester_profile: profiles?.find(p => p.user_id === friendship.requester_id),
-        addressee_profile: profiles?.find(p => p.user_id === friendship.addressee_id)
-      })) || [];
-
-      setFriends(friendshipsWithProfiles as Friendship[]);
-    } catch (error) {
-      console.error('Error fetching friendships:', error);
-    }
-  };
 
   // Fetch chat rooms
   const fetchChatRooms = async () => {
@@ -315,17 +276,16 @@ const ArtistRelations = () => {
 
       await fetchChatRooms();
       
-      const friendship = friends.find(f => 
-        f.requester_id === otherUserId || f.addressee_id === otherUserId
-      );
-      
-      const otherUserProfile = friendship?.requester_id === otherUserId 
-        ? friendship.requester_profile 
-        : friendship?.addressee_profile;
+      // Get the other user's profile
+      const { data: otherUserProfile } = await supabase
+        .from('profiles')
+        .select('user_id, username, display_name, avatar_url, membership_type')
+        .eq('user_id', otherUserId)
+        .single();
 
       const newRoom = {
         ...roomData,
-        other_user: otherUserProfile
+        other_user: otherUserProfile as Profile
       };
       
       setSelectedRoom(newRoom as ChatRoom);
@@ -339,16 +299,10 @@ const ArtistRelations = () => {
     }
   };
 
-  const getFriendProfile = (friendship: Friendship): Profile | undefined => {
-    return friendship.requester_id === user?.id 
-      ? friendship.addressee_profile 
-      : friendship.requester_profile;
-  };
 
   useEffect(() => {
     if (user?.id) {
       fetchCampaigns();
-      fetchFriendships();
       fetchChatRooms();
     }
   }, [user?.id]);
@@ -360,14 +314,10 @@ const ArtistRelations = () => {
   return (
     <div className="space-y-6">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="campaigns">
+        <TabsList className="w-full">
+          <TabsTrigger value="campaigns" className="flex-1">
             <Hash className="w-4 h-4 mr-2" />
             Campaign Chats
-          </TabsTrigger>
-          <TabsTrigger value="messages">
-            <MessageCircle className="w-4 h-4 mr-2" />
-            Messages
           </TabsTrigger>
         </TabsList>
 
@@ -430,155 +380,6 @@ const ArtistRelations = () => {
           )}
         </TabsContent>
 
-        {/* Messages Tab */}
-        <TabsContent value="messages" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Friends List */}
-            <Card className="lg:col-span-1">
-              <CardHeader>
-                <CardTitle className="text-lg">Friends</CardTitle>
-                <CardDescription>Your direct messages</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[500px]">
-                  {friends.length === 0 ? (
-                    <div className="text-center text-muted-foreground py-8">
-                      <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p className="text-sm">No friends yet</p>
-                      <p className="text-xs">Add friends to start messaging!</p>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      {friends.map((friendship) => {
-                        const profile = getFriendProfile(friendship);
-                        return (
-                          <div
-                            key={friendship.id}
-                            className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                              selectedRoom?.other_user?.user_id === profile?.user_id
-                                ? 'bg-primary/10 border border-primary/20'
-                                : 'hover:bg-muted/50'
-                            }`}
-                            onClick={() => {
-                              if (profile?.user_id) {
-                                startDirectMessage(profile.user_id);
-                              }
-                            }}
-                          >
-                            <div className="flex items-center space-x-3">
-                              <Avatar className="h-8 w-8">
-                                <AvatarImage src={profile?.avatar_url} />
-                                <AvatarFallback>
-                                  {profile?.display_name?.slice(0, 2).toUpperCase() || 
-                                   profile?.username?.slice(0, 2).toUpperCase()}
-                                </AvatarFallback>
-                              </Avatar>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium truncate">
-                                  {profile?.display_name || profile?.username}
-                                </p>
-                                <p className="text-xs text-muted-foreground truncate">
-                                  @{profile?.username}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </ScrollArea>
-              </CardContent>
-            </Card>
-
-            {/* Chat Area */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
-                {selectedRoom && selectedRoom.other_user ? (
-                  <div className="flex items-center space-x-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={selectedRoom.other_user.avatar_url} />
-                      <AvatarFallback>
-                        {selectedRoom.other_user.display_name?.slice(0, 2).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <CardTitle className="text-lg">
-                        {selectedRoom.other_user.display_name}
-                      </CardTitle>
-                      <CardDescription>@{selectedRoom.other_user.username}</CardDescription>
-                    </div>
-                  </div>
-                ) : (
-                  <div>
-                    <CardTitle className="text-lg">Messages</CardTitle>
-                    <CardDescription>Select a friend to start chatting</CardDescription>
-                  </div>
-                )}
-              </CardHeader>
-              <CardContent>
-                {selectedRoom ? (
-                  <div className="space-y-4">
-                    <ScrollArea className="h-[400px] border rounded-lg p-4">
-                      {messages.length === 0 ? (
-                        <div className="text-center text-muted-foreground py-8">
-                          <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                          <p className="text-sm">No messages yet</p>
-                          <p className="text-xs">Start the conversation!</p>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          {messages.map((message) => (
-                            <div
-                              key={message.id}
-                              className={`flex ${
-                                message.sender_id === user?.id ? 'justify-end' : 'justify-start'
-                              }`}
-                            >
-                              <div
-                                className={`max-w-[70%] rounded-lg p-3 ${
-                                  message.sender_id === user?.id
-                                    ? 'bg-primary text-primary-foreground'
-                                    : 'bg-muted'
-                                }`}
-                              >
-                                <p className="text-sm">{message.content}</p>
-                                <p className="text-xs opacity-70 mt-1">
-                                  {new Date(message.created_at).toLocaleTimeString([], {
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                  })}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </ScrollArea>
-                    <div className="flex gap-2">
-                      <Input
-                        placeholder="Type a message..."
-                        value={newMessage}
-                        onChange={(e) => setNewMessage(e.target.value)}
-                        onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                      />
-                      <Button onClick={sendMessage} size="icon">
-                        <Send className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="h-[460px] flex items-center justify-center text-muted-foreground">
-                    <div className="text-center">
-                      <MessageCircle className="h-16 w-16 mx-auto mb-4 opacity-50" />
-                      <p>Select a friend to view your conversation</p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
       </Tabs>
     </div>
   );

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, UserCheck, Handshake } from "lucide-react";
+import { Users, Handshake, UsersRound } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface ProfileSocialStatsProps {
@@ -10,8 +10,8 @@ interface ProfileSocialStatsProps {
 export function ProfileSocialStats({ userId }: ProfileSocialStatsProps) {
   const [stats, setStats] = useState({
     followers: 0,
-    friends: 0,
     partners: 0,
+    collaborations: 0,
   });
 
   useEffect(() => {
@@ -26,13 +26,6 @@ export function ProfileSocialStats({ userId }: ProfileSocialStatsProps) {
         .select('*', { count: 'exact', head: true })
         .eq('followed_id', userId);
 
-      // Get friends count (accepted friendships)
-      const { count: friendCount } = await supabase
-        .from('friendships')
-        .select('*', { count: 'exact', head: true })
-        .or(`requester_id.eq.${userId},addressee_id.eq.${userId}`)
-        .eq('status', 'accepted');
-
       // Get partners count
       const { count: partnerCount } = await supabase
         .from('user_partnerships')
@@ -40,10 +33,34 @@ export function ProfileSocialStats({ userId }: ProfileSocialStatsProps) {
         .or(`user_id.eq.${userId},partner_id.eq.${userId}`)
         .eq('status', 'accepted');
 
+      // Get collaborations count (users who participated in the same campaigns)
+      const { data: collaborationsData } = await supabase
+        .from('campaign_participations')
+        .select('campaign_id')
+        .eq('creator_id', userId)
+        .in('status', ['joined', 'approved', 'live', 'submitted']);
+
+      let collaborationsCount = 0;
+      if (collaborationsData && collaborationsData.length > 0) {
+        const campaignIds = collaborationsData.map(cp => cp.campaign_id);
+        
+        const { data: collaborators } = await supabase
+          .from('campaign_participations')
+          .select('creator_id')
+          .in('campaign_id', campaignIds)
+          .neq('creator_id', userId)
+          .in('status', ['joined', 'approved', 'live', 'submitted']);
+
+        if (collaborators) {
+          const uniqueCollaborators = new Set(collaborators.map(c => c.creator_id));
+          collaborationsCount = uniqueCollaborators.size;
+        }
+      }
+
       setStats({
         followers: followerCount || 0,
-        friends: friendCount || 0,
         partners: partnerCount || 0,
+        collaborations: collaborationsCount,
       });
     } catch (error) {
       console.error('Error fetching social stats:', error);
@@ -70,11 +87,11 @@ export function ProfileSocialStats({ userId }: ProfileSocialStatsProps) {
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Friends</p>
-              <p className="text-3xl font-bold">{stats.friends}</p>
+              <p className="text-sm text-muted-foreground mb-1">Partners</p>
+              <p className="text-3xl font-bold">{stats.partners}</p>
             </div>
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <UserCheck className="w-6 h-6 text-primary" />
+              <Handshake className="w-6 h-6 text-primary" />
             </div>
           </div>
         </CardContent>
@@ -84,11 +101,11 @@ export function ProfileSocialStats({ userId }: ProfileSocialStatsProps) {
         <CardContent className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-muted-foreground mb-1">Partners</p>
-              <p className="text-3xl font-bold">{stats.partners}</p>
+              <p className="text-sm text-muted-foreground mb-1">Collaborations</p>
+              <p className="text-3xl font-bold">{stats.collaborations}</p>
             </div>
             <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Handshake className="w-6 h-6 text-primary" />
+              <UsersRound className="w-6 h-6 text-primary" />
             </div>
           </div>
         </CardContent>

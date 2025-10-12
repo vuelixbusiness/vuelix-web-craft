@@ -43,7 +43,6 @@ const PublicProfile = () => {
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [isFriend, setIsFriend] = useState(false);
   const [isPartner, setIsPartner] = useState(false);
 
   const isOwnProfile = currentUser?.username === username;
@@ -115,16 +114,6 @@ const PublicProfile = () => {
         .maybeSingle();
 
       setIsFollowing(!!followData);
-
-      // Check if friends - properly check both directions
-      const { data: friendData } = await supabase
-        .from('friendships')
-        .select('id')
-        .or(`and(requester_id.eq.${currentUser.id},addressee_id.eq.${profile.user_id}),and(requester_id.eq.${profile.user_id},addressee_id.eq.${currentUser.id})`)
-        .eq('status', 'accepted')
-        .maybeSingle();
-
-      setIsFriend(!!friendData);
 
       // Check if partner - properly check both directions
       const { data: partnerData } = await supabase
