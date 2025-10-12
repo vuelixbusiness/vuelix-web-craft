@@ -113,13 +113,6 @@ export type Database = {
             foreignKeyName: "campaign_participations_campaign_id_fkey"
             columns: ["campaign_id"]
             isOneToOne: false
-            referencedRelation: "campaign_listings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "campaign_participations_campaign_id_fkey"
-            columns: ["campaign_id"]
-            isOneToOne: false
             referencedRelation: "campaigns"
             referencedColumns: ["id"]
           },
@@ -292,13 +285,6 @@ export type Database = {
             foreignKeyName: "content_creations_campaign_id_fkey"
             columns: ["campaign_id"]
             isOneToOne: false
-            referencedRelation: "campaign_listings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "content_creations_campaign_id_fkey"
-            columns: ["campaign_id"]
-            isOneToOne: false
             referencedRelation: "campaigns"
             referencedColumns: ["id"]
           },
@@ -347,13 +333,6 @@ export type Database = {
           status?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "creator_rewards_campaign_id_fkey"
-            columns: ["campaign_id"]
-            isOneToOne: false
-            referencedRelation: "campaign_listings"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "creator_rewards_campaign_id_fkey"
             columns: ["campaign_id"]
@@ -468,13 +447,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "media_assets_campaign_id_fkey"
-            columns: ["campaign_id"]
-            isOneToOne: false
-            referencedRelation: "campaign_listings"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "media_assets_campaign_id_fkey"
             columns: ["campaign_id"]
@@ -797,13 +769,6 @@ export type Database = {
             foreignKeyName: "transactions_campaign_id_fkey"
             columns: ["campaign_id"]
             isOneToOne: false
-            referencedRelation: "campaign_listings"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "transactions_campaign_id_fkey"
-            columns: ["campaign_id"]
-            isOneToOne: false
             referencedRelation: "campaigns"
             referencedColumns: ["id"]
           },
@@ -1086,63 +1051,6 @@ export type Database = {
       }
     }
     Views: {
-      campaign_listings: {
-        Row: {
-          approval_required: boolean | null
-          artist_id: string | null
-          campaign_type: string | null
-          cover_art_url: string | null
-          created_at: string | null
-          end_date: string | null
-          genre: string | null
-          id: string | null
-          instructions: string | null
-          platforms: string[] | null
-          reference_links: string | null
-          rules: string | null
-          song_title: string | null
-          song_url: string | null
-          status: string | null
-          title: string | null
-        }
-        Insert: {
-          approval_required?: boolean | null
-          artist_id?: string | null
-          campaign_type?: string | null
-          cover_art_url?: string | null
-          created_at?: string | null
-          end_date?: string | null
-          genre?: string | null
-          id?: string | null
-          instructions?: string | null
-          platforms?: string[] | null
-          reference_links?: string | null
-          rules?: string | null
-          song_title?: string | null
-          song_url?: string | null
-          status?: string | null
-          title?: string | null
-        }
-        Update: {
-          approval_required?: boolean | null
-          artist_id?: string | null
-          campaign_type?: string | null
-          cover_art_url?: string | null
-          created_at?: string | null
-          end_date?: string | null
-          genre?: string | null
-          id?: string | null
-          instructions?: string | null
-          platforms?: string[] | null
-          reference_links?: string | null
-          rules?: string | null
-          song_title?: string | null
-          song_url?: string | null
-          status?: string | null
-          title?: string | null
-        }
-        Relationships: []
-      }
       public_profiles: {
         Row: {
           avatar_url: string | null
