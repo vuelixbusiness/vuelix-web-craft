@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Camera, MapPin, Link as LinkIcon, Eye, EyeOff, ExternalLink } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAvatarUpload } from "@/hooks/useAvatarUpload";
+import { useBannerUpload } from "@/hooks/useBannerUpload";
 import { useNavigate } from "react-router-dom";
 
 interface ProfileHeaderProps {
@@ -15,7 +16,8 @@ interface ProfileHeaderProps {
 
 export function ProfileHeader({ onEditProfile, isPublicVisible, onToggleVisibility }: ProfileHeaderProps) {
   const { user } = useAuth();
-  const { triggerFileInput, isUploading } = useAvatarUpload();
+  const { triggerFileInput: triggerAvatarInput, isUploading: isUploadingAvatar } = useAvatarUpload();
+  const { triggerFileInput: triggerBannerInput, isUploading: isUploadingBanner } = useBannerUpload();
   const navigate = useNavigate();
 
   return (
@@ -31,8 +33,8 @@ export function ProfileHeader({ onEditProfile, isPublicVisible, onToggleVisibili
           size="sm"
           variant="secondary"
           className="absolute top-4 right-4"
-          onClick={triggerFileInput}
-          disabled={isUploading}
+          onClick={triggerBannerInput}
+          disabled={isUploadingBanner}
         >
           <Camera className="w-4 h-4 mr-2" />
           Change Banner
@@ -55,8 +57,8 @@ export function ProfileHeader({ onEditProfile, isPublicVisible, onToggleVisibili
                 size="icon"
                 variant="secondary"
                 className="absolute bottom-0 right-0 rounded-full w-10 h-10 shadow-soft"
-                onClick={triggerFileInput}
-                disabled={isUploading}
+                onClick={triggerAvatarInput}
+                disabled={isUploadingAvatar}
               >
                 <Camera className="w-4 h-4" />
               </Button>
