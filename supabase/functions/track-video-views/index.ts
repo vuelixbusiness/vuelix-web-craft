@@ -96,6 +96,26 @@ serve(async (req) => {
   }
 
   try {
+    // Authenticate user
+    const authHeader = req.headers.get('Authorization')
+    if (!authHeader) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - Authentication required' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      )
+    }
+
+    const token = authHeader.replace('Bearer ', '')
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token)
+    
+    if (authError || !user) {
+      console.error('Authentication error:', authError)
+      return new Response(
+        JSON.stringify({ error: 'Invalid authentication token' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 401 }
+      )
+    }
+
     const { participationId, forceUpdate = false } = await req.json()
     
     if (!participationId) {
@@ -105,9 +125,9 @@ serve(async (req) => {
       )
     }
 
-    console.log(`Tracking views for participation: ${participationId}`)
+    console.log(`Tracking views for participation: ${participationId} by user: ${user.id}`)
 
-    // Get participation details
+    // Get participation details and verify ownership
     const { data: participation, error: participationError } = await supabase
       .from('campaign_participations')
       .select('*')
@@ -119,6 +139,15 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'Participation not found' }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+      )
+    }
+
+    // Verify user owns this participation
+    if (participation.creator_id !== user.id) {
+      console.error('Authorization failed: user does not own participation')
+      return new Response(
+        JSON.stringify({ error: 'Forbidden - You can only track your own participations' }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 403 }
       )
     }
 

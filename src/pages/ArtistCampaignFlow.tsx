@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from "react";
+import { z } from "zod";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -17,6 +18,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import CampaignCard from "@/components/ui/campaign-card";
+import { campaignSchema } from "@/lib/validation";
 import { 
   Upload, 
   Music, 
@@ -419,46 +421,51 @@ const ArtistCampaignFlow = () => {
       return;
     }
 
-    // Basic validation
-    if (!campaignData.songTitle || !campaignData.platforms.length || !campaignData.payoutType || !campaignData.budget) {
-      console.log('❌ Validation failed - missing fields:', {
-        songTitle: campaignData.songTitle,
-        platforms: campaignData.platforms,
-        payoutType: campaignData.payoutType,
-        budget: campaignData.budget
-      });
-      toast({
-        title: "Missing Information",
-        description: "Please fill in all required fields before launching",
-        variant: "destructive"
-      });
-      return;
-    }
-
     console.log('✅ Starting campaign launch process...');
     setIsLaunching(true);
 
     try {
-      // Prepare campaign data for database
-      const campaignToInsert = {
-        title: campaignData.songTitle,
-        song_title: campaignData.songTitle,
-        song_url: campaignData.songLink || null,
-        cover_art_url: campaignData.coverArtLink || null,
+      // Validate campaign data using zod schema
+      const validatedData = campaignSchema.parse({
+        songTitle: campaignData.songTitle?.trim(),
+        artistName: user.id, // Use user ID as placeholder since we store artist_id
         genre: campaignData.genre === 'Custom' ? campaignData.customGenre : campaignData.genre,
-        campaign_type: campaignData.campaignType,
+        campaignType: campaignData.campaignType,
         platforms: campaignData.platforms,
-        payout_type: campaignData.payoutType,
-        payout_rate: campaignData.payoutRate,
-        max_payout: campaignData.maxPayout || null,
-        vip_bonus: campaignData.vipBonus || 0,
-        vip_max_payout: campaignData.vipMaxPayout || null,
+        payoutType: campaignData.payoutType,
+        budget: campaignData.budget,
+        payoutRate: campaignData.payoutRate,
+        maxPayout: campaignData.maxPayout || null,
+        vipBonus: campaignData.vipBonus || null,
+        vipMaxPayout: campaignData.vipMaxPayout || null,
+        songLink: campaignData.songLink || null,
         instructions: campaignData.instructions || null,
         rules: campaignData.rules || null,
-        reference_links: campaignData.referenceLinks || null,
-        approval_required: campaignData.approvalRequired || false,
-        budget: campaignData.budget,
-        end_date: campaignData.endDate?.toISOString() || null,
+        referenceLinks: campaignData.referenceLinks || null,
+        approvalRequired: campaignData.approvalRequired || false,
+        endDate: campaignData.endDate || null
+      });
+
+      // Prepare campaign data for database
+      const campaignToInsert = {
+        title: validatedData.songTitle,
+        song_title: validatedData.songTitle,
+        song_url: validatedData.songLink,
+        cover_art_url: campaignData.coverArtLink || null,
+        genre: validatedData.genre,
+        campaign_type: validatedData.campaignType,
+        platforms: validatedData.platforms,
+        payout_type: validatedData.payoutType,
+        payout_rate: validatedData.payoutRate,
+        max_payout: validatedData.maxPayout,
+        vip_bonus: validatedData.vipBonus || 0,
+        vip_max_payout: validatedData.vipMaxPayout,
+        instructions: validatedData.instructions,
+        rules: validatedData.rules,
+        reference_links: validatedData.referenceLinks,
+        approval_required: validatedData.approvalRequired,
+        budget: validatedData.budget,
+        end_date: validatedData.endDate?.toISOString() || null,
         artist_id: user.id,
         status: 'active'
       };
@@ -496,11 +503,23 @@ const ArtistCampaignFlow = () => {
 
     } catch (error) {
       console.error('❌ Unexpected error during campaign creation:', error);
-      toast({
-        title: "Campaign Launch Failed",
-        description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
-      });
+      
+      // Handle validation errors from zod
+      if (error instanceof z.ZodError) {
+        const firstError = error.errors[0];
+        const fieldName = firstError.path.join('.');
+        toast({
+          title: "Validation Error",
+          description: `${fieldName}: ${firstError.message}`,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Campaign Launch Failed",
+          description: error instanceof Error ? error.message : "An unexpected error occurred. Please try again.",
+          variant: "destructive"
+        });
+      }
     } finally {
       console.log('🔄 Setting isLaunching to false');
       setIsLaunching(false);

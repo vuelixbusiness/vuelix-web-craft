@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { z } from "zod";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { supportTicketSchema } from "@/lib/validation";
 import { 
   HelpCircle, 
   MessageSquare, 
@@ -85,24 +87,22 @@ const Support = () => {
     e.preventDefault();
     if (!user?.id || isSubmitting) return;
 
-    if (!formData.subject.trim() || !formData.message.trim()) {
-      toast({
-        title: "Error",
-        description: "Please fill in all required fields",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
+      // Validate input using zod schema
+      const validatedData = supportTicketSchema.parse({
+        subject: formData.subject.trim(),
+        message: formData.message.trim(),
+        priority: formData.priority
+      });
+
       const { data, error } = await supabase
         .from('support_tickets' as any)
         .insert({
           user_id: user.id,
-          subject: formData.subject.trim(),
-          message: formData.message.trim(),
+          subject: validatedData.subject,
+          message: validatedData.message,
           status: 'open'
         })
         .select()
@@ -119,11 +119,23 @@ const Support = () => {
         description: "Support ticket submitted successfully. We'll get back to you soon!",
       });
     } catch (error: any) {
-      toast({
-        title: "Error",
-        description: "Failed to submit support ticket",
-        variant: "destructive",
-      });
+      console.error('Submission error:', error);
+      
+      // Handle validation errors from zod
+      if (error instanceof z.ZodError) {
+        const firstError = error.errors[0];
+        toast({
+          title: "Validation Error",
+          description: firstError.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to submit support ticket",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }

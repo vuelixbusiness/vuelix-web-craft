@@ -113,6 +113,13 @@ export type Database = {
             foreignKeyName: "campaign_participations_campaign_id_fkey"
             columns: ["campaign_id"]
             isOneToOne: false
+            referencedRelation: "campaign_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_participations_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
             referencedRelation: "campaigns"
             referencedColumns: ["id"]
           },
@@ -285,6 +292,13 @@ export type Database = {
             foreignKeyName: "content_creations_campaign_id_fkey"
             columns: ["campaign_id"]
             isOneToOne: false
+            referencedRelation: "campaign_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_creations_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
             referencedRelation: "campaigns"
             referencedColumns: ["id"]
           },
@@ -333,6 +347,13 @@ export type Database = {
           status?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "creator_rewards_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_listings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "creator_rewards_campaign_id_fkey"
             columns: ["campaign_id"]
@@ -447,6 +468,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "media_assets_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_listings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "media_assets_campaign_id_fkey"
             columns: ["campaign_id"]
@@ -577,6 +605,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_profiles"
             referencedColumns: ["user_id"]
           },
         ]
@@ -758,6 +793,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "transactions_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_listings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "transactions_campaign_id_fkey"
             columns: ["campaign_id"]
@@ -1044,12 +1086,102 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      campaign_listings: {
+        Row: {
+          approval_required: boolean | null
+          artist_id: string | null
+          campaign_type: string | null
+          cover_art_url: string | null
+          created_at: string | null
+          end_date: string | null
+          genre: string | null
+          id: string | null
+          instructions: string | null
+          platforms: string[] | null
+          reference_links: string | null
+          rules: string | null
+          song_title: string | null
+          song_url: string | null
+          status: string | null
+          title: string | null
+        }
+        Insert: {
+          approval_required?: boolean | null
+          artist_id?: string | null
+          campaign_type?: string | null
+          cover_art_url?: string | null
+          created_at?: string | null
+          end_date?: string | null
+          genre?: string | null
+          id?: string | null
+          instructions?: string | null
+          platforms?: string[] | null
+          reference_links?: string | null
+          rules?: string | null
+          song_title?: string | null
+          song_url?: string | null
+          status?: string | null
+          title?: string | null
+        }
+        Update: {
+          approval_required?: boolean | null
+          artist_id?: string | null
+          campaign_type?: string | null
+          cover_art_url?: string | null
+          created_at?: string | null
+          end_date?: string | null
+          genre?: string | null
+          id?: string | null
+          instructions?: string | null
+          platforms?: string[] | null
+          reference_links?: string | null
+          rules?: string | null
+          song_title?: string | null
+          song_url?: string | null
+          status?: string | null
+          title?: string | null
+        }
+        Relationships: []
+      }
+      public_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          display_name: string | null
+          user_id: string | null
+          user_type: string | null
+          username: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          display_name?: string | null
+          user_id?: string | null
+          user_type?: string | null
+          username?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          display_name?: string | null
+          user_id?: string | null
+          user_type?: string | null
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       check_user_chat_room_membership: {
         Args: { _room_id: string; _user_id: string }
         Returns: boolean
+      }
+      count_creators_by_type: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          creator_count: number
+          user_type: string
+        }[]
       }
       create_notification: {
         Args: {

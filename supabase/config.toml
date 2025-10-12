@@ -8,10 +8,10 @@ extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
 [functions.track-video-views]
-verify_jwt = false
+verify_jwt = true
 
 [functions.process-payout]
-verify_jwt = false
+verify_jwt = true
 
 [functions.stripe-connect-oauth]
 verify_jwt = true
