@@ -288,7 +288,7 @@ const PublicProfile = () => {
     <DashboardLayout>
       <div className="container mx-auto px-6 py-8 max-w-7xl">
         {/* Banner */}
-        <div className="relative h-48 md:h-64 rounded-lg overflow-hidden mb-6 bg-gradient-to-r from-primary/20 to-accent/20">
+        <div className="relative h-48 md:h-64 rounded-lg overflow-hidden mb-8 bg-gradient-to-r from-primary/20 to-accent/20">
           {profile.banner_url && (
             <img src={profile.banner_url} alt="Banner" className="w-full h-full object-cover" />
           )}
