@@ -25,9 +25,9 @@ export function ProfileHeader({ onEditProfile, isPublicVisible, onToggleVisibili
       {/* Banner Image */}
       <div className="h-48 bg-gradient-primary rounded-xl overflow-hidden">
         {user?.banner_url ? (
-          <img src={user.banner_url} alt="Profile banner" className="w-full h-full object-cover absolute inset-0 z-0" />
+          <img src={user.banner_url} alt="Profile banner" className="w-full h-full object-cover" />
         ) : (
-          <div className="w-full h-full bg-gradient-hero absolute inset-0 z-0" />
+          <div className="w-full h-full bg-gradient-hero" />
         )}
       </div>
 
