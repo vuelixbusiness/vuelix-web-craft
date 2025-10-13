@@ -854,50 +854,55 @@ const ArtistCampaignFlow = () => {
                       Supported: MP3, WAV, FLAC (Max 50MB)
                     </div>
                     
-                    <div className="relative my-3">
-                      <div className="absolute inset-0 flex items-center">
-                        <div className="w-full border-t border-border"></div>
-                      </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">Or</span>
-                      </div>
+              {/* Only show link input for Song/Content Promotion campaigns */}
+              {campaignData.campaignType === 'song_content_promotion' && (
+                <>
+                  <div className="relative my-3">
+                    <div className="absolute inset-0 flex items-center">
+                      <div className="w-full border-t border-border"></div>
                     </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                      <span className="bg-background px-2 text-muted-foreground">Or</span>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <Input 
+                      placeholder="Paste SoundCloud or Spotify link"
+                      value={campaignData.songLink || ''}
+                      onChange={(e) => updateCampaignData('songLink', e.target.value)}
+                    />
                     
-                    <div className="space-y-3">
-                      <Input 
-                        placeholder="Paste SoundCloud or Spotify link"
-                        value={campaignData.songLink || ''}
-                        onChange={(e) => updateCampaignData('songLink', e.target.value)}
-                      />
-                      
-                      {campaignData.songLink && isValidSongLink(campaignData.songLink) && (
-                        <Button 
-                          variant="default"
-                          size="sm"
-                          onClick={handleConnectSongLink}
-                          disabled={isConnectingSong}
-                          className="w-full"
-                        >
-                          {isConnectingSong ? (
-                            <>
-                              <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2" />
-                              Connecting Song...
-                            </>
-                          ) : (
-                            <>
-                              <PlayCircle className="w-4 h-4 mr-2" />
-                              Connect Song to Campaign
-                            </>
-                          )}
-                        </Button>
-                      )}
-                      
-                      {campaignData.songLink && !isValidSongLink(campaignData.songLink) && (
-                        <div className="text-xs text-destructive text-center">
-                          Please enter a valid SoundCloud, Spotify, or YouTube link
-                        </div>
-                      )}
-                    </div>
+                    {campaignData.songLink && isValidSongLink(campaignData.songLink) && (
+                      <Button 
+                        variant="default"
+                        size="sm"
+                        onClick={handleConnectSongLink}
+                        disabled={isConnectingSong}
+                        className="w-full"
+                      >
+                        {isConnectingSong ? (
+                          <>
+                            <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2" />
+                            Connecting Song...
+                          </>
+                        ) : (
+                          <>
+                            <PlayCircle className="w-4 h-4 mr-2" />
+                            Connect Song to Campaign
+                          </>
+                        )}
+                      </Button>
+                    )}
+                    
+                    {campaignData.songLink && !isValidSongLink(campaignData.songLink) && (
+                      <div className="text-xs text-destructive text-center">
+                        Please enter a valid SoundCloud, Spotify, or YouTube link
+                      </div>
+                    )}
+                  </div>
+                </>
+              )}
                   </div>
                 </div>
 
