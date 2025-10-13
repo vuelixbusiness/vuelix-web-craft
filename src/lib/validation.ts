@@ -49,9 +49,11 @@ export const campaignSchema = z.object({
     .min(1, 'Select at least one platform')
     .max(10, 'Maximum 10 platforms allowed'),
   
-  payoutType: z.enum(['performance_based', 'fixed_rate', 'hybrid'], {
-    errorMap: () => ({ message: 'Please select a valid reward type' })
-  }),
+  payoutType: z.union([
+    z.literal('performance_based'),
+    z.literal('fixed_rate'),
+    z.literal('hybrid')
+  ]),
   
   budget: z.number()
     .positive('Budget must be greater than 0')
@@ -61,7 +63,9 @@ export const campaignSchema = z.object({
   payoutRate: z.number()
     .positive('Payout rate must be greater than 0')
     .max(100000, 'Payout rate cannot exceed $100,000')
-    .finite('Payout rate must be a valid number'),
+    .finite('Payout rate must be a valid number')
+    .optional()
+    .nullable(),
   
   maxPayout: z.number()
     .positive('Max payout must be greater than 0')
@@ -81,6 +85,12 @@ export const campaignSchema = z.object({
     .positive('VIP max payout must be greater than 0')
     .max(1000000, 'VIP max payout cannot exceed $1,000,000')
     .finite('VIP max payout must be a valid number')
+    .optional()
+    .nullable(),
+  
+  hybridRewardDescription: z.string()
+    .trim()
+    .max(1000, 'Hybrid reward description must be less than 1000 characters')
     .optional()
     .nullable(),
   
@@ -116,6 +126,19 @@ export const campaignSchema = z.object({
     .min(new Date(), 'End date must be in the future')
     .optional()
     .nullable()
+}).refine((data) => {
+  // For hybrid, require description
+  if ((data.payoutType as string) === 'hybrid') {
+    return data.hybridRewardDescription && data.hybridRewardDescription.trim().length > 0;
+  }
+  // For non-hybrid, require payoutRate
+  if ((data.payoutType as string) !== 'hybrid') {
+    return data.payoutRate != null && data.payoutRate > 0;
+  }
+  return true;
+}, {
+  message: 'Hybrid rewards require a custom reward description, or provide a payout rate for other reward types',
+  path: ['hybridRewardDescription']
 });
 
 export type CampaignInput = z.infer<typeof campaignSchema>;

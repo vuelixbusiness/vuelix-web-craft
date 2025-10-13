@@ -128,6 +128,7 @@ export type Database = {
           created_at: string
           end_date: string | null
           genre: string
+          hybrid_reward_description: string | null
           id: string
           instructions: string | null
           max_payout: number | null
@@ -153,6 +154,7 @@ export type Database = {
           created_at?: string
           end_date?: string | null
           genre: string
+          hybrid_reward_description?: string | null
           id?: string
           instructions?: string | null
           max_payout?: number | null
@@ -178,6 +180,7 @@ export type Database = {
           created_at?: string
           end_date?: string | null
           genre?: string
+          hybrid_reward_description?: string | null
           id?: string
           instructions?: string | null
           max_payout?: number | null

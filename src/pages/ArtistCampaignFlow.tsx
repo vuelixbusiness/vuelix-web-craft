@@ -59,6 +59,7 @@ interface CampaignData {
   vipBonus?: number;
   maxPayout?: number;
   vipMaxPayout?: number;
+  hybridRewardDescription?: string;
   instructions?: string;
   rules?: string;
   referenceLinks?: string;
@@ -440,6 +441,7 @@ const ArtistCampaignFlow = () => {
         maxPayout: campaignData.maxPayout || null,
         vipBonus: campaignData.vipBonus || null,
         vipMaxPayout: campaignData.vipMaxPayout || null,
+        hybridRewardDescription: campaignData.hybridRewardDescription || null,
         songLink: campaignData.songLink || null,
         instructions: campaignData.instructions || null,
         rules: campaignData.rules || null,
@@ -458,10 +460,11 @@ const ArtistCampaignFlow = () => {
         campaign_type: validatedData.campaignType,
         platforms: validatedData.platforms,
         payout_type: validatedData.payoutType,
-        payout_rate: validatedData.payoutRate,
+        payout_rate: validatedData.payoutType === 'hybrid' ? null : validatedData.payoutRate,
         max_payout: validatedData.maxPayout,
         vip_bonus: validatedData.vipBonus || 0,
         vip_max_payout: validatedData.vipMaxPayout,
+        hybrid_reward_description: validatedData.hybridRewardDescription || null,
         instructions: validatedData.instructions,
         rules: validatedData.rules,
         reference_links: validatedData.referenceLinks,
@@ -940,69 +943,88 @@ const ArtistCampaignFlow = () => {
                   </Select>
                 </div>
 
-                {/* Reward Rate */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Reward Rate Section - Conditional based on payoutType */}
+                {campaignData.payoutType === 'hybrid' ? (
+                  // HYBRID: Free-text custom reward structure
                   <div className="space-y-2">
-                    <Label className="text-base font-medium">
-                      {campaignData.payoutType === 'fixed_rate' ? 'Fixed Rate ($)' : 'Reward Rate per 1k Views'}
-                    </Label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input 
-                        type="number"
-                        placeholder="0.00"
-                        className="pl-10"
-                        value={campaignData.payoutRate || ''}
-                        onChange={(e) => updateCampaignData('payoutRate', parseFloat(e.target.value))}
-                      />
-                    </div>
+                    <Label className="text-base font-medium">Hybrid Reward Structure</Label>
+                    <Textarea 
+                      placeholder="Describe your hybrid reward structure. Example: $100 base payment + $0.50 per 1k views + $500 bonus at 1M views"
+                      className="min-h-[120px]"
+                      value={campaignData.hybridRewardDescription || ''}
+                      onChange={(e) => updateCampaignData('hybridRewardDescription', e.target.value)}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Explain how creators will be compensated with your custom hybrid model combining fixed payments, performance metrics, and bonuses.
+                    </p>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="text-base font-medium">VIP Creator Reward Rate ($)</Label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input 
-                        type="number"
-                        placeholder="0.00"
-                        className="pl-10"
-                        value={campaignData.vipBonus || ''}
-                        onChange={(e) => updateCampaignData('vipBonus', parseFloat(e.target.value))}
-                      />
+                ) : (
+                  // PERFORMANCE BASED or FIXED RATE: Structured fields
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-base font-medium">
+                          {campaignData.payoutType === 'fixed_rate' ? 'Fixed Rate ($)' : 'Reward Rate per 1k Views'}
+                        </Label>
+                        <div className="relative">
+                          <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input 
+                            type="number"
+                            placeholder="0.00"
+                            className="pl-10"
+                            value={campaignData.payoutRate || ''}
+                            onChange={(e) => updateCampaignData('payoutRate', parseFloat(e.target.value))}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label className="text-base font-medium">VIP Creator Reward Rate ($)</Label>
+                        <div className="relative">
+                          <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input 
+                            type="number"
+                            placeholder="0.00"
+                            className="pl-10"
+                            value={campaignData.vipBonus || ''}
+                            onChange={(e) => updateCampaignData('vipBonus', parseFloat(e.target.value))}
+                          />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </div>
 
-                {/* MAX Reward Totals */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-base font-medium">MAX Reward Total ($)</Label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input 
-                        type="number"
-                        placeholder="0.00"
-                        className="pl-10"
-                        value={campaignData.maxPayout || ''}
-                        onChange={(e) => updateCampaignData('maxPayout', parseFloat(e.target.value))}
-                      />
+                    {/* MAX Reward Totals */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-base font-medium">MAX Reward Total ($)</Label>
+                        <div className="relative">
+                          <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input 
+                            type="number"
+                            placeholder="0.00"
+                            className="pl-10"
+                            value={campaignData.maxPayout || ''}
+                            onChange={(e) => updateCampaignData('maxPayout', parseFloat(e.target.value))}
+                          />
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label className="text-base font-medium">VIP MAX Reward Total ($)</Label>
+                        <div className="relative">
+                          <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                          <Input 
+                            type="number"
+                            placeholder="0.00"
+                            className="pl-10"
+                            value={campaignData.vipMaxPayout || ''}
+                            onChange={(e) => updateCampaignData('vipMaxPayout', parseFloat(e.target.value))}
+                          />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label className="text-base font-medium">VIP MAX Reward Total ($)</Label>
-                    <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input 
-                        type="number"
-                        placeholder="0.00"
-                        className="pl-10"
-                        value={campaignData.vipMaxPayout || ''}
-                        onChange={(e) => updateCampaignData('vipMaxPayout', parseFloat(e.target.value))}
-                      />
-                    </div>
-                  </div>
-                </div>
+                  </>
+                )}
 
                 {/* Creator Instructions */}
                 <div className="space-y-2">
