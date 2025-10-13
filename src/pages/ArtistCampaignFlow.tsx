@@ -483,7 +483,10 @@ const ArtistCampaignFlow = () => {
         campaign_type: validatedData.campaignType,
         platforms: validatedData.platforms,
         payout_type: validatedData.payoutType,
-        payout_rate: validatedData.payoutType === 'hybrid' ? null : validatedData.payoutRate,
+        payout_rate: 
+          validatedData.payoutType === 'hybrid' || validatedData.payoutType === 'fixed_rate' 
+            ? null 
+            : validatedData.payoutRate,
         max_payout: validatedData.maxPayout,
         vip_bonus: validatedData.vipBonus || 0,
         vip_max_payout: validatedData.vipMaxPayout,

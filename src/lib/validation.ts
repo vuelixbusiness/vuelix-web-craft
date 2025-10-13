@@ -133,18 +133,22 @@ export const campaignSchema = z.object({
     .optional()
     .nullable()
 }).refine((data) => {
+  // For performance_based, require payoutRate
+  if (data.payoutType === 'performance_based') {
+    return data.payoutRate != null && data.payoutRate > 0;
+  }
   // For hybrid, require description
-  if ((data.payoutType as string) === 'hybrid') {
+  if (data.payoutType === 'hybrid') {
     return data.hybridRewardDescription && data.hybridRewardDescription.trim().length > 0;
   }
-  // For non-hybrid, require payoutRate
-  if ((data.payoutType as string) !== 'hybrid') {
-    return data.payoutRate != null && data.payoutRate > 0;
+  // For fixed_rate, require description
+  if (data.payoutType === 'fixed_rate') {
+    return data.fixedRateDescription && data.fixedRateDescription.trim().length > 0;
   }
   return true;
 }, {
-  message: 'Hybrid rewards require a custom reward description, or provide a payout rate for other reward types',
-  path: ['hybridRewardDescription']
+  message: 'Please provide the required reward information for the selected reward type',
+  path: ['payoutRate']
 });
 
 export type CampaignInput = z.infer<typeof campaignSchema>;
