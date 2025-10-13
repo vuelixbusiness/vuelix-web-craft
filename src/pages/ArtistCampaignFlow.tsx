@@ -20,6 +20,7 @@ import { supabase } from "@/integrations/supabase/client";
 import CampaignCard from "@/components/ui/campaign-card";
 import { campaignSchema } from "@/lib/validation";
 import { CAMPAIGN_TYPES } from "@/config/campaignTypes";
+import { CAMPAIGN_FORM_CONFIGS, CampaignFormConfig } from "@/config/campaignFormConfig";
 import { 
   Upload, 
   Music, 
@@ -81,12 +82,13 @@ const ArtistCampaignFlow = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0); // Start at step 0 for campaign type selection
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [campaignData, setCampaignData] = useState<CampaignData>({
     platforms: [],
     rules: DEFAULT_CAMPAIGN_RULES
   });
+  const [formConfig, setFormConfig] = useState<CampaignFormConfig | null>(null);
   const [isConnectingSong, setIsConnectingSong] = useState(false);
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
   const [isLaunching, setIsLaunching] = useState(false);
@@ -414,30 +416,21 @@ const ArtistCampaignFlow = () => {
     }));
   };
 
+  const handleCampaignTypeSelect = (typeId: string) => {
+    const config = CAMPAIGN_FORM_CONFIGS[typeId];
+    setFormConfig(config);
+    updateCampaignData('campaignType', typeId);
+    setCurrentStep(1); // Move to next step
+  };
+
   const canContinue = (step: number) => {
-    // Temporarily disabled validation - allows progression through all steps except step 3 terms
+    if (step === 0) {
+      return campaignData.campaignType !== undefined;
+    }
     if (step === 3) {
       return termsAccepted;
     }
     return true;
-    
-    /* Original validation logic - commented out for now
-    switch (step) {
-      case 1:
-        return (campaignData.songFile || campaignData.songLink) && 
-               campaignData.campaignType && 
-               campaignData.genre && 
-               campaignData.platforms.length > 0;
-      case 2:
-        return campaignData.payoutType && 
-               campaignData.payoutRate && 
-               campaignData.instructions;
-      case 3:
-        return campaignData.endDate && campaignData.budget;
-      default:
-        return false;
-    }
-    */
   };
 
   const handleLaunchCampaign = async () => {
@@ -632,27 +625,28 @@ const ArtistCampaignFlow = () => {
             </div>
           </div>
 
-          {/* Step 1: Choose a Song */}
-          {currentStep === 1 && (
+          {/* Step 1: Campaign Assets */}
+          {currentStep === 1 && formConfig && (
             <Card className="border-2">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Music className="w-5 h-5 text-primary" />
-                  <span>Choose Your Song</span>
+                  <span>{formConfig.step1.title}</span>
                 </CardTitle>
                 <CardDescription>
-                  Upload your track and set the campaign parameters
+                  {formConfig.step1.description}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Song Upload */}
+                {/* Asset Upload */}
                 <div className="space-y-3">
-                  <Label className="text-base font-medium">Upload Song</Label>
+                  <Label className="text-base font-medium">{formConfig.step1.assetUploadLabel}</Label>
                   <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-smooth ${
                     campaignData.songFile ? 'border-primary bg-primary/5' : 'border-border'
                   }`}>
                     <Upload className="w-10 h-10 mx-auto mb-3 text-muted-foreground" />
-                    <h3 className="text-base font-medium mb-2">Upload Music File</h3>
+                    <h3 className="text-base font-medium mb-2">{formConfig.step1.assetUploadLabel}</h3>
+                    <p className="text-muted-foreground mb-3 text-sm">{formConfig.step1.assetUploadDescription}</p>
                     {campaignData.songFile ? (
                       <div className="mb-3">
                         <p className="text-primary font-medium text-sm mb-1">
@@ -741,11 +735,11 @@ const ArtistCampaignFlow = () => {
                   </div>
                 </div>
 
-                {/* Song Title */}
+                {/* Asset Title */}
                 <div className="space-y-2">
-                  <Label className="text-base font-medium">Song Title</Label>
+                  <Label className="text-base font-medium">{formConfig.step1.assetTitleLabel}</Label>
                   <Input 
-                    placeholder="Enter your song title"
+                    placeholder={formConfig.step1.assetTitlePlaceholder}
                     value={campaignData.songTitle || ''}
                     onChange={(e) => updateCampaignData('songTitle', e.target.value)}
                   />
@@ -753,7 +747,7 @@ const ArtistCampaignFlow = () => {
 
                 {/* Cover Art Upload */}
                 <div className="space-y-4">
-                  <Label className="text-base font-medium">Upload Cover Art</Label>
+                  <Label className="text-base font-medium">{formConfig.step1.coverArtLabel}</Label>
                   <div className={`border-2 border-dashed rounded-lg p-6 text-center transition-smooth ${
                     campaignData.coverArtFile ? 'border-primary bg-primary/5' : 'border-border'
                   }`}>
@@ -774,9 +768,9 @@ const ArtistCampaignFlow = () => {
                     ) : (
                       <>
                         <ImageIcon className="w-10 h-10 mx-auto mb-4 text-muted-foreground" />
-                        <h3 className="text-base font-medium mb-2">Upload Cover Art</h3>
+                        <h3 className="text-base font-medium mb-2">{formConfig.step1.coverArtLabel}</h3>
                         <p className="text-muted-foreground mb-4">
-                          Add album artwork or campaign image
+                          {formConfig.step1.coverArtDescription}
                         </p>
                       </>
                     )}
@@ -837,44 +831,18 @@ const ArtistCampaignFlow = () => {
                   </div>
                 </div>
 
-                {/* Campaign Type */}
+                {/* Genre/Category Selector */}
                 <div className="space-y-2">
-                  <Label className="text-base font-medium">Campaign Type</Label>
-                  <Select 
-                    value={campaignData.campaignType} 
-                    onValueChange={(value) => updateCampaignData('campaignType', value)}
-                  >
-                    <SelectTrigger className="bg-background border-border">
-                      <SelectValue placeholder="Select campaign type" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background border-border z-50">
-                      {CAMPAIGN_TYPES.map((type) => (
-                        <SelectItem key={type.id} value={type.id}>
-                          <div className="flex items-center gap-2">
-                            <span>{type.icon}</span>
-                            <div>
-                              <div className="font-medium">{type.label}</div>
-                              <div className="text-xs text-muted-foreground">{type.description}</div>
-                            </div>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Genre Selector */}
-                <div className="space-y-2">
-                  <Label className="text-base font-medium">Genre</Label>
+                  <Label className="text-base font-medium">{formConfig.step1.genreLabel}</Label>
                   <Select 
                     value={campaignData.genre} 
                     onValueChange={(value) => updateCampaignData('genre', value)}
                   >
                     <SelectTrigger className="bg-background border-border">
-                      <SelectValue placeholder="Select genre" />
+                      <SelectValue placeholder={`Select ${formConfig.step1.genreLabel.toLowerCase()}`} />
                     </SelectTrigger>
                     <SelectContent className="bg-background border-border z-50 max-h-60">
-                      {genres.map((genre) => (
+                      {formConfig.step1.genres.map((genre) => (
                         <SelectItem key={genre} value={genre.toLowerCase()}>
                           {genre}
                         </SelectItem>
@@ -885,7 +853,7 @@ const ArtistCampaignFlow = () => {
                   {/* Custom Genre Input */}
                   {campaignData.genre === 'custom' && (
                     <Input 
-                      placeholder="Enter custom genre"
+                      placeholder={`Enter custom ${formConfig.step1.genreLabel.toLowerCase()}`}
                       value={campaignData.customGenre || ''}
                       onChange={(e) => updateCampaignData('customGenre', e.target.value)}
                       className="mt-2"
@@ -895,7 +863,7 @@ const ArtistCampaignFlow = () => {
 
                 {/* Platform Toggles */}
                 <div className="space-y-4">
-                  <Label className="text-base font-medium">Target Platforms</Label>
+                  <Label className="text-base font-medium">{formConfig.step1.platformsLabel}</Label>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {platforms.map((platform) => (
                       <Card 
@@ -929,15 +897,15 @@ const ArtistCampaignFlow = () => {
           )}
 
           {/* Step 2: Set Rewards & Guidelines */}
-          {currentStep === 2 && (
+          {currentStep === 2 && formConfig && (
             <Card className="border-2">
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <Target className="w-5 h-5 text-primary" />
-                  <span>Set Rewards & Creator Guidelines</span>
+                  <span>{formConfig.step2.title}</span>
                 </CardTitle>
                 <CardDescription>
-                  Define how creators will be compensated and what you expect from them
+                  {formConfig.step2.description}
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
@@ -1179,7 +1147,7 @@ const ArtistCampaignFlow = () => {
                 <CardContent className="space-y-6">
                   {/* End Date */}
                   <div className="space-y-2">
-                    <Label className="text-base font-medium">Campaign End Date</Label>
+                    <Label className="text-base font-medium">{formConfig?.step3.endDateLabel || 'Campaign End Date'}</Label>
                     <Popover>
                       <PopoverTrigger asChild>
                         <Button
@@ -1204,11 +1172,14 @@ const ArtistCampaignFlow = () => {
                         />
                       </PopoverContent>
                     </Popover>
+                    <p className="text-sm text-muted-foreground">
+                      {formConfig?.step3.endDateDescription || 'Leave blank for ongoing campaigns'}
+                    </p>
                   </div>
 
                   {/* Budget */}
                   <div className="space-y-2">
-                    <Label className="text-base font-medium">Total Investment ($)</Label>
+                    <Label className="text-base font-medium">{formConfig?.step3.budgetLabel || 'Total Investment'} ($)</Label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input 
@@ -1220,7 +1191,7 @@ const ArtistCampaignFlow = () => {
                       />
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      This includes the 5% Vuelix platform fee
+                      {formConfig?.step3.budgetDescription || 'Total amount you\'ll invest in this campaign'} (includes 5% platform fee)
                     </p>
                   </div>
 
