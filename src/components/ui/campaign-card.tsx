@@ -193,10 +193,6 @@ const CampaignCard = ({
             ) : (
               <img src={vuelixLogo} alt="Vuelix" className="w-16 h-16" />
             )}
-            {/* Icon Box Overlay */}
-            <div className="absolute -top-2 -right-2 w-6 h-6 rounded-md bg-gradient-to-br from-primary/30 via-primary/20 to-primary/10 border border-primary/20 flex items-center justify-center shadow-sm">
-              <Music className="w-3 h-3 text-primary" />
-            </div>
           </div>
 
           {/* Key Campaign Details */}
