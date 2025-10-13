@@ -123,7 +123,6 @@ const ArtistCampaignFlow = () => {
       payout_type: campaignData.payoutType,
       hybrid_reward_description: campaignData.hybridRewardDescription,
       budget: campaignData.budget || 0,
-      status: 'active',
       description: campaignData.instructions,
       rules: campaignData.rules,
       profiles: { display_name: user?.name || 'Unknown Artist' },
