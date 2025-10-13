@@ -30,7 +30,7 @@ const HowItWorks = () => {
                 <div className="w-8 h-8 bg-gradient-primary rounded-full flex items-center justify-center text-white font-bold text-sm">1</div>
                 <div>
                   <h4 className="font-semibold mb-2">Create Your Campaign</h4>
-                  <p className="text-muted-foreground">Upload your track, set your budget, and define your payout rate per 1k views.</p>
+                  <p className="text-muted-foreground">Upload your track, set your budget, and define your reward per 1k views.</p>
                 </div>
               </div>
               <div className="flex items-start space-x-4">

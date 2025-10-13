@@ -132,7 +132,7 @@ const CampaignCard = ({
       } ${className}`}
       onClick={() => onCampaignClick?.(campaign)}
     >
-      {/* Payout Rate Box - Top Right Corner */}
+      {/* Reward Box - Top Right Corner */}
       {variant === 'creator-available' && (
         <div className="absolute top-3 right-3 z-10 group">
           <div className="relative overflow-hidden rounded-lg border border-yellow-600/30 bg-gradient-to-br from-yellow-50 via-amber-50 to-yellow-100 dark:from-yellow-950/40 dark:via-amber-950/30 dark:to-yellow-900/20 p-2 shadow-[0_6px_18px_-4px_rgba(234,179,8,0.3)] transition-all duration-300 hover:shadow-[0_8px_24px_-6px_rgba(234,179,8,0.5)] hover:scale-102">
@@ -149,7 +149,7 @@ const CampaignCard = ({
               {/* Text Content */}
               <div className="flex flex-col">
                 <p className="text-[8px] font-semibold uppercase tracking-wider text-yellow-700 dark:text-yellow-400/90 mb-0">
-                  Payout Rate
+                  Reward
                 </p>
                 <p className="text-xs font-bold text-yellow-900 dark:text-yellow-200 leading-tight">
                   {formatPayoutForBox(campaign.payout_rate, campaign.payout_type)}

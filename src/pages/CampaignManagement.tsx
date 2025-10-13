@@ -295,7 +295,7 @@ export default function CampaignManagement() {
       if (campaign.title !== updatedData.title) changes.push('title');
       if (campaign.song_title !== updatedData.song_title) changes.push('song title');
       if (campaign.budget !== updatedData.budget) changes.push('budget');
-      if (campaign.payout_rate !== updatedData.payout_rate) changes.push('payout rate');
+      if (campaign.payout_rate !== updatedData.payout_rate) changes.push('reward rate');
       if (campaign.instructions !== updatedData.instructions) changes.push('instructions');
       if (campaign.rules !== updatedData.rules) changes.push('rules');
       if (coverArtFile) changes.push('cover art');
@@ -504,7 +504,7 @@ export default function CampaignManagement() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="payout_rate">Payout Rate ($ per 1k views)</Label>
+                      <Label htmlFor="payout_rate">Reward Rate ($ per 1k views)</Label>
                       <Input
                         id="payout_rate"
                         type="number"
@@ -778,7 +778,7 @@ export default function CampaignManagement() {
               <p className="font-medium">{campaign.genre}</p>
             </div>
             <div>
-              <label className="text-sm font-medium text-muted-foreground">Payout Rate</label>
+              <label className="text-sm font-medium text-muted-foreground">Reward</label>
               <p className="font-medium">${campaign.payout_rate} per 1k views</p>
             </div>
             <div>

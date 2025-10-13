@@ -187,7 +187,7 @@ const CreatorFlow = () => {
                   {selectedCampaign && (
                     <div className="bg-secondary p-4 rounded-lg">
                       <div className="flex justify-between mb-2">
-                        <span className="font-medium">Payout Rate:</span>
+                        <span className="font-medium">Reward:</span>
                         <span className="text-primary font-bold">{selectedCampaign.payout}/1K views</span>
                       </div>
                       <div className="flex gap-2">

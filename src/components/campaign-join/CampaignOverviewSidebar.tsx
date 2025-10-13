@@ -105,10 +105,10 @@ export default function CampaignOverviewSidebar({ campaign }: CampaignOverviewSi
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* Payout Info */}
+          {/* Reward Info */}
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Payout Rate</span>
+              <span className="text-sm text-muted-foreground">Reward</span>
               <div className="flex items-center gap-1">
                 <DollarSign className="w-4 h-4 text-green-600" />
                 <span className="font-medium text-sm">
