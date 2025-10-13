@@ -267,19 +267,41 @@ const ArtistCampaignFlow = () => {
     // Use provided songUrl from CampaignCard or fallback to memoized URLs
     const audioSrc = songUrl || memoizedSongUrl;
 
-    if (!audioSrc) return;
+    console.log('toggleAudioPreview called:', { audioSrc, songUrl, memoizedSongUrl });
+
+    if (!audioSrc) {
+      toast({ 
+        title: "No audio available", 
+        description: "Please upload or link a song first", 
+        variant: "destructive" 
+      });
+      return;
+    }
 
     if (!audioRef.current) {
       // Create audio element
-      const audio = new Audio(audioSrc);
+      const audio = new Audio();
       audioRef.current = audio;
       
       audioRef.current.addEventListener('ended', () => {
         setIsPlayingPreview(false);
       });
-    } else if (audioRef.current.src !== audioSrc) {
-      // Update audio source if different
+
+      audioRef.current.addEventListener('error', (e) => {
+        console.error('Audio error:', e);
+        toast({ 
+          title: "Audio Error", 
+          description: "Failed to load audio file. Please check the file format.", 
+          variant: "destructive" 
+        });
+        setIsPlayingPreview(false);
+      });
+    }
+
+    // Always update the source
+    if (audioRef.current.src !== audioSrc) {
       audioRef.current.src = audioSrc;
+      audioRef.current.load(); // Force reload
     }
 
     if (isPlayingPreview) {
@@ -287,13 +309,18 @@ const ArtistCampaignFlow = () => {
       setIsPlayingPreview(false);
     } else {
       audioRef.current.play()
-        .then(() => setIsPlayingPreview(true))
-        .catch(() => {
+        .then(() => {
+          console.log('Audio playing successfully');
+          setIsPlayingPreview(true);
+        })
+        .catch((error) => {
+          console.error('Play error:', error);
           toast({ 
-            title: "Error", 
-            description: "Failed to play audio", 
+            title: "Playback Error", 
+            description: error.message || "Failed to play audio", 
             variant: "destructive" 
           });
+          setIsPlayingPreview(false);
         });
     }
   };

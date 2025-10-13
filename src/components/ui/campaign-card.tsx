@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { formatCurrency } from "@/lib/utils";
 import RunningTimer from "@/components/RunningTimer";
 import { ClickableUsername } from "@/components/ui/clickable-username";
+import { AudioPlayer } from "@/components/ui/audio-player";
 import { 
   Play, 
   Pause, 
@@ -92,6 +93,7 @@ const CampaignCard = ({
 }: CampaignCardProps) => {
   const { toast } = useToast();
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [isAudioExpanded, setIsAudioExpanded] = useState(false);
   
   const platformIcons = {
     tiktok: <FaTiktok className="w-4 h-4" />,
@@ -222,20 +224,16 @@ const CampaignCard = ({
                 <h3 className="text-xl font-bold text-foreground truncate">
                   {campaign.song_title}
                 </h3>
-                {showPlayButton && campaign.song_url && onAudioToggle && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => onAudioToggle(campaign.id, campaign.song_url!)}
-                    className="w-8 h-8 p-0 flex-shrink-0"
-                  >
-                    {isPlaying ? (
-                      <Pause className="w-4 h-4" />
-                    ) : (
-                      <Play className="w-4 h-4" />
-                    )}
-                  </Button>
-                )}
+              {showPlayButton && campaign.song_url && onAudioToggle && (
+                <AudioPlayer
+                  audioUrl={campaign.song_url}
+                  isPlaying={isPlaying}
+                  onTogglePlay={() => onAudioToggle(campaign.id, campaign.song_url!)}
+                  isExpanded={isAudioExpanded}
+                  onToggleExpand={() => setIsAudioExpanded(!isAudioExpanded)}
+                  className="flex-shrink-0"
+                />
+              )}
               </div>
               
               {campaign.status && (
