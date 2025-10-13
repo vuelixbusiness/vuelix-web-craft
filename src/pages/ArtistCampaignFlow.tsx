@@ -121,6 +121,7 @@ const ArtistCampaignFlow = () => {
       platforms: campaignData.platforms,
       payout_rate: campaignData.payoutRate,
       payout_type: campaignData.payoutType,
+      hybrid_reward_description: campaignData.hybridRewardDescription,
       budget: campaignData.budget || 0,
       status: 'active',
       description: campaignData.instructions,

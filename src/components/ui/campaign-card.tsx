@@ -35,6 +35,7 @@ interface Campaign {
   platforms?: string[];
   payout_rate?: number;
   payout_type?: string;
+  hybrid_reward_description?: string;
   budget?: number;
   spent?: number;
   redeemed?: number;
@@ -105,12 +106,18 @@ const CampaignCard = ({
     twitter: "Twitter"
   };
 
-  const formatPayout = (rate?: number, type?: string) => {
+  const formatPayout = (rate?: number, type?: string, hybridDescription?: string) => {
+    if (type === 'hybrid' && hybridDescription) {
+      return hybridDescription;
+    }
     if (!rate) return "$0.00";
     return `$${parseFloat(rate.toFixed(3)).toString()} per 1,000 Views`;
   };
 
-  const formatPayoutForBox = (rate?: number, type?: string) => {
+  const formatPayoutForBox = (rate?: number, type?: string, hybridDescription?: string) => {
+    if (type === 'hybrid' && hybridDescription) {
+      return hybridDescription;
+    }
     const amount = rate ? `$${parseFloat(rate.toFixed(3)).toString()}` : '$0.00';
     return `${amount} / 1,000 Views`;
   };
@@ -152,7 +159,7 @@ const CampaignCard = ({
                   Reward
                 </p>
                 <p className="text-xs font-bold text-yellow-900 dark:text-yellow-200 leading-tight">
-                  {formatPayoutForBox(campaign.payout_rate, campaign.payout_type)}
+                  {formatPayoutForBox(campaign.payout_rate, campaign.payout_type, campaign.hybrid_reward_description)}
                 </p>
               </div>
             </div>
