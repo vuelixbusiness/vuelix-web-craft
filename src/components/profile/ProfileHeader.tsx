@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useAvatarUpload } from "@/hooks/useAvatarUpload";
 import { useBannerUpload } from "@/hooks/useBannerUpload";
 import { useNavigate } from "react-router-dom";
+import { getUserTypeById } from "@/config/userTypes";
 
 interface ProfileHeaderProps {
   onEditProfile: () => void;
@@ -72,12 +73,16 @@ export function ProfileHeader({ onEditProfile, isPublicVisible, onToggleVisibili
                 <p className="text-muted-foreground">@{user?.username}</p>
               </div>
               <div className="flex flex-wrap gap-2">
-                <Badge variant={user?.membershipType === 'premium' ? 'default' : 'secondary'}>
-                  {user?.membershipType} Member
-                </Badge>
-                <Badge variant="outline" className="capitalize">
-                  {user?.type}
-                </Badge>
+                {user?.membershipType === 'premium' && (
+                  <Badge variant="default">
+                    Premium Member
+                  </Badge>
+                )}
+                {user?.type && (
+                  <Badge className="bg-primary/20 hover:bg-primary/30 border-primary/30">
+                    {getUserTypeById(user.type)?.icon} {getUserTypeById(user.type)?.label || user.type}
+                  </Badge>
+                )}
               </div>
             </div>
           </div>
