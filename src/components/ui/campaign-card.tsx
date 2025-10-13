@@ -111,7 +111,14 @@ const CampaignCard = ({
       return hybridDescription;
     }
     if (!rate) return "$0.00";
-    return `$${parseFloat(rate.toFixed(3)).toString()} per 1,000 Views`;
+    
+    const amount = `$${parseFloat(rate.toFixed(3)).toString()}`;
+    
+    if (type === 'fixed') {
+      return `${amount} Fix`;
+    }
+    
+    return `${amount} per 1,000 Views`;
   };
 
   const formatPayoutForBox = (rate?: number, type?: string, hybridDescription?: string) => {
@@ -119,6 +126,11 @@ const CampaignCard = ({
       return hybridDescription;
     }
     const amount = rate ? `$${parseFloat(rate.toFixed(3)).toString()}` : '$0.00';
+    
+    if (type === 'fixed') {
+      return `${amount} Fix`;
+    }
+    
     return `${amount} / 1,000 Views`;
   };
 
