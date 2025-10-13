@@ -111,14 +111,14 @@ const CampaignCard = ({
     if (type === 'hybrid' && hybridDescription) {
       return hybridDescription;
     }
-    if (type === 'fixed' && fixedDescription) {
+    if (type === 'fixed_rate' && fixedDescription) {
       return fixedDescription;
     }
     if (!rate) return "$0.00";
     
     const amount = `$${parseFloat(rate.toFixed(3)).toString()}`;
     
-    if (type === 'fixed') {
+    if (type === 'fixed_rate') {
       return `${amount} Fix`;
     }
     
@@ -129,12 +129,12 @@ const CampaignCard = ({
     if (type === 'hybrid' && hybridDescription) {
       return hybridDescription;
     }
-    if (type === 'fixed' && fixedDescription) {
+    if (type === 'fixed_rate' && fixedDescription) {
       return fixedDescription;
     }
     const amount = rate ? `$${parseFloat(rate.toFixed(3)).toString()}` : '$0.00';
     
-    if (type === 'fixed') {
+    if (type === 'fixed_rate') {
       return `${amount} Fix`;
     }
     
