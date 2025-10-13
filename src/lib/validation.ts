@@ -34,7 +34,14 @@ export const campaignSchema = z.object({
     .min(1, 'Genre is required')
     .max(100, 'Genre must be less than 100 characters'),
   
-  campaignType: z.enum(['promotion', 'engagement', 'viral'], {
+  campaignType: z.enum([
+    'song_content_promotion',
+    'collaboration_campaign', 
+    'visual_production',
+    'brand_partnership',
+    'community_campaign',
+    'performance_live_event'
+  ], {
     errorMap: () => ({ message: 'Please select a valid campaign type' })
   }),
   

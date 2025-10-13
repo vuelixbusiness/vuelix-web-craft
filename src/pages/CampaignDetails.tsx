@@ -10,6 +10,7 @@ import { CalendarDays, DollarSign, Music, Users, Eye, Heart, ArrowLeft } from 'l
 import { toast } from 'sonner';
 import ParticipantsList from '@/components/campaign-details/ParticipantsList';
 import SubmissionsLog from '@/components/campaign-details/SubmissionsLog';
+import { getCampaignTypeById } from '@/config/campaignTypes';
 
 interface Campaign {
   id: string;
@@ -334,7 +335,10 @@ const CampaignDetails = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Campaign Type</label>
-                  <p className="font-medium">{campaign.campaign_type}</p>
+                  <p className="font-medium">
+                    {getCampaignTypeById(campaign.campaign_type)?.icon}{' '}
+                    {getCampaignTypeById(campaign.campaign_type)?.label || campaign.campaign_type}
+                  </p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-muted-foreground">Payout Type</label>

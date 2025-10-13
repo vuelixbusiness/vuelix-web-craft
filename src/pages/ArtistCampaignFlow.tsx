@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import CampaignCard from "@/components/ui/campaign-card";
 import { campaignSchema } from "@/lib/validation";
+import { CAMPAIGN_TYPES } from "@/config/campaignTypes";
 import { 
   Upload, 
   Music, 
@@ -812,9 +813,17 @@ const ArtistCampaignFlow = () => {
                       <SelectValue placeholder="Select campaign type" />
                     </SelectTrigger>
                     <SelectContent className="bg-background border-border z-50">
-                      <SelectItem value="clipping">Clipping - Use song in content</SelectItem>
-                      <SelectItem value="duet">Duet - Create response videos</SelectItem>
-                      <SelectItem value="reaction">Reaction - React to your content</SelectItem>
+                      {CAMPAIGN_TYPES.map((type) => (
+                        <SelectItem key={type.id} value={type.id}>
+                          <div className="flex items-center gap-2">
+                            <span>{type.icon}</span>
+                            <div>
+                              <div className="font-medium">{type.label}</div>
+                              <div className="text-xs text-muted-foreground">{type.description}</div>
+                            </div>
+                          </div>
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
