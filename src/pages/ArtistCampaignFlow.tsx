@@ -60,6 +60,7 @@ interface CampaignData {
   maxPayout?: number;
   vipMaxPayout?: number;
   hybridRewardDescription?: string;
+  fixedRateDescription?: string;
   instructions?: string;
   rules?: string;
   referenceLinks?: string;
@@ -122,6 +123,7 @@ const ArtistCampaignFlow = () => {
       payout_rate: campaignData.payoutRate,
       payout_type: campaignData.payoutType,
       hybrid_reward_description: campaignData.hybridRewardDescription,
+      fixed_rate_description: campaignData.fixedRateDescription,
       budget: campaignData.budget || 0,
       description: campaignData.instructions,
       rules: campaignData.rules,
@@ -442,6 +444,7 @@ const ArtistCampaignFlow = () => {
         vipBonus: campaignData.vipBonus || null,
         vipMaxPayout: campaignData.vipMaxPayout || null,
         hybridRewardDescription: campaignData.hybridRewardDescription || null,
+        fixedRateDescription: campaignData.fixedRateDescription || null,
         songLink: campaignData.songLink || null,
         instructions: campaignData.instructions || null,
         rules: campaignData.rules || null,
@@ -465,6 +468,7 @@ const ArtistCampaignFlow = () => {
         vip_bonus: validatedData.vipBonus || 0,
         vip_max_payout: validatedData.vipMaxPayout,
         hybrid_reward_description: validatedData.hybridRewardDescription || null,
+        fixed_rate_description: validatedData.fixedRateDescription || null,
         instructions: validatedData.instructions,
         rules: validatedData.rules,
         reference_links: validatedData.referenceLinks,
@@ -958,14 +962,26 @@ const ArtistCampaignFlow = () => {
                       Explain how creators will be compensated with your custom hybrid model combining fixed payments, performance metrics, and bonuses.
                     </p>
                   </div>
+                ) : campaignData.payoutType === 'fixed_rate' ? (
+                  // FIXED RATE: Free-text custom fixed payment
+                  <div className="space-y-2">
+                    <Label className="text-base font-medium">Fixed Rate Payment</Label>
+                    <Textarea 
+                      placeholder="Describe your fixed payment offer. Example: $50 per approved video submission"
+                      className="min-h-[120px]"
+                      value={campaignData.fixedRateDescription || ''}
+                      onChange={(e) => updateCampaignData('fixedRateDescription', e.target.value)}
+                    />
+                    <p className="text-sm text-muted-foreground">
+                      Explain the fixed payment amount and conditions for creators to earn this reward.
+                    </p>
+                  </div>
                 ) : (
-                  // PERFORMANCE BASED or FIXED RATE: Structured fields
+                  // PERFORMANCE BASED: Structured fields
                   <>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label className="text-base font-medium">
-                          {campaignData.payoutType === 'fixed_rate' ? 'Fixed Rate ($)' : 'Reward Rate per 1k Views'}
-                        </Label>
+                        <Label className="text-base font-medium">Reward Rate per 1k Views</Label>
                         <div className="relative">
                           <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                           <Input 

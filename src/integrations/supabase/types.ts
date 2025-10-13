@@ -127,6 +127,7 @@ export type Database = {
           cover_art_url: string | null
           created_at: string
           end_date: string | null
+          fixed_rate_description: string | null
           genre: string
           hybrid_reward_description: string | null
           id: string
@@ -153,6 +154,7 @@ export type Database = {
           cover_art_url?: string | null
           created_at?: string
           end_date?: string | null
+          fixed_rate_description?: string | null
           genre: string
           hybrid_reward_description?: string | null
           id?: string
@@ -179,6 +181,7 @@ export type Database = {
           cover_art_url?: string | null
           created_at?: string
           end_date?: string | null
+          fixed_rate_description?: string | null
           genre?: string
           hybrid_reward_description?: string | null
           id?: string

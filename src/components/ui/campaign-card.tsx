@@ -36,6 +36,7 @@ interface Campaign {
   payout_rate?: number;
   payout_type?: string;
   hybrid_reward_description?: string;
+  fixed_rate_description?: string;
   budget?: number;
   spent?: number;
   redeemed?: number;
@@ -106,9 +107,12 @@ const CampaignCard = ({
     twitter: "Twitter"
   };
 
-  const formatPayout = (rate?: number, type?: string, hybridDescription?: string) => {
+  const formatPayout = (rate?: number, type?: string, hybridDescription?: string, fixedDescription?: string) => {
     if (type === 'hybrid' && hybridDescription) {
       return hybridDescription;
+    }
+    if (type === 'fixed' && fixedDescription) {
+      return fixedDescription;
     }
     if (!rate) return "$0.00";
     
@@ -121,9 +125,12 @@ const CampaignCard = ({
     return `${amount} per 1,000 Views`;
   };
 
-  const formatPayoutForBox = (rate?: number, type?: string, hybridDescription?: string) => {
+  const formatPayoutForBox = (rate?: number, type?: string, hybridDescription?: string, fixedDescription?: string) => {
     if (type === 'hybrid' && hybridDescription) {
       return hybridDescription;
+    }
+    if (type === 'fixed' && fixedDescription) {
+      return fixedDescription;
     }
     const amount = rate ? `$${parseFloat(rate.toFixed(3)).toString()}` : '$0.00';
     
@@ -171,7 +178,7 @@ const CampaignCard = ({
                   Reward
                 </p>
                 <p className="text-xs font-bold text-yellow-900 dark:text-yellow-200 leading-tight">
-                  {formatPayoutForBox(campaign.payout_rate, campaign.payout_type, campaign.hybrid_reward_description)}
+                  {formatPayoutForBox(campaign.payout_rate, campaign.payout_type, campaign.hybrid_reward_description, campaign.fixed_rate_description)}
                 </p>
               </div>
             </div>

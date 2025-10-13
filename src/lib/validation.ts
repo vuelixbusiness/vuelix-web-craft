@@ -94,6 +94,12 @@ export const campaignSchema = z.object({
     .optional()
     .nullable(),
   
+  fixedRateDescription: z.string()
+    .trim()
+    .max(1000, 'Fixed rate description must be less than 1000 characters')
+    .optional()
+    .nullable(),
+  
   songLink: z.string()
     .trim()
     .url('Must be a valid URL')
