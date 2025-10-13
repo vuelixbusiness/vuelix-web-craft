@@ -49,8 +49,8 @@ export const campaignSchema = z.object({
     .min(1, 'Select at least one platform')
     .max(10, 'Maximum 10 platforms allowed'),
   
-  payoutType: z.enum(['per_view', 'per_like', 'flat_rate'], {
-    errorMap: () => ({ message: 'Please select a valid payout type' })
+  payoutType: z.enum(['performance_based', 'fixed_rate', 'hybrid'], {
+    errorMap: () => ({ message: 'Please select a valid reward type' })
   }),
   
   budget: z.number()

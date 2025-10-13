@@ -35,7 +35,8 @@ import {
   ArrowRight,
   Rocket,
   ImageIcon,
-  Play
+  Play,
+  Zap
 } from "lucide-react";
 import { FaTiktok, FaInstagram, FaYoutube } from "react-icons/fa";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -906,44 +907,44 @@ const ArtistCampaignFlow = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Payout Type */}
+                {/* Reward Type */}
                 <div className="space-y-2">
-                  <Label className="text-base font-medium">Payout Type</Label>
+                  <Label className="text-base font-medium">Reward Type</Label>
                   <Select 
                     value={campaignData.payoutType} 
                     onValueChange={(value) => updateCampaignData('payoutType', value)}
                   >
                     <SelectTrigger className="bg-background border-border">
-                      <SelectValue placeholder="Choose payout method" />
+                      <SelectValue placeholder="Choose Reward" />
                     </SelectTrigger>
                     <SelectContent className="bg-background border-border z-50">
-                      <SelectItem value="per-view">
+                      <SelectItem value="performance_based">
                         <div className="flex items-center space-x-2">
-                          <Eye className="w-4 h-4" />
-                          <span>Per View - Pay based on video views</span>
+                          <TrendingUp className="w-4 h-4" />
+                          <span>Performance Based - Rewards based on metrics</span>
                         </div>
                       </SelectItem>
-                      <SelectItem value="per-like">
-                        <div className="flex items-center space-x-2">
-                          <Heart className="w-4 h-4" />
-                          <span>Per Like - Pay based on likes received</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="flat-rate">
+                      <SelectItem value="fixed_rate">
                         <div className="flex items-center space-x-2">
                           <DollarSign className="w-4 h-4" />
-                          <span>Flat Rate - Fixed payment per 1,000 Views</span>
+                          <span>Fixed Rate - Set payment amount</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="hybrid">
+                        <div className="flex items-center space-x-2">
+                          <Zap className="w-4 h-4" />
+                          <span>Hybrid - Combination of both</span>
                         </div>
                       </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
-                {/* Payout Rate */}
+                {/* Reward Rate */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label className="text-base font-medium">
-                      {campaignData.payoutType === 'flat-rate' ? 'Flat Rate ($)' : 'Payout Rate per 1k Views'}
+                      {campaignData.payoutType === 'fixed_rate' ? 'Fixed Rate ($)' : 'Reward Rate per 1k Views'}
                     </Label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -958,7 +959,7 @@ const ArtistCampaignFlow = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label className="text-base font-medium">VIP Creator Payout Rate ($)</Label>
+                    <Label className="text-base font-medium">VIP Creator Reward Rate ($)</Label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input 
@@ -972,10 +973,10 @@ const ArtistCampaignFlow = () => {
                   </div>
                 </div>
 
-                {/* MAX Payout Totals */}
+                {/* MAX Reward Totals */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-base font-medium">MAX Payout Total ($)</Label>
+                    <Label className="text-base font-medium">MAX Reward Total ($)</Label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input 
@@ -989,7 +990,7 @@ const ArtistCampaignFlow = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label className="text-base font-medium">VIP MAX Payout Total ($)</Label>
+                    <Label className="text-base font-medium">VIP MAX Reward Total ($)</Label>
                     <div className="relative">
                       <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                       <Input 
