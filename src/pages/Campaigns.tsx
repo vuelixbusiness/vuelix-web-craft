@@ -21,7 +21,9 @@ interface Campaign {
   genre: string;
   platforms: string[];
   payout_type: string;
-  payout_rate: number;
+  payout_rate: number | null;
+  hybrid_reward_description?: string;
+  fixed_rate_description?: string;
   vip_bonus: number;
   max_payout: number;
   vip_max_payout: number;
@@ -67,6 +69,8 @@ const Campaigns = () => {
           platforms,
           payout_type,
           payout_rate,
+          hybrid_reward_description,
+          fixed_rate_description,
           vip_bonus,
           max_payout,
           vip_max_payout,
