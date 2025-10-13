@@ -8,6 +8,8 @@ import { LocationSelector, CITY_LOCATIONS } from "@/components/LocationSelector"
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { USER_TYPES } from "@/config/userTypes";
+import { cn } from "@/lib/utils";
 
 interface ProfileEditDialogProps {
   open: boolean;
@@ -21,6 +23,7 @@ export function ProfileEditDialog({ open, onClose }: ProfileEditDialogProps) {
   const [formData, setFormData] = useState({
     name: '',
     username: '',
+    user_type: '',
     bio: '',
     location: '',
     city: '',
@@ -35,7 +38,7 @@ export function ProfileEditDialog({ open, onClose }: ProfileEditDialogProps) {
       const fetchProfile = async () => {
         const { data, error } = await supabase
           .from('profiles')
-          .select('display_name, username, bio, city, country, latitude, longitude')
+          .select('display_name, username, user_type, bio, city, country, latitude, longitude')
           .eq('user_id', user.id)
           .single();
 
@@ -56,6 +59,7 @@ export function ProfileEditDialog({ open, onClose }: ProfileEditDialogProps) {
         setFormData({
           name: data.display_name || '',
           username: data.username || '',
+          user_type: data.user_type || '',
           bio: data.bio || '',
           location: locationKey,
           city: data.city || '',
@@ -79,6 +83,7 @@ export function ProfileEditDialog({ open, onClose }: ProfileEditDialogProps) {
         .update({
           display_name: formData.name,
           username: formData.username,
+          user_type: formData.user_type,
           bio: formData.bio,
           city: formData.city,
           country: formData.country,
@@ -132,6 +137,27 @@ export function ProfileEditDialog({ open, onClose }: ProfileEditDialogProps) {
               onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
               placeholder="Enter your username"
             />
+          </div>
+          <div className="space-y-2">
+            <Label>User Badge</Label>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 max-h-48 overflow-y-auto">
+              {USER_TYPES.map((type) => (
+                <button
+                  key={type.id}
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, user_type: type.id }))}
+                  className={cn(
+                    "flex flex-col items-center p-3 rounded-lg border-2 transition-all hover:scale-105",
+                    formData.user_type === type.id 
+                      ? "border-primary bg-primary/10" 
+                      : "border-border bg-card hover:bg-accent"
+                  )}
+                >
+                  <span className="text-3xl mb-1">{type.icon}</span>
+                  <span className="text-xs text-center text-foreground">{type.label}</span>
+                </button>
+              ))}
+            </div>
           </div>
           <LocationSelector
             value={formData.location}
