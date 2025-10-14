@@ -8,8 +8,9 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Music, DollarSign, Users, Filter } from "lucide-react";
+import { Search, Music, DollarSign, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { CampaignFilters, ActiveFilters, FilterState } from "@/components/campaigns/CampaignFilters";
 
 interface Campaign {
   id: string;
@@ -35,6 +36,8 @@ interface Campaign {
   profiles?: {
     display_name?: string;
     username?: string;
+    user_type?: string;
+    country?: string;
   } | null;
 }
 
@@ -50,6 +53,28 @@ const Campaigns = () => {
   const [totalCreators, setTotalCreators] = useState(0);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Filter state
+  const maxPayout = campaigns.length > 0 ? Math.max(...campaigns.map(c => c.payout_rate || 0)) : 1;
+  const [filters, setFilters] = useState<FilterState>({
+    campaignTypes: [],
+    userTypes: [],
+    rewardRange: [0, maxPayout],
+    location: null,
+    genres: [],
+  });
+
+  // Update reward range when campaigns load
+  useEffect(() => {
+    if (campaigns.length > 0 && filters.rewardRange[1] === 0) {
+      const max = Math.max(...campaigns.map(c => c.payout_rate || 0));
+      setFilters(prev => ({ ...prev, rewardRange: [0, max] }));
+    }
+  }, [campaigns]);
+
+  // Extract unique genres and locations
+  const availableGenres = [...new Set(campaigns.map(c => c.genre))].sort();
+  const availableLocations = [...new Set(campaigns.map(c => c.profiles?.country).filter(Boolean) as string[])].sort();
 
   const fetchCampaigns = async () => {
     try {
@@ -98,7 +123,7 @@ const Campaigns = () => {
 
       const { data: profilesData, error: profilesError } = await supabase
         .from('profiles')
-        .select('user_id, display_name, username')
+        .select('user_id, display_name, username, user_type, country')
         .in('user_id', artistIds);
 
       console.log('👤 Profiles query result:', { profilesData, profilesError });
@@ -227,18 +252,71 @@ const Campaigns = () => {
     };
   }, []);
 
-  // Simple search filtering
+  // Advanced filtering
   const filteredCampaigns = campaigns.filter(campaign => {
-    if (!searchQuery) return true;
-    
-    const searchTerm = searchQuery.toLowerCase();
-    return (
-      campaign.title.toLowerCase().includes(searchTerm) ||
-      campaign.song_title.toLowerCase().includes(searchTerm) ||
-      (campaign.profiles?.display_name || '').toLowerCase().includes(searchTerm) ||
-      campaign.genre.toLowerCase().includes(searchTerm)
-    );
+    // Search query
+    if (searchQuery) {
+      const searchTerm = searchQuery.toLowerCase();
+      const matchesSearch =
+        campaign.title.toLowerCase().includes(searchTerm) ||
+        campaign.song_title.toLowerCase().includes(searchTerm) ||
+        (campaign.profiles?.display_name || '').toLowerCase().includes(searchTerm) ||
+        campaign.genre.toLowerCase().includes(searchTerm);
+      
+      if (!matchesSearch) return false;
+    }
+
+    // Campaign types
+    if (filters.campaignTypes.length > 0) {
+      if (!filters.campaignTypes.includes(campaign.campaign_type)) {
+        return false;
+      }
+    }
+
+    // User types (artist's user type)
+    if (filters.userTypes.length > 0) {
+      const artistType = campaign.profiles?.user_type;
+      if (!artistType || !filters.userTypes.includes(artistType)) {
+        return false;
+      }
+    }
+
+    // Reward range
+    const payout = campaign.payout_rate || 0;
+    if (payout < filters.rewardRange[0] || payout > filters.rewardRange[1]) {
+      return false;
+    }
+
+    // Location
+    if (filters.location) {
+      const artistCountry = campaign.profiles?.country;
+      if (artistCountry !== filters.location) {
+        return false;
+      }
+    }
+
+    // Genres
+    if (filters.genres.length > 0) {
+      if (!filters.genres.includes(campaign.genre)) {
+        return false;
+      }
+    }
+
+    return true;
   });
+
+  const handleRemoveFilter = (filterType: keyof FilterState, value?: string) => {
+    if (filterType === 'location') {
+      setFilters(prev => ({ ...prev, location: null }));
+    } else if (filterType === 'rewardRange') {
+      setFilters(prev => ({ ...prev, rewardRange: [0, maxPayout] }));
+    } else if (value) {
+      setFilters(prev => ({
+        ...prev,
+        [filterType]: (prev[filterType] as string[]).filter(v => v !== value),
+      }));
+    }
+  };
 
   const handleCampaignClick = (campaign: Campaign) => {
     if (user) {
@@ -255,10 +333,10 @@ const Campaigns = () => {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-purple-300/10 via-transparent to-transparent pointer-events-none" />
       
       <div className="relative z-10">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         {/* Header with Search */}
         <div className="mb-8">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
+          <div className="flex flex-col gap-4 mb-4">
             <div>
               <h1 className="text-3xl font-bold mb-2 text-foreground">Discover Campaigns</h1>
               <p className="text-muted-foreground">
@@ -321,8 +399,31 @@ const Campaigns = () => {
           </Card>
         </div>
 
-        {/* Campaigns Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Filters and Campaigns Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Filters Sidebar */}
+          <div className="lg:col-span-1">
+            <CampaignFilters
+              filters={filters}
+              onFiltersChange={setFilters}
+              maxPayout={maxPayout}
+              availableGenres={availableGenres}
+              availableLocations={availableLocations}
+            />
+          </div>
+
+          {/* Campaigns List */}
+          <div className="lg:col-span-3 space-y-4">
+            {/* Active Filters */}
+            <ActiveFilters
+              filters={filters}
+              onRemoveFilter={handleRemoveFilter}
+              availableGenres={availableGenres}
+              availableLocations={availableLocations}
+            />
+
+            {/* Campaigns Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {isLoading ? (
             <>
               {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -359,6 +460,8 @@ const Campaigns = () => {
               </div>
             ))
           )}
+            </div>
+          </div>
         </div>
       </div>
 
