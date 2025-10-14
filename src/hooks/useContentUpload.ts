@@ -18,9 +18,10 @@ export const useContentUpload = () => {
 
   const getMaxFileSize = (contentType: string) => {
     switch (contentType) {
-      case 'image':
       case 'portfolio':
-        return 5 * 1024 * 1024; // 5MB
+        return 100 * 1024 * 1024; // 100MB for portfolio (videos need more)
+      case 'image':
+        return 10 * 1024 * 1024; // 10MB
       case 'video':
       case 'audio':
         return 50 * 1024 * 1024; // 50MB
@@ -35,7 +36,19 @@ export const useContentUpload = () => {
     switch (contentType) {
       case 'image':
       case 'portfolio':
-        return ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+        return [
+          'image/jpeg',
+          'image/jpg', 
+          'image/png', 
+          'image/webp', 
+          'image/gif',
+          'image/heic',
+          'image/heif',
+          'video/mp4',
+          'video/quicktime', // MOV files
+          'video/webm',
+          'application/pdf'
+        ];
       case 'video':
         return ['video/mp4', 'video/webm', 'video/quicktime'];
       case 'audio':

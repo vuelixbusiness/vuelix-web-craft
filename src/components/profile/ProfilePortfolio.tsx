@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, FileText, Image as ImageIcon } from 'lucide-react';
+import { PortfolioGalleryDialog } from './PortfolioGalleryDialog';
 
 interface PortfolioItem {
   id: string;
@@ -21,6 +22,8 @@ interface ProfilePortfolioProps {
 export const ProfilePortfolio = ({ userId }: ProfilePortfolioProps) => {
   const [portfolio, setPortfolio] = useState<PortfolioItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
   useEffect(() => {
     fetchPortfolio();
@@ -68,40 +71,56 @@ export const ProfilePortfolio = ({ userId }: ProfilePortfolioProps) => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      {portfolio.map((item) => (
-        <Card key={item.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-          <div className="aspect-video bg-muted relative">
-            {item.thumbnail_url ? (
-              <img 
-                src={item.thumbnail_url} 
-                alt={item.title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <ImageIcon className="h-12 w-12 text-muted-foreground" />
-              </div>
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {portfolio.map((item, index) => (
+          <Card 
+            key={item.id} 
+            className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer"
+            onClick={() => {
+              setSelectedIndex(index);
+              setGalleryOpen(true);
+            }}
+          >
+            <div className="aspect-video bg-muted relative">
+              {item.thumbnail_url ? (
+                <img 
+                  src={item.thumbnail_url} 
+                  alt={item.title}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <ImageIcon className="h-12 w-12 text-muted-foreground" />
+                </div>
+              )}
+              {item.featured && (
+                <Badge className="absolute top-2 right-2">Featured</Badge>
+              )}
+            </div>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                {getIcon()}
+                {item.title}
+              </CardTitle>
+            </CardHeader>
+            {item.description && (
+              <CardContent className="pt-0">
+                <p className="text-sm text-muted-foreground line-clamp-3">
+                  {item.description}
+                </p>
+              </CardContent>
             )}
-            {item.featured && (
-              <Badge className="absolute top-2 right-2">Featured</Badge>
-            )}
-          </div>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center gap-2">
-              {getIcon()}
-              {item.title}
-            </CardTitle>
-          </CardHeader>
-          {item.description && (
-            <CardContent className="pt-0">
-              <p className="text-sm text-muted-foreground line-clamp-3">
-                {item.description}
-              </p>
-            </CardContent>
-          )}
-        </Card>
-      ))}
-    </div>
+          </Card>
+        ))}
+      </div>
+      
+      <PortfolioGalleryDialog
+        items={portfolio}
+        initialIndex={selectedIndex}
+        open={galleryOpen}
+        onClose={() => setGalleryOpen(false)}
+      />
+    </>
   );
 };

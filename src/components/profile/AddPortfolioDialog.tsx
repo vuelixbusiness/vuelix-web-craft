@@ -16,7 +16,7 @@ interface AddPortfolioDialogProps {
 
 export const AddPortfolioDialog = ({ open, onClose, onSuccess }: AddPortfolioDialogProps) => {
   const { uploadContent, isUploading } = useContentUpload();
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [featured, setFeatured] = useState(false);
@@ -24,20 +24,22 @@ export const AddPortfolioDialog = ({ open, onClose, onSuccess }: AddPortfolioDia
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!file || !title) {
+    if (files.length === 0 || !title) {
       return;
     }
 
-    const result = await uploadContent({
+    const uploadPromises = files.map(file => uploadContent({
       file,
       contentType: 'portfolio',
-      title,
+      title: `${title} - ${file.name}`,
       description,
       featured,
-    });
+    }));
 
-    if (result) {
-      setFile(null);
+    const results = await Promise.all(uploadPromises);
+    
+    if (results.every(r => r !== null)) {
+      setFiles([]);
       setTitle('');
       setDescription('');
       setFeatured(false);
@@ -47,13 +49,17 @@ export const AddPortfolioDialog = ({ open, onClose, onSuccess }: AddPortfolioDia
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      setFile(selectedFile);
+    const selectedFiles = Array.from(e.target.files || []);
+    if (selectedFiles.length > 0) {
+      setFiles(selectedFiles);
       if (!title) {
-        setTitle(selectedFile.name.replace(/\.[^/.]+$/, ''));
+        setTitle(selectedFiles[0].name.replace(/\.[^/.]+$/, ''));
       }
     }
+  };
+
+  const removeFile = (index: number) => {
+    setFiles(files.filter((_, i) => i !== index));
   };
 
   return (
@@ -67,21 +73,38 @@ export const AddPortfolioDialog = ({ open, onClose, onSuccess }: AddPortfolioDia
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="file">Project Image or File</Label>
+            <Label htmlFor="file">Project Images, Videos, or Files</Label>
             <div className="flex items-center gap-2">
               <Input
                 id="file"
                 type="file"
                 onChange={handleFileChange}
-                accept="image/*,.pdf"
+                accept="image/*,video/*,.pdf"
+                multiple
+                capture="environment"
                 className="cursor-pointer"
               />
               <Upload className="h-4 w-4 text-muted-foreground" />
             </div>
-            {file && (
-              <p className="text-sm text-muted-foreground">
-                {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-              </p>
+            {files.length > 0 && (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">{files.length} file(s) selected:</p>
+                {files.map((file, index) => (
+                  <div key={index} className="flex items-center justify-between bg-muted p-2 rounded">
+                    <p className="text-sm text-muted-foreground">
+                      {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                    </p>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeFile(index)}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
 
@@ -122,7 +145,7 @@ export const AddPortfolioDialog = ({ open, onClose, onSuccess }: AddPortfolioDia
             <Button type="button" variant="outline" onClick={onClose} disabled={isUploading}>
               Cancel
             </Button>
-            <Button type="submit" disabled={!file || !title || isUploading}>
+            <Button type="submit" disabled={files.length === 0 || !title || isUploading}>
               {isUploading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Add to Portfolio
             </Button>
