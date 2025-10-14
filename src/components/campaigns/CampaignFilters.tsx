@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 export interface FilterState {
   campaignTypes: string[];
   userTypes: string[];
-  rewardRange: [number, number];
+  rewardTypes: string[];
   location: string | null;
   genres: string[];
 }
@@ -23,7 +23,6 @@ export interface FilterState {
 interface CampaignFiltersProps {
   filters: FilterState;
   onFiltersChange: (filters: FilterState) => void;
-  maxPayout: number;
   availableGenres: string[];
   availableLocations: string[];
   className?: string;
@@ -32,7 +31,6 @@ interface CampaignFiltersProps {
 export function CampaignFilters({
   filters,
   onFiltersChange,
-  maxPayout,
   availableGenres,
   availableLocations,
   className,
@@ -56,11 +54,29 @@ export function CampaignFilters({
     label: genre.charAt(0).toUpperCase() + genre.slice(1),
   }));
 
+  const rewardTypeOptions: MultiSelectOption[] = [
+    {
+      value: 'per-view',
+      label: 'Performance Based',
+      icon: '📊',
+    },
+    {
+      value: 'fixed_rate',
+      label: 'Fixed Rate',
+      icon: '💵',
+    },
+    {
+      value: 'hybrid',
+      label: 'Hybrid',
+      icon: '🔄',
+    },
+  ];
+
   const handleReset = () => {
     onFiltersChange({
       campaignTypes: [],
       userTypes: [],
-      rewardRange: [0, maxPayout],
+      rewardTypes: [],
       location: null,
       genres: [],
     });
@@ -71,15 +87,14 @@ export function CampaignFilters({
     filters.userTypes.length > 0 ||
     filters.genres.length > 0 ||
     filters.location !== null ||
-    filters.rewardRange[0] > 0 ||
-    filters.rewardRange[1] < maxPayout;
+    filters.rewardTypes.length > 0;
 
   const activeFilterCount = 
     filters.campaignTypes.length +
     filters.userTypes.length +
     filters.genres.length +
     (filters.location ? 1 : 0) +
-    (filters.rewardRange[0] > 0 || filters.rewardRange[1] < maxPayout ? 1 : 0);
+    (filters.rewardTypes.length > 0 ? 1 : 0);
 
   return (
     <Card className={cn("bg-card border-border", className)}>
@@ -128,25 +143,17 @@ export function CampaignFilters({
               />
             </div>
 
-            {/* Reward Range Filter */}
-            <div className="space-y-3">
-              <Label>Reward Range</Label>
-              <div className="px-2">
-                <Slider
-                  min={0}
-                  max={maxPayout}
-                  step={0.01}
-                  value={filters.rewardRange}
-                  onValueChange={(value) =>
-                    onFiltersChange({ ...filters, rewardRange: value as [number, number] })
-                  }
-                  className="w-full"
-                />
-              </div>
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>${filters.rewardRange[0].toFixed(2)}</span>
-                <span>${filters.rewardRange[1].toFixed(2)}</span>
-              </div>
+            {/* Reward Type Filter */}
+            <div className="space-y-2">
+              <Label>Reward</Label>
+              <MultiSelect
+                options={rewardTypeOptions}
+                selected={filters.rewardTypes}
+                onChange={(selected) =>
+                  onFiltersChange({ ...filters, rewardTypes: selected })
+                }
+                placeholder="All reward types"
+              />
             </div>
 
             {/* Location Filter */}
@@ -249,6 +256,22 @@ export function ActiveFilters({
       value: genre,
       label: genre.charAt(0).toUpperCase() + genre.slice(1),
     });
+  });
+
+  // Reward Types
+  filters.rewardTypes.forEach((type) => {
+    const rewardType = [
+      { value: 'per-view', label: 'Performance Based', icon: '📊' },
+      { value: 'fixed_rate', label: 'Fixed Rate', icon: '💵' },
+      { value: 'hybrid', label: 'Hybrid', icon: '🔄' },
+    ].find(opt => opt.value === type);
+    if (rewardType) {
+      activeFilters.push({
+        type: 'rewardTypes',
+        value: type,
+        label: `${rewardType.icon} ${rewardType.label}`,
+      });
+    }
   });
 
   // Location

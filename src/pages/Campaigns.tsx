@@ -56,22 +56,15 @@ const Campaigns = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Filter state
-  const maxPayout = campaigns.length > 0 ? Math.max(...campaigns.map(c => c.payout_rate || 0)) : 1;
   const [filters, setFilters] = useState<FilterState>({
     campaignTypes: [],
     userTypes: [],
-    rewardRange: [0, maxPayout],
+    rewardTypes: [],
     location: null,
     genres: [],
   });
 
-  // Update reward range when campaigns load
-  useEffect(() => {
-    if (campaigns.length > 0 && filters.rewardRange[1] === 0) {
-      const max = Math.max(...campaigns.map(c => c.payout_rate || 0));
-      setFilters(prev => ({ ...prev, rewardRange: [0, max] }));
-    }
-  }, [campaigns]);
+  // Extract unique genres and locations from campaigns
 
   // Extract unique genres and locations
   const availableGenres = [...new Set(campaigns.map(c => c.genre))].sort();
@@ -322,10 +315,11 @@ const Campaigns = () => {
       }
     }
 
-    // Reward range
-    const payout = campaign.payout_rate || 0;
-    if (payout < filters.rewardRange[0] || payout > filters.rewardRange[1]) {
-      return false;
+    // Reward types
+    if (filters.rewardTypes.length > 0) {
+      if (!campaign.payout_type || !filters.rewardTypes.includes(campaign.payout_type)) {
+        return false;
+      }
     }
 
     // Location
@@ -349,8 +343,6 @@ const Campaigns = () => {
   const handleRemoveFilter = (filterType: keyof FilterState, value?: string) => {
     if (filterType === 'location') {
       setFilters(prev => ({ ...prev, location: null }));
-    } else if (filterType === 'rewardRange') {
-      setFilters(prev => ({ ...prev, rewardRange: [0, maxPayout] }));
     } else if (value) {
       setFilters(prev => ({
         ...prev,
@@ -447,7 +439,6 @@ const Campaigns = () => {
             <CampaignFilters
               filters={filters}
               onFiltersChange={setFilters}
-              maxPayout={maxPayout}
               availableGenres={availableGenres}
               availableLocations={availableLocations}
             />
