@@ -18,6 +18,7 @@ import { ProfileAchievements } from "@/components/profile/ProfileAchievements";
 import { ProfileCampaigns } from "@/components/profile/ProfileCampaigns";
 import { ProfileContentShowcase } from "@/components/profile/ProfileContentShowcase";
 import { ProfileSkills } from "@/components/profile/ProfileSkills";
+import { ProfilePortfolio } from "@/components/profile/ProfilePortfolio";
 
 interface ProfileData {
   user_id: string;
@@ -427,9 +428,7 @@ const PublicProfile = () => {
                 <CardTitle>Portfolio</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground text-center py-8">
-                  Portfolio section coming soon
-                </p>
+                <ProfilePortfolio userId={profile.user_id} isOwnProfile={false} />
               </CardContent>
             </Card>
           </TabsContent>

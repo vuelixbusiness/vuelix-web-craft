@@ -101,7 +101,7 @@ const Profile = () => {
                 </Button>
               </CardHeader>
               <CardContent>
-                <ProfilePortfolio key={portfolioKey} userId={user.id} />
+                <ProfilePortfolio key={portfolioKey} userId={user.id} isOwnProfile={true} />
               </CardContent>
             </Card>
           </TabsContent>

@@ -2,10 +2,27 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Music2, Plus } from "lucide-react";
+import { Music2, Plus, MoreVertical, Edit, Trash } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import CampaignCard from "@/components/ui/campaign-card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
 
 interface Campaign {
   id: string;
@@ -46,11 +63,14 @@ interface ProfileCampaignsProps {
 
 export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
   const navigate = useNavigate();
   const [createdCampaigns, setCreatedCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [campaignToDelete, setCampaignToDelete] = useState<Campaign | null>(null);
 
   const isOwnProfile = user?.id === userId;
 
@@ -128,6 +148,49 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
     }
   };
 
+  const handleDeleteClick = (campaign: Campaign) => {
+    setCampaignToDelete(campaign);
+    setDeleteConfirmOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!campaignToDelete || !user?.id) return;
+
+    try {
+      // If campaign is active, terminate it first
+      if (campaignToDelete.status === 'active') {
+        await supabase
+          .from('campaigns')
+          .update({ status: 'terminated' })
+          .eq('id', campaignToDelete.id);
+      }
+
+      const { error } = await supabase
+        .from('campaigns')
+        .delete()
+        .eq('id', campaignToDelete.id)
+        .eq('artist_id', user.id);
+
+      if (error) throw error;
+
+      setCreatedCampaigns(createdCampaigns.filter(c => c.id !== campaignToDelete.id));
+      toast({
+        title: "Success",
+        description: "Campaign deleted successfully",
+      });
+    } catch (error: any) {
+      console.error('Error deleting campaign:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete campaign",
+        variant: "destructive",
+      });
+    } finally {
+      setDeleteConfirmOpen(false);
+      setCampaignToDelete(null);
+    }
+  };
+
   const toggleAudio = (campaignId: string, songUrl: string) => {
     if (!audioRef.current) return;
 
@@ -190,16 +253,43 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {createdCampaigns.map((campaign) => (
-                <CampaignCard
-                  key={campaign.id}
-                  campaign={campaign}
-                  variant="creator-available"
-                  showPlayButton={true}
-                  showJoinButton={false}
-                  onCampaignClick={() => navigate(`/artist/campaign/${campaign.id}`)}
-                  onAudioToggle={toggleAudio}
-                  isPlaying={currentlyPlaying === campaign.id}
-                />
+                <div key={campaign.id} className="relative">
+                  <CampaignCard
+                    campaign={campaign}
+                    variant="creator-available"
+                    showPlayButton={true}
+                    showJoinButton={false}
+                    onCampaignClick={() => navigate(`/artist/campaign/${campaign.id}`)}
+                    onAudioToggle={toggleAudio}
+                    isPlaying={currentlyPlaying === campaign.id}
+                  />
+                  {isOwnProfile && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          className="absolute top-2 right-2 h-8 w-8 bg-background/80 hover:bg-background z-10"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); navigate(`/artist/campaign/${campaign.id}`); }}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={(e) => { e.stopPropagation(); handleDeleteClick(campaign); }}
+                          className="text-destructive focus:text-destructive"
+                        >
+                          <Trash className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
               ))}
             </div>
             <audio
@@ -207,6 +297,23 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
               onEnded={() => setCurrentlyPlaying(null)}
               onError={() => setCurrentlyPlaying(null)}
             />
+
+            <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Delete Campaign?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {campaignToDelete?.status === 'active' 
+                      ? 'This campaign is active and will be terminated before deletion. This action cannot be undone.'
+                      : 'This action cannot be undone. This will permanently delete this campaign.'}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleConfirmDelete}>Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </CardContent>
         </Card>
       ) : (
