@@ -2,9 +2,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserRole, RoleConfig } from '@/config/roleConfig';
 import { useAuth } from '@/contexts/AuthContext';
-import { ProfileContentShowcase } from '@/components/profile/ProfileContentShowcase';
 import { ProfileCampaigns } from '@/components/profile/ProfileCampaigns';
-import { FileText, Briefcase, ShoppingBag, Calendar } from 'lucide-react';
+import { ProfilePortfolio } from '@/components/profile/ProfilePortfolio';
+import { Briefcase, ShoppingBag, Calendar } from 'lucide-react';
 
 interface ProfileHubProps {
   role: UserRole;
@@ -25,13 +25,12 @@ export const ProfileHub = ({ role, roleConfig }: ProfileHubProps) => {
     );
   }
 
-  const showContent = features.includes('content_showcase');
   const showCampaigns = features.includes('campaigns_created') || features.includes('campaigns_participated');
   const showPortfolio = features.includes('portfolio');
   const showShop = features.includes('shop');
   const showEvents = features.includes('events');
 
-  const defaultTab = showContent ? 'content' : showCampaigns ? 'campaigns' : showPortfolio ? 'portfolio' : showShop ? 'shop' : 'events';
+  const defaultTab = showCampaigns ? 'campaigns' : showPortfolio ? 'portfolio' : showShop ? 'shop' : 'events';
 
   return (
     <div className="space-y-6">
@@ -42,12 +41,6 @@ export const ProfileHub = ({ role, roleConfig }: ProfileHubProps) => {
 
       <Tabs defaultValue={defaultTab} className="w-full">
         <TabsList>
-          {showContent && (
-            <TabsTrigger value="content" className="flex items-center space-x-2">
-              <FileText className="w-4 h-4" />
-              <span className="hidden sm:inline">Content</span>
-            </TabsTrigger>
-          )}
           {showCampaigns && (
             <TabsTrigger value="campaigns" className="flex items-center space-x-2">
               <Briefcase className="w-4 h-4" />
@@ -74,12 +67,6 @@ export const ProfileHub = ({ role, roleConfig }: ProfileHubProps) => {
           )}
         </TabsList>
 
-        {showContent && (
-          <TabsContent value="content" className="space-y-4">
-            <ProfileContentShowcase userId={user.id} />
-          </TabsContent>
-        )}
-
         {showCampaigns && (
           <TabsContent value="campaigns" className="space-y-4">
             <ProfileCampaigns userId={user.id} />
@@ -94,7 +81,7 @@ export const ProfileHub = ({ role, roleConfig }: ProfileHubProps) => {
                 <CardDescription>Showcase your best work</CardDescription>
               </CardHeader>
               <CardContent>
-                <ProfileContentShowcase userId={user.id} featured />
+                <ProfilePortfolio userId={user.id} isOwnProfile={true} />
               </CardContent>
             </Card>
           </TabsContent>
