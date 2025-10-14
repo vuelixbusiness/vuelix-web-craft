@@ -51,6 +51,7 @@ const Campaigns = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentlyPlaying, setCurrentlyPlaying] = useState<string | null>(null);
   const [totalCreators, setTotalCreators] = useState(0);
+  const [unclaimedRewards, setUnclaimedRewards] = useState<number>(0);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -151,6 +152,9 @@ const Campaigns = () => {
 
       console.log('✅ Final campaigns with profiles:', campaignsWithProfiles);
       setCampaigns(campaignsWithProfiles as Campaign[]);
+      
+      // Calculate unclaimed rewards after campaigns are loaded
+      await calculateUnclaimedRewards(campaignsWithProfiles as Campaign[]);
     } catch (error) {
       console.error('💥 Error fetching campaigns:', error);
       toast({
@@ -182,6 +186,43 @@ const Campaigns = () => {
     } catch (error) {
       console.error('💥 Error fetching total creators:', error);
       setTotalCreators(0);
+    }
+  };
+
+  const calculateUnclaimedRewards = async (activeCampaigns: Campaign[]) => {
+    try {
+      console.log('💰 Calculating unclaimed rewards...');
+      
+      // Calculate total budgets from active campaigns
+      const totalBudgets = activeCampaigns.reduce((sum, campaign) => {
+        return sum + (campaign.budget || 0);
+      }, 0);
+      
+      console.log('📊 Total campaign budgets:', totalBudgets);
+      
+      // Get total claimed payouts across all campaigns
+      const { data: claimedData, error } = await supabase
+        .from('campaign_participations')
+        .select('payout_amount')
+        .eq('payout_claimed', true);
+      
+      if (error) throw error;
+      
+      const totalClaimed = claimedData?.reduce((sum, participation) => {
+        return sum + (Number(participation.payout_amount) || 0);
+      }, 0) || 0;
+      
+      console.log('💸 Total claimed payouts:', totalClaimed);
+      
+      // Calculate unclaimed rewards
+      const unclaimed = totalBudgets - totalClaimed;
+      
+      console.log('✨ Unclaimed rewards:', unclaimed);
+      
+      setUnclaimedRewards(unclaimed);
+    } catch (error) {
+      console.error('💥 Error calculating unclaimed rewards:', error);
+      setUnclaimedRewards(0);
     }
   };
 
@@ -373,15 +414,15 @@ const Campaigns = () => {
           <Card className="bg-card border-border">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Average Payout
+                Unclaimed Rewards
               </CardTitle>
               <DollarSign className="w-5 h-5 text-stat-green" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-foreground">
-                ${isLoading ? '...' : campaigns.length > 0 ? (campaigns.reduce((sum, c) => sum + c.payout_rate, 0) / campaigns.length).toFixed(2) : '0.00'}
+                ${isLoading ? '...' : unclaimedRewards.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
-              <p className="text-xs text-muted-foreground">Per qualified view</p>
+              <p className="text-xs text-muted-foreground">Total available rewards</p>
             </CardContent>
           </Card>
 
