@@ -54,6 +54,7 @@ interface Campaign {
   views?: number;
   totalViews?: number;
   activeCreators?: number;
+  approval_required?: boolean;
 }
 
 interface ProfileCampaignsProps {
@@ -71,6 +72,7 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [campaignToDelete, setCampaignToDelete] = useState<Campaign | null>(null);
+  const [campaignParticipations, setCampaignParticipations] = useState<Record<string, boolean>>({});
 
   const isOwnProfile = user?.id === userId;
 
@@ -103,7 +105,8 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
           instructions,
           rules,
           end_date,
-          artist_id
+          artist_id,
+          approval_required
         `)
         .eq('artist_id', userId)
         .order('created_at', { ascending: false });
@@ -141,10 +144,41 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
       );
 
       setCreatedCampaigns(campaignsWithStats);
+      
+      // Check which campaigns the current user has joined
+      if (campaignsWithStats.length > 0) {
+        const campaignIds = campaignsWithStats.map(c => c.id);
+        await checkUserParticipations(campaignIds);
+      }
     } catch (error) {
       console.error('Error fetching campaigns:', error);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const checkUserParticipations = async (campaignIds: string[]) => {
+    if (!user?.id || isOwnProfile) {
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('campaign_participations')
+        .select('campaign_id')
+        .eq('creator_id', user.id)
+        .in('campaign_id', campaignIds);
+
+      if (error) throw error;
+
+      const participationMap: Record<string, boolean> = {};
+      campaignIds.forEach(id => {
+        participationMap[id] = data?.some(p => p.campaign_id === id) || false;
+      });
+
+      setCampaignParticipations(participationMap);
+    } catch (error) {
+      console.error('Error checking participations:', error);
     }
   };
 
@@ -157,26 +191,33 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
     if (!campaignToDelete || !user?.id) return;
 
     try {
-      // If campaign is active, terminate it first
-      if (campaignToDelete.status === 'active') {
-        await supabase
+      const isActive = campaignToDelete.status === 'active';
+      
+      if (isActive) {
+        const { error: terminateError } = await supabase
           .from('campaigns')
           .update({ status: 'terminated' })
-          .eq('id', campaignToDelete.id);
+          .eq('id', campaignToDelete.id)
+          .eq('artist_id', user.id);
+
+        if (terminateError) throw terminateError;
       }
 
-      const { error } = await supabase
+      const { error: deleteError } = await supabase
         .from('campaigns')
         .delete()
         .eq('id', campaignToDelete.id)
         .eq('artist_id', user.id);
 
-      if (error) throw error;
+      if (deleteError) throw deleteError;
 
-      setCreatedCampaigns(createdCampaigns.filter(c => c.id !== campaignToDelete.id));
+      setCreatedCampaigns(prev => prev.filter(c => c.id !== campaignToDelete.id));
+      
       toast({
-        title: "Success",
-        description: "Campaign deleted successfully",
+        title: "Campaign deleted",
+        description: isActive 
+          ? "Campaign was terminated and deleted successfully" 
+          : "Campaign deleted successfully",
       });
     } catch (error: any) {
       console.error('Error deleting campaign:', error);
@@ -191,19 +232,70 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
     }
   };
 
-  const toggleAudio = (campaignId: string, songUrl: string) => {
-    if (!audioRef.current) return;
+  const handleJoinCampaign = async (campaign: Campaign) => {
+    if (!user?.id) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to join campaigns",
+        variant: "destructive",
+      });
+      navigate('/login');
+      return;
+    }
 
+    try {
+      const { error: participationError } = await supabase
+        .from('campaign_participations')
+        .insert({
+          campaign_id: campaign.id,
+          creator_id: user.id,
+          status: 'pending',
+        });
+
+      if (participationError) throw participationError;
+
+      await supabase.from('campaign_activities').insert({
+        campaign_id: campaign.id,
+        user_id: user.id,
+        activity_type: 'join_request',
+        title: 'New Join Request',
+        message: `${user.username || 'User'} requested to join the campaign`,
+        priority: 'medium',
+      });
+
+      setCampaignParticipations(prev => ({
+        ...prev,
+        [campaign.id]: true,
+      }));
+
+      toast({
+        title: "Success",
+        description: campaign.approval_required 
+          ? "Your join request has been submitted and is pending approval" 
+          : "You've successfully joined the campaign!",
+      });
+
+      navigate(`/campaign/${campaign.id}`);
+    } catch (error: any) {
+      console.error('Error joining campaign:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to join campaign",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleAudio = (campaignId: string, audioUrl: string) => {
     if (currentlyPlaying === campaignId) {
-      audioRef.current.pause();
+      audioRef.current?.pause();
       setCurrentlyPlaying(null);
     } else {
-      if (currentlyPlaying) {
-        audioRef.current.pause();
+      if (audioRef.current) {
+        audioRef.current.src = audioUrl;
+        audioRef.current.play();
+        setCurrentlyPlaying(campaignId);
       }
-      audioRef.current.src = songUrl;
-      audioRef.current.play();
-      setCurrentlyPlaying(campaignId);
     }
   };
 
@@ -254,15 +346,17 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {createdCampaigns.map((campaign) => (
                 <div key={campaign.id} className="relative">
-                  <CampaignCard
-                    campaign={campaign}
-                    variant="creator-available"
-                    showPlayButton={true}
-                    showJoinButton={false}
-                    onCampaignClick={() => navigate(`/artist/campaign/${campaign.id}`)}
-                    onAudioToggle={toggleAudio}
-                    isPlaying={currentlyPlaying === campaign.id}
-                  />
+              <CampaignCard
+                campaign={campaign}
+                variant="creator-available"
+                showPlayButton={true}
+                showJoinButton={!isOwnProfile && !campaignParticipations[campaign.id]}
+                isJoined={campaignParticipations[campaign.id]}
+                onJoinCampaign={handleJoinCampaign}
+                onCampaignClick={() => navigate(`/artist/campaign/${campaign.id}`)}
+                onAudioToggle={toggleAudio}
+                isPlaying={currentlyPlaying === campaign.id}
+              />
                   {isOwnProfile && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
