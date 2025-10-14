@@ -10,7 +10,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Search, Music, DollarSign, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { CampaignFilters, ActiveFilters, FilterState } from "@/components/campaigns/CampaignFilters";
+import { FilterState } from "@/components/campaigns/CampaignFilters";
+import { SearchWithFilters } from "@/components/campaigns/SearchWithFilters";
 
 interface Campaign {
   id: string;
@@ -376,15 +377,17 @@ const Campaigns = () => {
                 Find amazing music campaigns and start earning rewards
               </p>
             </div>
-            <div className="relative w-full sm:w-96">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder="Search campaigns, artists, songs..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-background border-border"
-              />
-            </div>
+
+            {/* Search with Filters */}
+            <SearchWithFilters
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              filters={filters}
+              onFiltersChange={setFilters}
+              availableGenres={availableGenres}
+              availableLocations={availableLocations}
+              onRemoveFilter={handleRemoveFilter}
+            />
           </div>
         </div>
 
@@ -432,30 +435,8 @@ const Campaigns = () => {
           </Card>
         </div>
 
-        {/* Filters and Campaigns Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Filters Sidebar */}
-          <div className="lg:col-span-1">
-            <CampaignFilters
-              filters={filters}
-              onFiltersChange={setFilters}
-              availableGenres={availableGenres}
-              availableLocations={availableLocations}
-            />
-          </div>
-
-          {/* Campaigns List */}
-          <div className="lg:col-span-3 space-y-4">
-            {/* Active Filters */}
-            <ActiveFilters
-              filters={filters}
-              onRemoveFilter={handleRemoveFilter}
-              availableGenres={availableGenres}
-              availableLocations={availableLocations}
-            />
-
-            {/* Campaigns Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Campaigns Grid - Full Width */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {isLoading ? (
             <>
               {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -492,8 +473,6 @@ const Campaigns = () => {
               </div>
             ))
           )}
-            </div>
-          </div>
         </div>
       </div>
 
