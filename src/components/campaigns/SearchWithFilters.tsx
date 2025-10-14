@@ -32,10 +32,15 @@ const campaignTypeOptions: MultiSelectOption[] = [
 ];
 
 const userTypeOptions: MultiSelectOption[] = [
-  { value: 'content-creator', label: 'Content Creator', icon: '🎬' },
-  { value: 'influencer', label: 'Influencer', icon: '⭐' },
-  { value: 'musician', label: 'Musician', icon: '🎸' },
-  { value: 'dancer', label: 'Dancer', icon: '💃' },
+  { value: 'artist', label: 'Artist', icon: '🎵' },
+  { value: 'creator', label: 'Content Creator', icon: '🎥' },
+  { value: 'producer', label: 'Producer', icon: '🎹' },
+  { value: 'dj', label: 'DJ', icon: '🎧' },
+  { value: 'visual_creative', label: 'Visual Creative', icon: '🖼️' },
+  { value: 'record_label', label: 'Record Labels', icon: '💿' },
+  { value: 'brand', label: 'Brands', icon: '🏷️' },
+  { value: 'studio', label: 'Studios', icon: '🎛️' },
+  { value: 'festival_event', label: 'Event Host', icon: '🎤' },
 ];
 
 const rewardTypeOptions: MultiSelectOption[] = [
@@ -126,14 +131,14 @@ export function SearchWithFilters({
 
           {/* Artist Type Filter */}
           <div className="space-y-2">
-            <Label>Artist Type</Label>
+            <Label>User Type</Label>
             <MultiSelect
               options={userTypeOptions}
               selected={filters.userTypes}
               onChange={(selected) =>
                 onFiltersChange({ ...filters, userTypes: selected })
               }
-              placeholder="All artist types"
+              placeholder="All user types"
             />
           </div>
 
