@@ -72,19 +72,13 @@ const Profile = () => {
         </div>
 
         {/* Main Content Tabs */}
-        <Tabs defaultValue="content" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="content">Content</TabsTrigger>
+        <Tabs defaultValue="campaigns" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
             <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
             <TabsTrigger value="shop">Shop</TabsTrigger>
             <TabsTrigger value="events">Events</TabsTrigger>
           </TabsList>
-
-          {/* Content Tab */}
-          <TabsContent value="content">
-            <ProfileContentShowcase userId={user.id} />
-          </TabsContent>
 
           {/* Campaigns Tab */}
           <TabsContent value="campaigns">
