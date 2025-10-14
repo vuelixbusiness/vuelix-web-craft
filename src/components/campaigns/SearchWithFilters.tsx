@@ -23,10 +23,12 @@ interface SearchWithFiltersProps {
 }
 
 const campaignTypeOptions: MultiSelectOption[] = [
-  { value: 'short-form', label: 'Short Form Video', icon: '🎵' },
-  { value: 'long-form', label: 'Long Form Video', icon: '📹' },
-  { value: 'audio', label: 'Audio Campaign', icon: '🎧' },
-  { value: 'social', label: 'Social Media', icon: '📱' },
+  { value: 'song_content_promotion', label: 'Song/Content Promotion', icon: '🎵' },
+  { value: 'collaboration_campaign', label: 'Collaboration', icon: '🤝' },
+  { value: 'visual_production', label: 'Production', icon: '🎬' },
+  { value: 'brand_partnership', label: 'Brand Partnership', icon: '🏢' },
+  { value: 'community_campaign', label: 'Community', icon: '👥' },
+  { value: 'performance_live_event', label: 'Live Event / Performance', icon: '🎤' },
 ];
 
 const userTypeOptions: MultiSelectOption[] = [
