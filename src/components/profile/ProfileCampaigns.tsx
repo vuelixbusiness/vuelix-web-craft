@@ -16,16 +16,24 @@ interface Campaign {
   status: string;
   created_at: string;
   payout_type: string;
-  payout_rate: number;
+  payout_rate: number | null;
+  hybrid_reward_description?: string;
+  fixed_rate_description?: string;
   budget: number;
   platforms: string[];
   genre: string;
+  description?: string;
+  rules?: string;
+  end_date?: string;
   profiles?: {
     display_name?: string;
     username?: string;
   } | null;
   spent?: number;
   actualSpent?: number;
+  redeemed?: number;
+  availableBudget?: number;
+  budgetUsedPercentage?: number;
   views?: number;
   totalViews?: number;
   activeCreators?: number;
@@ -57,7 +65,26 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
       // Fetch campaigns created by user
       let createdQuery = supabase
         .from('campaigns')
-        .select('*')
+        .select(`
+          id,
+          title,
+          song_title,
+          song_url,
+          cover_art_url,
+          status,
+          created_at,
+          payout_type,
+          payout_rate,
+          hybrid_reward_description,
+          fixed_rate_description,
+          budget,
+          platforms,
+          genre,
+          instructions,
+          rules,
+          end_date,
+          artist_id
+        `)
         .eq('artist_id', userId)
         .order('created_at', { ascending: false });
 
@@ -67,7 +94,33 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
 
       const { data: created } = await createdQuery;
 
-      setCreatedCampaigns(created || []);
+      // Calculate budget statistics for each campaign
+      const campaignsWithStats = await Promise.all(
+        (created || []).map(async (campaign) => {
+          // Get total spent/redeemed from participations
+          const { data: participations } = await supabase
+            .from('campaign_participations')
+            .select('payout_amount, payout_claimed')
+            .eq('campaign_id', campaign.id);
+
+          const redeemed = participations?.reduce(
+            (sum, p) => sum + (p.payout_claimed ? Number(p.payout_amount) : 0),
+            0
+          ) || 0;
+
+          const availableBudget = Number(campaign.budget) - redeemed;
+          const budgetUsedPercentage = (redeemed / Number(campaign.budget)) * 100;
+
+          return {
+            ...campaign,
+            redeemed,
+            availableBudget,
+            budgetUsedPercentage,
+          };
+        })
+      );
+
+      setCreatedCampaigns(campaignsWithStats);
     } catch (error) {
       console.error('Error fetching campaigns:', error);
     } finally {
@@ -140,8 +193,9 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
                 <CampaignCard
                   key={campaign.id}
                   campaign={campaign}
-                  variant="artist"
+                  variant="creator-available"
                   showPlayButton={true}
+                  showJoinButton={false}
                   onCampaignClick={() => navigate(`/artist/campaign/${campaign.id}`)}
                   onAudioToggle={toggleAudio}
                   isPlaying={currentlyPlaying === campaign.id}
