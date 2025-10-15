@@ -72,20 +72,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           fetchUserProfile(session.user);
         }, 0);
         
-        // Handle redirects for authenticated users - check if we're coming from OAuth
+        // Handle redirects for authenticated users
         const currentPath = window.location.pathname;
-        const isOAuthCallback = event === 'SIGNED_IN' && (currentPath === '/' || currentPath === '/login' || currentPath === '/signup');
+        const hasHashFragment = window.location.hash.includes('access_token') || window.location.hash.includes('error');
         
-        if (isOAuthCallback) {
-          console.log('🔄 OAuth callback detected, redirecting to dashboard');
+        // Don't redirect during OAuth callback with hash fragment - let Supabase process it first
+        if (hasHashFragment) {
+          console.log('🔄 OAuth callback in progress, waiting for token processing...');
+          return; // Let Supabase handle the token exchange
+        }
+        
+        // Only redirect after successful sign-in (not during initial session or callback processing)
+        if (event === 'SIGNED_IN' && (currentPath === '/' || currentPath === '/login' || currentPath === '/signup')) {
+          console.log('🔄 Sign-in complete, redirecting to dashboard');
+          // Use a longer delay to ensure Supabase has processed everything
           setTimeout(() => {
             window.location.href = "/dashboard";
-          }, 100);
-        } else if (currentPath === '/' || currentPath === '/login' || currentPath === '/signup') {
-          console.log('🔄 Redirecting authenticated user to dashboard');
-          setTimeout(() => {
-            window.location.href = "/dashboard";
-          }, 100);
+          }, 500);
         }
       } else if (event === 'SIGNED_OUT') {
         // Only clear user on explicit sign out
@@ -365,7 +368,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     try {
       console.log('🔄 Starting Google OAuth sign-in...');
-      const redirectTo = `${window.location.origin}/dashboard`;
+      // Redirect to root first to let Supabase process the callback
+      const redirectTo = `${window.location.origin}/`;
       console.log('📍 Redirect URL:', redirectTo);
       
       const { data, error } = await supabase.auth.signInWithOAuth({
@@ -426,7 +430,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     try {
       console.log('🔄 Starting Microsoft OAuth sign-in...');
-      const redirectTo = `${window.location.origin}/dashboard`;
+      // Redirect to root first to let Supabase process the callback
+      const redirectTo = `${window.location.origin}/`;
       console.log('📍 Redirect URL:', redirectTo);
       
       const { data, error } = await supabase.auth.signInWithOAuth({
