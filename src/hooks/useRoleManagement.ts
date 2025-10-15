@@ -62,6 +62,23 @@ export const useRoleManagement = () => {
     fetchRoles();
   }, [user?.id, user?.type]);
 
+  // Listen for auth state changes to detect role switches
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (user?.id && session?.user?.user_metadata?.active_role) {
+          const newRole = session.user.user_metadata.active_role as UserRole;
+          
+          if (newRole !== activeRole && availableRoles.includes(newRole)) {
+            setActiveRole(newRole);
+          }
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [user?.id, activeRole, availableRoles]);
+
   const switchRole = async (newRole: UserRole) => {
     if (!availableRoles.includes(newRole)) return;
     
