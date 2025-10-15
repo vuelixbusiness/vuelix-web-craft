@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { USER_TYPES } from "@/config/userTypes";
 import { cn } from "@/lib/utils";
+import { profileUpdateSchema } from "@/lib/validation";
 
 interface ProfileEditDialogProps {
   open: boolean;
@@ -20,6 +21,7 @@ export function ProfileEditDialog({ open, onClose }: ProfileEditDialogProps) {
   const { user, refreshUserProfile } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState({
     name: '',
     username: '',
@@ -76,6 +78,29 @@ export function ProfileEditDialog({ open, onClose }: ProfileEditDialogProps) {
   const handleSave = async () => {
     if (!user?.id) return;
 
+    // Validate form data
+    try {
+      profileUpdateSchema.parse({
+        username: formData.username,
+        display_name: formData.name,
+        bio: formData.bio,
+        location: formData.location,
+      });
+      setValidationErrors({});
+    } catch (error: any) {
+      const errors: Record<string, string> = {};
+      error.errors?.forEach((err: any) => {
+        errors[err.path[0]] = err.message;
+      });
+      setValidationErrors(errors);
+      toast({
+        title: "Validation Error",
+        description: "Please fix the errors before saving",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
       const { error } = await supabase
@@ -101,11 +126,12 @@ export function ProfileEditDialog({ open, onClose }: ProfileEditDialogProps) {
       
       await refreshUserProfile();
       onClose();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating profile:', error);
+      const errorMessage = error.message || "Failed to update profile";
       toast({
         title: "Error",
-        description: "Failed to update profile",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -130,13 +156,25 @@ export function ProfileEditDialog({ open, onClose }: ProfileEditDialogProps) {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
+            <div className="flex justify-between items-center">
+              <Label htmlFor="username">Username</Label>
+              <span className={cn(
+                "text-xs",
+                formData.username.length > 20 ? "text-destructive" : "text-muted-foreground"
+              )}>
+                {formData.username.length}/20
+              </span>
+            </div>
             <Input
               id="username"
               value={formData.username}
               onChange={(e) => setFormData(prev => ({ ...prev, username: e.target.value }))}
               placeholder="Enter your username"
+              className={validationErrors.username ? "border-destructive" : ""}
             />
+            {validationErrors.username && (
+              <p className="text-sm text-destructive">{validationErrors.username}</p>
+            )}
           </div>
           <div className="space-y-2">
             <Label>User Badge</Label>
@@ -182,7 +220,11 @@ export function ProfileEditDialog({ open, onClose }: ProfileEditDialogProps) {
               onChange={(e) => setFormData(prev => ({ ...prev, bio: e.target.value }))}
               placeholder="Tell us about yourself..."
               rows={4}
+              className={validationErrors.bio ? "border-destructive" : ""}
             />
+            {validationErrors.bio && (
+              <p className="text-sm text-destructive">{validationErrors.bio}</p>
+            )}
           </div>
         </div>
         <DialogFooter>
