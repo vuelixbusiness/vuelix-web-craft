@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import DashboardLayout from "@/components/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRoleManagement } from "@/hooks/useRoleManagement";
+import { getRoleConfig } from "@/config/roleConfig";
 import CompactYourCampaigns from "@/components/creator-dashboard/CompactYourCampaigns";
 import CompactArtistCampaigns from "@/components/creator-dashboard/CompactArtistCampaigns";
 import { Link } from "react-router-dom";
@@ -14,8 +15,11 @@ import { TrendingUp, Users, Music, Trophy, Wallet, User, Briefcase } from "lucid
 
 const Dashboard = () => {
   const { user } = useAuth();
-  const { activeRole } = useRoleManagement();
+  const { activeRole, isLoading } = useRoleManagement();
   const [showJoinedCampaigns, setShowJoinedCampaigns] = useState(false);
+  
+  const roleConfig = activeRole ? getRoleConfig(activeRole) : null;
+  const RoleIcon = roleConfig?.icon;
   
   // Check if user can manage campaigns based on their role config
   const canManage = activeRole ? 
@@ -37,9 +41,38 @@ const Dashboard = () => {
     { label: 'Edit Profile', path: '/profile', description: 'Update your profile information' },
   ];
 
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <div className="container mx-auto px-6 py-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-muted rounded w-1/3"></div>
+            <div className="h-4 bg-muted rounded w-1/2"></div>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout>
       <div className="container mx-auto px-6 py-8">
+        {/* Role Mode Indicator */}
+        {roleConfig && RoleIcon && (
+          <div className="mb-6 p-4 bg-secondary/20 rounded-lg border border-border">
+            <div className="flex items-center space-x-3">
+              <RoleIcon className={`w-6 h-6 ${roleConfig.color}`} />
+              <div className="flex-1">
+                <div className="flex items-center space-x-2">
+                  <h2 className="text-xl font-semibold">{roleConfig.name} Mode</h2>
+                  <Badge variant="secondary">{roleConfig.name}</Badge>
+                </div>
+                <p className="text-muted-foreground text-sm">{roleConfig.description}</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Welcome Section */}
         <div className="mb-12">
           <div className="flex items-center space-x-6 mb-6">
@@ -51,7 +84,7 @@ const Dashboard = () => {
                 Welcome back, {user?.name || user?.username}!
               </h1>
               <p className="text-lg text-muted-foreground mt-2">
-                Ready to discover amazing music and earn rewards?
+                {roleConfig?.description || "Manage your campaigns and content"}
               </p>
               <Badge variant="secondary" className="mt-3 text-sm px-3 py-1 bg-muted text-muted-foreground">
                 {user?.membershipType || 'regular'} Member
