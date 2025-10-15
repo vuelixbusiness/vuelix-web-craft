@@ -94,6 +94,7 @@ const CampaignCard = ({
   const { toast } = useToast();
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isAudioExpanded, setIsAudioExpanded] = useState(false);
+  const [isRewardBoxExpanded, setIsRewardBoxExpanded] = useState(true);
   
   const platformIcons = {
     tiktok: <FaTiktok className="w-4 h-4" />,
@@ -162,24 +163,46 @@ const CampaignCard = ({
     >
       {/* Reward Box - Top Right Corner */}
       {variant === 'creator-available' && (
-        <div className="absolute top-3 right-3 z-10 group">
-          <div className="relative overflow-hidden rounded-lg border border-yellow-600/30 bg-gradient-to-br from-yellow-50 via-amber-50 to-yellow-100 dark:from-yellow-950/40 dark:via-amber-950/30 dark:to-yellow-900/20 p-2 shadow-[0_6px_18px_-4px_rgba(234,179,8,0.3)] transition-all duration-300 hover:shadow-[0_8px_24px_-6px_rgba(234,179,8,0.5)] hover:scale-102">
+        <div 
+          className="absolute top-3 right-3 z-10 group cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsRewardBoxExpanded(!isRewardBoxExpanded);
+          }}
+          aria-label={isRewardBoxExpanded ? "Collapse reward details" : "Expand reward details"}
+          title={isRewardBoxExpanded 
+            ? "Click to collapse" 
+            : `Reward: ${formatPayoutForBox(campaign.payout_rate, campaign.payout_type, campaign.hybrid_reward_description, campaign.fixed_rate_description)}`
+          }
+        >
+          <div className={`
+            relative overflow-hidden rounded-lg border border-yellow-600/30 
+            bg-gradient-to-br from-yellow-50 via-amber-50 to-yellow-100 
+            dark:from-yellow-950/40 dark:via-amber-950/30 dark:to-yellow-900/20 
+            shadow-[0_6px_18px_-4px_rgba(234,179,8,0.3)] 
+            transition-all duration-300 ease-in-out
+            hover:shadow-[0_8px_24px_-6px_rgba(234,179,8,0.5)] hover:scale-105
+            ${isRewardBoxExpanded ? 'p-2' : 'p-1.5'}
+          `}>
             {/* Subtle glow effect */}
             <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             
             {/* Content */}
             <div className="relative flex items-center space-x-1.5">
-              {/* Animated Coin Icon */}
-              <div className="flex-shrink-0 animate-pulse">
-                <PotIcon className="w-4 h-4 drop-shadow-lg" />
+              {/* Animated Pot Icon */}
+              <div className={`flex-shrink-0 transition-all duration-300 ${isRewardBoxExpanded ? '' : 'animate-bounce'}`}>
+                <PotIcon className={`drop-shadow-lg transition-all duration-300 ${isRewardBoxExpanded ? 'w-4 h-4' : 'w-5 h-5'}`} />
               </div>
               
-              {/* Text Content */}
-              <div className="flex flex-col">
-                <p className="text-[8px] font-semibold uppercase tracking-wider text-yellow-700 dark:text-yellow-400/90 mb-0">
+              {/* Text Content - Animated */}
+              <div className={`
+                flex flex-col overflow-hidden transition-all duration-300 ease-in-out
+                ${isRewardBoxExpanded ? 'max-w-[200px] opacity-100' : 'max-w-0 opacity-0'}
+              `}>
+                <p className="text-[8px] font-semibold uppercase tracking-wider text-yellow-700 dark:text-yellow-400/90 mb-0 whitespace-nowrap">
                   Reward
                 </p>
-                <p className="text-xs font-bold text-yellow-900 dark:text-yellow-200 leading-tight">
+                <p className="text-xs font-bold text-yellow-900 dark:text-yellow-200 leading-tight whitespace-nowrap">
                   {formatPayoutForBox(campaign.payout_rate, campaign.payout_type, campaign.hybrid_reward_description, campaign.fixed_rate_description)}
                 </p>
               </div>
