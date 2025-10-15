@@ -224,7 +224,7 @@ function ArtistCampaignHubContent({
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background">
         {/* Header */}
-        <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-background/80 backdrop-blur-sm border-b border-border">
+        <header className="fixed top-0 left-0 right-0 z-50 h-16 bg-background/80 backdrop-blur-sm border-b border-border">
           <div className="flex items-center gap-4 h-full px-4">
             <Button 
               variant="ghost" 
@@ -235,14 +235,14 @@ function ArtistCampaignHubContent({
               <ArrowLeft className="h-4 w-4" />
               Back
             </Button>
-            <div className="flex-1">
-              <h1 className="font-semibold text-lg truncate">{campaign.title}</h1>
-              <p className="text-sm text-muted-foreground truncate">{campaign.song_title}</p>
+            <div className="flex-1 flex flex-col justify-center min-w-0">
+              <h1 className="font-semibold text-base truncate leading-tight">{campaign.title}</h1>
+              <p className="text-xs text-muted-foreground truncate leading-tight">{campaign.song_title}</p>
             </div>
           </div>
         </header>
 
-        <div className="flex w-full pt-14">
+        <div className="flex w-full pt-16">
           {/* Sidebar - Using existing CampaignSidebar but without participation restrictions */}
           <div className="w-80 flex-shrink-0">
             <CampaignSidebar 
