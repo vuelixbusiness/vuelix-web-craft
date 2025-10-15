@@ -473,81 +473,15 @@ const ArtistCampaignFlow = () => {
         endDate: campaignData.endDate || null
       });
 
-      // Step 1: Upload files FIRST before creating campaign
       try {
         console.log('🚀 Starting campaign creation process...');
         
-        let coverArtUrl: string | null = campaignData.coverArtLink || null;
-        let songUrl: string | null = validatedData.songLink || null;
-        
-        // Upload cover art file if it exists
-        if (campaignData.coverArtFile) {
-          console.log('📤 Uploading cover art file...');
-          const fileExt = campaignData.coverArtFile.name.split('.').pop();
-          const tempFileName = `temp/${Date.now()}.${fileExt}`;
-          
-          const { error: uploadError } = await supabase.storage
-            .from('campaign-cover-art')
-            .upload(tempFileName, campaignData.coverArtFile, {
-              cacheControl: '3600',
-              upsert: false
-            });
-
-          if (uploadError) {
-            console.error('❌ Cover art upload error:', uploadError);
-            toast({
-              title: "Upload Failed",
-              description: `Failed to upload cover art: ${uploadError.message}`,
-              variant: "destructive"
-            });
-            return;
-          }
-
-          const { data: { publicUrl } } = supabase.storage
-            .from('campaign-cover-art')
-            .getPublicUrl(tempFileName);
-
-          coverArtUrl = publicUrl;
-          console.log('✅ Cover art uploaded:', publicUrl);
-        }
-
-        // Upload song file if it exists
-        if (campaignData.songFile) {
-          console.log('📤 Uploading song file...');
-          const fileExt = campaignData.songFile.name.split('.').pop();
-          const tempFileName = `temp/${Date.now()}.${fileExt}`;
-          
-          const { error: uploadError } = await supabase.storage
-            .from('campaign-audio')
-            .upload(tempFileName, campaignData.songFile, {
-              cacheControl: '3600',
-              upsert: false
-            });
-
-          if (uploadError) {
-            console.error('❌ Song upload error:', uploadError);
-            toast({
-              title: "Upload Failed",
-              description: `Failed to upload song: ${uploadError.message}`,
-              variant: "destructive"
-            });
-            return;
-          }
-
-          const { data: { publicUrl } } = supabase.storage
-            .from('campaign-audio')
-            .getPublicUrl(tempFileName);
-
-          songUrl = publicUrl;
-          console.log('✅ Song uploaded:', publicUrl);
-        }
-
-        // Step 2: Now create campaign with correct URLs from the start
+        // Step 1: Create campaign first to get campaign ID
         const campaignToInsert = {
           title: validatedData.songTitle,
           song_title: validatedData.songTitle,
-          song_url: songUrl,
-          cover_art_url: coverArtUrl,
+          song_url: validatedData.songLink || null,
+          cover_art_url: campaignData.coverArtLink || null,
           genre: validatedData.genre,
           campaign_type: validatedData.campaignType,
           platforms: validatedData.platforms,
@@ -571,47 +505,123 @@ const ArtistCampaignFlow = () => {
           status: 'active'
         };
 
-        console.log('📤 Inserting campaign data:', campaignToInsert);
+        console.log('📤 Creating campaign record...');
 
-        const { data, error } = await supabase
+        const { data: campaign, error: campaignError } = await supabase
           .from('campaigns')
           .insert(campaignToInsert)
           .select()
           .single();
 
-        if (error) {
-          console.error('❌ Campaign creation error:', error);
-          
-          // Clean up uploaded files if campaign creation fails
-          if (coverArtUrl && campaignData.coverArtFile) {
-            const fileName = coverArtUrl.split('/').pop();
-            if (fileName) {
-              await supabase.storage.from('campaign-cover-art').remove([`temp/${fileName}`]);
-            }
-          }
-          if (songUrl && campaignData.songFile) {
-            const fileName = songUrl.split('/').pop();
-            if (fileName) {
-              await supabase.storage.from('campaign-audio').remove([`temp/${fileName}`]);
-            }
-          }
-          
+        if (campaignError) {
+          console.error('❌ Campaign creation error:', campaignError);
           toast({
             title: "Campaign Creation Failed",
-            description: error.message || "There was an error creating your campaign",
+            description: campaignError.message || "There was an error creating your campaign",
             variant: "destructive"
           });
           return;
         }
 
-        console.log('✅ Campaign created successfully!', data);
-      } catch (uploadError: any) {
-        console.error('❌ File upload error:', uploadError);
+        console.log('✅ Campaign created with ID:', campaign.id);
+
+        // Step 2: Upload files using campaign ID as folder name
+        let coverArtUrl: string | null = campaign.cover_art_url;
+        let songUrl: string | null = campaign.song_url;
+        let hasUpdates = false;
+
+        // Upload cover art file if it exists
+        if (campaignData.coverArtFile) {
+          console.log('📤 Uploading cover art file...');
+          const fileExt = campaignData.coverArtFile.name.split('.').pop();
+          const fileName = `${campaign.id}/cover-art-${Date.now()}.${fileExt}`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from('campaign-cover-art')
+            .upload(fileName, campaignData.coverArtFile, {
+              cacheControl: '3600',
+              upsert: false
+            });
+
+          if (uploadError) {
+            console.error('❌ Cover art upload error:', uploadError);
+            toast({
+              title: "Warning",
+              description: `Campaign created but cover art upload failed: ${uploadError.message}`,
+              variant: "destructive"
+            });
+          } else {
+            const { data: { publicUrl } } = supabase.storage
+              .from('campaign-cover-art')
+              .getPublicUrl(fileName);
+
+            coverArtUrl = publicUrl;
+            hasUpdates = true;
+            console.log('✅ Cover art uploaded:', publicUrl);
+          }
+        }
+
+        // Upload song file if it exists
+        if (campaignData.songFile) {
+          console.log('📤 Uploading song file...');
+          const fileExt = campaignData.songFile.name.split('.').pop();
+          const fileName = `${campaign.id}/song-${Date.now()}.${fileExt}`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from('campaign-audio')
+            .upload(fileName, campaignData.songFile, {
+              cacheControl: '3600',
+              upsert: false
+            });
+
+          if (uploadError) {
+            console.error('❌ Song upload error:', uploadError);
+            toast({
+              title: "Warning",
+              description: `Campaign created but song upload failed: ${uploadError.message}`,
+              variant: "destructive"
+            });
+          } else {
+            const { data: { publicUrl } } = supabase.storage
+              .from('campaign-audio')
+              .getPublicUrl(fileName);
+
+            songUrl = publicUrl;
+            hasUpdates = true;
+            console.log('✅ Song uploaded:', publicUrl);
+          }
+        }
+
+        // Step 3: Update campaign with file URLs if we uploaded anything
+        if (hasUpdates) {
+          console.log('📤 Updating campaign with file URLs...');
+          const { error: updateError } = await supabase
+            .from('campaigns')
+            .update({
+              cover_art_url: coverArtUrl,
+              song_url: songUrl
+            })
+            .eq('id', campaign.id);
+
+          if (updateError) {
+            console.error('❌ Campaign update error:', updateError);
+            toast({
+              title: "Warning",
+              description: "Campaign created but failed to update with file URLs",
+              variant: "destructive"
+            });
+          }
+        }
+
+        console.log('✅ Campaign launched successfully!', campaign);
+      } catch (error: any) {
+        console.error('❌ Unexpected error during campaign creation:', error);
         toast({
-          title: "Upload Failed",
-          description: "There was an error uploading your files. Please try again.",
+          title: "Campaign Launch Failed",
+          description: error?.message || "An unexpected error occurred. Please try again.",
           variant: "destructive"
         });
+        return;
       }
       
       toast({
