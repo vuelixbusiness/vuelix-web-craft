@@ -87,7 +87,7 @@ const Dashboard = () => {
                 {roleConfig?.description || "Manage your campaigns and content"}
               </p>
               <Badge variant="secondary" className="mt-3 text-sm px-3 py-1 bg-muted text-muted-foreground">
-                {user?.membershipType || 'regular'} Member
+                {roleConfig?.name || 'User'}
               </Badge>
             </div>
           </div>
