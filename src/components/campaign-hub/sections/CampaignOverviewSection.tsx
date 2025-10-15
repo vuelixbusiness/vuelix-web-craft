@@ -198,7 +198,6 @@ export function CampaignOverviewSection({ campaign, participation, mediaAssets =
                 <div className="flex-1 space-y-4">
                   <div>
                     <h1 className="text-2xl font-bold">{campaign.title}</h1>
-                    <p className="text-xl text-muted-foreground">{campaign.song_title}</p>
                     <div className="flex items-center gap-2 mt-2 flex-wrap">
                       {campaign.genre && <Badge variant="secondary">{campaign.genre}</Badge>}
                       {campaign.platforms.includes('tiktok') && (
