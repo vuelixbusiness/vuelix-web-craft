@@ -1,6 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Edit, Upload, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { CampaignSidebar } from "./CampaignSidebar";
 import { CampaignOverviewSection } from "./sections/CampaignOverviewSection";
@@ -78,6 +83,7 @@ interface ArtistCampaignHubLayoutProps {
   submissions?: Submission[];
   onBack: () => void;
   onSubmissionUpdate?: () => void;
+  onCampaignUpdate?: () => Promise<void>;
 }
 
 function ArtistCampaignHubContent({ 
@@ -85,10 +91,21 @@ function ArtistCampaignHubContent({
   mediaAssets = [],
   submissions = [],
   onBack,
-  onSubmissionUpdate
+  onSubmissionUpdate,
+  onCampaignUpdate
 }: ArtistCampaignHubLayoutProps) {
   const [activeSection, setActiveSection] = useState<CampaignSectionType>("overview");
   const { sectionUpdates, markSectionAsUpdated, markSectionAsRead } = useSectionUpdates();
+  
+  // Edit dialog state
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [coverArtFile, setCoverArtFile] = useState<File | null>(null);
+  const [coverArtPreview, setCoverArtPreview] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [editForm, setEditForm] = useState({
+    instructions: campaign.instructions || "",
+    rules: campaign.rules || "",
+  });
   
   // Track submissions changes with proper state comparison
   const [prevSubmissions, setPrevSubmissions] = useState<Submission[]>(submissions);
@@ -131,6 +148,107 @@ function ArtistCampaignHubContent({
     setActiveSection(section);
     markSectionAsRead(section);
   }, [markSectionAsRead]);
+
+  // File upload handler
+  const handleCoverArtChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error("Please select an image file");
+        return;
+      }
+      // Validate file size (5MB max)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("Image must be smaller than 5MB");
+        return;
+      }
+      setCoverArtFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => setCoverArtPreview(e.target?.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Remove cover art preview
+  const handleRemoveCoverArt = () => {
+    setCoverArtFile(null);
+    setCoverArtPreview(null);
+  };
+
+  // Update campaign
+  const updateCampaign = async () => {
+    setIsSaving(true);
+    try {
+      let coverArtUrl = campaign.cover_art_url;
+      
+      // Upload new cover art if file was selected
+      if (coverArtFile) {
+        const fileExt = coverArtFile.name.split('.').pop();
+        const fileName = `${campaign.id}/${Date.now()}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('campaign-cover-art')
+          .upload(fileName, coverArtFile, {
+            cacheControl: '3600',
+            upsert: false
+          });
+          
+        if (uploadError) {
+          console.error('Upload error:', uploadError);
+          throw new Error('Failed to upload cover art');
+        }
+        
+        const { data } = supabase.storage
+          .from('campaign-cover-art')
+          .getPublicUrl(fileName);
+        
+        coverArtUrl = data.publicUrl;
+      }
+      
+      // Update campaign in database
+      const { error } = await supabase
+        .from('campaigns')
+        .update({
+          instructions: editForm.instructions || null,
+          rules: editForm.rules || null,
+          cover_art_url: coverArtUrl,
+        })
+        .eq('id', campaign.id);
+        
+      if (error) {
+        console.error('Update error:', error);
+        throw error;
+      }
+      
+      // Refresh campaign data
+      if (onCampaignUpdate) {
+        await onCampaignUpdate();
+      }
+      
+      toast.success("Campaign updated successfully");
+      setEditDialogOpen(false);
+      setCoverArtFile(null);
+      setCoverArtPreview(null);
+    } catch (error: any) {
+      console.error('Error updating campaign:', error);
+      toast.error(error.message || "Failed to update campaign");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Reset form when dialog opens
+  useEffect(() => {
+    if (editDialogOpen) {
+      setEditForm({
+        instructions: campaign.instructions || "",
+        rules: campaign.rules || "",
+      });
+      setCoverArtFile(null);
+      setCoverArtPreview(null);
+    }
+  }, [editDialogOpen, campaign.instructions, campaign.rules]);
 
   // Helper function to transform submissions into unique participants
   const transformToParticipants = (submissions: Submission[]): UniqueParticipant[] => {
@@ -239,6 +357,15 @@ function ArtistCampaignHubContent({
               <h1 className="font-semibold text-base truncate leading-tight">{campaign.title}</h1>
               <p className="text-xs text-muted-foreground truncate leading-tight">{campaign.song_title}</p>
             </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setEditDialogOpen(true)}
+              className="gap-2"
+            >
+              <Edit className="h-4 w-4" />
+              Edit Campaign
+            </Button>
           </div>
         </header>
 
@@ -263,6 +390,114 @@ function ArtistCampaignHubContent({
           </main>
         </div>
       </div>
+
+      {/* Edit Campaign Dialog */}
+      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Edit Campaign</DialogTitle>
+            <DialogDescription>
+              Update your campaign instructions, rules, and cover art.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 py-4">
+            {/* Instructions */}
+            <div className="space-y-2">
+              <Label htmlFor="instructions">Instructions</Label>
+              <Textarea
+                id="instructions"
+                placeholder="Enter campaign instructions for creators..."
+                value={editForm.instructions}
+                onChange={(e) => setEditForm({ ...editForm, instructions: e.target.value })}
+                rows={4}
+                className="resize-none"
+              />
+            </div>
+
+            {/* Rules */}
+            <div className="space-y-2">
+              <Label htmlFor="rules">Rules</Label>
+              <Textarea
+                id="rules"
+                placeholder="Enter campaign rules..."
+                value={editForm.rules}
+                onChange={(e) => setEditForm({ ...editForm, rules: e.target.value })}
+                rows={4}
+                className="resize-none"
+              />
+            </div>
+
+            {/* Cover Art */}
+            <div className="space-y-2">
+              <Label>Cover Art</Label>
+              
+              {/* Current Cover Art */}
+              {campaign.cover_art_url && !coverArtPreview && (
+                <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted">
+                  <img 
+                    src={campaign.cover_art_url} 
+                    alt="Current cover art"
+                    className="w-full h-full object-cover"
+                  />
+                  <p className="text-xs text-muted-foreground mt-2">Current cover art</p>
+                </div>
+              )}
+
+              {/* New Cover Art Preview */}
+              {coverArtPreview && (
+                <div className="relative w-full aspect-video rounded-lg overflow-hidden bg-muted">
+                  <img 
+                    src={coverArtPreview} 
+                    alt="New cover art preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    className="absolute top-2 right-2"
+                    onClick={handleRemoveCoverArt}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                  <p className="text-xs text-muted-foreground mt-2">New cover art preview</p>
+                </div>
+              )}
+
+              {/* Upload Button */}
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => document.getElementById('cover-art-upload')?.click()}
+                  className="gap-2"
+                >
+                  <Upload className="h-4 w-4" />
+                  {coverArtPreview ? 'Change Image' : 'Upload New Cover Art'}
+                </Button>
+                <input
+                  id="cover-art-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleCoverArtChange}
+                  className="hidden"
+                />
+                <span className="text-xs text-muted-foreground">Max 5MB</span>
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditDialogOpen(false)} disabled={isSaving}>
+              Cancel
+            </Button>
+            <Button onClick={updateCampaign} disabled={isSaving}>
+              {isSaving ? "Saving..." : "Save Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </SidebarProvider>
   );
 }

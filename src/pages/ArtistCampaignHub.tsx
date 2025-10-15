@@ -200,6 +200,7 @@ const ArtistCampaignHub = () => {
       submissions={submissions}
       onBack={handleBack}
       onSubmissionUpdate={fetchCampaignData}
+      onCampaignUpdate={fetchCampaignData}
     />
   );
 };
