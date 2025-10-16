@@ -8,7 +8,7 @@ extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
 [functions.resolve-username]
-verify_jwt = true
+verify_jwt = false
 
 [functions.track-video-views]
 verify_jwt = true
