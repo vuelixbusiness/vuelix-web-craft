@@ -100,7 +100,7 @@ const CampaignCard = ({
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isAudioExpanded, setIsAudioExpanded] = useState(false);
   const [isRewardBoxExpanded, setIsRewardBoxExpanded] = useState(true);
-  const [isRateBoxExpanded, setIsRateBoxExpanded] = useState(false);
+  const [isRateBoxExpanded, setIsRateBoxExpanded] = useState(true);
   
   const platformIcons = {
     tiktok: <FaTiktok className="w-4 h-4" />,
