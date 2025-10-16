@@ -1455,7 +1455,7 @@ const ArtistCampaignFlow = () => {
                   disabled={!canContinue(1)}
                   onClick={() => setCurrentStep(2)}
                 >
-                  {campaignData.campaignType === 'visual_services_offering' 
+                  {campaignMode === 'get_rewarded'
                     ? 'Continue to Service Details' 
                     : 'Continue to Rewards'}
                   <ArrowRight className="w-4 h-4 ml-2" />
@@ -1477,8 +1477,8 @@ const ArtistCampaignFlow = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Reward Type - Hide for visual_services_offering */}
-                {campaignData.campaignType !== 'visual_services_offering' && (
+                {/* Reward Type - Hide for service campaigns */}
+                {campaignMode !== 'get_rewarded' && (
                   <div className="space-y-2">
                     <Label className="text-base font-medium">Reward Type</Label>
                     <Select 
@@ -1512,8 +1512,8 @@ const ArtistCampaignFlow = () => {
                   </div>
                 )}
 
-                {/* Reward Rate Section - Conditional based on payoutType - Hide for visual_services_offering */}
-                {campaignData.campaignType !== 'visual_services_offering' && (
+                {/* Reward Rate Section - Conditional based on payoutType - Hide for service campaigns */}
+                {campaignMode !== 'get_rewarded' && (
                   <>
                     {campaignData.payoutType === 'hybrid' ? (
                   // HYBRID: Free-text custom reward structure
@@ -1611,8 +1611,8 @@ const ArtistCampaignFlow = () => {
                   </>
                 )}
 
-                {/* Service-specific fields for visual_services_offering */}
-                {campaignData.campaignType === 'visual_services_offering' && formConfig.step2.additionalFields && (
+                {/* Service-specific fields for service campaigns */}
+                {campaignMode === 'get_rewarded' && formConfig.step2.additionalFields && (
                   <>
                     {formConfig.step2.additionalFields.map((field) => (
                       <div key={field.id} className="space-y-2">
