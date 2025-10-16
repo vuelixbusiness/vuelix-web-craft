@@ -514,7 +514,8 @@ const ArtistCampaignFlow = () => {
           budget: validatedData.budget,
           end_date: validatedData.endDate?.toISOString() || null,
           artist_id: user.id,
-          status: 'active'
+          status: 'active',
+          campaign_mode: campaignMode || 'reward_others'
         };
 
         console.log('📤 Creating campaign record...');

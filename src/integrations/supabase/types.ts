@@ -123,6 +123,7 @@ export type Database = {
           approval_required: boolean | null
           artist_id: string
           budget: number
+          campaign_mode: string | null
           campaign_type: string
           cover_art_url: string | null
           created_at: string
@@ -150,6 +151,7 @@ export type Database = {
           approval_required?: boolean | null
           artist_id: string
           budget: number
+          campaign_mode?: string | null
           campaign_type: string
           cover_art_url?: string | null
           created_at?: string
@@ -177,6 +179,7 @@ export type Database = {
           approval_required?: boolean | null
           artist_id?: string
           budget?: number
+          campaign_mode?: string | null
           campaign_type?: string
           cover_art_url?: string | null
           created_at?: string
