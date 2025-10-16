@@ -515,6 +515,7 @@ const ArtistCampaignFlow = () => {
           genre: validatedData.genre,
           campaign_type: validatedData.campaignType,
           platforms: validatedData.platforms,
+          starting_rate: campaignMode === 'get_rewarded' ? validatedData.budget : null,
           payout_type: campaignMode === 'get_rewarded' ? null : validatedData.payoutType,
           payout_rate: campaignMode === 'get_rewarded' 
             ? null 

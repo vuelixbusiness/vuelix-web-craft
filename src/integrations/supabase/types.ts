@@ -141,6 +141,7 @@ export type Database = {
           rules: string | null
           song_title: string
           song_url: string | null
+          starting_rate: number | null
           status: string | null
           title: string
           updated_at: string
@@ -169,6 +170,7 @@ export type Database = {
           rules?: string | null
           song_title: string
           song_url?: string | null
+          starting_rate?: number | null
           status?: string | null
           title: string
           updated_at?: string
@@ -197,6 +199,7 @@ export type Database = {
           rules?: string | null
           song_title?: string
           song_url?: string | null
+          starting_rate?: number | null
           status?: string | null
           title?: string
           updated_at?: string

@@ -218,7 +218,7 @@ const CampaignCard = ({
       )}
 
       {/* Rate Box - Top Right Corner - Show for service offerings */}
-      {variant === 'creator-available' && (isServiceOffering || campaign.campaign_mode === 'get_rewarded') && campaign.starting_rate && (
+      {variant === 'creator-available' && (isServiceOffering || campaign.campaign_mode === 'get_rewarded') && (campaign.starting_rate || campaign.budget) && (
         <div 
           className="absolute top-3 right-3 z-10 group cursor-pointer"
           onClick={(e) => {
@@ -259,7 +259,7 @@ const CampaignCard = ({
                   Rate
                 </p>
                 <p className="text-xs font-bold text-blue-900 dark:text-blue-200 leading-tight whitespace-nowrap">
-                  €{campaign.starting_rate.toFixed(2)}
+                  €{(campaign.starting_rate || campaign.budget)?.toFixed(2)}
                 </p>
               </div>
             </div>
@@ -415,7 +415,7 @@ const CampaignCard = ({
         </div>
 
         {/* Engagement Pot for both creator-available and creator-joined variants */}
-        {(variant === 'creator-available' || variant === 'creator-joined') && campaign.budget && (
+        {(variant === 'creator-available' || variant === 'creator-joined') && campaign.budget && campaign.campaign_mode !== 'get_rewarded' && (
           <div className="bg-secondary/30 rounded-lg px-4 py-4 mb-4">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
