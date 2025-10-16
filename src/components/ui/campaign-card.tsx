@@ -283,6 +283,18 @@ const CampaignCard = ({
         <div className="flex items-start space-x-4 mb-4">
           {/* Campaign Cover Art */}
           <div className="w-20 h-20 rounded-lg flex items-center justify-center shadow-soft flex-shrink-0 relative">
+            {/* Status indicator dot for active campaigns */}
+            {campaign.status?.toLowerCase() === 'active' && (
+              <div className="absolute top-1 left-1 z-10">
+                <div className="relative">
+                  {/* Pulsing ring effect */}
+                  <div className="absolute inset-0 rounded-full bg-green-500 animate-ping opacity-75"></div>
+                  {/* Solid dot */}
+                  <div className="relative w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-white shadow-lg"></div>
+                </div>
+              </div>
+            )}
+            
             {campaign.cover_art_url ? (
               <img 
                 src={campaign.cover_art_url} 
@@ -313,12 +325,6 @@ const CampaignCard = ({
                 />
               )}
               </div>
-              
-              {campaign.status && (
-                <Badge variant="outline" className={getStatusColor(campaign.status)}>
-                  {campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
-                </Badge>
-              )}
             </div>
 
             {/* Artist Name */}
