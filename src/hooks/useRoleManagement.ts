@@ -87,7 +87,7 @@ export const useRoleManagement = () => {
       .from('user_roles')
       .select('role')
       .eq('user_id', user?.id)
-      .eq('role', newRole)
+      .eq('role', newRole as any)
       .maybeSingle();
     
     if (error || !data) {

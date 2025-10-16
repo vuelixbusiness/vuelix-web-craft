@@ -1129,6 +1129,8 @@ export type Database = {
         | "music_group"
         | "collective"
         | "event_organizer"
+        | "studio"
+        | "festival_event"
       membership_type: "regular" | "premium"
     }
     CompositeTypes: {
@@ -1268,6 +1270,8 @@ export const Constants = {
         "music_group",
         "collective",
         "event_organizer",
+        "studio",
+        "festival_event",
       ],
       membership_type: ["regular", "premium"],
     },
