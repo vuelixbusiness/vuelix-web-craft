@@ -515,16 +515,17 @@ const ArtistCampaignFlow = () => {
           genre: validatedData.genre,
           campaign_type: validatedData.campaignType,
           platforms: validatedData.platforms,
-          payout_type: validatedData.payoutType,
-          payout_rate: 
-            validatedData.payoutType === 'hybrid' || validatedData.payoutType === 'fixed_rate' 
-              ? null 
-              : validatedData.payoutRate,
-          max_payout: validatedData.maxPayout,
-          vip_bonus: validatedData.vipBonus || 0,
-          vip_max_payout: validatedData.vipMaxPayout,
-          hybrid_reward_description: validatedData.hybridRewardDescription || null,
-          fixed_rate_description: validatedData.fixedRateDescription || null,
+          payout_type: campaignMode === 'get_rewarded' ? null : validatedData.payoutType,
+          payout_rate: campaignMode === 'get_rewarded' 
+            ? null 
+            : (validatedData.payoutType === 'hybrid' || validatedData.payoutType === 'fixed_rate' 
+                ? null 
+                : validatedData.payoutRate),
+          max_payout: campaignMode === 'get_rewarded' ? null : validatedData.maxPayout,
+          vip_bonus: campaignMode === 'get_rewarded' ? null : (validatedData.vipBonus || 0),
+          vip_max_payout: campaignMode === 'get_rewarded' ? null : validatedData.vipMaxPayout,
+          hybrid_reward_description: campaignMode === 'get_rewarded' ? null : (validatedData.hybridRewardDescription || null),
+          fixed_rate_description: campaignMode === 'get_rewarded' ? null : (validatedData.fixedRateDescription || null),
           instructions: validatedData.instructions,
           rules: validatedData.rules,
           reference_links: validatedData.referenceLinks,

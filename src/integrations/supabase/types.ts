@@ -135,7 +135,7 @@ export type Database = {
           instructions: string | null
           max_payout: number | null
           payout_rate: number | null
-          payout_type: string
+          payout_type: string | null
           platforms: string[]
           reference_links: string | null
           rules: string | null
@@ -163,7 +163,7 @@ export type Database = {
           instructions?: string | null
           max_payout?: number | null
           payout_rate?: number | null
-          payout_type: string
+          payout_type?: string | null
           platforms: string[]
           reference_links?: string | null
           rules?: string | null
@@ -191,7 +191,7 @@ export type Database = {
           instructions?: string | null
           max_payout?: number | null
           payout_rate?: number | null
-          payout_type?: string
+          payout_type?: string | null
           platforms?: string[]
           reference_links?: string | null
           rules?: string | null
