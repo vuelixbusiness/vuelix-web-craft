@@ -22,6 +22,8 @@ interface Campaign {
   platforms: string[];
   cover_art_url?: string;
   artist_id: string;
+  campaign_mode?: string;
+  starting_rate?: number;
   actualSpent?: number;
   estimatedPending?: number;
   totalViews?: number;

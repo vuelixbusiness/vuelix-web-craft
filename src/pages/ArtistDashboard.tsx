@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/contexts/AuthContext";
 import { useArtistNotifications } from "@/contexts/ArtistNotificationContext";
-import { Plus, Music, Users, TrendingUp, Play, Pause, Eye, Heart, BarChart3, MessageCircle, Settings, Star } from "lucide-react";
+import { Plus, Music, Users, TrendingUp, Play, Pause, Eye, Heart, BarChart3, MessageCircle, Settings, Star, Euro } from "lucide-react";
 import PotIcon from "@/components/ui/pot-icon";
 import { FaTiktok, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
@@ -35,6 +35,8 @@ interface Campaign {
   artist_id: string;
   instructions?: string;
   rules?: string;
+  campaign_mode?: string;
+  starting_rate?: number;
   // Additional fields from spending calculation
   actualSpent?: number;
   estimatedPending?: number;
@@ -298,7 +300,9 @@ const ArtistDashboard = () => {
     views: campaign.totalViews || 0,
     likes: campaign.totalLikes || 0,
     genre: campaign.genre,
-    platforms: campaign.platforms
+    platforms: campaign.platforms,
+    campaign_mode: campaign.campaign_mode,
+    starting_rate: campaign.starting_rate
   });
 
   const creatorStats = [
@@ -572,64 +576,91 @@ const ArtistDashboard = () => {
                           </div>
                           
                           <CardContent className="p-6 space-y-6">
-                            {/* Financial Section - Engagement Pot */}
-                            <div className="bg-secondary/30 rounded-lg p-4 space-y-3">
-                              <div className="flex items-center justify-between">
-                                <h4 className="font-semibold text-lg flex items-center">
-                                  <PotIcon className="w-5 h-5 mr-2" />
-                                  Engagement Pot
-                                </h4>
-                                <span className="text-sm text-red-600">
-                                  {progressPercentage.toFixed(1)}% used
-                                </span>
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <div className="flex justify-between items-baseline">
-                                  <span className="text-2xl font-bold text-green-600">
-                                    {formatCurrency(availableBudget)}
-                                  </span>
-                                  <span className="text-sm text-muted-foreground">
-                                    Available
+                            {/* Financial Section - Engagement Pot (only for reward campaigns) */}
+                            {displayCampaign.campaign_mode !== 'get_rewarded' && (
+                              <div className="bg-secondary/30 rounded-lg p-4 space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <h4 className="font-semibold text-lg flex items-center">
+                                    <PotIcon className="w-5 h-5 mr-2" />
+                                    Engagement Pot
+                                  </h4>
+                                  <span className="text-sm text-red-600">
+                                    {progressPercentage.toFixed(1)}% used
                                   </span>
                                 </div>
-                                 
-                                 {displayCampaign.estimatedPending > 0 && (
+                                
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-baseline">
+                                    <span className="text-2xl font-bold text-green-600">
+                                      {formatCurrency(availableBudget)}
+                                    </span>
+                                    <span className="text-sm text-muted-foreground">
+                                      Available
+                                    </span>
+                                  </div>
+                                   
+                                   {displayCampaign.estimatedPending > 0 && (
+                                     <div className="flex justify-between items-baseline text-sm">
+                                       <span className="text-orange-600">
+                                         {formatCurrency(displayCampaign.estimatedPending)}
+                                       </span>
+                                       <span className="text-muted-foreground">
+                                         Pending Payout
+                                       </span>
+                                     </div>
+                                   )}
+                                   
                                    <div className="flex justify-between items-baseline text-sm">
-                                     <span className="text-orange-600">
-                                       {formatCurrency(displayCampaign.estimatedPending)}
+                                     <span className="text-muted-foreground">
+                                       {formatCurrency(displayCampaign.spent)} redeemed
                                      </span>
                                      <span className="text-muted-foreground">
-                                       Pending Payout
+                                       of {formatCurrency(displayCampaign.budget)} total
                                      </span>
                                    </div>
-                                 )}
-                                 
-                                 <div className="flex justify-between items-baseline text-sm">
-                                   <span className="text-muted-foreground">
-                                     {formatCurrency(displayCampaign.spent)} redeemed
-                                   </span>
-                                   <span className="text-muted-foreground">
-                                     of {formatCurrency(displayCampaign.budget)} total
-                                   </span>
                                  </div>
-                               </div>
-                                 
-                                 {/* Enhanced Progress Bar */}
-                                 <div className="relative">
-                                   <Progress 
-                                     value={progressPercentage} 
-                                     className="h-3 bg-secondary"
-                                   />
-                                   <div className="absolute inset-0 flex items-center justify-center">
-                                      <span className="text-xs font-medium text-red-600">
-                                        {progressPercentage > 15 ? `${progressPercentage.toFixed(0)}%` : ''}
-                                      </span>
+                                   
+                                   {/* Enhanced Progress Bar */}
+                                   <div className="relative">
+                                     <Progress 
+                                       value={progressPercentage} 
+                                       className="h-3 bg-secondary"
+                                     />
+                                     <div className="absolute inset-0 flex items-center justify-center">
+                                        <span className="text-xs font-medium text-red-600">
+                                          {progressPercentage > 15 ? `${progressPercentage.toFixed(0)}%` : ''}
+                                        </span>
+                                     </div>
                                    </div>
                                  </div>
-                               </div>
-                             
-                             {/* Performance Stats */}
+                            )}
+
+                            {/* Service Rate Section - Only for get_rewarded campaigns */}
+                            {displayCampaign.campaign_mode === 'get_rewarded' && (
+                              <div className="bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 dark:from-blue-950/40 dark:via-cyan-950/30 dark:to-blue-900/20 rounded-lg p-4 space-y-3 border border-blue-600/30">
+                                <div className="flex items-center justify-between">
+                                  <h4 className="font-semibold text-lg flex items-center text-blue-900 dark:text-blue-200">
+                                    <Euro className="w-5 h-5 mr-2" />
+                                    Starting Rate
+                                  </h4>
+                                </div>
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-baseline">
+                                    <span className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                                      €{(displayCampaign.starting_rate || displayCampaign.budget)?.toFixed(2)}
+                                    </span>
+                                    <span className="text-sm text-blue-700 dark:text-blue-300">
+                                      Service Rate
+                                    </span>
+                                  </div>
+                                  <p className="text-sm text-blue-800 dark:text-blue-300">
+                                    This is a service request campaign where creators offer their services at this starting rate.
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+                              
+                              {/* Performance Stats */}
                              <div className="grid grid-cols-4 gap-4">
                                <div className="text-center p-3 bg-secondary/20 rounded-lg">
                                  <div className="flex items-center justify-center mb-1">

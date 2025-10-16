@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Eye, Heart, Users, Music, Play, Pause, Edit, MoreHorizontal, Search, Filter, Trash2 } from "lucide-react";
+import { Eye, Heart, Users, Music, Play, Pause, Edit, MoreHorizontal, Search, Filter, Trash2, Euro } from "lucide-react";
 import { FaTiktok, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
 import {
   DropdownMenu,
@@ -35,6 +35,8 @@ interface Campaign {
   artist_id: string;
   instructions?: string;
   rules?: string;
+  campaign_mode?: string;
+  starting_rate?: number;
   actualSpent?: number;
   estimatedPending?: number;
   totalViews?: number;
@@ -263,16 +265,30 @@ const ArtistCampaignList = ({ campaigns, isLoading, currentlyPlaying, onToggleAu
 
                       {/* Budget & Spending */}
                       <TableCell>
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span>Budget: {formatCurrency(campaign.budget)}</span>
+                        {campaign.campaign_mode === 'get_rewarded' ? (
+                          // Service campaign - show starting rate
+                          <div className="space-y-1">
+                            <div className="flex items-center space-x-2 text-sm">
+                              <Euro className="w-4 h-4 text-blue-600" />
+                              <span className="font-semibold text-blue-600">
+                                €{(campaign.starting_rate || campaign.budget)?.toFixed(2)}
+                              </span>
+                            </div>
+                            <p className="text-xs text-muted-foreground">Starting Rate</p>
                           </div>
-                          <Progress value={progressPercentage} className="h-2" />
-                          <div className="flex justify-between text-xs text-muted-foreground">
-                            <span>Spent: {formatCurrency(campaign.actualSpent || 0)}</span>
-                            <span>Available: {formatCurrency(campaign.availableBudget || campaign.budget)}</span>
+                        ) : (
+                          // Reward campaign - show engagement pot
+                          <div className="space-y-2">
+                            <div className="flex justify-between text-sm">
+                              <span>Budget: {formatCurrency(campaign.budget)}</span>
+                            </div>
+                            <Progress value={progressPercentage} className="h-2" />
+                            <div className="flex justify-between text-xs text-muted-foreground">
+                              <span>Spent: {formatCurrency(campaign.actualSpent || 0)}</span>
+                              <span>Available: {formatCurrency(campaign.availableBudget || campaign.budget)}</span>
+                            </div>
                           </div>
-                        </div>
+                        )}
                       </TableCell>
 
                       {/* Performance */}
