@@ -33,6 +33,8 @@ interface Campaign {
   budget: number;
   end_date: string;
   artist_id: string;
+  campaign_mode?: string;
+  starting_rate?: number;
   isJoined?: boolean;
   profiles?: {
     display_name?: string;
@@ -97,7 +99,9 @@ const Campaigns = () => {
           instructions,
           budget,
           end_date,
-          artist_id
+          artist_id,
+          campaign_mode,
+          starting_rate
         `)
         .eq('status', 'active')
         .order('created_at', { ascending: false });
