@@ -992,169 +992,191 @@ const ArtistCampaignFlow = () => {
                     </div>
                   </button>
 
-                      {/* 1. Song / Content Promotion */}
-                      <button
-                        onClick={() => handleCampaignTypeSelect('song_content_promotion')}
-                        className="group relative p-6 border-2 rounded-lg text-left transition-all hover:border-primary hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary"
-                      >
-                        <div className="text-4xl mb-3">🎵</div>
-                        <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
-                          Song / Content Promotion
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          Promote a new single, album, or visual content.
-                        </p>
-                        <div className="text-xs text-primary font-medium mb-2">
-                          Goal: reach, engagement, conversions
-                        </div>
-                        <div className="flex flex-wrap gap-1">
-                          <Badge variant="secondary" className="text-xs">Artists</Badge>
-                          <Badge variant="secondary" className="text-xs">Creators</Badge>
-                          <Badge variant="secondary" className="text-xs">DJs</Badge>
-                          <Badge variant="secondary" className="text-xs">Collectives</Badge>
-                        </div>
-                      </button>
+                  {/* 5. Community Campaign */}
+                  <button
+                    onClick={() => handleCampaignTypeSelect('community_campaign')}
+                    className="group relative p-6 border-2 rounded-lg text-left transition-all hover:border-primary hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    <div className="text-4xl mb-3">👥</div>
+                    <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
+                      Community Campaign
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Build awareness, host group challenges, or empower social causes.
+                    </p>
+                    <div className="text-xs text-primary font-medium mb-2">
+                      Goal: engagement, social impact, growth
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      <Badge variant="secondary" className="text-xs">Collectives</Badge>
+                      <Badge variant="secondary" className="text-xs">Community Leaders</Badge>
+                      <Badge variant="secondary" className="text-xs">Creators</Badge>
+                      <Badge variant="secondary" className="text-xs">Brands</Badge>
+                    </div>
+                  </button>
 
-                      {/* 2. Collaboration Campaign */}
-                      <button
-                        onClick={() => handleCampaignTypeSelect('collaboration_campaign')}
-                        className="group relative p-6 border-2 rounded-lg text-left transition-all hover:border-primary hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary"
-                      >
-                        <div className="text-4xl mb-3">🤝</div>
-                        <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
-                          Collaboration Campaign
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          Find and fund partnerships with other artists, producers, or creators.
-                        </p>
-                        <div className="text-xs text-primary font-medium mb-2">
-                          Goal: connect, co-create, share royalties
-                        </div>
-                        <div className="flex flex-wrap gap-1">
-                          <Badge variant="secondary" className="text-xs">Artists</Badge>
-                          <Badge variant="secondary" className="text-xs">Producers</Badge>
-                          <Badge variant="secondary" className="text-xs">Visual Creatives</Badge>
-                          <Badge variant="secondary" className="text-xs">Collectives</Badge>
-                        </div>
-                      </button>
-
-                      {/* 3. Visual Production */}
-                      <button
-                        onClick={() => handleCampaignTypeSelect('visual_production')}
-                        className="group relative p-6 border-2 rounded-lg text-left transition-all hover:border-primary hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary"
-                      >
-                        <div className="text-4xl mb-3">🎬</div>
-                        <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
-                          Visual Production
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          Commission cover art, lyric videos, short films, photo shoots, etc.
-                        </p>
-                        <div className="text-xs text-primary font-medium mb-2">
-                          Goal: connect with visual creatives
-                        </div>
-                        <div className="flex flex-wrap gap-1">
-                          <Badge variant="secondary" className="text-xs">Artists</Badge>
-                          <Badge variant="secondary" className="text-xs">Producers</Badge>
-                          <Badge variant="secondary" className="text-xs">Visual Creatives</Badge>
-                          <Badge variant="secondary" className="text-xs">Studios</Badge>
-                        </div>
-                      </button>
-
-                      {/* 4. Brand Partnership */}
-                      <button
-                        onClick={() => handleCampaignTypeSelect('brand_partnership')}
-                        className="group relative p-6 border-2 rounded-lg text-left transition-all hover:border-primary hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary"
-                      >
-                        <div className="text-4xl mb-3">🏢</div>
-                        <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
-                          Brand Partnership
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          Launch co-branded content, sponsored challenges, or influencer campaigns.
-                        </p>
-                        <div className="text-xs text-primary font-medium mb-2">
-                          Goal: merge influence with brand exposure
-                        </div>
-                        <div className="flex flex-wrap gap-1">
-                          <Badge variant="secondary" className="text-xs">Brands</Badge>
-                          <Badge variant="secondary" className="text-xs">Artists</Badge>
-                          <Badge variant="secondary" className="text-xs">Creators</Badge>
-                          <Badge variant="secondary" className="text-xs">Festivals</Badge>
-                        </div>
-                      </button>
-
-                      {/* 5. Community Campaign */}
-                      <button
-                        onClick={() => handleCampaignTypeSelect('community_campaign')}
-                        className="group relative p-6 border-2 rounded-lg text-left transition-all hover:border-primary hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary"
-                      >
-                        <div className="text-4xl mb-3">👥</div>
-                        <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
-                          Community Campaign
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          Build awareness, host group challenges, or empower social causes.
-                        </p>
-                        <div className="text-xs text-primary font-medium mb-2">
-                          Goal: engagement, social impact, growth
-                        </div>
-                        <div className="flex flex-wrap gap-1">
-                          <Badge variant="secondary" className="text-xs">Collectives</Badge>
-                          <Badge variant="secondary" className="text-xs">Community Leaders</Badge>
-                          <Badge variant="secondary" className="text-xs">Creators</Badge>
-                          <Badge variant="secondary" className="text-xs">Brands</Badge>
-                        </div>
-                      </button>
-
-                      {/* 6. Performance / Live Event */}
-                      <button
-                        onClick={() => handleCampaignTypeSelect('performance_live_event')}
-                        className="group relative p-6 border-2 rounded-lg text-left transition-all hover:border-primary hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary"
-                      >
-                        <div className="text-4xl mb-3">🎤</div>
-                        <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
-                          Performance / Live Event
-                        </h3>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          Promote concerts, DJ sets, live streams, or virtual events.
-                        </p>
-                        <div className="text-xs text-primary font-medium mb-2">
-                          Goal: ticket sales, attendance, reach
-                        </div>
-                        <div className="flex flex-wrap gap-1">
-                          <Badge variant="secondary" className="text-xs">Artists</Badge>
-                          <Badge variant="secondary" className="text-xs">DJs</Badge>
-                          <Badge variant="secondary" className="text-xs">Festivals</Badge>
-                          <Badge variant="secondary" className="text-xs">Studios</Badge>
-                        </div>
-                      </button>
+                  {/* 6. Performance / Live Event */}
+                  <button
+                    onClick={() => handleCampaignTypeSelect('performance_live_event')}
+                    className="group relative p-6 border-2 rounded-lg text-left transition-all hover:border-primary hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    <div className="text-4xl mb-3">🎤</div>
+                    <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
+                      Performance / Live Event
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Promote concerts, DJ sets, live streams, or virtual events.
+                    </p>
+                    <div className="text-xs text-primary font-medium mb-2">
+                      Goal: ticket sales, attendance, reach
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      <Badge variant="secondary" className="text-xs">Artists</Badge>
+                      <Badge variant="secondary" className="text-xs">DJs</Badge>
+                      <Badge variant="secondary" className="text-xs">Festivals</Badge>
+                      <Badge variant="secondary" className="text-xs">Studios</Badge>
+                    </div>
+                  </button>
                     </>
                   )}
 
                   {/* Service Offering Mode - Get Rewarded */}
                   {campaignMode === 'get_rewarded' && (
                     <>
-                      {/* Visual Services Offering */}
+                      {/* 1. Music Production Services */}
                       <button
-                        onClick={() => handleCampaignTypeSelect('visual_services_offering')}
+                        onClick={() => handleCampaignTypeSelect('song_content_promotion')}
                         className="group relative p-6 border-2 rounded-lg text-left transition-all hover:border-primary hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary"
                       >
-                        <div className="text-4xl mb-3">📸</div>
+                        <div className="text-4xl mb-3">🎵</div>
                         <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
-                          Visual Services Offering
+                          Music Production Services
                         </h3>
                         <p className="text-sm text-muted-foreground mb-3">
-                          Showcase your visual production services and accept client bookings.
+                          Offer beat making, mixing, mastering, or full production services.
                         </p>
                         <div className="text-xs text-primary font-medium mb-2">
-                          Goal: showcase services, attract clients, accept bookings
+                          Goal: attract artists, showcase work, get hired
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          <Badge variant="secondary" className="text-xs">Producers</Badge>
+                          <Badge variant="secondary" className="text-xs">Beat Makers</Badge>
+                          <Badge variant="secondary" className="text-xs">Audio Engineers</Badge>
+                          <Badge variant="secondary" className="text-xs">Studios</Badge>
+                        </div>
+                      </button>
+
+                      {/* 2. Collaboration Services */}
+                      <button
+                        onClick={() => handleCampaignTypeSelect('collaboration_campaign')}
+                        className="group relative p-6 border-2 rounded-lg text-left transition-all hover:border-primary hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <div className="text-4xl mb-3">🤝</div>
+                        <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
+                          Collaboration Services
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Partner with artists, producers, or brands on joint projects.
+                        </p>
+                        <div className="text-xs text-primary font-medium mb-2">
+                          Goal: find partnerships, co-create, split revenue
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          <Badge variant="secondary" className="text-xs">Artists</Badge>
+                          <Badge variant="secondary" className="text-xs">Producers</Badge>
+                          <Badge variant="secondary" className="text-xs">Songwriters</Badge>
+                          <Badge variant="secondary" className="text-xs">Visual Creatives</Badge>
+                        </div>
+                      </button>
+
+                      {/* 3. Visual Production Services */}
+                      <button
+                        onClick={() => handleCampaignTypeSelect('visual_production')}
+                        className="group relative p-6 border-2 rounded-lg text-left transition-all hover:border-primary hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <div className="text-4xl mb-3">🎬</div>
+                        <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
+                          Visual Production Services
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Provide music videos, photography, cover art, or visual content creation.
+                        </p>
+                        <div className="text-xs text-primary font-medium mb-2">
+                          Goal: showcase portfolio, attract clients, accept bookings
                         </div>
                         <div className="flex flex-wrap gap-1">
                           <Badge variant="secondary" className="text-xs">Visual Creatives</Badge>
                           <Badge variant="secondary" className="text-xs">Photographers</Badge>
                           <Badge variant="secondary" className="text-xs">Videographers</Badge>
                           <Badge variant="secondary" className="text-xs">Studios</Badge>
+                        </div>
+                      </button>
+
+                      {/* 4. Brand Collaboration Services */}
+                      <button
+                        onClick={() => handleCampaignTypeSelect('brand_partnership')}
+                        className="group relative p-6 border-2 rounded-lg text-left transition-all hover:border-primary hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <div className="text-4xl mb-3">🏢</div>
+                        <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
+                          Brand Collaboration Services
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Offer influencer services, sponsored content, or brand ambassador opportunities.
+                        </p>
+                        <div className="text-xs text-primary font-medium mb-2">
+                          Goal: partner with brands, sponsored opportunities
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          <Badge variant="secondary" className="text-xs">Influencers</Badge>
+                          <Badge variant="secondary" className="text-xs">Artists</Badge>
+                          <Badge variant="secondary" className="text-xs">Creators</Badge>
+                          <Badge variant="secondary" className="text-xs">Content Creators</Badge>
+                        </div>
+                      </button>
+
+                      {/* 5. Community Management Services */}
+                      <button
+                        onClick={() => handleCampaignTypeSelect('community_campaign')}
+                        className="group relative p-6 border-2 rounded-lg text-left transition-all hover:border-primary hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <div className="text-4xl mb-3">👥</div>
+                        <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
+                          Community Management Services
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Provide social media management, community building, or fan engagement services.
+                        </p>
+                        <div className="text-xs text-primary font-medium mb-2">
+                          Goal: manage communities, grow audiences, engagement
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          <Badge variant="secondary" className="text-xs">Social Media Managers</Badge>
+                          <Badge variant="secondary" className="text-xs">Community Leaders</Badge>
+                          <Badge variant="secondary" className="text-xs">Strategists</Badge>
+                        </div>
+                      </button>
+
+                      {/* 6. Performance Services */}
+                      <button
+                        onClick={() => handleCampaignTypeSelect('performance_live_event')}
+                        className="group relative p-6 border-2 rounded-lg text-left transition-all hover:border-primary hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <div className="text-4xl mb-3">🎤</div>
+                        <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
+                          Performance Services
+                        </h3>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Offer live performances, DJ sets, hosting, or event entertainment.
+                        </p>
+                        <div className="text-xs text-primary font-medium mb-2">
+                          Goal: book gigs, showcase talent, event opportunities
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          <Badge variant="secondary" className="text-xs">Artists</Badge>
+                          <Badge variant="secondary" className="text-xs">DJs</Badge>
+                          <Badge variant="secondary" className="text-xs">Performers</Badge>
+                          <Badge variant="secondary" className="text-xs">Entertainers</Badge>
                         </div>
                       </button>
                     </>
