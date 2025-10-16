@@ -184,7 +184,7 @@ const CampaignCard = ({
           <div className={`
             relative overflow-hidden rounded-lg border border-yellow-600/30 
             bg-gradient-to-br from-yellow-50 via-amber-50 to-yellow-100 
-            dark:from-yellow-950/40 dark:via-amber-950/30 dark:to-yellow-900/20 
+            dark:from-yellow-950/95 dark:via-amber-950/95 dark:to-yellow-900/90 
             shadow-[0_6px_18px_-4px_rgba(234,179,8,0.3)] 
             transition-all duration-300 ease-in-out
             hover:shadow-[0_8px_24px_-6px_rgba(234,179,8,0.5)] hover:scale-105
@@ -234,7 +234,7 @@ const CampaignCard = ({
           <div className={`
             relative overflow-hidden rounded-lg border border-blue-600/30 
             bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 
-            dark:from-blue-950/40 dark:via-cyan-950/30 dark:to-blue-900/20 
+            dark:from-blue-950/95 dark:via-cyan-950/95 dark:to-blue-900/90 
             shadow-[0_6px_18px_-4px_rgba(59,130,246,0.3)] 
             transition-all duration-300 ease-in-out
             hover:shadow-[0_8px_24px_-6px_rgba(59,130,246,0.5)] hover:scale-105
