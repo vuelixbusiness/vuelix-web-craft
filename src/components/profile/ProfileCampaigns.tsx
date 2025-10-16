@@ -338,7 +338,7 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => navigate('/artist-campaign-flow')}
+                onClick={() => navigate('/artist-campaign')}
                 className="gap-2"
               >
                 <Plus className="h-4 w-4" />
@@ -422,7 +422,7 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => navigate('/artist-campaign-flow')}
+                onClick={() => navigate('/artist-campaign')}
                 className="gap-2"
               >
                 <Plus className="h-4 w-4" />

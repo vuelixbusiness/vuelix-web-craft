@@ -86,7 +86,7 @@ const CompactArtistCampaigns = () => {
           No campaigns created yet
         </p>
         <Button asChild size="sm">
-          <Link to="/artist-campaign-flow">
+          <Link to="/artist-campaign">
             <Plus className="w-4 h-4 mr-2" />
             Create Campaign
           </Link>
