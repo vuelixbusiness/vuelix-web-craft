@@ -1,10 +1,13 @@
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { UserRole, RoleConfig } from '@/config/roleConfig';
 import { useAuth } from '@/contexts/AuthContext';
 import { ProfileCampaigns } from '@/components/profile/ProfileCampaigns';
 import { ProfilePortfolio } from '@/components/profile/ProfilePortfolio';
-import { Briefcase, ShoppingBag, Calendar } from 'lucide-react';
+import { AddEventDialog } from '@/components/profile/AddEventDialog';
+import { Briefcase, ShoppingBag, Calendar, Plus } from 'lucide-react';
 
 interface ProfileHubProps {
   role: UserRole;
@@ -14,6 +17,7 @@ interface ProfileHubProps {
 export const ProfileHub = ({ role, roleConfig }: ProfileHubProps) => {
   const { user } = useAuth();
   const features = roleConfig.modules.profile.features || [];
+  const [addEventDialogOpen, setAddEventDialogOpen] = useState(false);
 
   if (!user) {
     return (
@@ -108,9 +112,20 @@ export const ProfileHub = ({ role, roleConfig }: ProfileHubProps) => {
         {showEvents && (
           <TabsContent value="events" className="space-y-4">
             <Card>
-              <CardHeader>
-                <CardTitle>Events</CardTitle>
-                <CardDescription>Your upcoming and past events</CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <div className="space-y-1.5">
+                  <CardTitle>Events</CardTitle>
+                  <CardDescription>Your upcoming and past events</CardDescription>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setAddEventDialogOpen(true)}
+                  className="gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span className="hidden sm:inline">Add Event</span>
+                </Button>
               </CardHeader>
               <CardContent className="py-12">
                 <div className="text-center text-muted-foreground">
@@ -123,6 +138,11 @@ export const ProfileHub = ({ role, roleConfig }: ProfileHubProps) => {
           </TabsContent>
         )}
       </Tabs>
+
+      <AddEventDialog 
+        open={addEventDialogOpen}
+        onClose={() => setAddEventDialogOpen(false)}
+      />
     </div>
   );
 };
