@@ -225,11 +225,11 @@ const CampaignCard = ({
             e.stopPropagation();
             setIsRateBoxExpanded(!isRateBoxExpanded);
           }}
-          aria-label={isRateBoxExpanded ? "Collapse rate details" : "Expand rate details"}
-          title={isRateBoxExpanded 
-            ? "Click to collapse" 
-            : `Starting Rate: €${campaign.starting_rate}`
-          }
+              aria-label={isRateBoxExpanded ? "Collapse service fee details" : "Expand service fee details"}
+              title={isRateBoxExpanded 
+                ? "Click to collapse" 
+                : `Service Fee: €${campaign.starting_rate}`
+              }
         >
           <div className={`
             relative overflow-hidden rounded-lg border border-blue-600/30 
@@ -255,9 +255,9 @@ const CampaignCard = ({
                 flex flex-col overflow-hidden transition-all duration-300 ease-in-out
                 ${isRateBoxExpanded ? 'max-w-[200px] opacity-100' : 'max-w-0 opacity-0'}
               `}>
-                <p className="text-[8px] font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400/90 mb-0 whitespace-nowrap">
-                  Rate
-                </p>
+              <p className="text-[8px] font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400/90 mb-0 whitespace-nowrap">
+                Service Fee
+              </p>
                 <p className="text-xs font-bold text-blue-900 dark:text-blue-200 leading-tight whitespace-nowrap">
                   €{(campaign.starting_rate || campaign.budget)?.toFixed(2)}
                 </p>
