@@ -42,6 +42,8 @@ interface Campaign {
   description?: string;
   rules?: string;
   end_date?: string;
+  campaign_mode?: string;
+  starting_rate?: number;
   profiles?: {
     display_name?: string;
     username?: string;
@@ -106,7 +108,9 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
           rules,
           end_date,
           artist_id,
-          approval_required
+          approval_required,
+          campaign_mode,
+          starting_rate
         `)
         .eq('artist_id', userId)
         .order('created_at', { ascending: false });
