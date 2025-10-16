@@ -57,6 +57,8 @@ interface Campaign {
   totalViews?: number;
   totalLikes?: number;
   activeCreators?: number;
+  campaign_mode?: string;
+  starting_rate?: number;
   // Submission-specific fields
   current_views?: number;
   current_likes?: number;
@@ -72,6 +74,7 @@ interface CampaignCardProps {
   showJoinButton?: boolean;
   showPlayButton?: boolean;
   isJoined?: boolean;
+  isServiceOffering?: boolean;
   onJoinCampaign?: (campaign: Campaign) => void;
   onCampaignClick?: (campaign: Campaign) => void;
   onAudioToggle?: (campaignId: string, songUrl: string) => void;
@@ -85,6 +88,7 @@ const CampaignCard = ({
   showJoinButton = false,
   showPlayButton = true,
   isJoined = false,
+  isServiceOffering = false,
   onJoinCampaign,
   onCampaignClick,
   onAudioToggle,
@@ -161,8 +165,8 @@ const CampaignCard = ({
       } ${className}`}
       onClick={() => onCampaignClick?.(campaign)}
     >
-      {/* Reward Box - Top Right Corner */}
-      {variant === 'creator-available' && (
+      {/* Reward Box - Top Right Corner - Hide for service offerings */}
+      {variant === 'creator-available' && !isServiceOffering && campaign.campaign_mode !== 'get_rewarded' && (
         <div 
           className="absolute top-3 right-3 z-10 group cursor-pointer"
           onClick={(e) => {
@@ -447,7 +451,7 @@ const CampaignCard = ({
                 onClick={() => onJoinCampaign?.(campaign)}
                 className="w-full bg-gradient-primary text-primary-foreground hover:bg-gradient-primary/90"
               >
-                Join Campaign
+                {isServiceOffering || campaign.campaign_mode === 'get_rewarded' ? 'Request Service' : 'Join Campaign'}
               </Button>
             </div>
           )}

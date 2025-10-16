@@ -117,31 +117,44 @@ const ArtistCampaignFlow = () => {
 
   // Transform campaignData to Campaign interface for CampaignCard
   const transformToCampaign = useCallback(() => {
-
-    return {
+    const baseData = {
       id: 'preview-campaign',
-      song_title: campaignData.songTitle || 'Song Title',
-      title: `${campaignData.songTitle || 'Song Title'} Campaign`,
+      song_title: campaignData.songTitle || (campaignMode === 'get_rewarded' ? 'Service Name' : 'Song Title'),
+      title: `${campaignData.songTitle || (campaignMode === 'get_rewarded' ? 'Service Name' : 'Song Title')} ${campaignMode === 'get_rewarded' ? '' : 'Campaign'}`,
       cover_art_url: memoizedCoverArtUrl,
       song_url: memoizedSongUrl,
       genre: campaignData.genre,
       platforms: campaignData.platforms,
-      payout_rate: campaignData.payoutRate,
-      payout_type: campaignData.payoutType,
-      hybrid_reward_description: campaignData.hybridRewardDescription,
-      fixed_rate_description: campaignData.fixedRateDescription,
-      budget: campaignData.budget || 0,
       description: campaignData.instructions,
       rules: campaignData.rules,
       profiles: { display_name: user?.name || 'Unknown Artist' },
-      budgetUsedPercentage: 0,
-      availableBudget: campaignData.budget || 0,
-      redeemed: 0,
       views: 0,
       likes: 0,
       activeCreators: 0
     };
-  }, [campaignData, memoizedCoverArtUrl, memoizedSongUrl, user]);
+
+    // Only add reward fields for 'reward_others' mode
+    if (campaignMode === 'reward_others') {
+      return {
+        ...baseData,
+        payout_rate: campaignData.payoutRate,
+        payout_type: campaignData.payoutType,
+        hybrid_reward_description: campaignData.hybridRewardDescription,
+        fixed_rate_description: campaignData.fixedRateDescription,
+        budget: campaignData.budget || 0,
+        budgetUsedPercentage: 0,
+        availableBudget: campaignData.budget || 0,
+        redeemed: 0
+      };
+    }
+
+    // For 'get_rewarded' mode, add service-specific fields
+    return {
+      ...baseData,
+      starting_rate: (campaignData as any).totalInvestment || 0,
+      campaign_mode: 'get_rewarded'
+    };
+  }, [campaignData, memoizedCoverArtUrl, memoizedSongUrl, user, campaignMode]);
 
   const handleSongFileUpload = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -426,7 +439,11 @@ const ArtistCampaignFlow = () => {
   };
 
   const handleCampaignTypeSelect = (typeId: string) => {
-    const config = CAMPAIGN_FORM_CONFIGS[typeId];
+    // For service mode, always use the visual_services_offering config as template
+    const configKey = campaignMode === 'get_rewarded' 
+      ? 'visual_services_offering' 
+      : typeId;
+    const config = CAMPAIGN_FORM_CONFIGS[configKey];
     setFormConfig(config);
     updateCampaignData('campaignType', typeId);
     setCurrentStep(1); // Move to next step
@@ -1697,7 +1714,9 @@ const ArtistCampaignFlow = () => {
                     onCheckedChange={(checked) => updateCampaignData('approvalRequired', checked)}
                   />
                   <Label htmlFor="approval" className="text-base font-medium">
-                    Require approval before content goes live
+                    {campaignMode === 'get_rewarded'
+                      ? 'Review booking requests before confirming'
+                      : 'Require approval before content goes live'}
                   </Label>
                 </div>
 
@@ -1734,7 +1753,9 @@ const ArtistCampaignFlow = () => {
                     <span>Campaign Preview</span>
                   </CardTitle>
                   <CardDescription>
-                    This is how your campaign will appear to creators
+                    {campaignMode === 'get_rewarded'
+                      ? 'This is how your service will appear to potential clients'
+                      : 'This is how your campaign will appear to creators'}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -1748,6 +1769,7 @@ const ArtistCampaignFlow = () => {
                       variant="creator-available"
                       showJoinButton={false}
                       showPlayButton={true}
+                      isServiceOffering={campaignMode === 'get_rewarded'}
                       onAudioToggle={toggleAudioPreview}
                       isPlaying={isPlayingPreview}
                     />
@@ -1811,12 +1833,12 @@ const ArtistCampaignFlow = () => {
                     </div>
                     <p className="text-sm text-muted-foreground">
                       {formConfig?.step3.budgetDescription || 'Total amount you\'ll invest in this campaign'}
-                      {campaignData.campaignType !== 'visual_services_offering' && ' (includes 5% platform fee)'}
+                      {campaignMode !== 'get_rewarded' && ' (includes 5% platform fee)'}
                     </p>
                   </div>
 
-                  {/* Budget Summary - Hide for visual_services_offering */}
-                  {campaignData.campaignType !== 'visual_services_offering' && (campaignData as any).totalInvestment && campaignData.payoutRate && (
+                  {/* Budget Summary - Hide for service campaigns */}
+                  {campaignMode !== 'get_rewarded' && (campaignData as any).totalInvestment && campaignData.payoutRate && (
                     <Card className="bg-primary/5 border-primary/20">
                       <CardContent className="p-4">
                         <h4 className="font-medium mb-2">Budget Breakdown</h4>
