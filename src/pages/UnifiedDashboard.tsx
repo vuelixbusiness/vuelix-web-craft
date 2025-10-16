@@ -32,6 +32,23 @@ const UnifiedDashboard = () => {
   }
 
   const roleConfig = getRoleConfig(activeRole);
+  
+  if (!roleConfig) {
+    console.error('Invalid role configuration for:', activeRole);
+    return (
+      <DashboardLayout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <h2 className="text-2xl font-bold mb-4">Configuration Error</h2>
+            <p className="text-muted-foreground">
+              Your account role is not properly configured. Please contact support.
+            </p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+  
   const IconComponent = roleConfig.icon;
 
   const tabs = [

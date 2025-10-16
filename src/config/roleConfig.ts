@@ -1,4 +1,4 @@
-import { Music, Users, BarChart3, Settings, Disc, Palette, Building, Radio, Calendar, LucideIcon } from "lucide-react";
+import { Music, Users, BarChart3, Settings, Disc, Palette, Building, Radio, Calendar, Mic2, LucideIcon } from "lucide-react";
 
 export type UserRole = 
   | 'artist' 
@@ -10,7 +10,9 @@ export type UserRole =
   | 'record_label'
   | 'music_group'
   | 'collective'
-  | 'event_organizer';
+  | 'event_organizer'
+  | 'studio'
+  | 'festival_event';
 
 export type DashboardModule = 
   | 'profile'
@@ -335,6 +337,66 @@ export const ROLE_CONFIGURATIONS: Record<UserRole, RoleConfig> = {
       social_hub: { 
         visible: true,
         features: ['artist_booking', 'venue_network', 'attendee_engagement']
+      },
+      account_settings: { visible: true }
+    },
+    campaignActions: {
+      canCreate: true,
+      canJoin: false,
+      canManage: true
+    }
+  },
+  studio: {
+    name: "Studio",
+    description: "Audio/Visual production studio",
+    icon: Mic2,
+    color: "text-purple-500",
+    modules: {
+      profile: {
+        visible: true,
+        features: ['content_showcase', 'campaigns_created', 'portfolio', 'shop']
+      },
+      campaign_manager: { 
+        visible: true,
+        features: ['create_campaign', 'manage_campaigns', 'service_offerings']
+      },
+      analytics_hub: { 
+        visible: true,
+        features: ['studio_analytics', 'booking_metrics', 'revenue_tracking']
+      },
+      social_hub: { 
+        visible: true,
+        features: ['client_network', 'industry_connections', 'collaborations']
+      },
+      account_settings: { visible: true }
+    },
+    campaignActions: {
+      canCreate: true,
+      canJoin: false,
+      canManage: true
+    }
+  },
+  festival_event: {
+    name: "Festival/Event",
+    description: "Festival and event organization",
+    icon: Calendar,
+    color: "text-fuchsia-500",
+    modules: {
+      profile: {
+        visible: true,
+        features: ['content_showcase', 'campaigns_created', 'events']
+      },
+      campaign_manager: { 
+        visible: true,
+        features: ['create_campaign', 'event_promotion', 'artist_booking']
+      },
+      analytics_hub: { 
+        visible: true,
+        features: ['event_metrics', 'attendance_tracking', 'promotion_roi']
+      },
+      social_hub: { 
+        visible: true,
+        features: ['artist_network', 'venue_connections', 'attendee_engagement']
       },
       account_settings: { visible: true }
     },
