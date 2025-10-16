@@ -891,6 +891,29 @@ const ArtistCampaignFlow = () => {
                       <Badge variant="secondary" className="text-xs">Studios</Badge>
                     </div>
                   </button>
+
+                  {/* 7. Visual Services Offering */}
+                  <button
+                    onClick={() => handleCampaignTypeSelect('visual_services_offering')}
+                    className="group relative p-6 border-2 rounded-lg text-left transition-all hover:border-primary hover:shadow-lg hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    <div className="text-4xl mb-3">📸</div>
+                    <h3 className="text-lg font-bold mb-2 group-hover:text-primary transition-colors">
+                      Visual Services Offering
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Showcase your visual production services and accept client bookings.
+                    </p>
+                    <div className="text-xs text-primary font-medium mb-2">
+                      Goal: showcase services, attract clients, accept bookings
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      <Badge variant="secondary" className="text-xs">Visual Creatives</Badge>
+                      <Badge variant="secondary" className="text-xs">Photographers</Badge>
+                      <Badge variant="secondary" className="text-xs">Videographers</Badge>
+                      <Badge variant="secondary" className="text-xs">Studios</Badge>
+                    </div>
+                  </button>
                 </div>
               </CardContent>
             </Card>
