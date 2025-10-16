@@ -20,6 +20,8 @@ serve(async (req) => {
 
     const { username } = await req.json()
 
+    console.log('🔍 Resolving username:', username);
+
     if (!username) {
       return new Response(
         JSON.stringify({ error: 'Username is required' }),
@@ -30,14 +32,15 @@ serve(async (req) => {
       )
     }
 
-    // Look up the user by username in profiles table
+    // Look up the user by username in profiles table (case-insensitive)
     const { data: profile, error: profileError } = await supabaseClient
       .from('profiles')
       .select('user_id')
-      .eq('username', username)
+      .ilike('username', username)
       .single()
 
     if (profileError || !profile) {
+      console.log('❌ Username not found:', username, profileError);
       return new Response(
         JSON.stringify({ error: 'Username not found' }),
         { 
@@ -46,6 +49,8 @@ serve(async (req) => {
         }
       )
     }
+
+    console.log('✅ Username resolved:', username, '→', profile.user_id);
 
     // Get the email from auth.users using service role
     const { data: { user }, error: userError } = await supabaseClient.auth.admin.getUserById(profile.user_id)

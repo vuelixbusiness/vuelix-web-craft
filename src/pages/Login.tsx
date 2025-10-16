@@ -47,11 +47,14 @@ const Login = () => {
       navigate('/dashboard');
     } else {
       const isEmail = usernameOrEmail.includes('@');
+      
+      const errorMessage = isEmail 
+        ? "Invalid email or password. Please check your credentials and try again."
+        : "Login failed. This could mean:\n• The username doesn't exist\n• The password is incorrect\n• Try logging in with your email instead";
+      
       toast({
         title: "Login failed",
-        description: isEmail 
-          ? "Please check your email and password and try again"
-          : "Username not found or incorrect password. Please try again",
+        description: errorMessage,
         variant: "destructive"
       });
     }
@@ -131,6 +134,9 @@ const Login = () => {
               <div className="space-y-2">
                 <Label htmlFor="usernameOrEmail">Email or Username</Label>
                 <Input id="usernameOrEmail" type="text" placeholder="Enter your email or username" value={usernameOrEmail} onChange={e => setUsernameOrEmail(e.target.value)} required />
+                <p className="text-xs text-muted-foreground">
+                  Tip: Username login is case-insensitive. Email login is recommended.
+                </p>
               </div>
 
               <div className="space-y-2">
