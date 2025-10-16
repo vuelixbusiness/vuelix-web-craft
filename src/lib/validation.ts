@@ -50,6 +50,8 @@ export const campaignSchema = z.object({
     .min(1, 'Select at least one platform')
     .max(10, 'Maximum 10 platforms allowed'),
   
+  campaignMode: z.enum(['reward_others', 'get_rewarded']).optional().nullable(),
+  
   payoutType: z.union([
     z.literal('performance_based'),
     z.literal('fixed_rate'),
@@ -134,12 +136,12 @@ export const campaignSchema = z.object({
     .optional()
     .nullable()
 }).refine((data) => {
-  // visual_services_offering doesn't require payout type
-  if (data.campaignType === 'visual_services_offering') {
+  // Service mode campaigns don't require payout type or rates
+  if (data.campaignMode === 'get_rewarded' || data.campaignType === 'visual_services_offering') {
     return true;
   }
   
-  // For other campaign types, validate payout requirements
+  // For reward_others campaigns, validate payout requirements
   if (!data.payoutType) {
     return false;
   }

@@ -485,6 +485,7 @@ const ArtistCampaignFlow = () => {
         artistName: user.id, // Use user ID as placeholder since we store artist_id
         genre: campaignData.genre === 'Custom' ? campaignData.customGenre : campaignData.genre,
         campaignType: campaignData.campaignType,
+        campaignMode: campaignMode,
         platforms: campaignData.platforms,
         payoutType: campaignData.payoutType,
         budget: campaignData.budget,
