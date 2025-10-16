@@ -20,7 +20,8 @@ import {
   Users,
   CheckSquare,
   ExternalLink,
-  Music
+  Music,
+  Euro
 } from "lucide-react";
 import PotIcon from "@/components/ui/pot-icon";
 import { FaTiktok, FaInstagram, FaYoutube, FaTwitter } from "react-icons/fa";
@@ -99,6 +100,7 @@ const CampaignCard = ({
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isAudioExpanded, setIsAudioExpanded] = useState(false);
   const [isRewardBoxExpanded, setIsRewardBoxExpanded] = useState(true);
+  const [isRateBoxExpanded, setIsRateBoxExpanded] = useState(false);
   
   const platformIcons = {
     tiktok: <FaTiktok className="w-4 h-4" />,
@@ -215,6 +217,55 @@ const CampaignCard = ({
         </div>
       )}
 
+      {/* Rate Box - Top Right Corner - Show for service offerings */}
+      {variant === 'creator-available' && (isServiceOffering || campaign.campaign_mode === 'get_rewarded') && campaign.starting_rate && (
+        <div 
+          className="absolute top-3 right-3 z-10 group cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsRateBoxExpanded(!isRateBoxExpanded);
+          }}
+          aria-label={isRateBoxExpanded ? "Collapse rate details" : "Expand rate details"}
+          title={isRateBoxExpanded 
+            ? "Click to collapse" 
+            : `Starting Rate: €${campaign.starting_rate}`
+          }
+        >
+          <div className={`
+            relative overflow-hidden rounded-lg border border-blue-600/30 
+            bg-gradient-to-br from-blue-50 via-cyan-50 to-blue-100 
+            dark:from-blue-950/40 dark:via-cyan-950/30 dark:to-blue-900/20 
+            shadow-[0_6px_18px_-4px_rgba(59,130,246,0.3)] 
+            transition-all duration-300 ease-in-out
+            hover:shadow-[0_8px_24px_-6px_rgba(59,130,246,0.5)] hover:scale-105
+            ${isRateBoxExpanded ? 'p-2' : 'p-1.5'}
+          `}>
+            {/* Subtle glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-400/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            
+            {/* Content */}
+            <div className="relative flex items-center space-x-1.5">
+              {/* Icon */}
+              <div className={`flex-shrink-0 transition-all duration-300`}>
+                <Euro className={`drop-shadow-lg transition-all duration-300 text-blue-700 dark:text-blue-400 ${isRateBoxExpanded ? 'w-4 h-4' : 'w-5 h-5'}`} />
+              </div>
+              
+              {/* Text Content - Animated */}
+              <div className={`
+                flex flex-col overflow-hidden transition-all duration-300 ease-in-out
+                ${isRateBoxExpanded ? 'max-w-[200px] opacity-100' : 'max-w-0 opacity-0'}
+              `}>
+                <p className="text-[8px] font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400/90 mb-0 whitespace-nowrap">
+                  Rate
+                </p>
+                <p className="text-xs font-bold text-blue-900 dark:text-blue-200 leading-tight whitespace-nowrap">
+                  €{campaign.starting_rate.toFixed(2)}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Timer - Bottom Right Corner for Submissions */}
       {variant === 'creator-submission' && campaign.status && campaign.updated_at && (

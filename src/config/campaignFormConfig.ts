@@ -443,13 +443,6 @@ export const CAMPAIGN_FORM_CONFIGS: Record<string, CampaignFormConfig> = {
           type: 'select',
           options: ['Local only', 'Regional (within state)', 'National', 'International', 'Remote work only'],
           required: false
-        },
-        {
-          id: 'pricing_structure',
-          label: 'Pricing Structure',
-          type: 'textarea',
-          placeholder: 'Detail your pricing tiers:\n• Basic package: $X (what\'s included)\n• Standard: $X (what\'s included)\n• Premium: $X (what\'s included)',
-          required: true
         }
       ]
     },
