@@ -40,7 +40,8 @@ export const campaignSchema = z.object({
     'visual_production',
     'brand_partnership',
     'community_campaign',
-    'performance_live_event'
+    'performance_live_event',
+    'visual_services_offering'
   ], {
     errorMap: () => ({ message: 'Please select a valid campaign type' })
   }),
@@ -53,7 +54,7 @@ export const campaignSchema = z.object({
     z.literal('performance_based'),
     z.literal('fixed_rate'),
     z.literal('hybrid')
-  ]),
+  ]).optional().nullable(),
   
   budget: z.number()
     .positive('Budget must be greater than 0')
@@ -133,6 +134,16 @@ export const campaignSchema = z.object({
     .optional()
     .nullable()
 }).refine((data) => {
+  // visual_services_offering doesn't require payout type
+  if (data.campaignType === 'visual_services_offering') {
+    return true;
+  }
+  
+  // For other campaign types, validate payout requirements
+  if (!data.payoutType) {
+    return false;
+  }
+  
   // For performance_based, require payoutRate
   if (data.payoutType === 'performance_based') {
     return data.payoutRate != null && data.payoutRate > 0;

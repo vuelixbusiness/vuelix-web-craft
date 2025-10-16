@@ -373,6 +373,92 @@ export const CAMPAIGN_FORM_CONFIGS: Record<string, CampaignFormConfig> = {
       endDateLabel: 'Promotion End Date',
       endDateDescription: 'When should promotion end? (typically event date)'
     }
+  },
+
+  visual_services_offering: {
+    icon: '📸',
+    goal: 'showcase services, attract clients, accept bookings',
+    bestFor: ['Visual Creatives', 'Photographers', 'Videographers', 'Studios', 'Editors'],
+    step1: {
+      title: 'Showcase Your Services',
+      description: 'Display your expertise, equipment, and portfolio',
+      assetUploadLabel: 'Upload Portfolio Samples',
+      assetUploadDescription: 'Upload your best work samples (videos, photos, reels)',
+      acceptedFileTypes: 'image/*,video/*',
+      assetTitleLabel: 'Service Title',
+      assetTitlePlaceholder: 'e.g., Professional Music Video Production',
+      coverArtLabel: 'Featured Work',
+      coverArtDescription: 'Upload your signature piece or best work sample',
+      genreLabel: 'Service Type',
+      genres: [
+        'Music Video Production',
+        'Photography (Portrait/Lifestyle)',
+        'Album Cover Art',
+        'Short Film Production',
+        'Documentary Filming',
+        'Animation & Motion Graphics',
+        'Lyric Video Creation',
+        'Live Event Recording',
+        'Video Editing Services',
+        'Color Grading',
+        'Custom'
+      ],
+      platforms: ['youtube', 'instagram', 'vimeo', 'behance', 'website'],
+      platformsLabel: 'Portfolio Platforms (where clients can see your work)'
+    },
+    step2: {
+      title: 'Service Details & Terms',
+      description: 'Define what you offer and your booking requirements',
+      instructionsLabel: 'Service Description',
+      instructionsPlaceholder: 'Describe your services in detail. Include:\n• Your creative style and approach\n• Equipment you use (cameras, lenses, software)\n• Your experience and notable clients\n• What makes your service unique\n• Typical turnaround time',
+      rulesLabel: 'Booking Requirements & Terms',
+      rulesPlaceholder: 'Define your service terms:\n• Advance booking time required\n• Deposit requirements\n• Revision policy\n• Travel availability\n• File delivery formats\n• Usage rights and licensing',
+      referenceLinksLabel: 'Portfolio Links',
+      referenceLinksPlaceholder: 'Link to your full portfolio, showreel, or website:\n• YouTube channel\n• Instagram portfolio\n• Vimeo showcase\n• Personal website',
+      additionalFields: [
+        {
+          id: 'equipment_list',
+          label: 'Equipment & Tools',
+          type: 'textarea',
+          placeholder: 'List your professional equipment:\n• Cameras (e.g., Sony A7S III, Canon R5)\n• Lenses\n• Software (Adobe Premiere, DaVinci Resolve, etc.)\n• Additional gear (drones, gimbals, lighting)',
+          required: false
+        },
+        {
+          id: 'deliverables',
+          label: 'What\'s Included',
+          type: 'textarea',
+          placeholder: 'What do clients receive?\n• Number of edited videos/photos\n• RAW files included?\n• How many revision rounds?\n• Color grading?\n• Music licensing assistance?',
+          required: true
+        },
+        {
+          id: 'turnaround_time',
+          label: 'Typical Turnaround Time',
+          type: 'text',
+          placeholder: 'e.g., 2-3 weeks after shoot',
+          required: true
+        },
+        {
+          id: 'travel_availability',
+          label: 'Travel Availability',
+          type: 'select',
+          options: ['Local only', 'Regional (within state)', 'National', 'International', 'Remote work only'],
+          required: false
+        },
+        {
+          id: 'pricing_structure',
+          label: 'Pricing Structure',
+          type: 'textarea',
+          placeholder: 'Detail your pricing tiers:\n• Basic package: $X (what\'s included)\n• Standard: $X (what\'s included)\n• Premium: $X (what\'s included)',
+          required: true
+        }
+      ]
+    },
+    step3: {
+      budgetLabel: 'Starting Rate',
+      budgetDescription: 'What is your starting rate for this service? (This will be visible to potential clients)',
+      endDateLabel: 'Availability Period',
+      endDateDescription: 'How long is this service offering active? (Optional - leave blank for always available)'
+    }
   }
 };
 

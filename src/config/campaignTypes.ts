@@ -41,6 +41,12 @@ export const CAMPAIGN_TYPES: CampaignType[] = [
     label: 'Performance / Live Event',
     icon: '🎤',
     description: 'Promote concerts, festivals, and live performances'
+  },
+  {
+    id: 'visual_services_offering',
+    label: 'Visual Services Offering',
+    icon: '📸',
+    description: 'Showcase your visual production services and accept bookings'
   }
 ];
 

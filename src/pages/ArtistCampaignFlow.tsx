@@ -1165,7 +1165,9 @@ const ArtistCampaignFlow = () => {
                   disabled={!canContinue(1)}
                   onClick={() => setCurrentStep(2)}
                 >
-                  Continue to Rewards
+                  {campaignData.campaignType === 'visual_services_offering' 
+                    ? 'Continue to Service Details' 
+                    : 'Continue to Rewards'}
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </CardContent>
@@ -1185,41 +1187,45 @@ const ArtistCampaignFlow = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Reward Type */}
-                <div className="space-y-2">
-                  <Label className="text-base font-medium">Reward Type</Label>
-                  <Select 
-                    value={campaignData.payoutType} 
-                    onValueChange={(value) => updateCampaignData('payoutType', value)}
-                  >
-                    <SelectTrigger className="bg-background border-border">
-                      <SelectValue placeholder="Choose Reward" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background border-border z-50">
-                      <SelectItem value="performance_based">
-                        <div className="flex items-center space-x-2">
-                          <TrendingUp className="w-4 h-4" />
-                          <span>Performance Based - Rewards based on metrics</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="fixed_rate">
-                        <div className="flex items-center space-x-2">
-                          <DollarSign className="w-4 h-4" />
-                          <span>Fixed Rate - Set payment amount</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="hybrid">
-                        <div className="flex items-center space-x-2">
-                          <Zap className="w-4 h-4" />
-                          <span>Hybrid - Combination of both</span>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                {/* Reward Type - Hide for visual_services_offering */}
+                {campaignData.campaignType !== 'visual_services_offering' && (
+                  <div className="space-y-2">
+                    <Label className="text-base font-medium">Reward Type</Label>
+                    <Select 
+                      value={campaignData.payoutType} 
+                      onValueChange={(value) => updateCampaignData('payoutType', value)}
+                    >
+                      <SelectTrigger className="bg-background border-border">
+                        <SelectValue placeholder="Choose Reward" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background border-border z-50">
+                        <SelectItem value="performance_based">
+                          <div className="flex items-center space-x-2">
+                            <TrendingUp className="w-4 h-4" />
+                            <span>Performance Based - Rewards based on metrics</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="fixed_rate">
+                          <div className="flex items-center space-x-2">
+                            <DollarSign className="w-4 h-4" />
+                            <span>Fixed Rate - Set payment amount</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="hybrid">
+                          <div className="flex items-center space-x-2">
+                            <Zap className="w-4 h-4" />
+                            <span>Hybrid - Combination of both</span>
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
-                {/* Reward Rate Section - Conditional based on payoutType */}
-                {campaignData.payoutType === 'hybrid' ? (
+                {/* Reward Rate Section - Conditional based on payoutType - Hide for visual_services_offering */}
+                {campaignData.campaignType !== 'visual_services_offering' && (
+                  <>
+                    {campaignData.payoutType === 'hybrid' ? (
                   // HYBRID: Free-text custom reward structure
                   <div className="space-y-2">
                     <Label className="text-base font-medium">Hybrid Reward Structure</Label>
@@ -1311,35 +1317,82 @@ const ArtistCampaignFlow = () => {
                       </div>
                     </div>
                   </>
+                    )}
+                  </>
                 )}
 
-                {/* Creator Instructions */}
+                {/* Service-specific fields for visual_services_offering */}
+                {campaignData.campaignType === 'visual_services_offering' && formConfig.step2.additionalFields && (
+                  <>
+                    {formConfig.step2.additionalFields.map((field) => (
+                      <div key={field.id} className="space-y-2">
+                        <Label className="text-base font-medium">
+                          {field.label}
+                          {field.required && <span className="text-destructive ml-1">*</span>}
+                        </Label>
+                        {field.type === 'textarea' ? (
+                          <Textarea 
+                            placeholder={field.placeholder}
+                            className="min-h-[120px]"
+                            value={(campaignData as any)[field.id] || ''}
+                            onChange={(e) => updateCampaignData(field.id as keyof CampaignData, e.target.value)}
+                          />
+                        ) : field.type === 'select' ? (
+                          <Select 
+                            value={(campaignData as any)[field.id] || ''} 
+                            onValueChange={(value) => updateCampaignData(field.id as keyof CampaignData, value)}
+                          >
+                            <SelectTrigger className="bg-background border-border">
+                              <SelectValue placeholder={field.placeholder || `Select ${field.label.toLowerCase()}`} />
+                            </SelectTrigger>
+                            <SelectContent className="bg-background border-border z-50">
+                              {field.options?.map((option) => (
+                                <SelectItem key={option} value={option}>
+                                  {option}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        ) : (
+                          <Input 
+                            type={field.type}
+                            placeholder={field.placeholder}
+                            value={(campaignData as any)[field.id] || ''}
+                            onChange={(e) => updateCampaignData(field.id as keyof CampaignData, e.target.value)}
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </>
+                )}
+
+                {/* Instructions - Use formConfig labels */}
                 <div className="space-y-2">
-                  <Label className="text-base font-medium">Creator Instructions</Label>
+                  <Label className="text-base font-medium">{formConfig.step2.instructionsLabel}</Label>
                   <Textarea 
-                    placeholder="Provide clear instructions for creators. Include any specific requirements, hashtags to use, or creative direction..."
+                    placeholder={formConfig.step2.instructionsPlaceholder}
                     className="min-h-[120px]"
                     value={campaignData.instructions || ''}
                     onChange={(e) => updateCampaignData('instructions', e.target.value)}
                   />
                 </div>
 
-                {/* Campaign Rules */}
+                {/* Rules - Use formConfig labels */}
                 <div className="space-y-2">
-                  <Label className="text-base font-medium">Campaign Rules</Label>
+                  <Label className="text-base font-medium">{formConfig.step2.rulesLabel}</Label>
                   <Textarea 
-                    placeholder="Set clear rules for participation. Examples: Must include song title in caption, Must use specified hashtags, No explicit content, Must be original content..."
+                    placeholder={formConfig.step2.rulesPlaceholder}
                     className="min-h-[120px]"
                     value={campaignData.rules || ''}
                     onChange={(e) => updateCampaignData('rules', e.target.value)}
                   />
                 </div>
 
-                {/* Reference Links */}
+                {/* Reference Links - Use formConfig labels */}
                 <div className="space-y-2">
-                  <Label className="text-base font-medium">Reference Links (Optional)</Label>
+                  <Label className="text-base font-medium">{formConfig.step2.referenceLinksLabel}</Label>
                   <Textarea 
-                    placeholder="Add links to example videos, mood boards, or other reference materials..."
+                    placeholder={formConfig.step2.referenceLinksPlaceholder}
                     className="min-h-[80px]"
                     value={campaignData.referenceLinks || ''}
                     onChange={(e) => updateCampaignData('referenceLinks', e.target.value)}
@@ -1467,12 +1520,13 @@ const ArtistCampaignFlow = () => {
                       />
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      {formConfig?.step3.budgetDescription || 'Total amount you\'ll invest in this campaign'} (includes 5% platform fee)
+                      {formConfig?.step3.budgetDescription || 'Total amount you\'ll invest in this campaign'}
+                      {campaignData.campaignType !== 'visual_services_offering' && ' (includes 5% platform fee)'}
                     </p>
                   </div>
 
-                  {/* Budget Summary */}
-                  {(campaignData as any).totalInvestment && campaignData.payoutRate && (
+                  {/* Budget Summary - Hide for visual_services_offering */}
+                  {campaignData.campaignType !== 'visual_services_offering' && (campaignData as any).totalInvestment && campaignData.payoutRate && (
                     <Card className="bg-primary/5 border-primary/20">
                       <CardContent className="p-4">
                         <h4 className="font-medium mb-2">Budget Breakdown</h4>
