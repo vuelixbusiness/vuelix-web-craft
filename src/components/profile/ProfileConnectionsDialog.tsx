@@ -71,11 +71,7 @@ export function ProfileConnectionsDialog({ open, onClose, userId, type }: Profil
           `)
           .eq('followed_id', userId);
 
-        if (error) {
-          console.error('Error fetching followers:', error);
-        }
         if (!error && followers) {
-          console.log('Followers data:', followers);
           data = followers.map(f => f.profiles as unknown as ConnectionUser).filter(Boolean);
         }
       } else if (type === 'partners') {
@@ -96,11 +92,7 @@ export function ProfileConnectionsDialog({ open, onClose, userId, type }: Profil
           .or(`user_id.eq.${userId},partner_id.eq.${userId}`)
           .eq('status', 'accepted');
 
-        if (error) {
-          console.error('Error fetching partners:', error);
-        }
         if (!error && partnerships) {
-          console.log('Partners data:', partnerships);
           data = partnerships.map(p => p.profiles as unknown as ConnectionUser).filter(Boolean);
         }
       } else if (type === 'following') {
@@ -119,16 +111,11 @@ export function ProfileConnectionsDialog({ open, onClose, userId, type }: Profil
           `)
           .eq('follower_id', userId);
 
-        if (error) {
-          console.error('Error fetching following:', error);
-        }
         if (!error && following) {
-          console.log('Following data:', following);
           data = following.map(f => f.profiles as unknown as ConnectionUser).filter(Boolean);
         }
       }
 
-      console.log('Final users data:', data);
       setUsers(data);
       setFilteredUsers(data);
     } catch (error) {
