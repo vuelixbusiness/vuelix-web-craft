@@ -120,6 +120,7 @@ export type Database = {
       }
       campaigns: {
         Row: {
+          achievement_badges: Json | null
           approval_required: boolean | null
           artist_id: string
           budget: number
@@ -149,6 +150,7 @@ export type Database = {
           vip_max_payout: number | null
         }
         Insert: {
+          achievement_badges?: Json | null
           approval_required?: boolean | null
           artist_id: string
           budget: number
@@ -178,6 +180,7 @@ export type Database = {
           vip_max_payout?: number | null
         }
         Update: {
+          achievement_badges?: Json | null
           approval_required?: boolean | null
           artist_id?: string
           budget?: number

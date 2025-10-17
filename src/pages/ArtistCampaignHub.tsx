@@ -24,6 +24,7 @@ interface Campaign {
   rules?: string;
   genre?: string;
   status?: string;
+  achievement_badges?: any[];
 }
 
 interface MediaAsset {
@@ -98,7 +99,7 @@ const ArtistCampaignHub = () => {
         return;
       }
 
-      setCampaign(campaignData);
+      setCampaign(campaignData as Campaign);
 
       // Fetch media assets
       const { data: mediaData, error: mediaError } = await supabase

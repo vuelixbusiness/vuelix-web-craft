@@ -15,6 +15,8 @@ import { CommunicationSection } from "./sections/CommunicationSection";
 import { UpdatesSection } from "./sections/UpdatesSection";
 import SubmissionsLog from "@/components/campaign-details/SubmissionsLog";
 import { SectionUpdateProvider, useSectionUpdates, type CampaignSectionType } from "@/contexts/SectionUpdateContext";
+import { BadgeManager } from "./BadgeManager";
+import type { BadgeConfig } from "./BadgeConfigDialog";
 
 interface Campaign {
   id: string;
@@ -34,6 +36,7 @@ interface Campaign {
   rules?: string;
   genre?: string;
   status?: string;
+  achievement_badges?: BadgeConfig[];
 }
 
 interface MediaAsset {
@@ -105,6 +108,7 @@ function ArtistCampaignHubContent({
   const [editForm, setEditForm] = useState({
     instructions: campaign.instructions || "",
     rules: campaign.rules || "",
+    achievement_badges: campaign.achievement_badges || [],
   });
   
   // Track submissions changes with proper state comparison
@@ -213,6 +217,7 @@ function ArtistCampaignHubContent({
           instructions: editForm.instructions || null,
           rules: editForm.rules || null,
           cover_art_url: coverArtUrl,
+          achievement_badges: editForm.achievement_badges as any,
         })
         .eq('id', campaign.id);
         
@@ -244,11 +249,12 @@ function ArtistCampaignHubContent({
       setEditForm({
         instructions: campaign.instructions || "",
         rules: campaign.rules || "",
+        achievement_badges: campaign.achievement_badges || [],
       });
       setCoverArtFile(null);
       setCoverArtPreview(null);
     }
-  }, [editDialogOpen, campaign.instructions, campaign.rules]);
+  }, [editDialogOpen, campaign.instructions, campaign.rules, campaign.achievement_badges]);
 
   // Helper function to transform submissions into unique participants
   const transformToParticipants = (submissions: Submission[]): UniqueParticipant[] => {
@@ -486,6 +492,12 @@ function ArtistCampaignHubContent({
                 <span className="text-xs text-muted-foreground">Max 5MB</span>
               </div>
             </div>
+
+            {/* Campaign Badges */}
+            <BadgeManager
+              badges={editForm.achievement_badges}
+              onChange={(badges) => setEditForm({ ...editForm, achievement_badges: badges })}
+            />
           </div>
 
           <DialogFooter>
