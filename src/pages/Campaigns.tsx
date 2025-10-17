@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import CampaignCard from "@/components/ui/campaign-card";
 import Navigation from "@/components/Navigation";
 import DashboardLayout from "@/components/DashboardLayout";
@@ -57,6 +59,9 @@ const Campaigns = () => {
   const [unclaimedRewards, setUnclaimedRewards] = useState<number>(0);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // View mode state
+  const [viewMode, setViewMode] = useState<'earn_rewards' | 'pay_for_service'>('earn_rewards');
 
   // Filter state
   const [filters, setFilters] = useState<FilterState>({
@@ -293,6 +298,13 @@ const Campaigns = () => {
 
   // Advanced filtering
   const filteredCampaigns = campaigns.filter(campaign => {
+    // Filter by view mode first
+    if (viewMode === 'earn_rewards') {
+      if (campaign.campaign_mode !== 'reward_others') return false;
+    } else {
+      if (campaign.campaign_mode !== 'get_rewarded') return false;
+    }
+
     // Search query
     if (searchQuery) {
       const searchTerm = searchQuery.toLowerCase();
@@ -376,10 +388,46 @@ const Campaigns = () => {
         <div className="mb-8">
           <div className="flex flex-col gap-4 mb-4">
             <div>
-              <h1 className="text-3xl font-bold mb-2 text-foreground">Discover Campaigns</h1>
+              <h1 className="text-3xl font-bold mb-2 text-foreground">
+                {viewMode === 'earn_rewards' ? 'Earn Rewards' : 'Find Services'}
+              </h1>
               <p className="text-muted-foreground">
-                Find amazing music campaigns and start earning rewards
+                {viewMode === 'earn_rewards'
+                  ? "Find amazing music campaigns and start earning rewards"
+                  : "Discover professional creators offering services"
+                }
               </p>
+            </div>
+
+            {/* View Mode Toggle */}
+            <div className="flex items-center justify-between p-4 bg-secondary/20 rounded-lg">
+              <div className="flex flex-col">
+                <Label htmlFor="campaign-mode-toggle" className="text-base font-semibold">
+                  {viewMode === 'earn_rewards' ? 'Earn Rewards' : 'Pay for Service'}
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  {viewMode === 'earn_rewards' 
+                    ? "Join campaigns and get paid for promoting content"
+                    : "Find creators offering professional services"
+                  }
+                </p>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Label htmlFor="campaign-mode-toggle" className="text-sm">
+                  Earn Rewards
+                </Label>
+                <Switch
+                  id="campaign-mode-toggle"
+                  checked={viewMode === 'pay_for_service'}
+                  onCheckedChange={(checked) => 
+                    setViewMode(checked ? 'pay_for_service' : 'earn_rewards')
+                  }
+                />
+                <Label htmlFor="campaign-mode-toggle" className="text-sm">
+                  Pay for Service
+                </Label>
+              </div>
             </div>
 
             {/* Search with Filters */}
@@ -400,20 +448,22 @@ const Campaigns = () => {
           <Card className="bg-card border-border">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Active Campaigns
+                {viewMode === 'earn_rewards' ? 'Active Campaigns' : 'Service Listings'}
               </CardTitle>
               <Music className="w-5 h-5 text-stat-blue" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-foreground">{isLoading ? '...' : campaigns.length}</div>
-              <p className="text-xs text-muted-foreground">Available to join</p>
+              <div className="text-2xl font-bold text-foreground">{isLoading ? '...' : filteredCampaigns.length}</div>
+              <p className="text-xs text-muted-foreground">
+                {viewMode === 'earn_rewards' ? 'Available to join' : 'Available services'}
+              </p>
             </CardContent>
           </Card>
           
           <Card className="bg-card border-border">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Unclaimed Rewards
+                {viewMode === 'earn_rewards' ? 'Unclaimed Rewards' : 'Service Offerings'}
               </CardTitle>
               <DollarSign className="w-5 h-5 text-stat-green" />
             </CardHeader>
@@ -421,14 +471,16 @@ const Campaigns = () => {
               <div className="text-2xl font-bold text-foreground">
                 ${isLoading ? '...' : unclaimedRewards.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
-              <p className="text-xs text-muted-foreground">Total available rewards</p>
+              <p className="text-xs text-muted-foreground">
+                {viewMode === 'earn_rewards' ? 'Total available rewards' : 'Combined service value'}
+              </p>
             </CardContent>
           </Card>
 
           <Card className="bg-card border-border">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Creators
+                {viewMode === 'earn_rewards' ? 'Total Creators' : 'Service Providers'}
               </CardTitle>
               <Users className="w-5 h-5 text-stat-purple" />
             </CardHeader>
@@ -455,9 +507,16 @@ const Campaigns = () => {
             <Card className="bg-card border-border col-span-full">
               <CardContent className="text-center py-12">
                 <Music className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2 text-foreground">No campaigns found</h3>
+                <h3 className="text-lg font-medium mb-2 text-foreground">
+                  {viewMode === 'earn_rewards' ? 'No reward campaigns found' : 'No services found'}
+                </h3>
                 <p className="text-muted-foreground">
-                  {searchQuery ? 'Try adjusting your search terms.' : 'Check back later for new campaigns.'}
+                  {searchQuery 
+                    ? 'Try adjusting your search terms.' 
+                    : viewMode === 'earn_rewards'
+                      ? 'Check back later for new campaigns.'
+                      : 'Check back later for new service offerings.'
+                  }
                 </p>
               </CardContent>
             </Card>
