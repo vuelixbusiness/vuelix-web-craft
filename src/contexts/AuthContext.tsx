@@ -59,10 +59,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         console.log('🚪 User signed out');
       }
       
-      // Don't clear user state on INITIAL_SESSION - wait for actual session check
+      // Handle INITIAL_SESSION - process the session but don't redirect
       if (event === 'INITIAL_SESSION') {
-        console.log('⏳ Initial session event - waiting for session check...');
-        return;
+        console.log('⏳ Initial session event - processing session...');
       }
       
       if (session) {
@@ -82,10 +81,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           return; // Let Supabase handle the token exchange
         }
         
-        // Only redirect after successful sign-in (not during initial session or callback processing)
+        // Only redirect on SIGNED_IN event (not INITIAL_SESSION to avoid redirect loops)
         if (event === 'SIGNED_IN' && (currentPath === '/' || currentPath === '/login' || currentPath === '/signup')) {
           console.log('🔄 Sign-in complete, redirecting to dashboard');
-          // Use a longer delay to ensure Supabase has processed everything
           setTimeout(() => {
             window.location.href = "/dashboard";
           }, 500);
