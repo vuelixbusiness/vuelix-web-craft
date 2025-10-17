@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 import { CampaignHubLayout } from '@/components/campaign-hub/CampaignHubLayout';
+import { ServiceCampaignLayout } from '@/components/service-campaign/ServiceCampaignLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
@@ -27,6 +28,8 @@ interface Campaign {
   vip_max_payout?: number;
   artist_id: string;
   created_at: string;
+  campaign_mode?: string;
+  starting_rate?: number;
 }
 
 interface Participation {
@@ -118,7 +121,9 @@ export default function CampaignJoin() {
         max_payout: campaignData.max_payout,
         vip_max_payout: campaignData.vip_max_payout,
         artist_id: campaignData.artist_id,
-        created_at: campaignData.created_at
+        created_at: campaignData.created_at,
+        campaign_mode: campaignData.campaign_mode,
+        starting_rate: campaignData.starting_rate
       };
       
       setCampaign(transformedCampaign);
@@ -294,6 +299,19 @@ export default function CampaignJoin() {
           </CardContent>
         </Card>
       </div>
+    );
+  }
+
+  // Check if this is a service offering campaign
+  const isServiceCampaign = campaign.campaign_mode === 'get_rewarded';
+
+  if (isServiceCampaign) {
+    return (
+      <ServiceCampaignLayout
+        campaign={campaign}
+        mediaAssets={mediaAssets}
+        onBack={handleBack}
+      />
     );
   }
 
