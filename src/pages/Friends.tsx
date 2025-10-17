@@ -20,6 +20,7 @@ import {
   TrendingUp
 } from "lucide-react";
 import { ClickableUsername } from "@/components/ui/clickable-username";
+import { getUserTypeById } from "@/config/userTypes";
 
 interface Profile {
   user_id: string;
@@ -306,7 +307,7 @@ const Friends = () => {
                                 />
                                 <div className="flex items-center space-x-2 mt-1">
                                   <Badge variant="secondary" className="text-xs">
-                                    {profile.user_type}
+                                    {getUserTypeById(profile.user_type)?.label || profile.user_type}
                                   </Badge>
                                   <Badge variant="outline" className="text-xs">
                                     {profile.membership_type}
@@ -379,7 +380,7 @@ const Friends = () => {
                                   />
                                   <div className="flex items-center space-x-2 mt-1">
                                     <Badge variant="secondary" className="text-xs">
-                                      {profile.user_type}
+                                      {getUserTypeById(profile.user_type)?.label || profile.user_type}
                                     </Badge>
                                     <Badge variant="outline" className="text-xs">
                                       {isIncoming ? 'Wants to connect' : 'Request sent'}
@@ -491,7 +492,7 @@ const Friends = () => {
                                   />
                                   <div className="flex items-center space-x-2 mt-1">
                                     <Badge variant="secondary" className="text-xs">
-                                      {profile.user_type}
+                                      {getUserTypeById(profile.user_type)?.label || profile.user_type}
                                     </Badge>
                                     <Badge variant="outline" className="text-xs">
                                       {profile.membership_type}

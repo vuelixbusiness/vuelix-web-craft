@@ -9,6 +9,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { getUserTypeById } from "@/config/userTypes";
 import { 
   User, MapPin, Link as LinkIcon, UserPlus, UserCheck, Users, 
   Handshake, Trophy, Star, MessageSquare, Share2, Calendar, Award 
@@ -319,8 +320,8 @@ const PublicProfile = () => {
                           Premium Member
                         </Badge>
                       )}
-                      <Badge variant="outline" className="capitalize">
-                        {profile.user_type}
+                      <Badge variant="outline">
+                        {getUserTypeById(profile.user_type)?.label || profile.user_type}
                       </Badge>
                     </div>
                   </div>
