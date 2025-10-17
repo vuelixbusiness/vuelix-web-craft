@@ -79,9 +79,9 @@ export function ProfileHeader({ onEditProfile, isPublicVisible, onToggleVisibili
                   </Badge>
                 )}
                 {user?.type && (
-                  <Badge className="bg-primary/20 hover:bg-primary/30 border-primary/30">
-                    {getUserTypeById(user.type)?.icon} {getUserTypeById(user.type)?.label || user.type}
-                  </Badge>
+                <Badge className="bg-primary/20 hover:bg-primary/30 border-primary/30">
+                  {getUserTypeById(user.type)?.label || user.type}
+                </Badge>
                 )}
               </div>
             </div>
