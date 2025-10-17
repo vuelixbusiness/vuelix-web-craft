@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, Handshake, UsersRound } from "lucide-react";
+import { Users, Handshake, Award } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { ProfileConnectionsDialog } from "./ProfileConnectionsDialog";
 
 interface ProfileSocialStatsProps {
   userId: string;
 }
 
 export function ProfileSocialStats({ userId }: ProfileSocialStatsProps) {
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogType, setDialogType] = useState<'followers' | 'partners' | 'collaborations'>('followers');
   const [stats, setStats] = useState({
     followers: 0,
     partners: 0,
@@ -17,6 +20,11 @@ export function ProfileSocialStats({ userId }: ProfileSocialStatsProps) {
   useEffect(() => {
     fetchStats();
   }, [userId]);
+
+  const handleCardClick = (type: 'followers' | 'partners' | 'collaborations') => {
+    setDialogType(type);
+    setDialogOpen(true);
+  };
 
   const fetchStats = async () => {
     try {
@@ -68,48 +76,66 @@ export function ProfileSocialStats({ userId }: ProfileSocialStatsProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-6xl mx-auto">
-      <Card className="hover:shadow-lg transition-smooth">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">Followers</p>
-              <p className="text-3xl font-bold">{stats.followers}</p>
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-6xl mx-auto">
+        <Card 
+          className="hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-[1.02]"
+          onClick={() => handleCardClick('followers')}
+        >
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Followers</p>
+                <p className="text-3xl font-bold">{stats.followers}</p>
+              </div>
+              <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                <Users className="w-6 h-6 text-primary" />
+              </div>
             </div>
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Users className="w-6 h-6 text-primary" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      <Card className="hover:shadow-lg transition-smooth">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">Partners</p>
-              <p className="text-3xl font-bold">{stats.partners}</p>
+        <Card 
+          className="hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-[1.02]"
+          onClick={() => handleCardClick('partners')}
+        >
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Partners</p>
+                <p className="text-3xl font-bold">{stats.partners}</p>
+              </div>
+              <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center">
+                <Handshake className="w-6 h-6 text-accent" />
+              </div>
             </div>
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Handshake className="w-6 h-6 text-primary" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      <Card className="hover:shadow-lg transition-smooth">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-muted-foreground mb-1">Collaborations</p>
-              <p className="text-3xl font-bold">{stats.collaborations}</p>
+        <Card 
+          className="hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-[1.02]"
+          onClick={() => handleCardClick('collaborations')}
+        >
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Collaborations</p>
+                <p className="text-3xl font-bold">{stats.collaborations}</p>
+              </div>
+              <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
+                <Award className="w-6 h-6 text-secondary" />
+              </div>
             </div>
-            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <UsersRound className="w-6 h-6 text-primary" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <ProfileConnectionsDialog
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        userId={userId}
+        type={dialogType}
+      />
+    </>
   );
 }
