@@ -338,7 +338,7 @@ const CampaignCard = ({
                   className="text-muted-foreground hover:text-primary"
                 />
               ) : (
-                <span>{campaign.profiles?.display_name || campaign.title || "Unknown Artist"}</span>
+                <span>{campaign.profiles?.display_name || "Unknown Artist"}</span>
               )}
             </div>
 
