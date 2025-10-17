@@ -110,11 +110,7 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
           artist_id,
           approval_required,
           campaign_mode,
-          starting_rate,
-          artist_profile:profiles!campaigns_artist_id_fkey (
-            username,
-            display_name
-          )
+          starting_rate
         `)
         .eq('artist_id', userId)
         .order('created_at', { ascending: false });
@@ -124,6 +120,18 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
       }
 
       const { data: created } = await createdQuery;
+
+      // Fetch artist profiles separately
+      const artistIds = [...new Set((created || []).map(c => c.artist_id))];
+      const { data: artistProfiles } = await supabase
+        .from('profiles')
+        .select('user_id, username, display_name')
+        .in('user_id', artistIds);
+
+      // Create a lookup map for profiles
+      const profileMap = new Map(
+        artistProfiles?.map(p => [p.user_id, p]) || []
+      );
 
       // Calculate budget statistics for each campaign
       const campaignsWithStats = await Promise.all(
@@ -144,9 +152,7 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
 
           return {
             ...campaign,
-            profiles: Array.isArray(campaign.artist_profile) && campaign.artist_profile.length > 0 
-              ? campaign.artist_profile[0] 
-              : null,
+            profiles: profileMap.get(campaign.artist_id) || null,
             redeemed,
             availableBudget,
             budgetUsedPercentage,
