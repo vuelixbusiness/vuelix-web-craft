@@ -110,7 +110,11 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
           artist_id,
           approval_required,
           campaign_mode,
-          starting_rate
+          starting_rate,
+          artist_profile:profiles!campaigns_artist_id_fkey (
+            username,
+            display_name
+          )
         `)
         .eq('artist_id', userId)
         .order('created_at', { ascending: false });
@@ -140,6 +144,9 @@ export function ProfileCampaigns({ userId, limit }: ProfileCampaignsProps) {
 
           return {
             ...campaign,
+            profiles: Array.isArray(campaign.artist_profile) && campaign.artist_profile.length > 0 
+              ? campaign.artist_profile[0] 
+              : null,
             redeemed,
             availableBudget,
             budgetUsedPercentage,
