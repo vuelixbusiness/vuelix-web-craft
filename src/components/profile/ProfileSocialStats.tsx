@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import { Users, Handshake, Award } from "lucide-react";
+import { Users, Handshake, UserPlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ProfileConnectionsDialog } from "./ProfileConnectionsDialog";
 
@@ -10,18 +10,18 @@ interface ProfileSocialStatsProps {
 
 export function ProfileSocialStats({ userId }: ProfileSocialStatsProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [dialogType, setDialogType] = useState<'followers' | 'partners' | 'collaborations'>('followers');
+  const [dialogType, setDialogType] = useState<'followers' | 'partners' | 'following'>('followers');
   const [stats, setStats] = useState({
     followers: 0,
     partners: 0,
-    collaborations: 0,
+    following: 0,
   });
 
   useEffect(() => {
     fetchStats();
   }, [userId]);
 
-  const handleCardClick = (type: 'followers' | 'partners' | 'collaborations') => {
+  const handleCardClick = (type: 'followers' | 'partners' | 'following') => {
     setDialogType(type);
     setDialogOpen(true);
   };
@@ -41,34 +41,16 @@ export function ProfileSocialStats({ userId }: ProfileSocialStatsProps) {
         .or(`user_id.eq.${userId},partner_id.eq.${userId}`)
         .eq('status', 'accepted');
 
-      // Get collaborations count (users who participated in the same campaigns)
-      const { data: collaborationsData } = await supabase
-        .from('campaign_participations')
-        .select('campaign_id')
-        .eq('creator_id', userId)
-        .in('status', ['joined', 'approved', 'live', 'submitted']);
-
-      let collaborationsCount = 0;
-      if (collaborationsData && collaborationsData.length > 0) {
-        const campaignIds = collaborationsData.map(cp => cp.campaign_id);
-        
-        const { data: collaborators } = await supabase
-          .from('campaign_participations')
-          .select('creator_id')
-          .in('campaign_id', campaignIds)
-          .neq('creator_id', userId)
-          .in('status', ['joined', 'approved', 'live', 'submitted']);
-
-        if (collaborators) {
-          const uniqueCollaborators = new Set(collaborators.map(c => c.creator_id));
-          collaborationsCount = uniqueCollaborators.size;
-        }
-      }
+      // Get following count (users that this user follows)
+      const { count: followingCount } = await supabase
+        .from('user_followers')
+        .select('*', { count: 'exact', head: true })
+        .eq('follower_id', userId);
 
       setStats({
         followers: followerCount || 0,
         partners: partnerCount || 0,
-        collaborations: collaborationsCount,
+        following: followingCount || 0,
       });
     } catch (error) {
       console.error('Error fetching social stats:', error);
@@ -114,16 +96,16 @@ export function ProfileSocialStats({ userId }: ProfileSocialStatsProps) {
 
         <Card 
           className="hover:shadow-lg transition-all duration-200 cursor-pointer hover:scale-[1.02]"
-          onClick={() => handleCardClick('collaborations')}
+          onClick={() => handleCardClick('following')}
         >
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">Collaborations</p>
-                <p className="text-3xl font-bold">{stats.collaborations}</p>
+                <p className="text-sm text-muted-foreground mb-1">Following</p>
+                <p className="text-3xl font-bold">{stats.following}</p>
               </div>
               <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center">
-                <Award className="w-6 h-6 text-secondary" />
+                <UserPlus className="w-6 h-6 text-secondary" />
               </div>
             </div>
           </CardContent>

@@ -23,7 +23,7 @@ interface ProfileConnectionsDialogProps {
   open: boolean;
   onClose: () => void;
   userId: string;
-  type: 'followers' | 'partners' | 'collaborations';
+  type: 'followers' | 'partners' | 'following';
 }
 
 export function ProfileConnectionsDialog({ open, onClose, userId, type }: ProfileConnectionsDialogProps) {
@@ -95,48 +95,24 @@ export function ProfileConnectionsDialog({ open, onClose, userId, type }: Profil
         if (!error && partnerships) {
           data = partnerships.map(p => p.profiles as unknown as ConnectionUser).filter(Boolean);
         }
-      } else if (type === 'collaborations') {
-        const { data: collaborations, error } = await supabase
-          .from('campaign_participations')
+      } else if (type === 'following') {
+        const { data: following, error } = await supabase
+          .from('user_followers')
           .select(`
-            campaign_id,
-            creator_id
+            followed_id,
+            profiles!user_followers_followed_id_fkey (
+              user_id,
+              username,
+              display_name,
+              avatar_url,
+              user_type,
+              membership_type
+            )
           `)
-          .eq('creator_id', userId)
-          .in('status', ['joined', 'approved', 'live', 'submitted']);
+          .eq('follower_id', userId);
 
-        if (!error && collaborations) {
-          const campaignIds = [...new Set(collaborations.map(c => c.campaign_id))];
-          
-          if (campaignIds.length > 0) {
-            const { data: collaborators, error: collabError } = await supabase
-              .from('campaign_participations')
-              .select(`
-                creator_id,
-                profiles!campaign_participations_creator_id_fkey (
-                  user_id,
-                  username,
-                  display_name,
-                  avatar_url,
-                  user_type,
-                  membership_type
-                )
-              `)
-              .in('campaign_id', campaignIds)
-              .neq('creator_id', userId)
-              .in('status', ['joined', 'approved', 'live', 'submitted']);
-
-            if (!collabError && collaborators) {
-              const uniqueUsers = new Map<string, ConnectionUser>();
-              collaborators.forEach(c => {
-                const profile = c.profiles as unknown as ConnectionUser;
-                if (profile && !uniqueUsers.has(profile.user_id)) {
-                  uniqueUsers.set(profile.user_id, profile);
-                }
-              });
-              data = Array.from(uniqueUsers.values());
-            }
-          }
+        if (!error && following) {
+          data = following.map(f => f.profiles as unknown as ConnectionUser).filter(Boolean);
         }
       }
 
@@ -153,7 +129,7 @@ export function ProfileConnectionsDialog({ open, onClose, userId, type }: Profil
     switch (type) {
       case 'followers': return 'Followers';
       case 'partners': return 'Partners';
-      case 'collaborations': return 'Collaborations';
+      case 'following': return 'Following';
     }
   };
 
