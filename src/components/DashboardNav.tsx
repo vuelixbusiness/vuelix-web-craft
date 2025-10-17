@@ -103,9 +103,11 @@ const DashboardNav = ({ dashboardType }: DashboardNavProps) => {
                   <span className={getMembershipColor(user?.membershipType || 'regular')}>
                     @{user?.username}
                   </span>
-                  <Badge variant={user?.membershipType === 'premium' ? 'default' : 'secondary'} className="text-xs">
-                    {user?.membershipType}
-                  </Badge>
+                  {user?.membershipType === 'premium' && (
+                    <Badge variant="default" className="text-xs">
+                      Premium
+                    </Badge>
+                  )}
                 </p>
                 <p className="text-xs text-muted-foreground">{user?.email}</p>
               </div>

@@ -90,9 +90,11 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 </Avatar>
                 <div className="hidden lg:block">
                   <p className="text-sm font-medium text-foreground">@{user?.username}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {user?.membershipType === 'regular' ? 'Member' : (user?.membershipType || 'Member')}
-                  </p>
+                  {user?.membershipType === 'premium' && (
+                    <p className="text-xs text-primary font-semibold">
+                      Premium Member
+                    </p>
+                  )}
                 </div>
               </Link>
               <Button variant="ghost" size="sm" onClick={handleLogout}>

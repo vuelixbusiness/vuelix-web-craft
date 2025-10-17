@@ -314,9 +314,11 @@ const PublicProfile = () => {
                     <h1 className="text-3xl font-bold">{profile.display_name}</h1>
                     <p className="text-muted-foreground">@{profile.username}</p>
                     <div className="flex items-center gap-2 mt-2">
-                      <Badge variant={profile.membership_type === 'premium' ? 'default' : 'secondary'}>
-                        {profile.membership_type}
-                      </Badge>
+                      {profile.membership_type === 'premium' && (
+                        <Badge variant="default">
+                          Premium Member
+                        </Badge>
+                      )}
                       <Badge variant="outline" className="capitalize">
                         {profile.user_type}
                       </Badge>
