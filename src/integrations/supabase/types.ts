@@ -620,6 +620,7 @@ export type Database = {
           country: string | null
           created_at: string
           display_name: string | null
+          email: string | null
           engagement_score: number | null
           id: string
           latitude: number | null
@@ -645,6 +646,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           display_name?: string | null
+          email?: string | null
           engagement_score?: number | null
           id?: string
           latitude?: number | null
@@ -670,6 +672,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           display_name?: string | null
+          email?: string | null
           engagement_score?: number | null
           id?: string
           latitude?: number | null

@@ -240,18 +240,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const resolveUsernameToEmail = async (username: string): Promise<string | null> => {
     try {
-      const { data, error } = await supabase.functions.invoke('resolve-username', {
-        body: { username }
-      });
-
+      console.log('🔍 Resolving username to email:', username);
+      
+      // Query profiles table directly for email
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('email')
+        .ilike('username', username)
+        .maybeSingle();
+      
       if (error) {
-        console.error('Error resolving username:', error);
+        console.error('❌ Error querying profile:', error);
         return null;
       }
-
-      return data?.email || null;
+      
+      if (!profile || !profile.email) {
+        console.error('❌ No email found for username:', username);
+        return null;
+      }
+      
+      console.log('✅ Successfully resolved username to email');
+      return profile.email;
+      
     } catch (error) {
-      console.error('Error resolving username:', error);
+      console.error('❌ Exception in resolveUsernameToEmail:', error);
       return null;
     }
   };
@@ -260,21 +272,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     
     try {
+      console.log('🔐 Login attempt:', { 
+        input: usernameOrEmail, 
+        isEmail: isEmailFormat(usernameOrEmail) 
+      });
+      
       let emailToUse = usernameOrEmail;
 
       // If it's not an email format, try to resolve username to email
       if (!isEmailFormat(usernameOrEmail)) {
+        console.log('📝 Input is username, resolving to email...');
         const resolvedEmail = await resolveUsernameToEmail(usernameOrEmail);
         
         if (!resolvedEmail) {
-          console.error('Username not found or could not resolve to email');
+          console.error('❌ Username not found or could not resolve to email');
           setIsLoading(false);
           return false;
         }
         
+        console.log('✅ Username resolved to email successfully');
         emailToUse = resolvedEmail;
       }
 
+      console.log('🔑 Attempting login with email...');
       // Proceed with normal email login
       const { error } = await supabase.auth.signInWithPassword({
         email: emailToUse,
@@ -282,15 +302,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (error) {
-        console.error('Login error:', error);
+        console.error('❌ Login error:', error.message);
         setIsLoading(false);
         return false;
       }
 
+      console.log('✅ Login successful');
       setIsLoading(false);
       return true;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('❌ Login exception:', error);
       setIsLoading(false);
       return false;
     }
