@@ -15,6 +15,7 @@ interface UserLocation {
   longitude: number;
   city?: string;
   country?: string;
+  avatar_url?: string;
 }
 
 export function MapboxGlobe() {
@@ -229,8 +230,8 @@ export function MapboxGlobe() {
 
       // Add hover effect
       el.addEventListener('mouseenter', () => {
-        el.style.transform = 'scale(1.8)';
-        el.style.boxShadow = `0 0 20px ${markerColor}`;
+        el.style.transform = 'scale(1.3)';
+        el.style.boxShadow = `0 0 15px ${markerColor}`;
       });
 
       el.addEventListener('mouseleave', () => {
@@ -243,24 +244,69 @@ export function MapboxGlobe() {
         ? `${user.city}, ${user.country}`
         : user.country || 'Location set';
 
+      const avatarUrl = user.avatar_url || 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + user.username;
+
       const popup = new mapboxgl.Popup({ 
         offset: 15,
-        closeButton: false,
+        closeButton: true,
         className: 'globe-popup'
       }).setHTML(`
-        <div style="padding: 10px; font-family: system-ui; color: #fff; background: rgba(30, 27, 59, 0.95); border-radius: 8px;">
-          <div style="font-weight: 600; font-size: 14px; margin-bottom: 6px;">
-            ${userIcon} @${user.username}
+        <div style="
+          padding: 16px; 
+          font-family: system-ui; 
+          color: #fff; 
+          background: linear-gradient(135deg, rgba(30, 27, 59, 0.98), rgba(50, 50, 100, 0.98));
+          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          min-width: 200px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        ">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+            <img 
+              src="${avatarUrl}" 
+              alt="${user.username}" 
+              style="
+                width: 48px; 
+                height: 48px; 
+                border-radius: 50%; 
+                border: 2px solid ${markerColor};
+                object-fit: cover;
+              "
+            />
+            <div style="flex: 1;">
+              <div style="font-weight: 600; font-size: 15px; margin-bottom: 3px;">
+                @${user.username}
+              </div>
+              <div style="font-size: 11px; color: ${markerColor}; font-weight: 500; text-transform: capitalize;">
+                ${userLabel}
+              </div>
+            </div>
           </div>
-          <div style="font-size: 12px; color: #ddd; margin-bottom: 2px;">
+          <div style="font-size: 12px; color: #ddd; margin-bottom: 3px;">
             ${user.display_name || 'No display name'}
           </div>
-          <div style="font-size: 11px; color: #aaa;">
+          <div style="font-size: 11px; color: #aaa; margin-bottom: 12px;">
             📍 ${locationText}
           </div>
-          <div style="font-size: 10px; color: ${markerColor}; margin-top: 4px;">
-            ${userLabel}
-          </div>
+          <a 
+            href="/profile/${user.username}" 
+            style="
+              display: block;
+              text-align: center;
+              background: ${markerColor};
+              color: #fff;
+              padding: 8px 16px;
+              border-radius: 6px;
+              text-decoration: none;
+              font-size: 13px;
+              font-weight: 600;
+              transition: opacity 0.2s;
+            "
+            onmouseover="this.style.opacity='0.85'"
+            onmouseout="this.style.opacity='1'"
+          >
+            Browse Profile
+          </a>
         </div>
       `);
 
