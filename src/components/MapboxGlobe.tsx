@@ -292,7 +292,7 @@ export function MapboxGlobe() {
             📍 ${locationText}
           </div>
           <a 
-            href="/profile/${user.username}" 
+            href="/user/${user.username}" 
             style="
               display: block;
               text-align: center;
