@@ -1150,6 +1150,10 @@ export type Database = {
         Args: { _campaign_id: string; _user_id: string }
         Returns: boolean
       }
+      resolve_username_to_email: {
+        Args: { p_username: string }
+        Returns: string
+      }
       sync_campaign_chat_members: {
         Args: { _campaign_id: string; _room_id: string }
         Returns: undefined

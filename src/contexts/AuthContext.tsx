@@ -242,25 +242,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       console.log('🔍 Resolving username to email:', username);
       
-      // Query profiles table directly for email
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('email')
-        .ilike('username', username)
-        .maybeSingle();
+      // Use RPC to call the secure database function that bypasses RLS
+      const { data, error } = await supabase.rpc('resolve_username_to_email', {
+        p_username: username
+      });
       
       if (error) {
-        console.error('❌ Error querying profile:', error);
+        console.error('❌ Error resolving username:', error);
         return null;
       }
       
-      if (!profile || !profile.email) {
+      if (!data) {
         console.error('❌ No email found for username:', username);
         return null;
       }
       
       console.log('✅ Successfully resolved username to email');
-      return profile.email;
+      return data;
       
     } catch (error) {
       console.error('❌ Exception in resolveUsernameToEmail:', error);
