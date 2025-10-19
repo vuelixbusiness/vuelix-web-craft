@@ -225,13 +225,13 @@ export function MapboxGlobe() {
       el.style.borderRadius = '50%';
       el.style.border = '2px solid rgba(255, 255, 255, 0.9)';
       el.style.cursor = 'pointer';
-      el.style.transition = 'all 0.3s ease';
+      el.style.transition = 'all 0.15s ease';
       el.style.boxShadow = `0 0 8px ${markerColor}`;
 
       // Add hover effect
       el.addEventListener('mouseenter', () => {
-        el.style.transform = 'scale(1.3)';
-        el.style.boxShadow = `0 0 15px ${markerColor}`;
+        el.style.transform = 'scale(1.08)';
+        el.style.boxShadow = `0 0 10px ${markerColor}`;
       });
 
       el.addEventListener('mouseleave', () => {
