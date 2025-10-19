@@ -8,6 +8,7 @@ import { useAvatarUpload } from "@/hooks/useAvatarUpload";
 import { useBannerUpload } from "@/hooks/useBannerUpload";
 import { useNavigate } from "react-router-dom";
 import { getUserTypeById } from "@/config/userTypes";
+import { LocationPopover } from "./LocationPopover";
 
 interface ProfileHeaderProps {
   onEditProfile: () => void;
@@ -136,6 +137,11 @@ export function ProfileHeader({ onEditProfile, isPublicVisible, onToggleVisibili
                 </a>
               </div>
             )}
+          </div>
+          
+          {/* Location Selector */}
+          <div className="pt-2">
+            <LocationPopover />
           </div>
         </div>
       </div>
