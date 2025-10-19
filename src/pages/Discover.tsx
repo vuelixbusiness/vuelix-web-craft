@@ -7,10 +7,10 @@ import DashboardLayout from "@/components/DashboardLayout";
 const Discover = () => {
   return (
     <DashboardLayout>
-      <div className="relative min-h-screen bg-gradient-to-b from-purple-950 via-purple-900 to-purple-800 overflow-hidden">
+      <div className="relative min-h-screen bg-gradient-to-b from-background via-background to-muted/20 dark:from-[#1a1625] dark:via-[#261d3a] dark:to-[#2d2440] overflow-hidden transition-colors duration-500">
         {/* Ambient glow effects */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-purple-500/20 via-transparent to-transparent pointer-events-none" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-purple-300/10 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent dark:from-primary/10 pointer-events-none" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,_var(--tw-gradient-stops))] from-accent/5 via-transparent to-transparent dark:from-accent/10 pointer-events-none" />
         
         <div className="relative container mx-auto px-4 py-12">
           {/* Header */}
@@ -27,7 +27,7 @@ const Discover = () => {
           </div>
 
           {/* Globe Container */}
-          <div className="relative rounded-2xl border border-primary/20 bg-background/5 backdrop-blur-sm p-6 shadow-2xl shadow-primary/10">
+          <div className="relative overflow-hidden">
             <Suspense fallback={
               <Skeleton className="w-full h-[500px] lg:h-[700px] bg-muted/20" />
             }>

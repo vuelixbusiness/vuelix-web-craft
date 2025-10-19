@@ -336,7 +336,7 @@ export function MapboxGlobe() {
   }, [userLocations, mapLoaded]);
 
   return (
-    <div className="w-full h-full min-h-[400px] lg:min-h-[600px] relative rounded-lg overflow-hidden">
+    <div className="w-full h-full min-h-[400px] lg:min-h-[600px] relative overflow-hidden">
       {!mapboxToken ? (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm p-8 text-center">
           <div className="max-w-md space-y-4">
