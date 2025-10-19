@@ -23,6 +23,7 @@ import VuelixPlus from "./pages/VuelixPlus";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Terms from "./pages/Terms";
+import Policy from "./pages/Policy";
 import CreatorDashboard from "./pages/CreatorDashboard";
 import ArtistDashboard from "./pages/ArtistDashboard";
 import CampaignDetails from "@/pages/CampaignDetails";
@@ -157,6 +158,7 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/terms" element={<Terms />} />
+              <Route path="/policy" element={<Policy />} />
               <Route path="/chat" element={
                 <ProtectedRoute>
                   <Chat />
