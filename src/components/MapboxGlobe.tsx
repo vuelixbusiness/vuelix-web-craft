@@ -24,17 +24,20 @@ export function MapboxGlobe() {
   const [isInteracting, setIsInteracting] = useState(false);
   const [mapboxToken, setMapboxToken] = useState<string | null>(null);
   const [userLocations, setUserLocations] = useState<UserLocation[]>([]);
+  const [mapLoaded, setMapLoaded] = useState(false);
   const rotationInterval = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch Mapbox token from edge function
   useEffect(() => {
     const fetchToken = async () => {
+      console.log('🔑 Fetching Mapbox token...');
       try {
         const { data, error } = await supabase.functions.invoke('get-mapbox-token');
         if (error) throw error;
+        console.log('✅ Mapbox token fetched successfully');
         setMapboxToken(data.token);
       } catch (error) {
-        console.error('Failed to fetch Mapbox token:', error);
+        console.error('❌ Failed to fetch Mapbox token:', error);
       }
     };
     fetchToken();
@@ -43,6 +46,7 @@ export function MapboxGlobe() {
   // Fetch user locations from database
   useEffect(() => {
     const fetchUserLocations = async () => {
+      console.log('📍 Fetching user locations from database...');
       const { data, error } = await supabase
         .from('profiles')
         .select('id, user_id, username, display_name, user_type, membership_type, latitude, longitude, city, country')
@@ -51,11 +55,17 @@ export function MapboxGlobe() {
         .not('longitude', 'is', null);
 
       if (error) {
-        console.error('Error fetching user locations:', error);
+        console.error('❌ Error fetching user locations:', error);
         return;
       }
 
-      console.log('📍 Fetched user locations:', data?.length || 0);
+      console.log('✅ Fetched user locations:', data?.length || 0, 'locations');
+      if (data && data.length > 0) {
+        console.log('📊 Location data sample:', data[0]);
+        data.forEach((loc, i) => {
+          console.log(`  ${i + 1}. @${loc.username} - ${loc.city}, ${loc.country} (${loc.latitude}, ${loc.longitude})`);
+        });
+      }
       setUserLocations(data || []);
     };
 
@@ -87,6 +97,7 @@ export function MapboxGlobe() {
   useEffect(() => {
     if (!mapContainer.current || !mapboxToken || map.current) return;
 
+    console.log('🗺️ Initializing Mapbox map...');
     mapboxgl.accessToken = mapboxToken;
     
     map.current = new mapboxgl.Map({
@@ -106,9 +117,16 @@ export function MapboxGlobe() {
       'top-right'
     );
 
+    // Wait for map to load before allowing marker addition
+    map.current.on('load', () => {
+      console.log('✅ Map fully loaded and ready');
+      setMapLoaded(true);
+    });
+
     // Add atmosphere and fog effects
     map.current.on('style.load', () => {
       if (!map.current) return;
+      console.log('🎨 Map style loaded');
       
       map.current.setFog({
         color: 'rgb(30, 27, 59)',
@@ -165,15 +183,26 @@ export function MapboxGlobe() {
 
   // Add markers for user locations
   useEffect(() => {
-    if (!map.current || userLocations.length === 0) return;
+    if (!map.current || !mapLoaded || userLocations.length === 0) {
+      console.log('⏳ Waiting for map and locations...', { 
+        hasMap: !!map.current, 
+        mapLoaded, 
+        locationsCount: userLocations.length 
+      });
+      return;
+    }
+
+    console.log('📌 Adding markers to map for', userLocations.length, 'users');
 
     // Clear existing markers
     markers.current.forEach(marker => marker.remove());
     markers.current = [];
 
     // Add new markers for each user
-    userLocations.forEach((user) => {
+    userLocations.forEach((user, index) => {
       if (!map.current) return;
+
+      console.log(`  Adding marker ${index + 1}/${userLocations.length} for @${user.username} at [${user.longitude}, ${user.latitude}]`);
 
       // Determine color based on user type
       const markerColor = user.membership_type === 'vip' 
@@ -236,14 +265,21 @@ export function MapboxGlobe() {
       `);
 
       // Create and add marker
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat([user.longitude, user.latitude])
-        .setPopup(popup)
-        .addTo(map.current);
+      try {
+        const marker = new mapboxgl.Marker(el)
+          .setLngLat([user.longitude, user.latitude])
+          .setPopup(popup)
+          .addTo(map.current);
 
-      markers.current.push(marker);
+        markers.current.push(marker);
+        console.log(`  ✅ Marker added for @${user.username}`);
+      } catch (error) {
+        console.error(`  ❌ Failed to add marker for @${user.username}:`, error);
+      }
     });
-  }, [userLocations]);
+
+    console.log(`🎯 Total markers added: ${markers.current.length}`);
+  }, [userLocations, mapLoaded]);
 
   return (
     <div className="w-full h-full min-h-[400px] lg:min-h-[600px] relative rounded-lg overflow-hidden">
