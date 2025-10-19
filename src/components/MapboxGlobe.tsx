@@ -2,17 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { supabase } from '@/integrations/supabase/client';
-
-// User categories with colors based on membership and user type
-const USER_CATEGORIES = {
-  vip: { color: '#FFD700', icon: '⭐', label: 'VIP' },
-  artist: { color: '#FF3B30', icon: '🎵', label: 'Artist' },
-  creator: { color: '#4DA6FF', icon: '🎨', label: 'Creator' },
-  regular: { color: '#8B5CF6', icon: '👤', label: 'User' }
-};
+import { getUserTypeColor, getUserTypeIcon } from '@/utils/userTypeColors';
 
 interface UserLocation {
   id: string;
+  user_id: string;
   username: string;
   display_name: string;
   user_type: string;
@@ -51,7 +45,8 @@ export function MapboxGlobe() {
     const fetchUserLocations = async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, username, display_name, user_type, membership_type, latitude, longitude, city, country')
+        .select('id, user_id, username, display_name, user_type, membership_type, latitude, longitude, city, country')
+        .eq('share_location_on_globe', true)
         .not('latitude', 'is', null)
         .not('longitude', 'is', null);
 
@@ -60,6 +55,7 @@ export function MapboxGlobe() {
         return;
       }
 
+      console.log('📍 Fetched user locations:', data?.length || 0);
       setUserLocations(data || []);
     };
 
@@ -74,7 +70,7 @@ export function MapboxGlobe() {
           event: '*',
           schema: 'public',
           table: 'profiles',
-          filter: 'latitude=not.is.null'
+          filter: 'share_location_on_globe=eq.true'
         },
         () => {
           fetchUserLocations();
@@ -179,31 +175,38 @@ export function MapboxGlobe() {
     userLocations.forEach((user) => {
       if (!map.current) return;
 
-      // Determine category based on membership type (VIP) or user type
-      const category = user.membership_type === 'vip' ? 'vip' : user.user_type;
-      const categoryInfo = USER_CATEGORIES[category as keyof typeof USER_CATEGORIES] || USER_CATEGORIES.regular;
+      // Determine color based on user type
+      const markerColor = user.membership_type === 'vip' 
+        ? '#FFD700'
+        : getUserTypeColor(user.user_type);
+
+      const userIcon = user.membership_type === 'vip'
+        ? '⭐'
+        : getUserTypeIcon(user.user_type);
+
+      const userLabel = user.membership_type === 'vip' ? 'VIP' : user.user_type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
       
       // Create custom marker element
       const el = document.createElement('div');
       el.className = 'custom-marker';
-      el.style.backgroundColor = categoryInfo.color;
+      el.style.backgroundColor = markerColor;
       el.style.width = '10px';
       el.style.height = '10px';
       el.style.borderRadius = '50%';
       el.style.border = '2px solid rgba(255, 255, 255, 0.9)';
       el.style.cursor = 'pointer';
       el.style.transition = 'all 0.3s ease';
-      el.style.boxShadow = `0 0 8px ${categoryInfo.color}`;
+      el.style.boxShadow = `0 0 8px ${markerColor}`;
 
       // Add hover effect
       el.addEventListener('mouseenter', () => {
         el.style.transform = 'scale(1.8)';
-        el.style.boxShadow = `0 0 20px ${categoryInfo.color}`;
+        el.style.boxShadow = `0 0 20px ${markerColor}`;
       });
 
       el.addEventListener('mouseleave', () => {
         el.style.transform = 'scale(1)';
-        el.style.boxShadow = `0 0 8px ${categoryInfo.color}`;
+        el.style.boxShadow = `0 0 8px ${markerColor}`;
       });
 
       // Create popup with user info
@@ -218,7 +221,7 @@ export function MapboxGlobe() {
       }).setHTML(`
         <div style="padding: 10px; font-family: system-ui; color: #fff; background: rgba(30, 27, 59, 0.95); border-radius: 8px;">
           <div style="font-weight: 600; font-size: 14px; margin-bottom: 6px;">
-            ${categoryInfo.icon} @${user.username}
+            ${userIcon} @${user.username}
           </div>
           <div style="font-size: 12px; color: #ddd; margin-bottom: 2px;">
             ${user.display_name || 'No display name'}
@@ -226,8 +229,8 @@ export function MapboxGlobe() {
           <div style="font-size: 11px; color: #aaa;">
             📍 ${locationText}
           </div>
-          <div style="font-size: 10px; color: ${categoryInfo.color}; margin-top: 4px;">
-            ${categoryInfo.label}
+          <div style="font-size: 10px; color: ${markerColor}; margin-top: 4px;">
+            ${userLabel}
           </div>
         </div>
       `);
