@@ -148,7 +148,12 @@ export function MapboxGlobe() {
       rotationInterval.current = setInterval(() => {
         if (!isInteracting && map.current) {
           const center = map.current.getCenter();
-          center.lng += 0.5;
+          const zoom = map.current.getZoom();
+          // Adjust rotation speed based on zoom level (slower when zoomed in)
+          const baseSpeed = 0.5;
+          const zoomFactor = Math.pow(0.5, zoom - 1.2); // Exponential decay
+          const adjustedSpeed = baseSpeed * zoomFactor;
+          center.lng += adjustedSpeed;
           map.current.easeTo({ center, duration: 1000, easing: (t) => t });
         }
       }, 1000);
