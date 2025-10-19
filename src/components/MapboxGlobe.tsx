@@ -27,6 +27,7 @@ export function MapboxGlobe() {
   const [userLocations, setUserLocations] = useState<UserLocation[]>([]);
   const [mapLoaded, setMapLoaded] = useState(false);
   const rotationInterval = useRef<NodeJS.Timeout | null>(null);
+  const inactivityTimeout = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch Mapbox token from edge function
   useEffect(() => {
@@ -153,23 +154,34 @@ export function MapboxGlobe() {
       }, 1000);
     };
 
-    // Handle user interaction
-    map.current.on('mousedown', () => setIsInteracting(true));
-    map.current.on('touchstart', () => setIsInteracting(true));
-    map.current.on('dragstart', () => setIsInteracting(true));
+    // Handle user interaction with 7-second pause
+    const handleInteractionStart = () => {
+      setIsInteracting(true);
+      if (inactivityTimeout.current) {
+        clearTimeout(inactivityTimeout.current);
+      }
+    };
+
+    const handleInteractionEnd = () => {
+      if (inactivityTimeout.current) {
+        clearTimeout(inactivityTimeout.current);
+      }
+      
+      // Resume rotation after 7 seconds of inactivity
+      inactivityTimeout.current = setTimeout(() => {
+        setIsInteracting(false);
+        startRotation();
+      }, 7000);
+    };
+
+    map.current.on('mousedown', handleInteractionStart);
+    map.current.on('touchstart', handleInteractionStart);
+    map.current.on('dragstart', handleInteractionStart);
+    map.current.on('click', handleInteractionStart);
     
-    map.current.on('mouseup', () => {
-      setIsInteracting(false);
-      startRotation();
-    });
-    map.current.on('touchend', () => {
-      setIsInteracting(false);
-      startRotation();
-    });
-    map.current.on('dragend', () => {
-      setIsInteracting(false);
-      startRotation();
-    });
+    map.current.on('mouseup', handleInteractionEnd);
+    map.current.on('touchend', handleInteractionEnd);
+    map.current.on('dragend', handleInteractionEnd);
 
     // Start rotation
     startRotation();
@@ -177,6 +189,9 @@ export function MapboxGlobe() {
     return () => {
       if (rotationInterval.current) {
         clearInterval(rotationInterval.current);
+      }
+      if (inactivityTimeout.current) {
+        clearTimeout(inactivityTimeout.current);
       }
       map.current?.remove();
     };
@@ -225,19 +240,7 @@ export function MapboxGlobe() {
       el.style.borderRadius = '50%';
       el.style.border = '2px solid rgba(255, 255, 255, 0.9)';
       el.style.cursor = 'pointer';
-      el.style.transition = 'all 0.15s ease';
       el.style.boxShadow = `0 0 8px ${markerColor}`;
-
-      // Add hover effect
-      el.addEventListener('mouseenter', () => {
-        el.style.transform = 'scale(1.08)';
-        el.style.boxShadow = `0 0 10px ${markerColor}`;
-      });
-
-      el.addEventListener('mouseleave', () => {
-        el.style.transform = 'scale(1)';
-        el.style.boxShadow = `0 0 8px ${markerColor}`;
-      });
 
       // Create popup with user info
       const locationText = user.city && user.country 
