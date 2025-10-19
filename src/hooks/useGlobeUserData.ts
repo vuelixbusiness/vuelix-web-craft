@@ -7,6 +7,10 @@ interface GlobeUser {
   display_name: string | null;
   user_type: string;
   avatar_url: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  city: string | null;
+  country: string | null;
 }
 
 export function useGlobeUserData() {
@@ -15,8 +19,10 @@ export function useGlobeUserData() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_id, username, display_name, user_type, avatar_url')
-        .eq('public_visibility', true)
+        .select('user_id, username, display_name, user_type, avatar_url, latitude, longitude, city, country')
+        .eq('share_location_on_globe', true)
+        .not('latitude', 'is', null)
+        .not('longitude', 'is', null)
         .order('created_at', { ascending: false });
       
       if (error) throw error;

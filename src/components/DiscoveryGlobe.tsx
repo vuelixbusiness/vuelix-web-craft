@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, createContext, useContext } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import ThreeGlobe from 'three-globe';
@@ -7,70 +7,26 @@ import { TrackballControls } from 'three-stdlib';
 import { useNavigate } from 'react-router-dom';
 import { useGlobeData } from '@/hooks/useGlobeData';
 import { useGlobeUserData } from '@/hooks/useGlobeUserData';
+import { getUserTypeColor, getUserTypeIcon } from '@/utils/userTypeColors';
 
-const InteractionContext = createContext({ isInteracting: false });
 
-// User categories with exact colors from Figma design
-const USER_CATEGORIES = [
-  { name: "Artists", color: "#0047AB", icon: "🎵" },
-  { name: "Content Creators", color: "#FF3B30", icon: "🎥" },
-  { name: "Producers", color: "#4DA6FF", icon: "🎹" },
-  { name: "DJs", color: "#20C997", icon: "🎚️" },
-  { name: "Visual Creatives", color: "#C8A2C8", icon: "🎨" },
-  { name: "Fans", color: "#8A2BE2", icon: "🙌" },
-  { name: "Collectives / Groups", color: "#8B6914", icon: "👥" },
-  { name: "Record Labels", color: "#ADFF2F", icon: "🏢" },
-  { name: "Brands", color: "#FFD700", icon: "🤝" },
-  { name: "Studios (Audio + Visual)", color: "#800000", icon: "🎙️" },
-  { name: "Festivals & Events", color: "#FF69B4", icon: "🎪" }
-];
-
-// Continent centers for distributing category dots globally
-const CONTINENTS = [
-  { name: 'North America', lat: 45.0, lng: -100.0 },
-  { name: 'South America', lat: -15.0, lng: -60.0 },
-  { name: 'Europe', lat: 54.0, lng: 15.0 },
-  { name: 'Africa', lat: 0.0, lng: 20.0 },
-  { name: 'Asia', lat: 30.0, lng: 100.0 },
-  { name: 'Oceania', lat: -25.0, lng: 140.0 },
-  { name: 'Antarctica', lat: -80.0, lng: 0.0 },
-];
-
-// Map real users to category points distributed across continents
-function generateCategoryPoints(users: any[] = []) {
-  const points: any[] = [];
-  let userIndex = 0;
+// Convert real user data to globe points
+function generateUserLocationPoints(users: any[] = []) {
+  const points = users
+    .filter(user => user.latitude && user.longitude)
+    .map(user => ({
+      lat: user.latitude,
+      lng: user.longitude,
+      size: 0.8,
+      color: getUserTypeColor(user.user_type),
+      category: user.user_type,
+      icon: getUserTypeIcon(user.user_type),
+      label: `${getUserTypeIcon(user.user_type)} ${user.display_name || user.username} (@${user.username})${user.city ? ` - ${user.city}, ${user.country}` : ''}`,
+      username: user.username,
+      userId: user.user_id,
+    }));
   
-  USER_CATEGORIES.forEach(category => {
-    // Generate 3-5 points per category for variety
-    const numPoints = 3 + Math.floor(Math.random() * 3);
-    
-    for (let i = 0; i < numPoints; i++) {
-      // Pick a random continent for global distribution
-      const continent = CONTINENTS[Math.floor(Math.random() * CONTINENTS.length)];
-      
-      // Add randomness around the continent center (±20 degrees)
-      const latOffset = (Math.random() - 0.5) * 40;
-      const lngOffset = (Math.random() - 0.5) * 40;
-      
-      // Get the next real user (cycle through if needed)
-      const user = users[userIndex % users.length];
-      userIndex++;
-      
-      points.push({
-        lat: continent.lat + latOffset,
-        lng: continent.lng + lngOffset,
-        size: 0.7 + Math.random() * 0.5, // Random size between 0.7 and 1.2
-        color: category.color,
-        category: category.name,
-        icon: category.icon,
-        label: user ? `${category.icon} ${user.display_name || user.username} (@${user.username})` : `${category.icon} ${category.name}`,
-        username: user?.username,
-        userId: user?.user_id,
-      });
-    }
-  });
-  
+  console.log(`🌍 Generated ${points.length} user location points`);
   return points;
 }
 
@@ -119,13 +75,14 @@ function Globe({ isInteracting }: { isInteracting: boolean }) {
   const { data: users = [] } = useGlobeUserData();
 
   useEffect(() => {
-    console.log('🌍 Initializing Category-Based Globe...');
+    console.log('🌍 Initializing User Location Globe...');
+    console.log(`📍 ${users.length} users sharing their location`);
     
-    // Generate category points with real user data
-    const categoryPoints = generateCategoryPoints(users);
-    pointsRef.current = categoryPoints;
+    // Generate user location points
+    const userPoints = generateUserLocationPoints(users);
+    pointsRef.current = userPoints;
     
-    // Initialize globe with arcs and category points
+    // Initialize globe with arcs and user location points
     const globe = new ThreeGlobe()
       .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
       .arcsData([])
@@ -134,13 +91,13 @@ function Globe({ isInteracting }: { isInteracting: boolean }) {
       .arcDashGap(4)
       .arcDashInitialGap(() => Math.random() * 5)
       .arcDashAnimateTime(1000)
-      // Configure category points
-      .pointsData(categoryPoints)
+      // Configure user location points
+      .pointsData(userPoints)
       .pointColor('color')
       .pointAltitude(0.02)
       .pointRadius('size');
 
-    console.log('🌍 ThreeGlobe instance created with', categoryPoints.length, 'category points');
+    console.log('🌍 ThreeGlobe instance created with', userPoints.length, 'user location points');
 
     // Add globe to scene
     scene.add(globe);

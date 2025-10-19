@@ -631,6 +631,7 @@ export type Database = {
           paypal_email: string | null
           portfolio_links: Json | null
           public_visibility: boolean | null
+          share_location_on_globe: boolean | null
           stripe_account_id: string | null
           stripe_account_status: string | null
           updated_at: string
@@ -657,6 +658,7 @@ export type Database = {
           paypal_email?: string | null
           portfolio_links?: Json | null
           public_visibility?: boolean | null
+          share_location_on_globe?: boolean | null
           stripe_account_id?: string | null
           stripe_account_status?: string | null
           updated_at?: string
@@ -683,6 +685,7 @@ export type Database = {
           paypal_email?: string | null
           portfolio_links?: Json | null
           public_visibility?: boolean | null
+          share_location_on_globe?: boolean | null
           stripe_account_id?: string | null
           stripe_account_status?: string | null
           updated_at?: string
