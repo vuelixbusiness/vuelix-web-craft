@@ -1,6 +1,6 @@
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
-import { HowItWorks, ForArtists, ForCreators } from "@/components/Sections";
+import { HowItWorks, ServiceCategories, WhyVuelix } from "@/components/Sections";
 
 const Index = () => {
   // Public landing page - always shows marketing content
@@ -9,8 +9,8 @@ const Index = () => {
       <Navigation />
       <Hero />
       <HowItWorks />
-      <ForArtists />
-      <ForCreators />
+      <ServiceCategories />
+      <WhyVuelix />
     </div>
   );
 };

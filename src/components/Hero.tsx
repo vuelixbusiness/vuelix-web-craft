@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Music, Video, DollarSign } from "lucide-react";
+import { ArrowRight, Music, Video, DollarSign, Briefcase, Star } from "lucide-react";
+import { Card } from "@/components/ui/card";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
 import { useNavigate } from "react-router-dom";
@@ -122,50 +123,59 @@ const Hero = () => {
             Artists promote their brand. Creators earn off clipping.
           </p>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 max-w-4xl mx-auto">
-            {/* For Artists */}
-            <div className="bg-card rounded-2xl p-8 border border-border shadow-soft flex flex-col">
-              <div className="flex items-center mb-4">
-                <Music className="h-8 w-8 text-primary mr-3" />
-                <h3 className="text-2xl font-bold">For Artists</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            {/* Offer Services Card */}
+            <Card className="p-8 hover:shadow-elegant transition-smooth hover:scale-105 bg-gradient-to-br from-primary/5 to-primary/10 border-0 shadow-soft cursor-pointer" onClick={handleStartCampaign}>
+              <div className="mb-6">
+                <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mb-4 shadow-glow">
+                  <Briefcase className="h-8 w-8 text-white" />
+                </div>
+                <span className="inline-block px-3 py-1 bg-gradient-primary text-white text-sm rounded-full">Set your own rates</span>
               </div>
+              <h3 className="text-2xl font-bold mb-3">Offer Your Services</h3>
               <p className="text-muted-foreground mb-6">
-                Launch campaigns with your tracks and pay creators per 1k views to promote your music organically.
+                Launch campaigns for your creative services - music production, video editing, design, mixing, or any creative skill you offer.
               </p>
-              <Button variant="default" className="w-full mt-auto" onClick={handleStartCampaign}>
-                Start Campaign
-                <ArrowRight className="ml-2 h-5 w-5" />
+              <Button variant="default" size="lg" className="w-full">
+                Create Campaign
               </Button>
-            </div>
-            
-            {/* For Creators */}
-            <div className="bg-card rounded-2xl p-8 border border-border shadow-soft flex flex-col">
-              <div className="flex items-center mb-4">
-                <Video className="h-8 w-8 text-primary mr-3" />
-                <h3 className="text-2xl font-bold">For Creators</h3>
+            </Card>
+
+            {/* Get Rewarded Card */}
+            <Card className="p-8 hover:shadow-elegant transition-smooth hover:scale-105 bg-gradient-to-br from-purple-50 to-pink-50 border-0 shadow-soft cursor-pointer" onClick={handleBrowseCampaigns}>
+              <div className="mb-6">
+                <div className="w-16 h-16 bg-gradient-secondary rounded-2xl flex items-center justify-center mb-4 shadow-soft">
+                  <Star className="h-8 w-8 text-white" />
+                </div>
+                <span className="inline-block px-3 py-1 bg-gradient-secondary text-white text-sm rounded-full">Instant payouts</span>
               </div>
+              <h3 className="text-2xl font-bold mb-3">Get Rewarded for Services</h3>
               <p className="text-muted-foreground mb-6">
-                Submit your short-form content to music campaigns and earn money based on your video performance.
+                Browse campaigns from creative innovators and earn money by providing the services they need.
               </p>
-              <Button variant="default" className="w-full mt-auto" onClick={handleBrowseCampaigns}>
+              <Button variant="outline" size="lg" className="w-full">
                 Browse Campaigns
-                <DollarSign className="ml-2 h-5 w-5" />
               </Button>
-            </div>
+            </Card>
           </div>
           
-          <div className="flex items-center justify-center space-x-8 text-sm text-muted-foreground">
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-              Free to join
+          {/* Platform Benefits */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div>
+              <p className="text-2xl font-bold mb-1">Free to Join</p>
+              <p className="text-sm text-muted-foreground">No upfront costs</p>
             </div>
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-blue-500 rounded-full mr-2"></div>
-              Instant payments
+            <div>
+              <p className="text-2xl font-bold mb-1">Instant Payments</p>
+              <p className="text-sm text-muted-foreground">Get paid fast</p>
             </div>
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-purple-500 rounded-full mr-2"></div>
-              Real-time tracking
+            <div>
+              <p className="text-2xl font-bold mb-1">Real-Time Tracking</p>
+              <p className="text-sm text-muted-foreground">Monitor performance</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold mb-1">All Services Welcome</p>
+              <p className="text-sm text-muted-foreground">Every creative skill</p>
             </div>
           </div>
           
