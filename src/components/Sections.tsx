@@ -215,7 +215,7 @@ const WhyVuelix = () => {
   ];
 
   return (
-    <section id="why-vuelix" className="py-24 bg-gradient-to-b from-purple-50 to-white">
+    <section id="why-vuelix" className="py-24 bg-gradient-to-b from-background via-primary/5 to-background">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
