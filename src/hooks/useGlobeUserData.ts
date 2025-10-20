@@ -20,7 +20,6 @@ export function useGlobeUserData() {
       const { data, error } = await supabase
         .from('profiles')
         .select('user_id, username, display_name, user_type, avatar_url, latitude, longitude, city, country')
-        .eq('share_location_on_globe', true)
         .not('latitude', 'is', null)
         .not('longitude', 'is', null)
         .order('created_at', { ascending: false });

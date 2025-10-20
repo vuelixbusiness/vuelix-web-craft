@@ -52,7 +52,6 @@ export function MapboxGlobe() {
       const { data, error } = await supabase
         .from('profiles')
         .select('id, user_id, username, display_name, user_type, membership_type, latitude, longitude, city, country')
-        .eq('share_location_on_globe', true)
         .not('latitude', 'is', null)
         .not('longitude', 'is', null);
 
@@ -81,8 +80,7 @@ export function MapboxGlobe() {
         {
           event: '*',
           schema: 'public',
-          table: 'profiles',
-          filter: 'share_location_on_globe=eq.true'
+          table: 'profiles'
         },
         () => {
           fetchUserLocations();
