@@ -142,18 +142,18 @@ const Hero = () => {
             </Card>
 
             {/* Get Rewarded Card */}
-            <Card className="p-8 hover:shadow-elegant transition-smooth hover:scale-105 bg-gradient-to-br from-purple-50 to-pink-50 border-0 shadow-soft cursor-pointer" onClick={handleBrowseCampaigns}>
+            <Card className="p-8 hover:shadow-elegant transition-smooth hover:scale-105 bg-gradient-to-br from-primary/5 to-primary/10 border-0 shadow-soft cursor-pointer" onClick={handleBrowseCampaigns}>
               <div className="mb-6">
-                <div className="w-16 h-16 bg-gradient-secondary rounded-2xl flex items-center justify-center mb-4 shadow-soft">
+                <div className="w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mb-4 shadow-glow">
                   <Star className="h-8 w-8 text-white" />
                 </div>
-                <span className="inline-block px-3 py-1 bg-gradient-secondary text-white text-sm rounded-full">Instant payouts</span>
+                <span className="inline-block px-3 py-1 bg-gradient-primary text-white text-sm rounded-full">Instant payouts</span>
               </div>
               <h3 className="text-2xl font-bold mb-3">Get Rewarded for Services</h3>
               <p className="text-muted-foreground mb-6">
                 Browse campaigns from creative innovators and earn money by providing the services they need.
               </p>
-              <Button variant="outline" size="lg" className="w-full">
+              <Button variant="default" size="lg" className="w-full">
                 Browse Campaigns
               </Button>
             </Card>
