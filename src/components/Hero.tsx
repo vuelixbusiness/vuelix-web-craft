@@ -120,7 +120,7 @@ const Hero = () => {
           </h1>
           
           <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-            Hire creative talent. Showcase your skills. Get paid instantly.
+            Artists promote their brand. Creators earn off clipping.
           </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">

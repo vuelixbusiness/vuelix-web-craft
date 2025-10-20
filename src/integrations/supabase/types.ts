@@ -209,15 +209,7 @@ export type Database = {
           vip_bonus?: number | null
           vip_max_payout?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "campaigns_artist_id_fkey"
-            columns: ["artist_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       chat_room_members: {
         Row: {

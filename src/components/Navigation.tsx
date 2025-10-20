@@ -73,6 +73,26 @@ const Navigation = () => {
               </a>
             </Button>
             <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
+              <a 
+                href="#for-artists" 
+                onClick={(e) => handleSmoothScroll(e, 'for-artists')}
+                className="flex items-center space-x-2"
+              >
+                <Music className="w-4 h-4" />
+                <span>For Artists</span>
+              </a>
+            </Button>
+            <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
+              <a 
+                href="#for-creators" 
+                onClick={(e) => handleSmoothScroll(e, 'for-creators')}
+                className="flex items-center space-x-2"
+              >
+                <Video className="w-4 h-4" />
+                <span>For Creators</span>
+              </a>
+            </Button>
+            <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
               <Link to="/campaigns" className="flex items-center space-x-2">
                 <BarChart3 className="w-4 h-4" />
                 <span>Campaigns</span>
