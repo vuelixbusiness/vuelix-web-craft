@@ -37,10 +37,13 @@ import {
   Rocket,
   ImageIcon,
   Play,
-  Zap
+  Zap,
+  Award
 } from "lucide-react";
 import { FaTiktok, FaInstagram, FaYoutube } from "react-icons/fa";
 import DashboardLayout from "@/components/DashboardLayout";
+import { BadgeManager } from "@/components/campaign-hub/BadgeManager";
+import type { BadgeConfig } from "@/components/campaign-hub/BadgeConfigDialog";
 
 interface CampaignData {
   // Campaign Mode
@@ -56,6 +59,7 @@ interface CampaignData {
   genre?: string;
   customGenre?: string;
   platforms: string[];
+  campaignBadges?: BadgeConfig[];
   
   // Step 2
   payoutType?: string;
@@ -90,7 +94,8 @@ const ArtistCampaignFlow = () => {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [campaignData, setCampaignData] = useState<CampaignData>({
     platforms: [],
-    rules: DEFAULT_CAMPAIGN_RULES
+    rules: DEFAULT_CAMPAIGN_RULES,
+    campaignBadges: []
   });
   const [formConfig, setFormConfig] = useState<CampaignFormConfig | null>(null);
   const [isConnectingSong, setIsConnectingSong] = useState(false);
@@ -130,7 +135,8 @@ const ArtistCampaignFlow = () => {
       profiles: { display_name: user?.name || 'Unknown Artist' },
       views: 0,
       likes: 0,
-      activeCreators: 0
+      activeCreators: 0,
+      campaign_badges: campaignData.campaignBadges || []
     };
 
     // Only add reward fields for 'reward_others' mode
@@ -535,7 +541,8 @@ const ArtistCampaignFlow = () => {
           end_date: validatedData.endDate?.toISOString() || null,
           artist_id: user.id,
           status: 'active',
-          campaign_mode: campaignMode || 'reward_others'
+          campaign_mode: campaignMode || 'reward_others',
+          campaign_badges: campaignData.campaignBadges || []
         };
 
         console.log('📤 Creating campaign record...');
@@ -1445,6 +1452,21 @@ const ArtistCampaignFlow = () => {
                       className="mt-2"
                     />
                   )}
+                </div>
+
+                {/* Campaign Badges */}
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Award className="w-5 h-5 text-primary" />
+                    <Label className="text-base font-medium">Campaign Badges</Label>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Add custom badges to highlight special features or rewards in your campaign
+                  </p>
+                  <BadgeManager
+                    badges={campaignData.campaignBadges || []}
+                    onChange={(badges) => updateCampaignData('campaignBadges', badges)}
+                  />
                 </div>
 
                 {/* Platform Toggles */}

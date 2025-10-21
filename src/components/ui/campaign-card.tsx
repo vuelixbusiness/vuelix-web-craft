@@ -60,6 +60,7 @@ interface Campaign {
   activeCreators?: number;
   campaign_mode?: string;
   starting_rate?: number;
+  campaign_badges?: Array<{ name: string; icon?: string }>;
   // Submission-specific fields
   current_views?: number;
   current_likes?: number;
@@ -347,6 +348,12 @@ const CampaignCard = ({
               {campaign.genre && (
                 <Badge variant="outline" className="text-xs">{campaign.genre}</Badge>
               )}
+              {campaign.campaign_badges?.map((badge, index) => (
+                <Badge key={index} variant="secondary" className="text-xs flex items-center gap-1">
+                  {badge.icon && <span>{badge.icon}</span>}
+                  <span>{badge.name}</span>
+                </Badge>
+              ))}
               {variant === 'creator-submission' ? (
                 // Show only the single platform for submissions with clickable link
                 campaign.platform && (
