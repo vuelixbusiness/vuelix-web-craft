@@ -519,19 +519,9 @@ export function MapboxGlobe() {
           <div ref={mapContainer} className="absolute inset-0" />
           <div className="absolute top-4 left-4 bg-background/80 backdrop-blur-sm p-3 rounded-lg text-sm text-foreground z-10">
             <p className="font-semibold">🌍 Global Community</p>
-            <p className="text-xs opacity-80">{userLocations.length} users worldwide • Click markers or clusters</p>
+            <p className="text-xs opacity-80">{userLocations.length} creators worldwide • Click to explore</p>
           </div>
           
-          {/* Accessibility: List View Link */}
-          <div className="absolute bottom-4 left-4 z-10">
-            <Link 
-              to="/leaderboard"
-              className="flex items-center gap-2 bg-background/90 backdrop-blur-sm hover:bg-background px-4 py-2 rounded-lg text-sm font-medium text-foreground transition-colors border border-border/50"
-            >
-              <List className="w-4 h-4" />
-              View All Users
-            </Link>
-          </div>
         </>
       )}
     </div>
