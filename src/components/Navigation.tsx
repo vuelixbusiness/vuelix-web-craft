@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useLocation, useNavigate, Link } from "react-router-dom";
-import { HelpCircle, Music, Video, BarChart3, Trophy, Star } from "lucide-react";
+import { HelpCircle, Music, Video, BarChart3, Trophy, Star, Globe } from "lucide-react";
 import vuelixLogo from "@/assets/vuelix-logo-v.png";
 
 const Navigation = () => {
@@ -76,6 +76,12 @@ const Navigation = () => {
               <Link to="/campaigns" className="flex items-center space-x-2">
                 <BarChart3 className="w-4 h-4" />
                 <span>Campaigns</span>
+              </Link>
+            </Button>
+            <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
+              <Link to="/discover" className="flex items-center space-x-2">
+                <Globe className="w-4 h-4" />
+                <span>Discover</span>
               </Link>
             </Button>
             <Button variant="ghost" size="sm" className="rounded-full px-4" asChild>
