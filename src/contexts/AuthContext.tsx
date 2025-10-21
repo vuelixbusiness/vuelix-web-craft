@@ -22,8 +22,8 @@ interface AuthContextType {
   loginWithUsernameOrEmail: (usernameOrEmail: string, password: string) => Promise<boolean>;
   login: (email: string, password: string) => Promise<boolean>;
   signup: (email: string, password: string, name: string, username: string, userType: string) => Promise<{ success: boolean; userId?: string }>;
-  signInWithGoogle: (userType: string) => Promise<{ success: boolean; error?: string }>;
-  signInWithMicrosoft: (userType: string) => Promise<{ success: boolean; error?: string }>;
+  signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
+  signInWithMicrosoft: () => Promise<{ success: boolean; error?: string }>;
   logout: () => void;
   refreshUserProfile: () => Promise<void>;
   isLoading: boolean;
@@ -380,7 +380,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signInWithGoogle = async (userType: string): Promise<{ success: boolean; error?: string }> => {
+  const signInWithGoogle = async (): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     
     try {
@@ -442,7 +442,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signInWithMicrosoft = async (userType: string): Promise<{ success: boolean; error?: string }> => {
+  const signInWithMicrosoft = async (): Promise<{ success: boolean; error?: string }> => {
     setIsLoading(true);
     
     try {

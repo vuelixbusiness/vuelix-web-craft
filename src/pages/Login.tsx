@@ -3,15 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
-import { Music, Video, Eye, EyeOff, ArrowLeft } from "lucide-react";
+import { Eye, EyeOff, ArrowLeft, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import vuelixLogo from "@/assets/vuelix-logo-v.png";
 const Login = () => {
-  const [userType, setUserType] = useState<'creator' | 'artist'>('creator');
   const [usernameOrEmail, setUsernameOrEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -60,7 +58,7 @@ const Login = () => {
     }
   };
   const handleGoogleSignIn = async () => {
-    const result = await signInWithGoogle(userType);
+    const result = await signInWithGoogle();
     if (!result.success) {
       toast({
         title: "Google Sign-In Failed",
@@ -70,7 +68,7 @@ const Login = () => {
     }
   };
   const handleMicrosoftSignIn = async () => {
-    const result = await signInWithMicrosoft(userType);
+    const result = await signInWithMicrosoft();
     if (!result.success) {
       toast({
         title: "Microsoft Sign-In Failed",
@@ -99,36 +97,14 @@ const Login = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs value={userType} onValueChange={value => setUserType(value as 'creator' | 'artist')}>
-              <TabsList className="grid w-full grid-cols-2 mb-6">
-                <TabsTrigger value="creator" className="flex items-center space-x-2">
-                  <Video className="w-4 h-4" />
-                  <span>Creator</span>
-                </TabsTrigger>
-                <TabsTrigger value="artist" className="flex items-center space-x-2">
-                  <Music className="w-4 h-4" />
-                  <span>Artist</span>
-                </TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="creator">
-                <div className="text-center mb-4 p-4 bg-secondary/20 rounded-lg">
-                  <Video className="w-8 h-8 text-primary mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">
-                    Join campaigns, create content, and earn from your videos
-                  </p>
-                </div>
-              </TabsContent>
-
-              <TabsContent value="artist">
-                <div className="text-center mb-4 p-4 bg-secondary/20 rounded-lg">
-                  <Music className="w-8 h-8 text-primary mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">
-                    Launch campaigns and promote your music through creators
-                  </p>
-                </div>
-              </TabsContent>
-            </Tabs>
+            <div className="text-center mb-6 p-4 bg-secondary/20 rounded-lg">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mx-auto mb-3 flex items-center justify-center">
+                <Sparkles className="w-6 h-6 text-white" />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Connect with creators, launch campaigns, and grow your creative community
+              </p>
+            </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">

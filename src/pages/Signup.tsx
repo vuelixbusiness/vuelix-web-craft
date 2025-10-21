@@ -116,14 +116,14 @@ const Signup = () => {
   };
 
   const handleGoogleSignIn = async () => {
-    const result = await signInWithGoogle('creator');
+    const result = await signInWithGoogle();
     if (!result.success) {
       toast.error(result.error || "Unable to sign in with Google. Please try again.");
     }
   };
 
   const handleMicrosoftSignIn = async () => {
-    const result = await signInWithMicrosoft('creator');
+    const result = await signInWithMicrosoft();
     if (!result.success) {
       toast.error(result.error || "Unable to sign in with Microsoft. Please try again.");
     }
