@@ -102,7 +102,7 @@ export function MapboxGlobe() {
     
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/dark-v11',
+      style: 'mapbox://styles/vuelix/cmh0499yi009r01skctiecdhy',
       projection: { name: 'globe' },
       zoom: 1.2,
       center: [30, 15],
