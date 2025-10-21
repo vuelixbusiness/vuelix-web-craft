@@ -119,9 +119,9 @@ const Hero = () => {
             Connect. Create. Earn.
           </h1>
           
-          <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
-            Artists promote their brand. Creators earn off clipping.
-          </p>
+        <p className="text-xl md:text-2xl text-muted-foreground mb-8 max-w-3xl mx-auto leading-relaxed">
+          A global ecosystem for creative exchange.
+        </p>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
             {/* Offer Services Card */}
