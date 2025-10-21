@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 const HowItWorks = () => {
   return (
-    <section id="how-it-works" className="py-24 bg-gradient-to-b from-purple-50 to-purple-100">
+    <section id="how-it-works" className="py-24 bg-gradient-to-b from-purple-900/10 via-purple-800/15 to-purple-900/20">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
@@ -215,7 +215,7 @@ const WhyVuelix = () => {
   ];
 
   return (
-    <section id="why-vuelix" className="py-24 bg-gradient-to-b from-purple-50 to-white">
+    <section id="why-vuelix" className="py-24 bg-gradient-to-b from-purple-900/15 via-purple-800/10 to-purple-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
