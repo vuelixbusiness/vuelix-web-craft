@@ -65,7 +65,8 @@ export function MapboxGlobe() {
         .from('profiles')
         .select('id, user_id, username, display_name, user_type, membership_type, latitude, longitude, city, country, avatar_url')
         .not('latitude', 'is', null)
-        .not('longitude', 'is', null);
+        .not('longitude', 'is', null)
+        .eq('share_location_on_globe', true);
 
       if (error) {
         console.error('❌ Error fetching user locations:', error);
@@ -524,7 +525,7 @@ export function MapboxGlobe() {
           {/* Accessibility: List View Link */}
           <div className="absolute bottom-4 left-4 z-10">
             <Link 
-              to="/discover"
+              to="/leaderboard"
               className="flex items-center gap-2 bg-background/90 backdrop-blur-sm hover:bg-background px-4 py-2 rounded-lg text-sm font-medium text-foreground transition-colors border border-border/50"
             >
               <List className="w-4 h-4" />
