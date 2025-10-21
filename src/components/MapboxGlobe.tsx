@@ -393,7 +393,13 @@ export function MapboxGlobe() {
       // Create a default avatar with user's initial if no avatar_url
       const userInitial = (props.display_name || props.username).charAt(0).toUpperCase();
       const defaultAvatar = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Ccircle cx='24' cy='24' r='24' fill='${encodeURIComponent(props.color)}'/%3E%3Ctext x='24' y='24' text-anchor='middle' dy='.35em' fill='white' font-size='20' font-family='system-ui' font-weight='600'%3E${userInitial}%3C/text%3E%3C/svg%3E`;
-      const avatarUrl = props.avatar_url || defaultAvatar;
+      
+      // Use real avatar if it exists and is not empty, otherwise use default with initial
+      const hasRealAvatar = props.avatar_url && props.avatar_url.trim() !== '';
+      const avatarUrl = hasRealAvatar ? props.avatar_url : defaultAvatar;
+      
+      console.log('🖼️ Avatar for', props.username, ':', hasRealAvatar ? 'Using real avatar' : 'Using default with initial', avatarUrl.substring(0, 50));
+      
       const userLabel = props.membership_type === 'vip' ? 'VIP' : props.user_type.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
 
       const popup = new mapboxgl.Popup({ 
