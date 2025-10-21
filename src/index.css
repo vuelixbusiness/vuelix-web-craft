@@ -40,7 +40,7 @@ All colors MUST be HSL.
     --gradient-primary: linear-gradient(135deg, hsl(260 84% 64%), hsl(290 84% 68%));
     --gradient-secondary: linear-gradient(135deg, hsl(260 20% 96%), hsl(280 20% 98%));
     --gradient-hero: linear-gradient(135deg, hsl(260 84% 64%), hsl(290 84% 68%), hsl(320 84% 72%));
-    --gradient-background: linear-gradient(135deg, hsl(260 20% 98%), hsl(280 15% 97%), hsl(300 25% 95%));
+    --gradient-background: linear-gradient(180deg, hsl(240 9% 7%), hsl(240 10% 9%), hsl(240 12% 11%));
     --gradient-gold: linear-gradient(135deg, hsl(45 100% 51%), hsl(38 92% 50%));
     --gradient-gold-subtle: linear-gradient(135deg, hsl(48 100% 88%), hsl(45 100% 80%));
     

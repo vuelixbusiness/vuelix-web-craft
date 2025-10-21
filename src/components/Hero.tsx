@@ -110,7 +110,7 @@ const Hero = () => {
   }, [toast]);
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-background">
+    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-b from-[#0E0E12] to-[#1A1A24]">
       {/* Content */}
       <div className="container mx-auto px-4 py-32">
         <div className="text-center max-w-5xl mx-auto">
