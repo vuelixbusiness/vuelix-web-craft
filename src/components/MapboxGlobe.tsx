@@ -262,10 +262,15 @@ export function MapboxGlobe() {
     }));
 
     // Remove existing source and layers if they exist
-    if (mapInstance.getLayer('clusters')) mapInstance.removeLayer('clusters');
-    if (mapInstance.getLayer('cluster-count')) mapInstance.removeLayer('cluster-count');
-    if (mapInstance.getLayer('unclustered-point')) mapInstance.removeLayer('unclustered-point');
-    if (mapInstance.getSource('users')) mapInstance.removeSource('users');
+    try {
+      if (mapInstance.getLayer('unclustered-point-glow')) mapInstance.removeLayer('unclustered-point-glow');
+      if (mapInstance.getLayer('unclustered-point')) mapInstance.removeLayer('unclustered-point');
+      if (mapInstance.getLayer('cluster-count')) mapInstance.removeLayer('cluster-count');
+      if (mapInstance.getLayer('clusters')) mapInstance.removeLayer('clusters');
+      if (mapInstance.getSource('users')) mapInstance.removeSource('users');
+    } catch (error) {
+      console.warn('Error removing existing layers/source:', error);
+    }
 
     // Add GeoJSON source with clustering
     mapInstance.addSource('users', {
@@ -548,8 +553,19 @@ export function MapboxGlobe() {
         currentPopup.current.remove();
         currentPopup.current = null;
       }
+      
+      // Clean up layers and source on unmount or before re-render
+      try {
+        if (mapInstance.getLayer('unclustered-point-glow')) mapInstance.removeLayer('unclustered-point-glow');
+        if (mapInstance.getLayer('unclustered-point')) mapInstance.removeLayer('unclustered-point');
+        if (mapInstance.getLayer('cluster-count')) mapInstance.removeLayer('cluster-count');
+        if (mapInstance.getLayer('clusters')) mapInstance.removeLayer('clusters');
+        if (mapInstance.getSource('users')) mapInstance.removeSource('users');
+      } catch (error) {
+        console.warn('Error cleaning up layers/source:', error);
+      }
     };
-  }, [userLocations, mapLoaded, popupOpen]);
+  }, [userLocations, mapLoaded]);
 
   return (
     <div className="w-full h-full min-h-[400px] lg:min-h-[600px] relative overflow-hidden">
