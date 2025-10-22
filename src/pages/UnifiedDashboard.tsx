@@ -126,7 +126,7 @@ const UnifiedDashboard = () => {
           </div>
 
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as DashboardTab)} className="w-full mt-6">
-            <TabsList className={`grid w-full grid-cols-${tabs.length}`}>
+            <TabsList className="w-full">
               {tabs.map((tab) => {
                 const TabIcon = tab.icon;
                 return (

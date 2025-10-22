@@ -73,7 +73,7 @@ const Profile = () => {
 
         {/* Main Content Tabs */}
         <Tabs defaultValue="campaigns" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="w-full">
             <TabsTrigger value="campaigns">Campaigns</TabsTrigger>
             <TabsTrigger value="portfolio">Portfolio</TabsTrigger>
             <TabsTrigger value="shop">Shop</TabsTrigger>
