@@ -18,6 +18,7 @@ interface UserLocation {
   city?: string;
   country?: string;
   avatar_url?: string;
+  bio?: string;
 }
 
 // Validate coordinates
@@ -63,7 +64,7 @@ export function MapboxGlobe() {
       console.log('📍 Fetching user locations from database...');
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, user_id, username, display_name, user_type, membership_type, latitude, longitude, city, country, avatar_url')
+        .select('id, user_id, username, display_name, user_type, membership_type, latitude, longitude, city, country, avatar_url, bio')
         .not('latitude', 'is', null)
         .not('longitude', 'is', null)
         .eq('share_location_on_globe', true);
@@ -255,6 +256,7 @@ export function MapboxGlobe() {
         city: user.city || '',
         country: user.country || '',
         avatar_url: user.avatar_url || '',
+        bio: user.bio || '',
         color: user.membership_type === 'vip' ? '#FFD700' : getUserTypeColor(user.user_type)
       }
     }));
@@ -402,11 +404,16 @@ export function MapboxGlobe() {
       
       const userLabel = props.membership_type === 'vip' ? 'VIP' : props.user_type.replace('_', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase());
 
+      // Truncate bio to 100 characters
+      const bioText = props.bio && props.bio.trim() !== '' 
+        ? (props.bio.length > 100 ? props.bio.substring(0, 100) + '...' : props.bio)
+        : 'No bio available';
+
       const popup = new mapboxgl.Popup({ 
         offset: 15,
         closeButton: true,
         className: 'globe-popup',
-        maxWidth: '300px'
+        maxWidth: '320px'
       })
         .setLngLat(e.lngLat)
         .setHTML(`
@@ -426,47 +433,87 @@ export function MapboxGlobe() {
                 alt="${props.username}" 
                 onerror="this.src='${defaultAvatar}'"
                 style="
-                  width: 48px; 
-                  height: 48px; 
+                  width: 56px; 
+                  height: 56px; 
                   border-radius: 50%; 
                   border: 2px solid ${props.color};
                   object-fit: cover;
                 "
               />
               <div style="flex: 1;">
-                <div style="font-weight: 600; font-size: 15px; margin-bottom: 3px;">
+                <div style="font-weight: 600; font-size: 16px; margin-bottom: 4px;">
                   @${props.username}
                 </div>
-                <div style="font-size: 11px; color: ${props.color}; font-weight: 500; text-transform: capitalize;">
+                <div style="
+                  font-size: 11px; 
+                  color: ${props.color}; 
+                  font-weight: 600; 
+                  text-transform: uppercase;
+                  letter-spacing: 0.5px;
+                  padding: 3px 8px;
+                  background: ${props.color}20;
+                  border-radius: 4px;
+                  display: inline-block;
+                ">
                   ${userLabel}
                 </div>
               </div>
             </div>
-            <div style="font-size: 12px; color: #ddd; margin-bottom: 3px;">
-              ${props.display_name || 'No display name'}
+            <div style="
+              font-size: 13px; 
+              color: #ddd; 
+              margin-bottom: 12px;
+              line-height: 1.4;
+              padding: 8px;
+              background: rgba(255, 255, 255, 0.05);
+              border-radius: 6px;
+              border-left: 2px solid ${props.color};
+            ">
+              ${bioText}
             </div>
-            <div style="font-size: 11px; color: #aaa; margin-bottom: 12px;">
-              📍 ${locationText}
+            <div style="display: flex; gap: 8px;">
+              <a 
+                href="/user/${props.username}" 
+                style="
+                  flex: 1;
+                  display: block;
+                  text-align: center;
+                  background: ${props.color};
+                  color: #fff;
+                  padding: 10px 16px;
+                  border-radius: 6px;
+                  text-decoration: none;
+                  font-size: 13px;
+                  font-weight: 600;
+                  transition: opacity 0.2s;
+                "
+                onmouseover="this.style.opacity='0.85'"
+                onmouseout="this.style.opacity='1'"
+              >
+                View Profile
+              </a>
+              <a 
+                href="/messages?user=${props.username}" 
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  background: rgba(255, 255, 255, 0.1);
+                  color: #fff;
+                  padding: 10px 16px;
+                  border-radius: 6px;
+                  text-decoration: none;
+                  font-size: 18px;
+                  transition: background 0.2s;
+                  min-width: 48px;
+                "
+                onmouseover="this.style.background='rgba(255, 255, 255, 0.15)'"
+                onmouseout="this.style.background='rgba(255, 255, 255, 0.1)'"
+                title="Send message"
+              >
+                💬
+              </a>
             </div>
-            <a 
-              href="/user/${props.username}" 
-              style="
-                display: block;
-                text-align: center;
-                background: ${props.color};
-                color: #fff;
-                padding: 8px 16px;
-                border-radius: 6px;
-                text-decoration: none;
-                font-size: 13px;
-                font-weight: 600;
-                transition: opacity 0.2s;
-              "
-              onmouseover="this.style.opacity='0.85'"
-              onmouseout="this.style.opacity='1'"
-            >
-              Browse Profile
-            </a>
           </div>
         `)
         .addTo(mapInstance);
