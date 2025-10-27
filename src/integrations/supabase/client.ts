@@ -5,6 +5,23 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://ztrseijpesnmztuugmsi.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0cnNlaWpwZXNubXp0dXVnbXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NzkwMTEsImV4cCI6MjA3MzQ1NTAxMX0.Nr7RteC_RzAMUNO_ejem0V1_GBQk-weQ9ZI12CRffzQ";
 
+// Schema version for cache busting - increment when schema changes
+const SCHEMA_VERSION = '2.0';
+
+// Clear Supabase schema cache if version changed
+const cachedVersion = localStorage.getItem('supabase_schema_version');
+if (cachedVersion !== SCHEMA_VERSION) {
+  console.log('Schema version changed, clearing Supabase cache...');
+  // Clear all Supabase-related localStorage items
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith('sb-')) {
+      localStorage.removeItem(key);
+    }
+  });
+  localStorage.setItem('supabase_schema_version', SCHEMA_VERSION);
+  console.log('Supabase cache cleared successfully');
+}
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
