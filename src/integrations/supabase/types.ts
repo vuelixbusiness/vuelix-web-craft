@@ -1116,7 +1116,7 @@ export type Database = {
         Returns: boolean
       }
       count_creators_by_type: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           creator_count: number
           user_type: string
