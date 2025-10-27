@@ -16,5 +16,8 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   },
   global: {
     fetch: (input: RequestInfo | URL, init?: RequestInit) => fetch(input, init)
+  },
+  db: {
+    schema: 'public'
   }
 });
