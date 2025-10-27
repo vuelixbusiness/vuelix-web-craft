@@ -132,11 +132,11 @@ const ArtistCampaignFlow = () => {
       platforms: campaignData.platforms,
       description: campaignData.instructions,
       rules: campaignData.rules,
-      profiles: { display_name: user?.name || 'Unknown Artist' },
+      profiles: { display_name: user?.name || user?.username || 'Unknown Artist' },
       views: 0,
       likes: 0,
       activeCreators: 0,
-      campaign_badges: campaignData.campaignBadges || []
+      achievement_badges: (campaignData.campaignBadges || []) as any
     };
 
     // Only add reward fields for 'reward_others' mode
@@ -542,7 +542,7 @@ const ArtistCampaignFlow = () => {
           artist_id: user.id,
           status: 'active',
           campaign_mode: campaignMode || 'reward_others',
-          campaign_badges: campaignData.campaignBadges || []
+          achievement_badges: (campaignData.campaignBadges || []) as any
         };
 
         console.log('📤 Creating campaign record...');
