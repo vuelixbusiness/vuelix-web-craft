@@ -6,7 +6,7 @@ const SUPABASE_URL = "https://ztrseijpesnmztuugmsi.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0cnNlaWpwZXNubXp0dXVnbXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NzkwMTEsImV4cCI6MjA3MzQ1NTAxMX0.Nr7RteC_RzAMUNO_ejem0V1_GBQk-weQ9ZI12CRffzQ";
 
 // Schema version for cache busting - increment when schema changes
-const SCHEMA_VERSION = '2.1';
+const SCHEMA_VERSION = '2.2';
 
 // Clear Supabase schema cache if version changed
 const cachedVersion = localStorage.getItem('supabase_schema_version');
