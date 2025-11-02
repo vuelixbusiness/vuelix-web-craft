@@ -1205,6 +1205,10 @@ export type Database = {
         Args: { _campaign_id: string; _user_id: string }
         Returns: boolean
       }
+      is_user_profile: {
+        Args: { _profile_id: string; _user_id: string }
+        Returns: boolean
+      }
       resolve_username_to_email: {
         Args: { p_username: string }
         Returns: string
