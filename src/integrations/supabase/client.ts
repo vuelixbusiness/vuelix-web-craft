@@ -6,12 +6,12 @@ const SUPABASE_URL = "https://ztrseijpesnmztuugmsi.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0cnNlaWpwZXNubXp0dXVnbXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NzkwMTEsImV4cCI6MjA3MzQ1NTAxMX0.Nr7RteC_RzAMUNO_ejem0V1_GBQk-weQ9ZI12CRffzQ";
 
 // Schema version for cache busting - increment when schema changes
-const SCHEMA_VERSION = '2.6';
+const SCHEMA_VERSION = '2.7';
 
 // Clear Supabase schema cache if version changed
 const cachedVersion = localStorage.getItem('supabase_schema_version');
 if (cachedVersion !== SCHEMA_VERSION) {
-  console.log('🔄 AGGRESSIVE CACHE CLEAR INITIATED');
+  console.log('🔄 NUCLEAR CACHE CLEAR INITIATED - v2.7');
   console.log('📦 Schema version changed from', cachedVersion, 'to', SCHEMA_VERSION);
   
   // Store auth tokens temporarily
@@ -41,6 +41,21 @@ if (cachedVersion !== SCHEMA_VERSION) {
     });
   }
   
+  // Clear Service Worker caches
+  if ('caches' in window) {
+    console.log('💣 Clearing Service Worker caches...');
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          console.log('Deleting cache:', cacheName);
+          return caches.delete(cacheName);
+        })
+      );
+    }).catch(() => {
+      console.log('Service Worker cache clear skipped (not supported)');
+    });
+  }
+  
   // Restore auth tokens
   console.log('🔐 Restoring auth tokens...');
   Object.keys(authKeys).forEach(key => {
@@ -51,7 +66,7 @@ if (cachedVersion !== SCHEMA_VERSION) {
   localStorage.setItem('supabase_schema_version', SCHEMA_VERSION);
   
   console.log('✅ Cache cleared successfully!');
-  console.log('🔄 Forcing hard reload with cache bust...');
+  console.log('🔄 Forcing HARD reload with cache bust...');
   console.log('');
   console.log('⚠️ IF YOU STILL SEE OLD CONTENT AFTER THIS:');
   console.log('1. Close ALL browser tabs with this app');
@@ -63,10 +78,12 @@ if (cachedVersion !== SCHEMA_VERSION) {
   console.log('7. Try a different browser');
   console.log('');
   
-  // Force hard reload with cache busting timestamp
+  // Force HARD reload with cache busting - using location.replace() for maximum effect
   setTimeout(() => {
-    window.location.href = window.location.href.split('?')[0] + '?cacheBust=' + Date.now();
-  }, 500);
+    const cacheBustUrl = window.location.href.split('?')[0] + '?v=2.7&cacheBust=' + Date.now() + '&rand=' + Math.random();
+    console.log('🚀 Redirecting to:', cacheBustUrl);
+    window.location.replace(cacheBustUrl);
+  }, 1000);
 }
 
 // Import the supabase client like this:
