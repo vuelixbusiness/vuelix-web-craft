@@ -78,20 +78,6 @@ const ArtistCampaignHub = () => {
 
   const fetchCampaignData = async () => {
     try {
-      // First, get the user's profile ID
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (profileError || !profile) {
-        console.error('Error fetching profile:', profileError);
-        toast.error('Failed to load your profile');
-        navigate('/artist');
-        return;
-      }
-
       // Fetch campaign details
       const { data: campaignData, error: campaignError } = await supabase
         .from('campaigns')
@@ -106,8 +92,8 @@ const ArtistCampaignHub = () => {
         return;
       }
 
-      // Verify user is the campaign owner (compare profile IDs)
-      if (campaignData.artist_id !== profile.id) {
+      // Verify user is the campaign owner
+      if (campaignData.artist_id !== user.id) {
         toast.error('You do not have permission to view this campaign');
         navigate('/artist');
         return;

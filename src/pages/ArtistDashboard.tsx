@@ -93,28 +93,11 @@ const ArtistDashboard = () => {
     try {
       console.log('🔍 Fetching campaigns for artist:', user.id);
       
-      // First, get the user's profile ID
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (profileError || !profile) {
-        console.error('❌ Error fetching profile:', profileError);
-        toast({
-          title: "Error Loading Profile",
-          description: "Failed to load your profile. Please try again.",
-          variant: "destructive"
-        });
-        return;
-      }
-      
       // Fetch campaigns with spending data
       const { data: campaignData, error: campaignError } = await supabase
         .from('campaigns')
         .select('*')
-        .eq('artist_id', profile.id) // Use profile.id instead of user.id
+        .eq('artist_id', user.id)
         .order('created_at', { ascending: false });
 
       if (campaignError) {

@@ -58,27 +58,11 @@ const ArtistYourCampaigns = () => {
     if (!user?.id) return;
 
     try {
-      // First, get the user's profile ID
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (profileError || !profile) {
-        toast({
-          title: "Error Loading Profile",
-          description: "Failed to load your profile. Please try again.",
-          variant: "destructive"
-        });
-        return;
-      }
-
       const { data: campaignData, error: campaignError } = await supabase
         .from('campaigns')
         .select('*')
-        .eq('artist_id', profile.id) // Use profile.id instead of user.id
-        .order('created_at', { ascending: false});
+        .eq('artist_id', user.id)
+        .order('created_at', { ascending: false });
 
       if (campaignError) {
         toast({

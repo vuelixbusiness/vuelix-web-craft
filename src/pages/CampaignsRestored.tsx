@@ -48,7 +48,7 @@ export default function CampaignsRestored() {
       let query = supabase
         .from('campaigns')
         .select('*')
-        .eq('status', 'active')
+        .eq('status', 'live')
         .lte('start_at', new Date().toISOString());
 
       if (searchQuery) {
