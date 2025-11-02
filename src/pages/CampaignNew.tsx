@@ -121,13 +121,24 @@ export default function CampaignNew() {
     try {
       setSubmitting(true);
 
+      // Fetch the user's profile ID (not user_id)
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError || !profile) {
+        throw new Error('Profile not found. Please contact support.');
+      }
+
       const coverUrl = await uploadCover();
 
       const { data, error } = await supabase
         .from('campaigns')
         .insert({
           owner_id: user.id,
-          artist_id: user.id,
+          artist_id: profile.id, // Use profile.id instead of user.id
           title: formData.title,
           description: formData.description,
           track_url: formData.track_url || null,

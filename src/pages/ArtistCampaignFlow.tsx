@@ -479,6 +479,26 @@ const ArtistCampaignFlow = () => {
     setIsLaunching(true);
 
     try {
+      // Fetch the user's profile ID (not user_id)
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileError || !profile) {
+        console.error('❌ Profile fetch error:', profileError);
+        toast({
+          title: "Profile Error",
+          description: "Could not find your profile. Please contact support.",
+          variant: "destructive"
+        });
+        setIsLaunching(false);
+        return;
+      }
+
+      console.log('✅ Profile ID found:', profile.id);
+
       // Validate campaign data using zod schema
       const validatedData = campaignSchema.parse({
         songTitle: campaignData.songTitle?.trim(),
@@ -533,7 +553,7 @@ const ArtistCampaignFlow = () => {
           approval_required: validatedData.approvalRequired,
           budget: validatedData.budget,
           end_date: validatedData.endDate?.toISOString() || null,
-          artist_id: user.id,
+          artist_id: profile.id, // Use profile.id instead of user.id
           status: 'active',
           campaign_mode: campaignMode || 'reward_others'
         };
