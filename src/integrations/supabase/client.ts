@@ -6,24 +6,34 @@ const SUPABASE_URL = "https://ztrseijpesnmztuugmsi.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0cnNlaWpwZXNubXp0dXVnbXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NzkwMTEsImV4cCI6MjA3MzQ1NTAxMX0.Nr7RteC_RzAMUNO_ejem0V1_GBQk-weQ9ZI12CRffzQ";
 
 // Schema version for cache busting - increment when schema changes
-const SCHEMA_VERSION = '2.4';
+const SCHEMA_VERSION = '2.5';
 
 // Clear Supabase schema cache if version changed
 const cachedVersion = localStorage.getItem('supabase_schema_version');
 if (cachedVersion !== SCHEMA_VERSION) {
-  console.log('Schema version changed from', cachedVersion, 'to', SCHEMA_VERSION);
-  console.log('Clearing all Supabase cache...');
-  // Clear all Supabase-related localStorage items
+  console.log('🔄 Schema version changed from', cachedVersion, 'to', SCHEMA_VERSION);
+  console.log('🗑️ Clearing Supabase schema cache...');
+  
+  // Clear all localStorage EXCEPT auth tokens
   Object.keys(localStorage).forEach(key => {
-    if (key.startsWith('sb-') || key.includes('supabase')) {
-      console.log('Removing:', key);
-      localStorage.removeItem(key);
+    // Keep auth tokens (sb-*-auth-*) and the version key
+    if (key.includes('auth') || key === 'supabase_schema_version') {
+      return;
     }
+    console.log('Removing cache:', key);
+    localStorage.removeItem(key);
   });
+  
+  // Clear ALL sessionStorage (safe to clear)
+  sessionStorage.clear();
+  
+  // Set new version
   localStorage.setItem('supabase_schema_version', SCHEMA_VERSION);
-  console.log('Supabase cache cleared. Reloading page...');
-  // Force a hard reload to ensure fresh state
-  setTimeout(() => window.location.reload(), 100);
+  
+  console.log('✅ Cache cleared. Reloading page...');
+  
+  // Force immediate hard reload
+  window.location.reload();
 }
 
 // Import the supabase client like this:
