@@ -731,7 +731,13 @@ const ArtistCampaignFlow = () => {
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  onClick={() => window.history.back()}
+                  onClick={() => {
+                    if (currentStep > -1) {
+                      setCurrentStep(currentStep - 1);
+                    } else {
+                      navigate('/artist-dashboard');
+                    }
+                  }}
                   className="hover:bg-secondary"
                 >
                   <ArrowLeft className="w-5 h-5" />
