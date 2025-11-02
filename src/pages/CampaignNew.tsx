@@ -68,8 +68,6 @@ export default function CampaignNew() {
   const handleBack = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
-    } else {
-      navigate('/campaigns');
     }
   };
 
