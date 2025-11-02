@@ -554,7 +554,7 @@ const ArtistCampaignFlow = () => {
           budget: validatedData.budget,
           end_date: validatedData.endDate?.toISOString() || null,
           artist_id: profile.id, // Use profile.id instead of user.id
-          status: 'active',
+          status: 'live', // Changed from 'active' to 'live' to match campaigns page filter
           campaign_mode: campaignMode || 'reward_others'
         };
 
