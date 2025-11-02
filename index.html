@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     
-    <!-- NUCLEAR cache prevention - v2.7 -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0" />
+    <!-- NUCLEAR cache prevention - v2.7 - FORCE REFRESH -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, max-age=0, proxy-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Expires" content="0" />
-    <!-- Cache bust timestamp: 2025-11-02T03:21:00Z -->
+    <!-- BUILD TIMESTAMP: 2025-11-02T03:30:45Z - IF YOU SEE THIS, CACHE IS CLEARED -->
     
     <title>Vuelix</title>
     <meta name="description" content="Connect. Create. Earn">
@@ -32,6 +32,7 @@
 
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <!-- Force new bundle generation with version parameter -->
+    <script type="module" src="/src/main.tsx?v=2.7.1&t=1762054245"></script>
   </body>
 </html>
