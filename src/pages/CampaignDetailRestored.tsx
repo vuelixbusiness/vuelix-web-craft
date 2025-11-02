@@ -39,6 +39,21 @@ export default function CampaignDetailRestored() {
   const [hasJoined, setHasJoined] = useState(false);
   const [participantCount, setParticipantCount] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [userProfileId, setUserProfileId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      // Fetch user's profile ID
+      supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) setUserProfileId(data.id);
+        });
+    }
+  }, [user]);
 
   useEffect(() => {
     if (id) {
@@ -273,7 +288,7 @@ export default function CampaignDetailRestored() {
             </Card>
 
             <div className="space-y-3">
-              {user && (campaign.owner_id === user.id || campaign.artist_id === user.id) ? (
+              {user && (campaign.owner_id === user.id || campaign.artist_id === userProfileId) ? (
                 <Button
                   variant="outline"
                   className="w-full"
