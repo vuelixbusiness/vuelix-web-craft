@@ -108,7 +108,7 @@ const Campaigns = () => {
           campaign_mode,
           starting_rate
         `)
-        .eq('status', 'live')
+        .eq('status', 'active')
         .lte('start_at', new Date().toISOString())
         .order('created_at', { ascending: false });
 
