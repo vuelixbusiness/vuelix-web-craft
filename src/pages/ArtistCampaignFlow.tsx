@@ -546,25 +546,6 @@ const ArtistCampaignFlow = () => {
         };
 
         console.log('📤 Creating campaign record...');
-        
-        // Pre-flight validation: Verify achievement_badges column exists
-        console.log('🔍 Validating schema for achievement_badges column...');
-        const { data: schemaCheck, error: schemaError } = await supabase
-          .from('campaigns')
-          .select('achievement_badges')
-          .limit(0);
-        
-        if (schemaError) {
-          console.error('❌ Schema validation failed:', schemaError);
-          toast({
-            title: "Schema Error",
-            description: `Database schema issue: ${schemaError.message}. Please contact support.`,
-            variant: "destructive"
-          });
-          return;
-        }
-        
-        console.log('✅ Schema validated - achievement_badges column exists');
 
         const { data: campaign, error: campaignError } = await supabase
           .from('campaigns')
