@@ -12,7 +12,7 @@ import Index from "./pages/Index";
 import UnifiedDashboard from "./pages/UnifiedDashboard";
 import Profile from "./pages/Profile";
 import Wallet from "./pages/Wallet";
-import Campaigns from "./pages/Campaigns";
+import CampaignsRestored from "./pages/CampaignsRestored";
 import Discover from "./pages/Discover";
 import Leaderboard from "./pages/Leaderboard";
 import CreatorCampaigns from "./pages/CreatorCampaigns";
@@ -75,7 +75,7 @@ const App = () => (
                   <Wallet />
                 </ProtectedRoute>
               } />
-              <Route path="/campaigns" element={<Campaigns />} />
+              <Route path="/campaigns" element={<CampaignsRestored />} />
               <Route path="/campaigns/new" element={
                 <ProtectedRoute>
                   <CampaignNew />

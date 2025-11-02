@@ -154,11 +154,12 @@ export default function CampaignNew() {
       if (error) throw error;
 
       toast({
-        title: 'Success!',
-        description: 'Campaign created successfully'
+        title: 'Campaign Published!',
+        description: 'Your campaign is now live and visible to creators'
       });
 
-      navigate(`/campaign/${data.id}`);
+      // Navigate to the campaign detail page
+      navigate(`/campaign/${data.id}`, { replace: true });
     } catch (error: any) {
       toast({
         title: 'Error creating campaign',

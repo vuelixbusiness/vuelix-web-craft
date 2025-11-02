@@ -42,14 +42,13 @@ export default function CampaignsRestored() {
   const [hasMore, setHasMore] = useState(true);
   const pageSize = 12;
 
-  const fetchCampaigns = async (pageNum: number, searchQuery: string, sort: string) => {
+  const fetchCampaigns = async (pageNum: number, searchQuery: string, sort: string, reset: boolean = false) => {
     try {
       setLoading(true);
       let query = supabase
         .from('campaigns')
         .select('*')
-        .in('status', ['live', 'ended'])
-        .not('start_at', 'is', null)
+        .eq('status', 'live')
         .lte('start_at', new Date().toISOString());
 
       if (searchQuery) {
@@ -59,7 +58,8 @@ export default function CampaignsRestored() {
       if (sort === 'newest') {
         query = query.order('created_at', { ascending: false });
       } else if (sort === 'ending') {
-        query = query.not('end_at', 'is', null).order('end_at', { ascending: true });
+        query = query.not('end_at', 'is', null).not('end_date', 'is', null)
+          .order('end_at', { ascending: true });
       } else if (sort === 'bounty') {
         query = query.order('bounty_cents', { ascending: false });
       }
@@ -70,7 +70,12 @@ export default function CampaignsRestored() {
       if (error) throw error;
 
       setHasMore(data.length === pageSize);
-      setCampaigns(pageNum === 0 ? data as any : [...campaigns, ...data as any]);
+      
+      if (reset || pageNum === 0) {
+        setCampaigns(data as any);
+      } else {
+        setCampaigns(prev => [...prev, ...data as any]);
+      }
     } catch (error: any) {
       toast({
         title: 'Error loading campaigns',
@@ -83,7 +88,33 @@ export default function CampaignsRestored() {
   };
 
   useEffect(() => {
-    fetchCampaigns(0, search, sortBy);
+    setPage(0);
+    fetchCampaigns(0, search, sortBy, true);
+  }, [search, sortBy]);
+
+  useEffect(() => {
+    // Set up real-time subscription for new campaigns
+    const channel = supabase
+      .channel('campaigns-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'campaigns',
+          filter: 'status=eq.live'
+        },
+        () => {
+          // Refresh from page 0 when new campaign is added
+          setPage(0);
+          fetchCampaigns(0, search, sortBy, true);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [search, sortBy]);
 
   const loadMore = () => {
