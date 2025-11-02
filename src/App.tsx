@@ -29,6 +29,9 @@ import ArtistDashboard from "./pages/ArtistDashboard";
 import CampaignDetails from "@/pages/CampaignDetails";
 import CampaignManagement from "@/pages/CampaignManagement";
 import CampaignJoin from "@/pages/CampaignJoin";
+import CampaignNew from "@/pages/CampaignNew";
+import CampaignEdit from "@/pages/CampaignEdit";
+import CampaignDetailRestored from "@/pages/CampaignDetailRestored";
 import Chat from "./pages/Chat";
 import Messages from "./pages/Messages";
 import PaymentMethods from "./pages/PaymentMethods";
@@ -73,8 +76,19 @@ const App = () => (
                 </ProtectedRoute>
               } />
               <Route path="/campaigns" element={<Campaigns />} />
+              <Route path="/campaigns/new" element={
+                <ProtectedRoute>
+                  <CampaignNew />
+                </ProtectedRoute>
+              } />
+              <Route path="/campaigns/edit/:id" element={
+                <ProtectedRoute>
+                  <CampaignEdit />
+                </ProtectedRoute>
+              } />
+              <Route path="/campaign/:id" element={<CampaignDetailRestored />} />
               <Route path="/discover" element={<Discover />} />
-              <Route path="/campaign/:id" element={
+              <Route path="/campaign-old/:id" element={
                 <ProtectedRoute>
                   <CampaignDetails />
                 </ProtectedRoute>

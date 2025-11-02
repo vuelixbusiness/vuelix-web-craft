@@ -50,6 +50,35 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_participants: {
+        Row: {
+          campaign_id: string
+          id: string
+          joined_at: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id: string
+          id?: string
+          joined_at?: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string
+          id?: string
+          joined_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_participants_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_participations: {
         Row: {
           campaign_id: string
@@ -123,11 +152,14 @@ export type Database = {
           achievement_badges: Json | null
           approval_required: boolean | null
           artist_id: string
+          bounty_cents: number | null
           budget: number
+          budget_cents: number | null
           campaign_mode: string | null
           campaign_type: string
           cover_art_url: string | null
           created_at: string
+          description: string | null
           end_date: string | null
           fixed_rate_description: string | null
           genre: string
@@ -135,6 +167,7 @@ export type Database = {
           id: string
           instructions: string | null
           max_payout: number | null
+          owner_id: string | null
           payout_rate: number | null
           payout_type: string | null
           platforms: string[]
@@ -142,9 +175,11 @@ export type Database = {
           rules: string | null
           song_title: string
           song_url: string | null
+          start_at: string | null
           starting_rate: number | null
           status: string | null
           title: string
+          track_url: string | null
           updated_at: string
           vip_bonus: number | null
           vip_max_payout: number | null
@@ -153,11 +188,14 @@ export type Database = {
           achievement_badges?: Json | null
           approval_required?: boolean | null
           artist_id: string
+          bounty_cents?: number | null
           budget: number
+          budget_cents?: number | null
           campaign_mode?: string | null
           campaign_type: string
           cover_art_url?: string | null
           created_at?: string
+          description?: string | null
           end_date?: string | null
           fixed_rate_description?: string | null
           genre: string
@@ -165,6 +203,7 @@ export type Database = {
           id?: string
           instructions?: string | null
           max_payout?: number | null
+          owner_id?: string | null
           payout_rate?: number | null
           payout_type?: string | null
           platforms: string[]
@@ -172,9 +211,11 @@ export type Database = {
           rules?: string | null
           song_title: string
           song_url?: string | null
+          start_at?: string | null
           starting_rate?: number | null
           status?: string | null
           title: string
+          track_url?: string | null
           updated_at?: string
           vip_bonus?: number | null
           vip_max_payout?: number | null
@@ -183,11 +224,14 @@ export type Database = {
           achievement_badges?: Json | null
           approval_required?: boolean | null
           artist_id?: string
+          bounty_cents?: number | null
           budget?: number
+          budget_cents?: number | null
           campaign_mode?: string | null
           campaign_type?: string
           cover_art_url?: string | null
           created_at?: string
+          description?: string | null
           end_date?: string | null
           fixed_rate_description?: string | null
           genre?: string
@@ -195,6 +239,7 @@ export type Database = {
           id?: string
           instructions?: string | null
           max_payout?: number | null
+          owner_id?: string | null
           payout_rate?: number | null
           payout_type?: string | null
           platforms?: string[]
@@ -202,9 +247,11 @@ export type Database = {
           rules?: string | null
           song_title?: string
           song_url?: string | null
+          start_at?: string | null
           starting_rate?: number | null
           status?: string | null
           title?: string
+          track_url?: string | null
           updated_at?: string
           vip_bonus?: number | null
           vip_max_payout?: number | null
