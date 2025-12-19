@@ -12,7 +12,7 @@ import Index from "./pages/Index";
 import UnifiedDashboard from "./pages/UnifiedDashboard";
 import Profile from "./pages/Profile";
 import Wallet from "./pages/Wallet";
-import CampaignsRestored from "./pages/CampaignsRestored";
+import Campaigns from "./pages/Campaigns";
 import Discover from "./pages/Discover";
 import Leaderboard from "./pages/Leaderboard";
 import CreatorCampaigns from "./pages/CreatorCampaigns";
@@ -29,9 +29,6 @@ import ArtistDashboard from "./pages/ArtistDashboard";
 import CampaignDetails from "@/pages/CampaignDetails";
 import CampaignManagement from "@/pages/CampaignManagement";
 import CampaignJoin from "@/pages/CampaignJoin";
-import CampaignNew from "@/pages/CampaignNew";
-import CampaignEdit from "@/pages/CampaignEdit";
-import CampaignDetailRestored from "@/pages/CampaignDetailRestored";
 import Chat from "./pages/Chat";
 import Messages from "./pages/Messages";
 import PaymentMethods from "./pages/PaymentMethods";
@@ -75,20 +72,9 @@ const App = () => (
                   <Wallet />
                 </ProtectedRoute>
               } />
-              <Route path="/campaigns" element={<CampaignsRestored />} />
-              <Route path="/campaigns/new" element={
-                <ProtectedRoute>
-                  <CampaignNew />
-                </ProtectedRoute>
-              } />
-              <Route path="/campaigns/edit/:id" element={
-                <ProtectedRoute>
-                  <CampaignEdit />
-                </ProtectedRoute>
-              } />
-              <Route path="/campaign/:id" element={<CampaignDetailRestored />} />
+              <Route path="/campaigns" element={<Campaigns />} />
               <Route path="/discover" element={<Discover />} />
-              <Route path="/campaign-old/:id" element={
+              <Route path="/campaign/:id" element={
                 <ProtectedRoute>
                   <CampaignDetails />
                 </ProtectedRoute>

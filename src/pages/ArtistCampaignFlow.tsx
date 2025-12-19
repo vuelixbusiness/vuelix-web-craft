@@ -37,10 +37,13 @@ import {
   Rocket,
   ImageIcon,
   Play,
-  Zap
+  Zap,
+  Award
 } from "lucide-react";
 import { FaTiktok, FaInstagram, FaYoutube } from "react-icons/fa";
 import DashboardLayout from "@/components/DashboardLayout";
+import { BadgeManager } from "@/components/campaign-hub/BadgeManager";
+import type { BadgeConfig } from "@/components/campaign-hub/BadgeConfigDialog";
 
 interface CampaignData {
   // Campaign Mode
@@ -56,6 +59,7 @@ interface CampaignData {
   genre?: string;
   customGenre?: string;
   platforms: string[];
+  campaignBadges?: BadgeConfig[];
   
   // Step 2
   payoutType?: string;
@@ -90,7 +94,8 @@ const ArtistCampaignFlow = () => {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [campaignData, setCampaignData] = useState<CampaignData>({
     platforms: [],
-    rules: DEFAULT_CAMPAIGN_RULES
+    rules: DEFAULT_CAMPAIGN_RULES,
+    campaignBadges: []
   });
   const [formConfig, setFormConfig] = useState<CampaignFormConfig | null>(null);
   const [isConnectingSong, setIsConnectingSong] = useState(false);
@@ -130,7 +135,8 @@ const ArtistCampaignFlow = () => {
       profiles: { display_name: user?.name || user?.username || 'Unknown Artist' },
       views: 0,
       likes: 0,
-      activeCreators: 0
+      activeCreators: 0,
+      achievement_badges: (campaignData.campaignBadges || []) as any
     };
 
     // Only add reward fields for 'reward_others' mode
@@ -479,26 +485,6 @@ const ArtistCampaignFlow = () => {
     setIsLaunching(true);
 
     try {
-      // Fetch the user's profile ID (not user_id)
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
-
-      if (profileError || !profile) {
-        console.error('❌ Profile fetch error:', profileError);
-        toast({
-          title: "Profile Error",
-          description: "Could not find your profile. Please contact support.",
-          variant: "destructive"
-        });
-        setIsLaunching(false);
-        return;
-      }
-
-      console.log('✅ Profile ID found:', profile.id);
-
       // Validate campaign data using zod schema
       const validatedData = campaignSchema.parse({
         songTitle: campaignData.songTitle?.trim(),
@@ -553,12 +539,32 @@ const ArtistCampaignFlow = () => {
           approval_required: validatedData.approvalRequired,
           budget: validatedData.budget,
           end_date: validatedData.endDate?.toISOString() || null,
-          artist_id: profile.id, // Use profile.id instead of user.id
+          artist_id: user.id,
           status: 'active',
-          campaign_mode: campaignMode || 'reward_others'
+          campaign_mode: campaignMode || 'reward_others',
+          achievement_badges: (campaignData.campaignBadges || []) as any
         };
 
         console.log('📤 Creating campaign record...');
+        
+        // Pre-flight validation: Verify achievement_badges column exists
+        console.log('🔍 Validating schema for achievement_badges column...');
+        const { data: schemaCheck, error: schemaError } = await supabase
+          .from('campaigns')
+          .select('achievement_badges')
+          .limit(0);
+        
+        if (schemaError) {
+          console.error('❌ Schema validation failed:', schemaError);
+          toast({
+            title: "Schema Error",
+            description: `Database schema issue: ${schemaError.message}. Please contact support.`,
+            variant: "destructive"
+          });
+          return;
+        }
+        
+        console.log('✅ Schema validated - achievement_badges column exists');
 
         const { data: campaign, error: campaignError } = await supabase
           .from('campaigns')
@@ -751,13 +757,7 @@ const ArtistCampaignFlow = () => {
                 <Button 
                   variant="ghost" 
                   size="icon"
-                  onClick={() => {
-                    if (currentStep > -1) {
-                      setCurrentStep(currentStep - 1);
-                    } else {
-                      navigate('/artist-dashboard');
-                    }
-                  }}
+                  onClick={() => window.history.back()}
                   className="hover:bg-secondary"
                 >
                   <ArrowLeft className="w-5 h-5" />
@@ -1471,6 +1471,21 @@ const ArtistCampaignFlow = () => {
                       className="mt-2"
                     />
                   )}
+                </div>
+
+                {/* Campaign Badges */}
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <Award className="w-5 h-5 text-primary" />
+                    <Label className="text-base font-medium">Campaign Badges</Label>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    Add custom badges to highlight special features or rewards in your campaign
+                  </p>
+                  <BadgeManager
+                    badges={campaignData.campaignBadges || []}
+                    onChange={(badges) => updateCampaignData('campaignBadges', badges)}
+                  />
                 </div>
 
                 {/* Platform Toggles */}

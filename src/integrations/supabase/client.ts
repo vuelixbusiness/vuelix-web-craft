@@ -6,84 +6,20 @@ const SUPABASE_URL = "https://ztrseijpesnmztuugmsi.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp0cnNlaWpwZXNubXp0dXVnbXNpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTc4NzkwMTEsImV4cCI6MjA3MzQ1NTAxMX0.Nr7RteC_RzAMUNO_ejem0V1_GBQk-weQ9ZI12CRffzQ";
 
 // Schema version for cache busting - increment when schema changes
-const SCHEMA_VERSION = '2.7';
+const SCHEMA_VERSION = '2.1';
 
 // Clear Supabase schema cache if version changed
 const cachedVersion = localStorage.getItem('supabase_schema_version');
 if (cachedVersion !== SCHEMA_VERSION) {
-  console.log('🔄 NUCLEAR CACHE CLEAR INITIATED - v2.7');
-  console.log('📦 Schema version changed from', cachedVersion, 'to', SCHEMA_VERSION);
-  
-  // Store auth tokens temporarily
-  const authKeys: Record<string, string> = {};
+  console.log('Schema version changed, clearing Supabase cache...');
+  // Clear all Supabase-related localStorage items
   Object.keys(localStorage).forEach(key => {
-    if (key.includes('auth')) {
-      authKeys[key] = localStorage.getItem(key) || '';
+    if (key.startsWith('sb-')) {
+      localStorage.removeItem(key);
     }
   });
-  
-  // NUCLEAR OPTION: Clear EVERYTHING
-  console.log('💣 Clearing ALL localStorage...');
-  localStorage.clear();
-  
-  console.log('💣 Clearing ALL sessionStorage...');
-  sessionStorage.clear();
-  
-  // Clear IndexedDB if present
-  if (window.indexedDB) {
-    console.log('💣 Clearing IndexedDB...');
-    indexedDB.databases().then(dbs => {
-      dbs.forEach(db => {
-        if (db.name) indexedDB.deleteDatabase(db.name);
-      });
-    }).catch(() => {
-      console.log('IndexedDB clear skipped (not supported)');
-    });
-  }
-  
-  // Clear Service Worker caches
-  if ('caches' in window) {
-    console.log('💣 Clearing Service Worker caches...');
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          console.log('Deleting cache:', cacheName);
-          return caches.delete(cacheName);
-        })
-      );
-    }).catch(() => {
-      console.log('Service Worker cache clear skipped (not supported)');
-    });
-  }
-  
-  // Restore auth tokens
-  console.log('🔐 Restoring auth tokens...');
-  Object.keys(authKeys).forEach(key => {
-    localStorage.setItem(key, authKeys[key]);
-  });
-  
-  // Set new version
   localStorage.setItem('supabase_schema_version', SCHEMA_VERSION);
-  
-  console.log('✅ Cache cleared successfully!');
-  console.log('🔄 Forcing HARD reload with cache bust...');
-  console.log('');
-  console.log('⚠️ IF YOU STILL SEE OLD CONTENT AFTER THIS:');
-  console.log('1. Close ALL browser tabs with this app');
-  console.log('2. Press Ctrl+Shift+Delete (Cmd+Shift+Delete on Mac)');
-  console.log('3. Clear browsing data for "All time"');
-  console.log('4. Check "Cached images and files"');
-  console.log('5. Open DevTools > Application > Clear Storage > Clear site data');
-  console.log('6. Try opening in an Incognito/Private window');
-  console.log('7. Try a different browser');
-  console.log('');
-  
-  // Force HARD reload with cache busting - using location.replace() for maximum effect
-  setTimeout(() => {
-    const cacheBustUrl = window.location.href.split('?')[0] + '?v=2.7&cacheBust=' + Date.now() + '&rand=' + Math.random();
-    console.log('🚀 Redirecting to:', cacheBustUrl);
-    window.location.replace(cacheBustUrl);
-  }, 1000);
+  console.log('Supabase cache cleared successfully');
 }
 
 // Import the supabase client like this:
